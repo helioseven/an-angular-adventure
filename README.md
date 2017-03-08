@@ -7,22 +7,22 @@ All Glory to AAA
 * Mission Statement
 **Together we will put out a video game that is fun to play, using the assets that we already have at our disposal.
 * Executive Summary of Mechanics
-`Mario Maker` meets `Hand Drawn Mosaics`
+**`Mario Maker` meets `Hand Drawn Mosaics`
 * Version
-Pre-Alpha
-`Unity 5.5.0f3`
+**Pre-Alpha
+**`Unity 5.5.0f3`
 
 ### How do I get set up? ###
 
 * Summary of set up
-Have unity, use unity.
+**Have unity, use unity.
 * Configuration
-Use SourceTree to make git easy on windows
+**Use SourceTree to make git easy on windows
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 * Dependencies
-None
+**None
 * Database configuration
-Forthcoming
+**Forthcoming
 
 
 ### Contribution guidelines ###
