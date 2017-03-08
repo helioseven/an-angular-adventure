@@ -5,12 +5,12 @@ All Glory to AAA
 ### What is this repository? ###
 
 * Mission Statement
-Together we will put out a video game that is fun to play, using the assets that we already have at our disposal.
+**Together we will put out a video game that is fun to play, using the assets that we already have at our disposal.
 * Executive Summary of Mechanics
-Mario Maker meets Hand Drawn Mosaics
+`Mario Maker` meets `Hand Drawn Mosaics`
 * Version
 Pre-Alpha
-Unity 5.5.0f3
+`Unity 5.5.0f3`
 
 ### How do I get set up? ###
 
