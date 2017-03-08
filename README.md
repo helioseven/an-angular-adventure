@@ -11,7 +11,6 @@ Mario Maker meets Hand Drawn Mosaics
 * Version
 Pre-Alpha
 Unity 5.5.0f3
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
 
@@ -19,6 +18,7 @@ Unity 5.5.0f3
 Have unity, use unity.
 * Configuration
 Use SourceTree to make git easy on windows
+* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 * Dependencies
 None
 * Database configuration
