@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Dropdown : MonoBehaviour {
+public class DropdownController : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other){
 
@@ -12,7 +12,7 @@ public class Dropdown : MonoBehaviour {
 			// position drop
 			PlayGM.instance.player.transform.position = new Vector3(x,y,3);
 
-			//physics layer change
+			// physics layer change
 //			Physics2D.IgnoreLayerCollision(
 
 			PlayGM.instance.player.layer = 9;

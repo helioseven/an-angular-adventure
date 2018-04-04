@@ -40,8 +40,8 @@ public class EditGM : MonoBehaviour {
 	// bEdit and bSave track references to the edit mode and save buttons in the menu panel
 	private Button bEdit;
 	// gkInputs and gkdInputs track GetKey() and GetKeyDown() states
-	private inputKeys gkInputs;
-	private inputKeys gkdInputs;
+	private inputKeys gkInputs = inputKeys.None;
+	private inputKeys gkdInputs = inputKeys.None;
 
 	// createTiles manages a current tile for each tile type
 	private GameObject[] createTiles;
@@ -57,7 +57,7 @@ public class EditGM : MonoBehaviour {
 
 	// inputKeys helps manage keyboard input
 	[Flags]
-	private enum inputKeys {
+	public enum inputKeys {
 		None = 0x0,
 		Space = 0x1,
 		Tab = 0x2,
@@ -102,8 +102,14 @@ public class EditGM : MonoBehaviour {
 	void Awake ()
 	{
 		if (!instance) {
+			// set singleton instance
+			instance = this;
+
 			// level is loaded from file
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
+			lvlLoad.supplyLevel(out placedTiles);
+
+			// set various initializations to their proper values
 			tRefs = new GameObject[] {
 				lvlLoad.triTile,
 				lvlLoad.diaTile,
@@ -112,10 +118,7 @@ public class EditGM : MonoBehaviour {
 				lvlLoad.sqrTile,
 				lvlLoad.wedTile
 			};
-			lvlLoad.supplyLevel(out placedTiles);
 
-			uiOverlay = uiPanel.GetComponent<EditorUIScript>();
-			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
 			createTiles = new GameObject[tRefs.Length];
 			for (int i = 0; i < tRefs.Length; i++) {
 				createTiles[i] = Instantiate(tRefs[i], Vector3.zero, Quaternion.identity) as GameObject;
@@ -124,6 +127,9 @@ public class EditGM : MonoBehaviour {
 			current = createTiles[0];
 			current.SetActive(true);
 			eCurrent = null;
+
+			uiOverlay = uiPanel.GetComponent<EditorUIScript>();
+			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
 
 			menuMode = false;
 			editMode = false;
@@ -137,11 +143,11 @@ public class EditGM : MonoBehaviour {
 			focus = new hexLocus();
 			anchor = new hexLocus();
 			fShift = new Vector3();
-			} else
-				Destroy(gameObject);
+		} else Destroy(gameObject); // only one singleton can exist
 	}
 
-	void Update () {
+	void Update ()
+	{
 		// focus is updated first based on the anchor and the mouse position
 		fShift = Camera.main.ScreenToWorldPoint(Input.mousePosition) - anchor.toUnitySpace();
 		focus = new hexLocus(fShift);
@@ -159,9 +165,6 @@ public class EditGM : MonoBehaviour {
 			Debug.Log(anchor.iE);
 			Debug.Log(anchor.iF);
 		}
-
-		// camera dolly is updated based on WASD input
-		shiftCam();
 
 		// anchor is updated based on right-click input
 		if ((gkdInputs & inputKeys.Click1) == inputKeys.Click1) findAnchor();
@@ -228,11 +231,19 @@ public class EditGM : MonoBehaviour {
 		}
 	}
 
-	//
+	// (??)
 	public void returnToMainMenu ()
 	{
 		// (!!) prompt if unsaved
 		SceneManager.LoadScene(0);
+	}
+
+	// returns getKeys or getKeyDowns depending on boolean parameter
+	public inputKeys getInputs (bool onlyNewInputs)
+	{
+		// onlyNew determines the response of the function
+		if (onlyNewInputs) return gkdInputs;
+		else return gkInputs;
 	}
 
 	// toggles editMode and makes associated changes to current
@@ -259,55 +270,6 @@ public class EditGM : MonoBehaviour {
 			if (Input.GetKeyDown(kc)) gkdInputs = gkdInputs | (inputKeys) i;
 		}
 	}
-
-	// updates the camera dolly's position based on current inputs
-	private void shiftCam ()
-	{
-		Vector3 tempVec3 = transform.position;
-		// camInputs isolates meaningful camera-controlling key inputs
-		inputKeys camInputs = (inputKeys.W | inputKeys.A | inputKeys.S | inputKeys.D);
-		camInputs = camInputs & gkInputs;
-		// tempKeys is used to identify opposite-direction pairs and remove them
-		inputKeys tempKeys = (inputKeys.W | inputKeys.S);
-		if ((camInputs & tempKeys) == tempKeys) camInputs = camInputs ^ tempKeys;
-		tempKeys = (inputKeys.A | inputKeys.D);
-		if ((camInputs & tempKeys) == tempKeys) camInputs = camInputs ^ tempKeys;
-
-		// uses the isolated camInputs to modify a temporary position variable
-		switch (camInputs) {
-			case inputKeys.W: {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.A: {
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.S: {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.D: {
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.W | inputKeys.A): {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.W | inputKeys.D): {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.S | inputKeys.A): {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.S | inputKeys.D): {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-		}
-
-		// updates global variables
-		transform.position = tempVec3;
- 	}
 
 	// finds the closest snap point to the current mouse position and sets the anchor there
 	private void findAnchor ()

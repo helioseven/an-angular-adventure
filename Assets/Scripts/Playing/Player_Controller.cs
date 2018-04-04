@@ -4,13 +4,14 @@ using System.Collections;
 public class Player_Controller : MonoBehaviour {
 
 	public int speed = 150;
-	public float jump_force = 0.01f;
+	public float jump_force = 0.001f;
 	private int max_jumps = 1;
 
 	public float vertical_movement_factor = 0.25f;
 
 	private int num_jumps;
 	private bool jump_now = false;
+	private Vector2 jump_force_vec;
 
 	private Collider2D pCol2d;
 
@@ -25,8 +26,6 @@ public class Player_Controller : MonoBehaviour {
 	private Gravity_Direction grav_dir = Gravity_Direction.down;
 
 	private Rigidbody2D rb2d;
-
-	private Vector2 jump_force_vec;
 
 	void Awake ()
 	{

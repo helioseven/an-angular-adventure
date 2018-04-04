@@ -16,9 +16,6 @@ public class PlayGM : MonoBehaviour {
 	public GameObject player;
 	public GameObject death_particles;
 
-	private int coins = 0;
-	public Text coinsText;
-
 	public GameObject curr_checkpoint;
 
 	void Awake () 
@@ -48,12 +45,6 @@ public class PlayGM : MonoBehaviour {
 		curr_checkpoint = checkpoint;
 	}
 
-	public void addCoin ()
-	{
-		coins++;
-		coinsText.text = "Coins: " + coins;
-	}
-
 	public void ResetToCheckpoint ()
 	{
 		// log
@@ -61,7 +52,7 @@ public class PlayGM : MonoBehaviour {
 		// acivate
 		player.SetActive(true);
 		// layer
-		PlayGM.instance.player.layer = PlayGM.instance.curr_checkpoint.layer;
+		player.layer = curr_checkpoint.layer;
 		//
 		player.transform.position = curr_checkpoint.transform.position;
 	}
