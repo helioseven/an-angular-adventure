@@ -1,10 +1,83 @@
 fileFormatVersion: 2
 guid: 746c698d7ad663d478b72f20d7fa087d
-timeCreated: 1488782193
+timeCreated: 1525147548
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - dia_black: {fileID: 1025757857818470, guid: 63cd741cc2f3a4143a4891f20ce46c38,
+      type: 2}
+  - dia_blue: {fileID: 1289245445936386, guid: 96a1151a6c69aaa40b8f7a16fe681521, type: 2}
+  - dia_brown: {fileID: 1574203086700330, guid: b0768984821c90d41b85caa5bac95028,
+      type: 2}
+  - dia_green: {fileID: 1330803888414590, guid: c385ff56bfcb4914796993ed976e9219,
+      type: 2}
+  - dia_orange: {fileID: 1750251786148040, guid: 1baca993f175301408634d5b64d90523,
+      type: 2}
+  - dia_purple: {fileID: 1948746963850938, guid: 70c757826a97bd44caa27cbd5aed2b7c,
+      type: 2}
+  - dia_red: {fileID: 1065673495686360, guid: 9054f90a789c1774f96dffa88af3553b, type: 2}
+  - hex_black: {fileID: 1796935229229636, guid: 0a0c2fdcc7c447e48969f6e38a676aed,
+      type: 2}
+  - hex_blue: {fileID: 1889415856162054, guid: 175ef0371a7a76f4ca881224fdbf4f18, type: 2}
+  - hex_brown: {fileID: 1490435764059230, guid: 2e481fe07938d814193040515a4b8625,
+      type: 2}
+  - hex_green: {fileID: 1489266504523682, guid: 490a115cd8e5524438bef644aa423dd0,
+      type: 2}
+  - hex_orange: {fileID: 1639043143941170, guid: 2c98657a3830e2946981eda35fee19de,
+      type: 2}
+  - hex_purple: {fileID: 1829553789209956, guid: 795d5228cdd65a041899d51077239cd3,
+      type: 2}
+  - hex_red: {fileID: 1744953164678464, guid: 0c6d50ec6befbf04eafb9aa083e7eebc, type: 2}
+  - sqr_black: {fileID: 1317186204640604, guid: 8a7ab6759ac26184391e7e04a99d4d89,
+      type: 2}
+  - sqr_blue: {fileID: 1685079265429418, guid: 6edfab3bfb35210439d68ccc61b964db, type: 2}
+  - sqr_brown: {fileID: 1732847218256620, guid: f57b022d59f592d4fbff4ed0280ca516,
+      type: 2}
+  - sqr_green: {fileID: 1095127525236808, guid: cf0cd6c0a3510074c81d518bf40b4c01,
+      type: 2}
+  - sqr_orange: {fileID: 1399459506803280, guid: 1934ffd2810a92a4bb59c0d11f184dd2,
+      type: 2}
+  - sqr_purple: {fileID: 1573055177501556, guid: 224ccc34bcda7084580590c44d9e19a1,
+      type: 2}
+  - sqr_red: {fileID: 1230275228526742, guid: d6b113466fd75a3449a7b251d1a88f7a, type: 2}
+  - trap_black: {fileID: 1732138015979094, guid: 5ea2ab585d25e644ba498e9de460bb8f,
+      type: 2}
+  - trap_blue: {fileID: 1893619554723148, guid: 5de607c337ef8b64fb24a83a9d537940,
+      type: 2}
+  - trap_brown: {fileID: 1610860722471212, guid: 95923764e24174c4290063b35d9cb8ba,
+      type: 2}
+  - trap_green: {fileID: 1630668809858610, guid: 7fc2c52ff5a06374f8b4e687ae67097a,
+      type: 2}
+  - trap_orange: {fileID: 1303428890709688, guid: d167ca4dfb6b1f74db6fe9742a4277e7,
+      type: 2}
+  - trap_purple: {fileID: 1402716584708902, guid: 22c0c0a9e3000f7478216e2cf8e82d98,
+      type: 2}
+  - trap_red: {fileID: 1767893049951316, guid: f11384d6f12c7b749b394a187f8319d7, type: 2}
+  - tri_black: {fileID: 1529283223798072, guid: 4dfa5e0810a7f6841a36603955cf1b57,
+      type: 2}
+  - tri_blue: {fileID: 1815722186130760, guid: 5df4792d4b6b7ce4fa1cc0f3f6f5fe96, type: 2}
+  - tri_brown: {fileID: 1643155796937120, guid: 38f95d53650b49a42989ab352895c2a5,
+      type: 2}
+  - tri_green: {fileID: 1046424335913010, guid: fbdd188bd6a96684da3a08b3dc7c98e2,
+      type: 2}
+  - tri_orange: {fileID: 1494499557704382, guid: 9beaa0d941487c54189fa1cd10f87f67,
+      type: 2}
+  - tri_purple: {fileID: 1151391072158494, guid: 3fae9c1b975a98943ad14ee6c98baff8,
+      type: 2}
+  - tri_red: {fileID: 1238178135249034, guid: cad6381b775174642b77f9bce32ead1b, type: 2}
+  - wed_black: {fileID: 1067311891253004, guid: 0b4d688f29084454eb0b4465476ddd8c,
+      type: 2}
+  - wed_blue: {fileID: 1130312533088244, guid: ab201f1cc27eccf41a978b7acf858bc3, type: 2}
+  - wed_brown: {fileID: 1572733850580628, guid: 9f92c092c05f96e4993d5775bbc67ecc,
+      type: 2}
+  - wed_green: {fileID: 1032786683326654, guid: 18a331a1c6c043f43a9890b757014d7e,
+      type: 2}
+  - wed_orange: {fileID: 1902895497136436, guid: 6619254fb40308845ad2e38969b07508,
+      type: 2}
+  - wed_purple: {fileID: 1598539696697422, guid: 4c941e914a26e204299fd71d7a7506d2,
+      type: 2}
+  - wed_red: {fileID: 1549316240702974, guid: a8fa4d5218b3ae24c83b3e6875a38f79, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

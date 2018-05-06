@@ -37,7 +37,7 @@ public class EditGM : MonoBehaviour {
 	// editMode enables editing of previously placed tiles
 	// editMode being false is referred to in commenting as "creation mode"
 	private bool editMode;
-	// bEdit and bSave track references to the edit mode and save buttons in the menu panel
+	// bEdit tracks a reference to the edit mode button in the menu panel
 	private Button bEdit;
 	// gkInputs and gkdInputs track GetKey() and GetKeyDown() states
 	private inputKeys gkInputs = inputKeys.None;
@@ -109,7 +109,7 @@ public class EditGM : MonoBehaviour {
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			lvlLoad.supplyLevel(out placedTiles);
 
-			// set various initializations to their proper values
+			// initializations for tile references
 			tRefs = new GameObject[] {
 				lvlLoad.triTile,
 				lvlLoad.diaTile,
@@ -118,7 +118,6 @@ public class EditGM : MonoBehaviour {
 				lvlLoad.sqrTile,
 				lvlLoad.wedTile
 			};
-
 			createTiles = new GameObject[tRefs.Length];
 			for (int i = 0; i < tRefs.Length; i++) {
 				createTiles[i] = Instantiate(tRefs[i], Vector3.zero, Quaternion.identity) as GameObject;
@@ -128,22 +127,27 @@ public class EditGM : MonoBehaviour {
 			current.SetActive(true);
 			eCurrent = null;
 
+			// set up UI elements
 			uiOverlay = uiPanel.GetComponent<EditorUIScript>();
 			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
 
-			menuMode = false;
-			editMode = false;
+			// initializations for button listeners
 			bEdit = editButton;
 			bEdit.onClick.AddListener(toggleEdit);
 			saveButton.onClick.AddListener(saveFile);
 			quitButton.onClick.AddListener(returnToMainMenu);
+
+			// initializations for state variables
+			menuMode = false;
+			editMode = false;
 			gkInputs = inputKeys.None;
 			gkdInputs = inputKeys.None;
-
 			focus = new hexLocus();
 			anchor = new hexLocus();
 			fShift = new Vector3();
-		} else Destroy(gameObject); // only one singleton can exist
+		} else
+			// only one singleton can exist
+			Destroy(gameObject);
 	}
 
 	void Update ()
@@ -184,7 +188,7 @@ public class EditGM : MonoBehaviour {
 			// editMode is set via the toggleEdit() listener on the bEdit button
 			if (editMode) {
 				if (eCurrent) {
-					EditingTile ts = eCurrent.GetComponent<EditingTile>();
+					GenesisTile ts = eCurrent.GetComponent<GenesisTile>();
 
 					// in edit mode, a selected tile will follow the focus
 					eCurrent.transform.position = focus.toUnitySpace();
@@ -209,7 +213,7 @@ public class EditGM : MonoBehaviour {
 					}
 				}
 			} else {
-				EditingTile ts = current.GetComponent<EditingTile>();
+				GenesisTile ts = current.GetComponent<GenesisTile>();
 
 				// in creation mode, a member of createTiles is displayed via current
 				current.transform.position = focus.toUnitySpace();
@@ -231,7 +235,7 @@ public class EditGM : MonoBehaviour {
 		}
 	}
 
-	// (??)
+	// deletes the current scene and loads the MainMenu scene
 	public void returnToMainMenu ()
 	{
 		// (!!) prompt if unsaved
@@ -314,8 +318,8 @@ public class EditGM : MonoBehaviour {
 	{
 		// method is simple for now, no collision detection implementation yet
 		GameObject go = Instantiate(current, current.transform.position, Quaternion.identity) as GameObject;
-		EditingTile pet = go.GetComponent<EditingTile>();
-		EditingTile cet = current.GetComponent<EditingTile>();
+		GenesisTile pet = go.GetComponent<GenesisTile>();
+		GenesisTile cet = current.GetComponent<GenesisTile>();
 
 		// cycles the color of the placed tile to match current
 		for (int i = cet.tileColor; i > 0; i--) pet.cycleColor();
@@ -332,7 +336,7 @@ public class EditGM : MonoBehaviour {
 		// method switches active tile by deactivating current and activating createTiles[tType]
 		GameObject go = createTiles[(int)tType];
 		Vector3 tempVec3 = current.transform.position;
-		EditingTile et = current.GetComponent<EditingTile>();
+		GenesisTile et = current.GetComponent<GenesisTile>();
 		int tRotation = et.tileRotation;
 		int tColor = et.tileColor;
 
@@ -342,7 +346,7 @@ public class EditGM : MonoBehaviour {
 		while (et.tileColor != 0) et.cycleColor();
 		current.SetActive(false);
 
-		et = go.GetComponent<EditingTile>();
+		et = go.GetComponent<GenesisTile>();
 		// sets all values for the newly current tile to match state of previously current tile
 		go.transform.position = tempVec3;
 		// SOMETHING NOT RIGHT (??)
@@ -351,7 +355,7 @@ public class EditGM : MonoBehaviour {
 			tRotation--;
 		}
 		while (tColor > 0) {
-			go.GetComponent<EditingTile>().cycleColor();
+			go.GetComponent<GenesisTile>().cycleColor();
 			tColor--;
 		}
 
@@ -360,7 +364,7 @@ public class EditGM : MonoBehaviour {
 		current.SetActive(true);
 	}
 
-	// in testing
+	// (testing) save level to a file in plain text format
 	private void saveFile ()
 	{
 		string fpath = "Assets\\Levels\\testLevel.txt";
@@ -372,7 +376,7 @@ public class EditGM : MonoBehaviour {
 		lines[1] = "0 0 0 0 0 -10";
 
 		for (int i = 0; i < pts.Length; i++)
-			lines[i+2] = pts[i].GetComponent<EditingTile>().serialize(placedTiles[pts[i]]);
+			lines[i+2] = pts[i].GetComponent<GenesisTile>().serialize(placedTiles[pts[i]]);
 
 		File.WriteAllLines(fpath, lines);
 	}
