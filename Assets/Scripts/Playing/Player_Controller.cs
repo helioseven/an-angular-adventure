@@ -4,7 +4,7 @@ using System.Collections;
 public class Player_Controller : MonoBehaviour {
 
 	public int speed = 150;
-	public float jump_force = 0.001f;
+	public float jump_force = 0.00001f;
 	private int max_jumps = 1;
 
 	public float vertical_movement_factor = 0.25f;
@@ -54,7 +54,7 @@ public class Player_Controller : MonoBehaviour {
 	}
 
 
-	void UpdateJumping()
+	void UpdateJumping ()
 	{
 		bool canJump = (num_jumps < max_jumps);
 		if (num_jumps == 0 ) {
@@ -69,7 +69,7 @@ public class Player_Controller : MonoBehaviour {
 		}
 	}
 	
-	void UpdateGravity()
+	void UpdateGravity ()
 	{
 		// GRAVITY
 		//Gravity Down
@@ -101,7 +101,7 @@ public class Player_Controller : MonoBehaviour {
 		}
 	}
 
-	void Move()
+	void Move ()
 	{
 		float moveHorizontal = Input.GetAxis ("Horizontal");
 		float moveVertical = Input.GetAxis ("Vertical");
@@ -117,7 +117,7 @@ public class Player_Controller : MonoBehaviour {
 
 	}
 
-	void Jump()
+	void Jump ()
 	{
 		if(jump_now) {
 			// jump by force (acceleration)
@@ -128,14 +128,3 @@ public class Player_Controller : MonoBehaviour {
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-

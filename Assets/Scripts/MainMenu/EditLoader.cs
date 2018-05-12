@@ -26,7 +26,8 @@ public class EditLoader : MonoBehaviour {
 		//
 		tiles = new GameObject[6] {triTile, diaTile, trapTile, hexTile, sqrTile, wedTile};
 
-		// filepath of level to be loaded (!!) prompt for string instead
+		// filepath of level to be loaded
+		// (!!) prompt for string instead
 		path = "testLevel.txt";
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)

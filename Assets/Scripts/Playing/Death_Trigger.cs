@@ -3,16 +3,13 @@ using System.Collections;
 
 public class Death_Trigger : MonoBehaviour {
 
-	void OnTriggerEnter2D (Collider2D other)
+	// triggers player's death when it detects a collision with the player
+	void OnCollisionEnter2D (Collision2D other)
 	{
-		if (other.gameObject.CompareTag ("Player")) {
-			CallResetToCheckpoint();
+		// identifies the player by tag
+		if (other.gameObject.CompareTag("Player")) {
+			PlayGM.instance.KillPlayer();
 		}
-	}
-	
-	void CallResetToCheckpoint()
-	{
-		PlayGM.instance.KillPlayer();
 	}
 
 }

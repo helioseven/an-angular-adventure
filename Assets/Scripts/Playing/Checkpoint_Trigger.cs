@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Checkpoint : MonoBehaviour {
+public class Checkpoint_Trigger : MonoBehaviour {
 
-	// (??)
-	void OnTriggerEnter2D(Collider2D other)
+	// becomes the current checkpoint when it detects a collision with the player
+	void OnTriggerEnter2D (Collider2D other)
 	{
-		if (other.CompareTag ("Player")) {
-			PlayGM.instance.SetCheckPoint( gameObject );
+		// identifies the player by tag
+		if (other.CompareTag("Player")) {
+			PlayGM.instance.SetCheckPoint(gameObject);
 		}
 	}
 }
