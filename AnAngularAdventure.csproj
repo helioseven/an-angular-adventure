@@ -80,8 +80,9 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Editing\Camera_Controller.cs" />
     <Compile Include="Assets\Scripts\Editing\EditGM.cs" />
-    <Compile Include="Assets\Scripts\Editing\EditorUIScript.cs" />
-    <Compile Include="Assets\Scripts\Editing\GenesisTile.cs" />
+    <Compile Include="Assets\Scripts\Editing\Editor_UI_Script.cs" />
+    <Compile Include="Assets\Scripts\Editing\Genesis_Tile.cs" />
+    <Compile Include="Assets\Scripts\Editing\Save_Dialogue_Script.cs" />
     <Compile Include="Assets\Scripts\MainMenu\EditLoader.cs" />
     <Compile Include="Assets\Scripts\MainMenu\MenuGM.cs" />
     <Compile Include="Assets\Scripts\MainMenu\PlayLoader.cs" />

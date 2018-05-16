@@ -12,6 +12,7 @@ public class EditGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector]
 	public static EditGM instance = null;
+	public bool isUpdating = true;
 	private EditLoader lvlLoad = null;
 	// placedTiles manages all tiles placed into the world space
 	private Dictionary<GameObject, hexLocus> placedTiles;
@@ -20,11 +21,9 @@ public class EditGM : MonoBehaviour {
 	public GameObject cursor;
 	public GameObject uiPanel;
 	public Button editButton;
-	public Button saveButton;
-	public Button quitButton;
 
 	// reference to the script attached to the UI overlay
-	private EditorUIScript uiOverlay;
+	private Editor_UI_Script uiOverlay;
 	// anchorIcon keeps track of a single cursor instance
 	private GameObject anchorIcon;
 	// tRefs collects the tile prefab references into an array
@@ -128,14 +127,11 @@ public class EditGM : MonoBehaviour {
 			eCurrent = null;
 
 			// set up UI elements
-			uiOverlay = uiPanel.GetComponent<EditorUIScript>();
+			uiOverlay = uiPanel.GetComponent<Editor_UI_Script>();
 			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
 
 			// initializations for button listeners
 			bEdit = editButton;
-			bEdit.onClick.AddListener(toggleEdit);
-			saveButton.onClick.AddListener(saveFile);
-			quitButton.onClick.AddListener(returnToMainMenu);
 
 			// initializations for state variables
 			menuMode = false;
@@ -152,6 +148,9 @@ public class EditGM : MonoBehaviour {
 
 	void Update ()
 	{
+		// (??)
+		if (!isUpdating) return;
+
 		// focus is updated first based on the anchor and the mouse position
 		fShift = Camera.main.ScreenToWorldPoint(Input.mousePosition) - anchor.toUnitySpace();
 		focus = new hexLocus(fShift);
@@ -188,7 +187,7 @@ public class EditGM : MonoBehaviour {
 			// editMode is set via the toggleEdit() listener on the bEdit button
 			if (editMode) {
 				if (eCurrent) {
-					GenesisTile ts = eCurrent.GetComponent<GenesisTile>();
+					Genesis_Tile ts = eCurrent.GetComponent<Genesis_Tile>();
 
 					// in edit mode, a selected tile will follow the focus
 					eCurrent.transform.position = focus.toUnitySpace();
@@ -213,7 +212,7 @@ public class EditGM : MonoBehaviour {
 					}
 				}
 			} else {
-				GenesisTile ts = current.GetComponent<GenesisTile>();
+				Genesis_Tile ts = current.GetComponent<Genesis_Tile>();
 
 				// in creation mode, a member of createTiles is displayed via current
 				current.transform.position = focus.toUnitySpace();
@@ -235,6 +234,8 @@ public class EditGM : MonoBehaviour {
 		}
 	}
 
+	/* Public Functions */
+
 	// deletes the current scene and loads the MainMenu scene
 	public void returnToMainMenu ()
 	{
@@ -251,7 +252,7 @@ public class EditGM : MonoBehaviour {
 	}
 
 	// toggles editMode and makes associated changes to current
-	private void toggleEdit ()
+	public void toggleEdit ()
 	{
 		// bEdit button is 75% grey in creation mode, 100% white in edit mode
 		bEdit.image.color = editMode ? new Color(0.75f, 0.75f, 0.75f, 1.0f) : new Color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -260,6 +261,25 @@ public class EditGM : MonoBehaviour {
 		// either way, editMode is toggled
 		editMode = !editMode;
 	}
+
+	// (testing) save level to a file in plain text format
+	public void saveFile (string filename)
+	{
+		string fpath = "Assets\\Levels\\" + filename + ".txt";
+		GameObject[] pts = new GameObject[placedTiles.Count];
+		string[] lines = new string[pts.Length + 2];
+
+		placedTiles.Keys.CopyTo(pts, 0);
+		lines[0] = "test level";
+		lines[1] = "0 0 0 0 0 -10";
+
+		for (int i = 0; i < pts.Length; i++)
+			lines[i+2] = pts[i].GetComponent<Genesis_Tile>().serialize(placedTiles[pts[i]]);
+
+		File.WriteAllLines(fpath, lines);
+	}
+
+	/* Private Functions */
 
 	// updates gkInputs and gkdInputs each frame
 	private void updateInputs ()
@@ -318,8 +338,8 @@ public class EditGM : MonoBehaviour {
 	{
 		// method is simple for now, no collision detection implementation yet
 		GameObject go = Instantiate(current, current.transform.position, Quaternion.identity) as GameObject;
-		GenesisTile pet = go.GetComponent<GenesisTile>();
-		GenesisTile cet = current.GetComponent<GenesisTile>();
+		Genesis_Tile pet = go.GetComponent<Genesis_Tile>();
+		Genesis_Tile cet = current.GetComponent<Genesis_Tile>();
 
 		// cycles the color of the placed tile to match current
 		for (int i = cet.tileColor; i > 0; i--) pet.cycleColor();
@@ -336,7 +356,7 @@ public class EditGM : MonoBehaviour {
 		// method switches active tile by deactivating current and activating createTiles[tType]
 		GameObject go = createTiles[(int)tType];
 		Vector3 tempVec3 = current.transform.position;
-		GenesisTile et = current.GetComponent<GenesisTile>();
+		Genesis_Tile et = current.GetComponent<Genesis_Tile>();
 		int tRotation = et.tileRotation;
 		int tColor = et.tileColor;
 
@@ -346,7 +366,7 @@ public class EditGM : MonoBehaviour {
 		while (et.tileColor != 0) et.cycleColor();
 		current.SetActive(false);
 
-		et = go.GetComponent<GenesisTile>();
+		et = go.GetComponent<Genesis_Tile>();
 		// sets all values for the newly current tile to match state of previously current tile
 		go.transform.position = tempVec3;
 		// SOMETHING NOT RIGHT (??)
@@ -355,29 +375,12 @@ public class EditGM : MonoBehaviour {
 			tRotation--;
 		}
 		while (tColor > 0) {
-			go.GetComponent<GenesisTile>().cycleColor();
+			go.GetComponent<Genesis_Tile>().cycleColor();
 			tColor--;
 		}
 
 		// updates global variables accordingly
 		current = go;
 		current.SetActive(true);
-	}
-
-	// (testing) save level to a file in plain text format
-	private void saveFile ()
-	{
-		string fpath = "Assets\\Levels\\testLevel.txt";
-		GameObject[] pts = new GameObject[placedTiles.Count];
-		string[] lines = new string[pts.Length + 2];
-
-		placedTiles.Keys.CopyTo(pts, 0);
-		lines[0] = "test level";
-		lines[1] = "0 0 0 0 0 -10";
-
-		for (int i = 0; i < pts.Length; i++)
-			lines[i+2] = pts[i].GetComponent<GenesisTile>().serialize(placedTiles[pts[i]]);
-
-		File.WriteAllLines(fpath, lines);
 	}
 }

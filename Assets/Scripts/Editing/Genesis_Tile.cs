@@ -15,7 +15,7 @@ using circleXsquares;
  * In edit mode, we simply disable the genesis tile and all of it's children.
  */
 
-public class GenesisTile : MonoBehaviour {
+public class Genesis_Tile : MonoBehaviour {
 
 	// tileType must be declared by the tile prefab
 	public int tileType;

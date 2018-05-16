@@ -62,7 +62,7 @@ public class EditLoader : MonoBehaviour {
 			int r = Int32.Parse(vals[8]);
 
 			GameObject go = Instantiate(tiles[j], hl.toUnitySpace(), Quaternion.identity) as GameObject;
-			GenesisTile et = go.GetComponent<GenesisTile>();
+			Genesis_Tile et = go.GetComponent<Genesis_Tile>();
 			for (int c = 0; c < k; c++) et.cycleColor();
 			for (int c = 0; c < r; c++) et.rotate(false);
 			level.Add(go, hl);
