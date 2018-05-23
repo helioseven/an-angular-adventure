@@ -12,42 +12,37 @@ public class EditGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector]
 	public static EditGM instance = null;
-	public bool isUpdating = true;
+	public bool isUpdating { get; private set; }
 	private EditLoader lvlLoad = null;
 	// placedTiles manages all tiles placed into the world space
-	private Dictionary<GameObject, hexLocus> placedTiles;
+	private Dictionary<GameObject, tileData> placedTiles;
 
 	// cursor is a prefab anchor icon
 	public GameObject cursor;
-	public GameObject uiPanel;
-	public Button editButton;
-
+	// reference to the main creation tool
+	public GenesisTile genesisTile;
 	// reference to the script attached to the UI overlay
-	private Editor_UI_Script uiOverlay;
+	public Editor_UI_Script menuPanel;
+
 	// anchorIcon keeps track of a single cursor instance
 	private GameObject anchorIcon;
-	// tRefs collects the tile prefab references into an array
-	private GameObject[] tRefs;
 	// tileTypes helps manage the active tile
 	private enum tileTypes : byte {Tri, Dia, Trap, Hex, Sqr, Wed};
 
 	// menuMode enables OnGUI
-	private bool menuMode;
+	public bool menuMode { get; private set; }
 	// editMode enables editing of previously placed tiles
 	// editMode being false is referred to in commenting as "creation mode"
-	private bool editMode;
-	// bEdit tracks a reference to the edit mode button in the menu panel
-	private Button bEdit;
+	public bool editMode { get; private set; }
 	// gkInputs and gkdInputs track GetKey() and GetKeyDown() states
 	private inputKeys gkInputs = inputKeys.None;
 	private inputKeys gkdInputs = inputKeys.None;
 
-	// createTiles manages a current tile for each tile type
-	private GameObject[] createTiles;
-	// current keeps track of the tile that is in use at a given time
-	private GameObject current;
-	// eCurrent keeps track of currently selected tile in edit mode
-	private GameObject eCurrent;
+	// isTileSelected and selectedTile track any selected tile in edit mode
+	private bool isTileSelected;
+	private tileData selectedTile;
+	private tileData gtBackup;
+
 	// focus and anchor keep track of where the mouse input is snapping to
 	private hexLocus focus;
 	private hexLocus anchor;
@@ -105,35 +100,20 @@ public class EditGM : MonoBehaviour {
 			instance = this;
 
 			// level is loaded from file
+			placedTiles = new Dictionary<GameObject, tileData>();
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			lvlLoad.supplyLevel(out placedTiles);
 
-			// initializations for tile references
-			tRefs = new GameObject[] {
-				lvlLoad.triTile,
-				lvlLoad.diaTile,
-				lvlLoad.trapTile,
-				lvlLoad.hexTile,
-				lvlLoad.sqrTile,
-				lvlLoad.wedTile
-			};
-			createTiles = new GameObject[tRefs.Length];
-			for (int i = 0; i < tRefs.Length; i++) {
-				createTiles[i] = Instantiate(tRefs[i], Vector3.zero, Quaternion.identity) as GameObject;
-				createTiles[i].SetActive(false);
-			}
-			current = createTiles[0];
-			current.SetActive(true);
-			eCurrent = null;
-
-			// set up UI elements
-			uiOverlay = uiPanel.GetComponent<Editor_UI_Script>();
+			// sets up the anchor point
 			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
 
-			// initializations for button listeners
-			bEdit = editButton;
+			// initializations for selection variables
+			isTileSelected = false;
+			selectedTile = new tileData();
+			gtBackup = new tileData();
 
 			// initializations for state variables
+			isUpdating = true;
 			menuMode = false;
 			editMode = false;
 			gkInputs = inputKeys.None;
@@ -159,16 +139,6 @@ public class EditGM : MonoBehaviour {
 		// gkInputs and gkdInputs are reset and updated
 		updateInputs();
 
-		// BackQuote is a special debugger key, prints anchor's (A,B,C,D,E,F) coordinates
-		if (Input.GetKeyDown(KeyCode.BackQuote)) {
-			Debug.Log(anchor.iA);
-			Debug.Log(anchor.iB);
-			Debug.Log(anchor.iC);
-			Debug.Log(anchor.iD);
-			Debug.Log(anchor.iE);
-			Debug.Log(anchor.iF);
-		}
-
 		// anchor is updated based on right-click input
 		if ((gkdInputs & inputKeys.Click1) == inputKeys.Click1) findAnchor();
 
@@ -176,60 +146,86 @@ public class EditGM : MonoBehaviour {
 		menuMode = (gkInputs & inputKeys.Space) == inputKeys.Space;
 
 		if (menuMode) {
-			// uiOverlay is enabled and current tile disabled during menu mode
-			uiOverlay.activate(Input.mousePosition);
-			current.SetActive(false);
+			// menuPanel is enabled and the genesisTile is disabled during menu mode
+			menuPanel.activate(Input.mousePosition);
+			genesisTile.gameObject.SetActive(false);
 		} else {
-			// uiOverlay is disabled and current tile enabled when not in menu mode
-			uiOverlay.deactivate();
-			current.SetActive(editMode ? false : true);
+			// menuPanel is disabled and the genesisTile is enabled when not in menu mode
+			menuPanel.deactivate();
+			genesisTile.gameObject.SetActive(editMode ? false : true);
 
-			// editMode is set via the toggleEdit() listener on the bEdit button
+			// editMode is set via the toggleEdit() function
 			if (editMode) {
-				if (eCurrent) {
-					Genesis_Tile ts = eCurrent.GetComponent<Genesis_Tile>();
-
+				if (isTileSelected) {
 					// in edit mode, a selected tile will follow the focus
-					eCurrent.transform.position = focus.toUnitySpace();
-					// if there is a selected tile, Tab changes its color and left-click places it
-					if ((gkdInputs & inputKeys.Tab) == inputKeys.Tab) ts.cycleColor();
+					genesisTile.transform.position = focus.toUnitySpace();
+					// if there is a selected tile, left-click replaces it
 					if ((gkdInputs & inputKeys.Click0) == inputKeys.Click0) {
-						placedTiles.Add(eCurrent, focus);
-						eCurrent = null;
+						placeTile();
+						genesisTile.setProperties(gtBackup);
+						isTileSelected = false;
+						return;
 					}
+					// Tab will cycle the selected tile through different colors
+					if ((gkdInputs & inputKeys.Tab) == inputKeys.Tab)
+						genesisTile.cycleColor();
 					// Q & E will change the selected tile's rotation
-					if ((gkdInputs & inputKeys.Q) == inputKeys.Q) ts.rotate(false);
-					if ((gkdInputs & inputKeys.E) == inputKeys.E) ts.rotate(true);
+					if ((gkdInputs & inputKeys.Q) == inputKeys.Q)
+						genesisTile.rotate(false);
+					if ((gkdInputs & inputKeys.E) == inputKeys.E)
+						genesisTile.rotate(true);
 					// Delete will destroy the selected tile
-					if ((gkdInputs & inputKeys.Delete) == inputKeys.Delete) Destroy(eCurrent);
+					if ((gkdInputs & inputKeys.Delete) == inputKeys.Delete) {
+						genesisTile.setProperties(gtBackup);
+						isTileSelected = false;
+					}
 				} else {
 					// if there is not a selected tile in edit mode, left-click selects a placed tile
 					if ((gkdInputs & inputKeys.Click0) == inputKeys.Click0) {
 						Collider2D c2d = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition)).collider;
 						if (!c2d) return;
-						eCurrent = c2d.gameObject;
-						placedTiles.Remove(eCurrent);
+						GameObject go = c2d.gameObject;
+
+						gtBackup = getGTData();
+						selectedTile = placedTiles[go];
+						genesisTile.setProperties(selectedTile);
+						isTileSelected = true;
+
+						placedTiles.Remove(go);
+						Destroy(go);
 					}
 				}
 			} else {
-				Genesis_Tile ts = current.GetComponent<Genesis_Tile>();
+				// in creation mode, the genesisTile is moved to the current focus
+				genesisTile.transform.position = focus.toUnitySpace();
 
-				// in creation mode, a member of createTiles is displayed via current
-				current.transform.position = focus.toUnitySpace();
-				// current tile is placed when left-click is made
-				if ((gkdInputs & inputKeys.Click0) == inputKeys.Click0) placeTile();
+				// the genesisTile tile is placed when left-click is made
+				if ((gkdInputs & inputKeys.Click0) == inputKeys.Click0)
+					placeTile();
+
 				// current tile's color is updated when Tab is pressed
-				if ((gkdInputs & inputKeys.Tab) == inputKeys.Tab) ts.cycleColor();
+				if ((gkdInputs & inputKeys.Tab) == inputKeys.Tab)
+					genesisTile.cycleColor();
+
 				// current is rotated counter-clockwise when Q is pressed, clockwise when E is pressed
-				if ((gkdInputs & inputKeys.Q) == inputKeys.Q) ts.rotate(false);
-				if ((gkdInputs & inputKeys.E) == inputKeys.E) ts.rotate(true);
+				if ((gkdInputs & inputKeys.Q) == inputKeys.Q)
+					genesisTile.rotate(false);
+				if ((gkdInputs & inputKeys.E) == inputKeys.E)
+					genesisTile.rotate(true);
+
 				// current tile type is assigned by the numeric keys
-				if ((gkdInputs & inputKeys.One) == inputKeys.One) switchTile(tileTypes.Tri);
-				if ((gkdInputs & inputKeys.Two) == inputKeys.Two) switchTile(tileTypes.Dia);
-				if ((gkdInputs & inputKeys.Three) == inputKeys.Three) switchTile(tileTypes.Trap);
-				if ((gkdInputs & inputKeys.Four) == inputKeys.Four) switchTile(tileTypes.Hex);
-				if ((gkdInputs & inputKeys.Five) == inputKeys.Five) switchTile(tileTypes.Sqr);
-				if ((gkdInputs & inputKeys.Six) == inputKeys.Six) switchTile(tileTypes.Wed);
+				if ((gkdInputs & inputKeys.One) == inputKeys.One)
+					genesisTile.selectType(0);
+				if ((gkdInputs & inputKeys.Two) == inputKeys.Two)
+					genesisTile.selectType(1);
+				if ((gkdInputs & inputKeys.Three) == inputKeys.Three)
+					genesisTile.selectType(2);
+				if ((gkdInputs & inputKeys.Four) == inputKeys.Four)
+					genesisTile.selectType(3);
+				if ((gkdInputs & inputKeys.Five) == inputKeys.Five)
+					genesisTile.selectType(4);
+				if ((gkdInputs & inputKeys.Six) == inputKeys.Six)
+					genesisTile.selectType(5);
 			}
 		}
 	}
@@ -254,12 +250,27 @@ public class EditGM : MonoBehaviour {
 	// toggles editMode and makes associated changes to current
 	public void toggleEdit ()
 	{
-		// bEdit button is 75% grey in creation mode, 100% white in edit mode
-		bEdit.image.color = editMode ? new Color(0.75f, 0.75f, 0.75f, 1.0f) : new Color(1.0f, 1.0f, 1.0f, 1.0f);
-		// current is enabled in creation mode, disabled in edit mode
-		current.SetActive(editMode ? true : false);
+		if (editMode) {
+			// (??)
+			genesisTile.setProperties(gtBackup);
+			gtBackup = (isTileSelected) ? selectedTile : new tileData();
+			genesisTile.gameObject.SetActive(true);
+		} else {
+			// (??)
+			if (isTileSelected) selectedTile = gtBackup;
+			gtBackup = getGTData();
+			genesisTile.setProperties(selectedTile);
+			genesisTile.gameObject.SetActive(false);
+		}
+		
 		// either way, editMode is toggled
 		editMode = !editMode;
+	}
+
+	// (??)
+	public void pauseToggle ()
+	{
+		isUpdating = !isUpdating;
 	}
 
 	// (testing) save level to a file in plain text format
@@ -270,11 +281,12 @@ public class EditGM : MonoBehaviour {
 		string[] lines = new string[pts.Length + 2];
 
 		placedTiles.Keys.CopyTo(pts, 0);
+		// (!!) this bit will have to change
 		lines[0] = "test level";
 		lines[1] = "0 0 0 0 0 -10";
 
 		for (int i = 0; i < pts.Length; i++)
-			lines[i+2] = pts[i].GetComponent<Genesis_Tile>().serialize(placedTiles[pts[i]]);
+			lines[i+2] = placedTiles[pts[i]].serialize();
 
 		File.WriteAllLines(fpath, lines);
 	}
@@ -310,7 +322,7 @@ public class EditGM : MonoBehaviour {
 			if (pc2d) {
 				// if the collision is not from a placed tile, it is skipped
 				if (!placedTiles.ContainsKey(c2d.gameObject)) continue;
-				hexLocus tHL = placedTiles[c2d.gameObject];
+				hexLocus tHL = placedTiles[c2d.gameObject].locus;
 				foreach (Vector2 subPoint in pc2d.points) {
 					// adds each vertex to the list of possible snap points
 					hexLocus newPoint = new hexLocus(c2d.transform.TransformPoint(subPoint) - tHL.toUnitySpace());
@@ -333,22 +345,20 @@ public class EditGM : MonoBehaviour {
 		anchorIcon.transform.position = anchor.toUnitySpace();
 	}
 
+	// returns a tileData representation of the current state of genesisTile
+	private tileData getGTData ()
+	{
+		GenesisTile gt = genesisTile;
+		return new tileData(focus, gt.tileRotation, gt.tileType, gt.tileColor);
+	}
+
  	// places the current tile at the focus location
 	private void placeTile ()
 	{
-		// method is simple for now, no collision detection implementation yet
-		GameObject go = Instantiate(current, current.transform.position, Quaternion.identity) as GameObject;
-		Genesis_Tile pet = go.GetComponent<Genesis_Tile>();
-		Genesis_Tile cet = current.GetComponent<Genesis_Tile>();
-
-		// cycles the color of the placed tile to match current
-		for (int i = cet.tileColor; i > 0; i--) pet.cycleColor();
-		// cycles the rotation of the placed tile to match current
-		for (int i = cet.tileRotation; i > 0; i--) pet.rotate(false);
-
-		// placedTiles is updated accordingly
-		placedTiles.Add(go, focus);
+		placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 	}
+
+/* (pretty sure this can now be deleted)
 
 	// replaces the current tile with the indicated tile type
 	private void switchTile (tileTypes tType)
@@ -356,7 +366,7 @@ public class EditGM : MonoBehaviour {
 		// method switches active tile by deactivating current and activating createTiles[tType]
 		GameObject go = createTiles[(int)tType];
 		Vector3 tempVec3 = current.transform.position;
-		Genesis_Tile et = current.GetComponent<Genesis_Tile>();
+		GenesisTile et = current.GetComponent<GenesisTile>();
 		int tRotation = et.tileRotation;
 		int tColor = et.tileColor;
 
@@ -366,7 +376,7 @@ public class EditGM : MonoBehaviour {
 		while (et.tileColor != 0) et.cycleColor();
 		current.SetActive(false);
 
-		et = go.GetComponent<Genesis_Tile>();
+		et = go.GetComponent<GenesisTile>();
 		// sets all values for the newly current tile to match state of previously current tile
 		go.transform.position = tempVec3;
 		// SOMETHING NOT RIGHT (??)
@@ -375,7 +385,7 @@ public class EditGM : MonoBehaviour {
 			tRotation--;
 		}
 		while (tColor > 0) {
-			go.GetComponent<Genesis_Tile>().cycleColor();
+			go.GetComponent<GenesisTile>().cycleColor();
 			tColor--;
 		}
 
@@ -383,4 +393,6 @@ public class EditGM : MonoBehaviour {
 		current = go;
 		current.SetActive(true);
 	}
+*/
+
 }

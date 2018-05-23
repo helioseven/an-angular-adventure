@@ -14,6 +14,7 @@ public class PlayLoader : MonoBehaviour {
 	private GameObject[,] prefabRefs;
 
 	// prefab references
+	// very crude
 	public GameObject dia_black;
 	public GameObject dia_blue;
 	public GameObject dia_brown;
@@ -59,7 +60,7 @@ public class PlayLoader : MonoBehaviour {
 
 	void Awake ()
 	{
-		//
+		// crude
 		prefabRefs = new GameObject[6,7] {
 			{tri_black, tri_blue, tri_brown, tri_green, tri_orange, tri_purple, tri_red},
 			{dia_black, dia_blue, dia_brown, dia_green, dia_orange, dia_purple, dia_red},

@@ -6,17 +6,17 @@ using System.Collections.Generic;
 
 public class PlayGM : MonoBehaviour {
 
+	// singleton instance
+	[HideInInspector] public static PlayGM instance = null;
+	private PlayLoader lvlLoad = null;
+	private HashSet<GameObject> lvlTiles;
+
 	public GameObject player_ref;
 	public GameObject death_particles;
 	public GameObject checkpoint_ref;
 
 	public GameObject player { get; private set; }
 	public GameObject curr_checkpoint { get; private set; }
-
-	// singleton instance
-	[HideInInspector] public static PlayGM instance = null;
-	private PlayLoader lvlLoad = null;
-	private HashSet<GameObject> lvlTiles;
 
 	void Awake ()
 	{

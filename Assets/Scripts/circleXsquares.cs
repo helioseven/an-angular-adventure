@@ -3,76 +3,109 @@ using System.Collections;
 using UnityEngine;
 
 namespace circleXsquares {
+
+	// tileData describes a tile without reference to the GameObject
+	public struct tileData
+	{
+
+		// tileData consists of a position, rotation, type, and color
+		public hexLocus locus;
+		public int rotation;
+		public int type;
+		public int color;
+
+		// constructor simply 
+		public tileData (hexLocus inLocus, int inRotation, int inType, int inColor)
+		{
+			locus = inLocus;
+			rotation = inRotation;
+			type = inType;
+			color = inColor;
+		}
+
+		// serialize turns this tileData into strings separated by spaces
+		public string serialize ()
+		{
+			string s = type.ToString();
+			s += " " + color.ToString();
+			s += " " + locus.a.ToString();
+			s += " " + locus.b.ToString();
+			s += " " + locus.c.ToString();
+			s += " " + locus.d.ToString();
+			s += " " + locus.e.ToString();
+			s += " " + locus.f.ToString();
+			s += " " + rotation.ToString();
+			return s;
+		}
+	}
 	
+	// hexLocus describes a location in a hexagonal coodinate system
 	public struct hexLocus {
 
 		//turns out this bugger is pretty dang useful
 		private static readonly float sqrt3 = (float)Math.Sqrt(3f);
 
-		private int a;
-		private int b;
-		private int c;
-		private int d;
-		private int e;
-		private int f;
-
-		// public access interface variables
-		public int iA { get { return a; } }
-		public int iB { get { return b; } }
-		public int iC { get { return c; } }
-		public int iD { get { return d; } }
-		public int iE { get { return e; } }
-		public int iF { get { return f; } }
+		public int a;
+		public int b;
+		public int c;
+		public int d;
+		public int e;
+		public int f;
 
 		// operators allow hexLocus to be added and subtracted like vectors
 		// since they are static, coordinate simplification is ensured by the constructor
-		public static hexLocus operator +(hexLocus h1, hexLocus h2) {
+		public static hexLocus operator +(hexLocus h1, hexLocus h2)
+		{
 			// + operator adds each component together
 			int rA, rB, rC, rD, rE, rF;
-			rA = h1.iA + h2.iA;
-			rB = h1.iB + h2.iB;
-			rC = h1.iC + h2.iC;
-			rD = h1.iD + h2.iD;
-			rE = h1.iE + h2.iE;
-			rF = h1.iF + h2.iF;
+			rA = h1.a + h2.a;
+			rB = h1.b + h2.b;
+			rC = h1.c + h2.c;
+			rD = h1.d + h2.d;
+			rE = h1.e + h2.e;
+			rF = h1.f + h2.f;
 			return new hexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator -(hexLocus h1, hexLocus h2) {
+		public static hexLocus operator -(hexLocus h1, hexLocus h2)
+		{
 			// - operator subtracts each component in the second locus from the first locus
 			int rA, rB, rC, rD, rE, rF;
-			rA = h1.iA - h2.iA;
-			rB = h1.iB - h2.iB;
-			rC = h1.iC - h2.iC;
-			rD = h1.iD - h2.iD;
-			rE = h1.iE - h2.iE;
-			rF = h1.iF - h2.iF;
+			rA = h1.a - h2.a;
+			rB = h1.b - h2.b;
+			rC = h1.c - h2.c;
+			rD = h1.d - h2.d;
+			rE = h1.e - h2.e;
+			rF = h1.f - h2.f;
 			return new hexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator *(hexLocus h1, hexLocus h2) {
+		public static hexLocus operator *(hexLocus h1, hexLocus h2)
+		{
 			// * operator multiplies each component together
 			int rA, rB, rC, rD, rE, rF;
-			rA = h1.iA * h2.iA;
-			rB = h1.iB * h2.iB;
-			rC = h1.iC * h2.iC;
-			rD = h1.iD * h2.iD;
-			rE = h1.iE * h2.iE;
-			rF = h1.iF * h2.iF;
+			rA = h1.a * h2.a;
+			rB = h1.b * h2.b;
+			rC = h1.c * h2.c;
+			rD = h1.d * h2.d;
+			rE = h1.e * h2.e;
+			rF = h1.f * h2.f;
 			return new hexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator /(hexLocus h1, hexLocus h2) {
+		public static hexLocus operator /(hexLocus h1, hexLocus h2)
+		{
 			// / operator divides each component in the second locus from the first locus
 			int rA, rB, rC, rD, rE, rF;
-			rA = h1.iA / h2.iA;
-			rB = h1.iB / h2.iB;
-			rC = h1.iC / h2.iC;
-			rD = h1.iD / h2.iD;
-			rE = h1.iE / h2.iE;
-			rF = h1.iF / h2.iF;
+			rA = h1.a / h2.a;
+			rB = h1.b / h2.b;
+			rC = h1.c / h2.c;
+			rD = h1.d / h2.d;
+			rE = h1.e / h2.e;
+			rF = h1.f / h2.f;
 			return new hexLocus(rA, rB, rC, rD, rE, rF);
 		}
 
 		// constructor generates a set of coordinates from a given Vector3
-		public hexLocus (Vector3 inVec3) {
+		public hexLocus (Vector3 inVec3)
+		{
 			inVec3 = new Vector3(inVec3.x, inVec3.y, 0.0f);
 			hexLocus h1, h2, h3, h4;
 
@@ -101,7 +134,8 @@ namespace circleXsquares {
 		}
 
 		// constructor simply passes the given coordinates into cSimplify
-		public hexLocus (int inA, int inB, int inC, int inD, int inE, int inF) {
+		public hexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
+		{
 			a = inA;
 			b = inB;
 			c = inC;
@@ -114,7 +148,8 @@ namespace circleXsquares {
 
 		// method simplifies current coordinates to simplest terms
 		// this method should be called every time internal values are changed
-		private void cSimplify () {
+		private void cSimplify ()
+		{
 			// copies the input variables
 			int inA = a, inB = b, inC = c, inD = d, inE = e, inF = f;
 			// dS is the total delta shift to be added or subtracted from each coordinate within a triad
@@ -214,7 +249,8 @@ namespace circleXsquares {
 		}
 
 		// translates a discrete hexAxis location into a Unity world space location
-		public Vector3 toUnitySpace () {
+		public Vector3 toUnitySpace ()
+		{
 			// x and y are calculated from basic 30-60-90 trigonometry
 			float x, y;
 
