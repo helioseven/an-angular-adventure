@@ -300,7 +300,7 @@ public class EditGM : MonoBehaviour {
 		gkdInputs = inputKeys.None;
 
 		// assigns enum flags by powers of 2
-		for (int k = 0, i = 0; i < 0x8001; i = (i == 0) ? 1 : i * 2) {
+		for (int k = 0, i = 0; i < 0x10001; i = (i == 0) ? 1 : i * 2) {
 			KeyCode kc = keyCodeList[k++];
 			if (Input.GetKey(kc)) gkInputs = gkInputs | (inputKeys) i;
 			if (Input.GetKeyDown(kc)) gkdInputs = gkdInputs | (inputKeys) i;
@@ -357,42 +357,4 @@ public class EditGM : MonoBehaviour {
 	{
 		placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 	}
-
-/* (pretty sure this can now be deleted)
-
-	// replaces the current tile with the indicated tile type
-	private void switchTile (tileTypes tType)
-	{
-		// method switches active tile by deactivating current and activating createTiles[tType]
-		GameObject go = createTiles[(int)tType];
-		Vector3 tempVec3 = current.transform.position;
-		GenesisTile et = current.GetComponent<GenesisTile>();
-		int tRotation = et.tileRotation;
-		int tColor = et.tileColor;
-
-		// sets all values for the previously current tile to a state of inactivity
-		current.transform.position = Vector3.zero;
-		current.transform.rotation = Quaternion.identity;
-		while (et.tileColor != 0) et.cycleColor();
-		current.SetActive(false);
-
-		et = go.GetComponent<GenesisTile>();
-		// sets all values for the newly current tile to match state of previously current tile
-		go.transform.position = tempVec3;
-		// SOMETHING NOT RIGHT (??)
-		while (tRotation > 0) {
-			et.rotate(false);
-			tRotation--;
-		}
-		while (tColor > 0) {
-			go.GetComponent<GenesisTile>().cycleColor();
-			tColor--;
-		}
-
-		// updates global variables accordingly
-		current = go;
-		current.SetActive(true);
-	}
-*/
-
 }

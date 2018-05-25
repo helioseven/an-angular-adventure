@@ -60,23 +60,23 @@ public class GenesisTile : MonoBehaviour {
 	// disables and enables renderers based on passed type
 	public void selectType (int inType)
 	{
-		tileRenderers[tileColor, tileType].enabled = false;
-		tileType = inType % tileRenderers.Length;
-		tileRenderers[tileColor, tileType].enabled = true;
+		tileRenderers[tileType, tileColor].enabled = false;
+		tileType = inType % tileRenderers.GetLength(0);
+		tileRenderers[tileType, tileColor].enabled = true;
 	}
 
 	// disables and enables renderers based on color
 	public void cycleColor ()
 	{
-		tileRenderers[tileColor, tileType].enabled = false;
-		tileColor = (tileColor + 1) % tileRenderers.Length;
-		tileRenderers[tileColor, tileType].enabled = true;
+		tileRenderers[tileType, tileColor].enabled = false;
+		tileColor = (tileColor + 1) % tileRenderers.GetLength(1);
+		tileRenderers[tileType, tileColor].enabled = true;
 	}
 
 	// sets type, color, and rotation by passed struct
 	public void setProperties (tileData inData)
 	{
-		tileRenderers[tileColor, tileType].enabled = false;
+		tileRenderers[tileType, tileColor].enabled = false;
 		tileRenderers[inData.color, inData.type].enabled = true;
 		tileRotation = inData.rotation;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
