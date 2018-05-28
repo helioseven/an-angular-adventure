@@ -77,7 +77,10 @@ public class GenesisTile : MonoBehaviour {
 	public void setProperties (tileData inData)
 	{
 		tileRenderers[tileType, tileColor].enabled = false;
-		tileRenderers[inData.color, inData.type].enabled = true;
+		tileType = inData.type;
+		tileColor = inData.color;
+		tileRenderers[tileType, tileColor].enabled = true;
+
 		tileRotation = inData.rotation;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
 	}
