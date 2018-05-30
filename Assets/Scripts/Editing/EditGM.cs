@@ -21,13 +21,10 @@ public class EditGM : MonoBehaviour {
 	public GameObject cursor;
 	// reference to the main creation tool
 	public GenesisTile genesisTile;
-	// reference to the script attached to the UI overlay
-	public Editor_UI_Script menuPanel;
-
 	// anchorIcon keeps track of a single cursor instance
-	private GameObject anchorIcon;
-	// tileTypes helps manage the active tile
-	private enum tileTypes : byte {Tri, Dia, Trap, Hex, Sqr, Wed};
+	public SnapCursor anchorIcon;
+	// reference to the script attached to the UI overlay
+	public MenuControl menuPanel;
 
 	// menuMode enables OnGUI
 	public bool menuMode { get; private set; }
@@ -35,19 +32,16 @@ public class EditGM : MonoBehaviour {
 	// editMode being false is referred to in commenting as "creation mode"
 	public bool editMode { get; private set; }
 	// gkInputs and gkdInputs track GetKey() and GetKeyDown() states
-	private inputKeys gkInputs = inputKeys.None;
-	private inputKeys gkdInputs = inputKeys.None;
+	private inputKeys gkInputs;
+	private inputKeys gkdInputs;
 
+	// focus is the closest snap point to the current mouse position
+	// the variable is simply updated from anchorIcon, which keeps track of it
+	private hexLocus focus;
 	// isTileSelected and selectedTile track any selected tile in edit mode
 	private bool isTileSelected;
 	private tileData selectedTile;
 	private tileData gtBackup;
-
-	// focus and anchor keep track of where the mouse input is snapping to
-	private hexLocus focus;
-	private hexLocus anchor;
-	// fShift updates every frame with the distance between the mouse and the anchor
-	private Vector3 fShift;
 
 	// inputKeys helps manage keyboard input
 	[Flags]
@@ -104,9 +98,6 @@ public class EditGM : MonoBehaviour {
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			lvlLoad.supplyLevel(out placedTiles);
 
-			// sets up the anchor point
-			anchorIcon = Instantiate(cursor, Vector3.zero, Quaternion.identity) as GameObject;
-
 			// initializations for selection variables
 			isTileSelected = false;
 			selectedTile = new tileData();
@@ -118,9 +109,6 @@ public class EditGM : MonoBehaviour {
 			editMode = false;
 			gkInputs = inputKeys.None;
 			gkdInputs = inputKeys.None;
-			focus = new hexLocus();
-			anchor = new hexLocus();
-			fShift = new Vector3();
 		} else
 			// only one singleton can exist
 			Destroy(gameObject);
@@ -131,16 +119,13 @@ public class EditGM : MonoBehaviour {
 		// escape hatch used when normal behavior is paused by pauseToggle()
 		if (!isUpdating) return;
 
-		// focus is updated first based on the anchor and the mouse position
-		fShift = Camera.main.ScreenToWorldPoint(Input.mousePosition) - anchor.toUnitySpace();
-		focus = new hexLocus(fShift);
-		focus += anchor;
-
 		// gkInputs and gkdInputs are reset and updated
 		updateInputs();
 
+		// update the focus from anchorIcon
+		focus = anchorIcon.focus;
 		// anchor is updated based on right-click input
-		if (checkKey(inputKeys.Click1, true)) findAnchor();
+		if (checkKey(inputKeys.Click1, true)) anchorIcon.findNewAnchor(placedTiles);
 
 		// menuMode is enabled whenever the space bar is held down
 		menuMode = checkKey(inputKeys.Space, false);
@@ -327,44 +312,6 @@ public class EditGM : MonoBehaviour {
 	{
 		inputKeys ik = checkKeyDown ? gkdInputs : gkInputs;
 		return (ik & inKey) == inKey;
-	}
-
-	// finds the closest snap point to the current mouse position and sets the anchor there
-	private void findAnchor ()
-	{
-		// generates a list of all collisions within a radius 0.5 circle from current mouse position
-		hexLocus newAnchor = new hexLocus();
-		Vector2 inputPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		Collider2D[] hitCols = Physics2D.OverlapCircleAll(inputPos, 0.5f);
-		List<hexLocus> locusSnaps = new List<hexLocus>();
-
-		// checks every vertex of each PolygonCollider reporting a hit
-		foreach (Collider2D c2d in hitCols) {
-			PolygonCollider2D pc2d = c2d as PolygonCollider2D;
-			if (pc2d) {
-				// if the collision is not from a placed tile, it is skipped
-				if (!placedTiles.ContainsKey(c2d.gameObject)) continue;
-				hexLocus tHL = placedTiles[c2d.gameObject].locus;
-				foreach (Vector2 subPoint in pc2d.points) {
-					// adds each vertex to the list of possible snap points
-					hexLocus newPoint = new hexLocus(c2d.transform.TransformPoint(subPoint) - tHL.toUnitySpace());
-					newPoint += tHL;
-					locusSnaps.Add(newPoint);
-					tHL = newPoint;
-				}
-			}
-		}
-
-		// finds the hexLocus with the smallest offset from original input position
-		foreach (hexLocus hL in locusSnaps) {
-			Vector2 newOffset = (Vector2)hL.toUnitySpace() - inputPos;
-			Vector2 oldOffset = (Vector2)newAnchor.toUnitySpace() - inputPos;
-			if (oldOffset.magnitude > newOffset.magnitude) newAnchor = hL;
-		}
-
-		// updates global variables
-		anchor = newAnchor;
-		anchorIcon.transform.position = anchor.toUnitySpace();
 	}
 
 	// returns a tileData representation of the current state of genesisTile

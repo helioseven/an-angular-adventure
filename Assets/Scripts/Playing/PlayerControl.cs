@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
-public class Player_Controller : MonoBehaviour {
+public class PlayerControl : MonoBehaviour {
 
 	public int speed = 150;
 	public float jump_force = 0.00001f;

@@ -1,7 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
-public class DropdownController : MonoBehaviour {
+// this whole script isn't getting used in this version
+
+public class DropdownTrigger : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other){
 

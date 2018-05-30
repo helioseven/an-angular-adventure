@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using circleXsquares;
 
-public class Editor_UI_Script : MonoBehaviour {
+public class MenuControl : MonoBehaviour {
 
 	// reference to the main camera in the scene
 	private Camera mainCam;

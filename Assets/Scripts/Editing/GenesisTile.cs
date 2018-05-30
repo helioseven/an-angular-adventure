@@ -95,15 +95,17 @@ public class GenesisTile : MonoBehaviour {
 		return go;
 	}
 
-	// returns a copy of a specified tile
+	// returns an instantiated copy of a specified tile
 	public GameObject newTile (tileData inData)
 	{
-		// (??)
+		// doesn't make any changes to the GenesisTile itself,
+		// just grabs the necessary GameObject and instantiates a copy as specified
 		GameObject go = tileRenderers[inData.type, inData.color].transform.parent.gameObject;
 		Quaternion r = Quaternion.Euler(0, 0, 30 * inData.rotation);
 		Vector3 p = inData.locus.toUnitySpace();
 
 		go = Instantiate(go, p, r) as GameObject;
+		// make sure the renderer is on
 		go.GetComponentInChildren<SpriteRenderer>().enabled = true;
 
 		return go;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 using inputKeys = EditGM.inputKeys;
 
-public class Camera_Controller : MonoBehaviour {
+public class EditCamControl : MonoBehaviour {
 
 	// camera dolly is updated based on WASD input
 	void Update () {

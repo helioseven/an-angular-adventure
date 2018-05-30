@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Camera_Script : MonoBehaviour {
+public class PlayCamControl : MonoBehaviour {
 
 	private Vector3 velocity = Vector3.zero;
 

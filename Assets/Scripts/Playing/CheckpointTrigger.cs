@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
 
-public class Checkpoint_Trigger : MonoBehaviour {
+public class CheckpointTrigger : MonoBehaviour {
 
 	// becomes the current checkpoint when it detects a collision with the player
 	void OnTriggerEnter2D (Collider2D other)

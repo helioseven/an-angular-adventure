@@ -78,23 +78,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Editing\Camera_Controller.cs" />
     <Compile Include="Assets\Scripts\Editing\EditButtonControl.cs" />
+    <Compile Include="Assets\Scripts\Editing\EditCamControl.cs" />
     <Compile Include="Assets\Scripts\Editing\EditGM.cs" />
-    <Compile Include="Assets\Scripts\Editing\Editor_UI_Script.cs" />
     <Compile Include="Assets\Scripts\Editing\GenesisTile.cs" />
+    <Compile Include="Assets\Scripts\Editing\MenuControl.cs" />
     <Compile Include="Assets\Scripts\Editing\QuitDialogControl.cs" />
     <Compile Include="Assets\Scripts\Editing\SaveDialogControl.cs" />
+    <Compile Include="Assets\Scripts\Editing\SnapCursor.cs" />
     <Compile Include="Assets\Scripts\MainMenu\EditLoader.cs" />
     <Compile Include="Assets\Scripts\MainMenu\MenuGM.cs" />
     <Compile Include="Assets\Scripts\MainMenu\PlayLoader.cs" />
-    <Compile Include="Assets\Scripts\Playing\Camera_Script.cs" />
-    <Compile Include="Assets\Scripts\Playing\Checkpoint_Trigger.cs" />
-    <Compile Include="Assets\Scripts\Playing\Death_Trigger.cs" />
-    <Compile Include="Assets\Scripts\Playing\Destroy_Self_Delayed.cs" />
-    <Compile Include="Assets\Scripts\Playing\Dropdown_Trigger.cs" />
+    <Compile Include="Assets\Scripts\Playing\CheckpointTrigger.cs" />
+    <Compile Include="Assets\Scripts\Playing\DeathTrigger.cs" />
+    <Compile Include="Assets\Scripts\Playing\DropdownTrigger.cs" />
+    <Compile Include="Assets\Scripts\Playing\PlayCamControl.cs" />
     <Compile Include="Assets\Scripts\Playing\PlayGM.cs" />
-    <Compile Include="Assets\Scripts\Playing\Player_Controller.cs" />
+    <Compile Include="Assets\Scripts\Playing\PlayerControl.cs" />
     <Compile Include="Assets\Scripts\circleXsquares.cs" />
   </ItemGroup>
   <ItemGroup>

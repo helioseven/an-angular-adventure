@@ -92,7 +92,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 122}
   m_MaxSize: {x: 4000, y: 4022}
   vertical: 0
-  controlID: 1801
+  controlID: 9
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -136,8 +136,8 @@ MonoBehaviour:
     y: 1219
     width: 765
     height: 609
-  m_MinSize: {x: 102, y: 121}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 18}
   m_Panes:
   - {fileID: 18}
@@ -164,10 +164,10 @@ MonoBehaviour:
     y: 0
     width: 765
     height: 1828
-  m_MinSize: {x: 277, y: 463}
-  m_MaxSize: {x: 10002, y: 18063}
+  m_MinSize: {x: 277, y: 442}
+  m_MaxSize: {x: 10002, y: 18042}
   vertical: 1
-  controlID: 107
+  controlID: 47
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -252,10 +252,10 @@ MonoBehaviour:
     y: 30
     width: 1080
     height: 1828
-  m_MinSize: {x: 479, y: 463}
-  m_MaxSize: {x: 14004, y: 18063}
+  m_MinSize: {x: 477, y: 442}
+  m_MaxSize: {x: 14002, y: 18042}
   vertical: 0
-  controlID: 140
+  controlID: 144
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -299,8 +299,8 @@ MonoBehaviour:
     y: 0
     width: 315
     height: 1828
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 16}
   m_Panes:
   - {fileID: 16}
@@ -484,9 +484,9 @@ MonoBehaviour:
     height: 1807
   m_TreeViewState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: e69affff
-    m_LastClickedID: -25882
-    m_ExpandedIDs: 0a9bffff169bffffd09cffff5ab8ffffd6bcffffc2c5fffffccbfffff2d3ffffd6e0ffffe0fbffff000000004e310000a2340000d2370000f637000008380000363800004a380000303900006e410000
+    m_SelectedIDs: 
+    m_LastClickedID: 0
+    m_ExpandedIDs: e0fbffff00000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -546,19 +546,19 @@ MonoBehaviour:
     m_ShowAllHits: 0
     m_SearchArea: 0
     m_Folders:
-    - Assets/Levels
+    - Assets/Scripts/Playing
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Levels
+  - Assets/Scripts/Playing
   m_LastFoldersGridSize: -1
   m_LastProjectPath: D:\AnAngularAdventure
   m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 84250000
-    m_LastClickedID: 9604
-    m_ExpandedIDs: 00000000262500005e2500007c250000ac250000c025000010260000c0260000ca290000cc29000000ca9a3bffffff7f
+    m_SelectedIDs: 46270000
+    m_LastClickedID: 10054
+    m_ExpandedIDs: 00000000242500005c2500007a250000aa250000be2500000e260000be260000cc290000ce29000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -586,7 +586,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000262500005e2500007c250000ac250000c025000010260000c0260000ca290000cc290000
+    m_ExpandedIDs: 00000000242500005c2500007a250000aa250000be2500000e260000be260000cc290000ce290000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
