@@ -4,16 +4,29 @@ using UnityEngine;
 
 public class PlayCamControl : MonoBehaviour {
 
-	private Vector3 velocity = Vector3.zero;
+	private Vector3 velocity;
 
-	void Start ()
+	private PlayLoader pl;
+
+	void Awake ()
 	{
+		velocity = Vector3.zero;
+
+		pl = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
+	}
+
+	IEnumerator Start ()
+	{
+		// need to wait until the asset is downloaded
+		while(!pl.isFileFound) yield return new WaitForSeconds(0.1f);
+
 		velocity = PlayGM.instance.player.transform.position;
 	}
 
 	// uses SmoothDamp to move camera towards the player at all times
 	void Update ()
 	{
+		if (!PlayGM.instance.player) return;
 		Vector3 target = PlayGM.instance.player.transform.position;
 		Vector3 tempVec3 = transform.position;
 

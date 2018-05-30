@@ -93,10 +93,10 @@ public class EditGM : MonoBehaviour {
 			// set singleton instance
 			instance = this;
 
-			// level is loaded from file
+			// (??)
 			placedTiles = new Dictionary<GameObject, tileData>();
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-			lvlLoad.supplyLevel(out placedTiles);
+			StartCoroutine(loadLevel());
 
 			// initializations for selection variables
 			isTileSelected = false;
@@ -224,6 +224,16 @@ public class EditGM : MonoBehaviour {
 	}
 
 	/* Private Functions */
+
+	// (??)
+	private IEnumerator loadLevel ()
+	{
+		// need to wait until the asset is downloaded
+		while(!lvlLoad.isFileFound) yield return new WaitForSeconds(0.1f);
+
+		// then level is loaded from file
+		lvlLoad.supplyLevel(out placedTiles);
+	}
 
 	// makes changes associated with the state of the genesisTile
 	private void updateGT ()

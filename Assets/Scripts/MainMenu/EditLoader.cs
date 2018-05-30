@@ -10,13 +10,21 @@ public class EditLoader : MonoBehaviour {
 
 	// short-form pathname for the level to be loaded
 	private string path;
+	// (??)
+	private string rawString;
+	public bool isFileFound { get; private set; }
+
 	private GenesisTile gt;
 
 	void Awake ()
 	{
 		// filepath of level to be loaded
 		// (!!) prompt for string instead
-		path = "testLevel.txt";
+//		path = "testLevel.txt";
+		path = "http://ada.evergreen.edu/~bardre09/sosProject/testLevel.txt";
+		isFileFound = false;
+		StartCoroutine(getLevelData());
+
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)
 		SceneManager.LoadScene(2);
@@ -28,7 +36,8 @@ public class EditLoader : MonoBehaviour {
 		// initialization
 		gt = EditGM.instance.genesisTile;
 		level = new Dictionary<GameObject, tileData>();
-		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+//		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+		string[] lines = rawString.Split(new Char[] {'\n'});
 
 		// begin parsing file and building level
 		if (lines.Length < 3) {
@@ -37,7 +46,7 @@ public class EditLoader : MonoBehaviour {
 		}
 
 		// after the first two lines of the file, all remaining lines represent tiles
-		for (int i = 2; i < lines.Length; i++) {
+		for (int i = 2; i < lines.Length - 1; i++) {
 			string[] vals = lines[i].Split(new Char[] {' '});
 			int t = Int32.Parse(vals[0]);
 			int c = Int32.Parse(vals[1]);
@@ -56,5 +65,16 @@ public class EditLoader : MonoBehaviour {
 
 		// terminates this script when done
 		Destroy(gameObject);
+	}
+
+	// (??)
+	private IEnumerator getLevelData()
+	{
+		using (WWW www = new WWW(path)) {
+			yield return www;
+
+			rawString = www.text;
+			isFileFound = true;
+		}
 	}
 }

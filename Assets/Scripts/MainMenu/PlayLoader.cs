@@ -10,6 +10,9 @@ public class PlayLoader : MonoBehaviour {
 
 	// short-form pathname for the level to be loaded
 	private string path;
+	// (??)
+	private string rawString;
+	public bool isFileFound { get; private set; }
 	// 6x7 array of prefab references
 	private GameObject[,] prefabRefs;
 
@@ -71,7 +74,11 @@ public class PlayLoader : MonoBehaviour {
 		};
 
 		// filepath of level to be loaded (!!) prompt for string instead
-		path = "testLevel.txt";
+//		path = "testLevel.txt";
+		path = "http://ada.evergreen.edu/~bardre09/sosProject/testLevel.txt";
+		isFileFound = false;
+		StartCoroutine(getLevelData());
+
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)
 		SceneManager.LoadScene(1);
@@ -83,7 +90,8 @@ public class PlayLoader : MonoBehaviour {
 		// initialization
 		level = new HashSet<GameObject>();
 		playerStart = Vector2.zero;
-		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+//		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+		string[] lines = rawString.Split(new Char[] {'\n'});
 
 		// begin parsing file and building level
 		if (lines.Length < 3) {
@@ -103,7 +111,7 @@ public class PlayLoader : MonoBehaviour {
 		playerStart = pHL.toUnitySpace();
 
 		// after the first two lines of the file, all remaining lines represent tiles
-		for (int i = 2; i < lines.Length; i++) {
+		for (int i = 2; i < lines.Length - 1; i++) {
 			string[] vals = lines[i].Split(new Char[] {' '});
 			int j = Int32.Parse(vals[0]);
 			int k = Int32.Parse(vals[1]);
@@ -122,5 +130,16 @@ public class PlayLoader : MonoBehaviour {
 
 		// terminates this script when done
 		Destroy(gameObject);
+	}
+
+	// (??)
+	private IEnumerator getLevelData()
+	{
+		using (WWW www = new WWW(path)) {
+			yield return www;
+
+			rawString = www.text;
+			isFileFound = true;
+		}
 	}
 }

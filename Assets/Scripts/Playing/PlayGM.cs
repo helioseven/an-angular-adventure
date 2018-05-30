@@ -11,6 +11,7 @@ public class PlayGM : MonoBehaviour {
 	private PlayLoader lvlLoad = null;
 	private HashSet<GameObject> lvlTiles;
 
+	private Vector2 pV2;
 	public GameObject player_ref;
 	public GameObject death_particles;
 	public GameObject checkpoint_ref;
@@ -25,13 +26,8 @@ public class PlayGM : MonoBehaviour {
 			instance = this;
 			// find the loader
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
-			Vector2 v2;
 			// load the level
-			lvlLoad.supplyLevel(out lvlTiles, out v2);
-			// set checkpoint
-			SetCheckPoint(Instantiate(checkpoint_ref, v2, Quaternion.identity) as GameObject);
-			// instantiate player
-			player = Instantiate(player_ref, v2, Quaternion.identity) as GameObject;
+			StartCoroutine(loadLevel());
 		} else
 			Destroy (gameObject);
 	}
@@ -70,5 +66,19 @@ public class PlayGM : MonoBehaviour {
 	{
 		foreach (GameObject go in lvlTiles) DontDestroyOnLoad(go);
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+	}
+
+	// (??)
+	private IEnumerator loadLevel ()
+	{
+		// need to wait until the asset is downloaded
+		while(!lvlLoad.isFileFound) yield return new WaitForSeconds(0.1f);
+
+		// level is loaded from file
+		lvlLoad.supplyLevel(out lvlTiles, out pV2);
+		// instantiate and set checkpoint
+		SetCheckPoint(Instantiate(checkpoint_ref, pV2, Quaternion.identity) as GameObject);
+		// instantiate player
+		player = Instantiate(player_ref, pV2, Quaternion.identity) as GameObject;
 	}
 }
