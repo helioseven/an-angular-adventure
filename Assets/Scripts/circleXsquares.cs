@@ -4,43 +4,11 @@ using UnityEngine;
 
 namespace circleXsquares {
 
-	// tileData describes a tile without reference to the GameObject
-	public struct tileData
-	{
-
-		// tileData consists of a position, rotation, type, and color
-		public hexLocus locus;
-		public int rotation;
-		public int type;
-		public int color;
-
-		// constructor simply 
-		public tileData (hexLocus inLocus, int inRotation, int inType, int inColor)
-		{
-			locus = inLocus;
-			rotation = inRotation;
-			type = inType;
-			color = inColor;
-		}
-
-		// serialize turns this tileData into strings separated by spaces
-		public string serialize ()
-		{
-			string s = type.ToString();
-			s += " " + color.ToString();
-			s += " " + locus.a.ToString();
-			s += " " + locus.b.ToString();
-			s += " " + locus.c.ToString();
-			s += " " + locus.d.ToString();
-			s += " " + locus.e.ToString();
-			s += " " + locus.f.ToString();
-			s += " " + rotation.ToString();
-			return s;
-		}
-	}
+	/* Primary Definitions */
 	
 	// hexLocus describes a location in a hexagonal coodinate system
-	public struct hexLocus {
+	public struct hexLocus
+	{
 
 		//turns out this bugger is pretty dang useful
 		private static readonly float sqrt3 = (float)Math.Sqrt(3f);
@@ -268,5 +236,47 @@ namespace circleXsquares {
 
 			return new Vector3(x, y, 0f);
 		}
+	}
+
+	// tileData describes a tile by attributes
+	public struct tileData
+	{
+
+		// tileData consists of a position, rotation, type, and color
+		public hexLocus locus;
+		public int rotation;
+		public int type;
+		public int color;
+
+		// constructor simply 
+		public tileData (hexLocus inLocus, int inRotation, int inType, int inColor)
+		{
+			locus = inLocus;
+			rotation = inRotation;
+			type = inType;
+			color = inColor;
+		}
+
+		// serialize turns this tileData into strings separated by spaces
+		public string serialize ()
+		{
+			string s = type.ToString();
+			s += " " + color.ToString();
+			s += " " + locus.a.ToString();
+			s += " " + locus.b.ToString();
+			s += " " + locus.c.ToString();
+			s += " " + locus.d.ToString();
+			s += " " + locus.e.ToString();
+			s += " " + locus.f.ToString();
+			s += " " + rotation.ToString();
+			return s;
+		}
+	}
+
+	// (??)
+	public struct levelLayer
+	{
+
+		// (??)
 	}
 }

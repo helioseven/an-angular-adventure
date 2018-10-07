@@ -10,8 +10,7 @@ using circleXsquares;
 public class EditGM : MonoBehaviour {
 
 	// singleton instance
-	[HideInInspector]
-	public static EditGM instance = null;
+	[HideInInspector] public static EditGM instance = null;
 	public bool isUpdating { get; private set; }
 	private EditLoader lvlLoad = null;
 	// placedTiles manages all tiles placed into the world space
