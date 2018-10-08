@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace circleXsquares {
@@ -13,6 +14,7 @@ namespace circleXsquares {
 		//turns out this bugger is pretty dang useful
 		private static readonly float sqrt3 = (float)Math.Sqrt(3f);
 
+		// primary components are coordinates on overlayed ACE & DEF trigonal axes
 		public int a;
 		public int b;
 		public int c;
@@ -114,7 +116,40 @@ namespace circleXsquares {
 			cSimplify();
 		}
 
-		// method simplifies current coordinates to simplest terms
+		// translates a discrete hexLocus into a Unity world space location
+		public Vector3 toUnitySpace ()
+		{
+			// x and y are calculated from basic 30-60-90 trigonometry
+			float x, y;
+
+			x = a;
+			x += ((sqrt3 / 2f) * b);
+			x -= (0.5f * c);
+			x -= ((sqrt3 / 2f) * d);
+			x -= (0.5f * e);
+
+			y = (-1f * f);
+			y += (0.5f * b);
+			y += ((sqrt3 / 2f) * c);
+			y += (0.5f * d);
+			y -= ((sqrt3 / 2f) * e);
+
+			return new Vector3(x, y, 0f);
+		}
+
+		// serialize merely string-separates each component value on a single line
+		public string serialize ()
+		{
+			string s = a.ToString();
+			s += " " + b.ToString();
+			s += " " + c.ToString();
+			s += " " + d.ToString();
+			s += " " + e.ToString();
+			s += " " + f.ToString();
+			return s;
+		}
+
+		// cSimplify simplifies current coordinates to simplest possible terms
 		// this method should be called every time internal values are changed
 		private void cSimplify ()
 		{
@@ -215,26 +250,25 @@ namespace circleXsquares {
 			d = inD - dS;
 			f = inF - dS;
 		}
+	}
 
-		// translates a discrete hexAxis location into a Unity world space location
-		public Vector3 toUnitySpace ()
+	// (??)
+	// nb: tileTriggers should really only ever be applied to green (color: 4) tiles
+	// nb2: like any other color tile, triggers can also be warps
+	public struct tileTrigger
+	{
+
+		// (??)
+		public bool isActive;
+		public hexLocus targetLocus;
+		public int targetLayer;
+
+		// simple constructor
+		public tileTrigger (bool inActive, hexLocus inLocus, int inLayer)
 		{
-			// x and y are calculated from basic 30-60-90 trigonometry
-			float x, y;
-
-			x = a;
-			x += ((sqrt3 / 2f) * b);
-			x -= (0.5f * c);
-			x -= ((sqrt3 / 2f) * d);
-			x -= (0.5f * e);
-
-			y = (-1f * f);
-			y += (0.5f * b);
-			y += ((sqrt3 / 2f) * c);
-			y += (0.5f * d);
-			y -= ((sqrt3 / 2f) * e);
-
-			return new Vector3(x, y, 0f);
+			isActive = inActive;
+			targetLocus = inLocus;
+			targetLayer = inLayer;
 		}
 	}
 
@@ -248,7 +282,7 @@ namespace circleXsquares {
 		public int type;
 		public int color;
 
-		// constructor simply 
+		// simple constructor
 		public tileData (hexLocus inLocus, int inRotation, int inType, int inColor)
 		{
 			locus = inLocus;
@@ -262,21 +296,148 @@ namespace circleXsquares {
 		{
 			string s = type.ToString();
 			s += " " + color.ToString();
-			s += " " + locus.a.ToString();
-			s += " " + locus.b.ToString();
-			s += " " + locus.c.ToString();
-			s += " " + locus.d.ToString();
-			s += " " + locus.e.ToString();
-			s += " " + locus.f.ToString();
+			s += " " + locus.serialize();
 			s += " " + rotation.ToString();
 			return s;
 		}
 	}
 
-	// (??)
-	public struct levelLayer
+	// chkpntData describes the mechanism by which we track player progress
+	public struct chkpntData
 	{
 
-		// (??)
+		// a checkpoint simply consists of an activity indicator, and then a location and rotation
+		public bool isActive;
+		public hexLocus locus;
+		public int rotation;
+
+		// simple constructor
+		public chkpntData (bool inActive, hexLocus inLocus, int inRotation)
+		{
+			isActive = inActive;
+			locus = inLocus;
+			rotation = inRotation;
+		}
+
+		// serialize turns this chkpntData into strings separated by spaces
+		public string serialize ()
+		{
+			string s = (isActive ? 1 : 0).ToString();
+			s += " " + locus.serialize();
+			s += " " + rotation.ToString();
+			return s;
+		}
+	}
+
+	// warpData describes the mechanism by which players win and move between level layers
+	public struct warpData
+	{
+
+		// warps are used as win triggers, of which there may be multiple
+		public bool isVictory;
+		// otherwise, warps move the player up or down one layer in a level
+		// nb: as a consequence, warps will occupy the same position in both layers
+		public bool isDropDown;
+		// originLayer describes the layer on which the warp will be triggered
+		public int originLayer;
+		// finally, the warp must have a rotation as it occupies physical space in two layers
+		public int rotation;
+
+		// simple constructor
+		public warpData (bool inVictory, bool inDD, int inOrigin, int inRotation)
+		{
+			isVictory = inVictory;
+			isDropDown = inDD;
+			originLayer = inOrigin;
+			rotation = inRotation;
+		}
+
+		// serialize turns this warpData into strings separated by spaces
+		public string serialize ()
+		{
+			string s = (isActive ? 1 : 0).ToString();
+			s += " " + (isDropDown ? 1 : 0).ToString();
+			s += " " + originLayer.ToString();
+			s += " " + rotation.ToString();
+			return s;
+		}
+	}
+
+	// layerData describes a component of a level by a set of tiles and checkpoints
+	public struct layerData
+	{
+
+		// a layer needs to know it's depth within the level using it
+		public int layerDepth;
+		// the rest of the layer is a set of tiles and a set of checkpoints
+		public ArrayList<tileData> tileSet;
+		public ArrayList<chkpntData> chkpntSet;
+		// nb: the player will start on the first active checkpoint found searching through the parent,
+		//     searching through layers and then checkpoints in linear order (0->)
+
+		// simple constructor
+		public layerData (int inDepth, ArrayList<tileData> inTiles, ArrayList<chkpntData> inChkpnts)
+		{
+			layerDepth = inDepth;
+			tileSet = inTiles;
+			chkpntSet = inChkpnts;
+		}
+
+		// serialize turns this layerData into a "paragraph"-style chunk
+		public string[] serialize ()
+		{
+			ArrayList<string> returnStrings = newArrayList<string>();
+			// for each layer, we have a single line comment for layer number
+			returnStrings.Add("-- Layer #" + ld.layerDepth.ToString() + " --");
+			// then each line below that is a serialized tileData
+			foreach (tileData td in tileSet)
+				returnStrings.Add(td.serialize());
+
+			// next is checkpoints, signaled by a human-readable comment line
+			returnStrings.Add("-- Checkpoints --");
+			// then each line below lists out the checkpoints for this layer
+			foreach (chkpntData cpd in chkpntSet)
+				returnStrings.Add(cpd.serialize());
+
+			return returnStrings.ToArray(typeof(string));
+		}
+	}
+
+	// levelData is the main aggregate unit of a set of layers and their relationships
+	public struct levelData
+	{
+
+		// a level consists of a set of layers and warps between those layers
+		public ArrayList<layerData> layerSet;
+		public ArrayList<warpData> warpSet;
+
+		// simple constructor
+		public levelData (ArrayList<layerData> inLayers, ArrayList<warpData> inWarps)
+		{
+			layerSet = inLayers;
+			warpSet = inWarps;
+		}
+
+		// serialize turns this levelData into a list of layer chunks
+		public string[] serialize ()
+		{
+			ArrayList<string> returnStrings = new ArrayList<string>();
+			// first line of the file is reserved for human-readable comments
+			returnStrings.Add("-- Level Comments go here --");
+
+			foreach (layerData ld in layerSet) {
+				// then a chunk is added for each tile in the layer
+				returnStrings.Add(" ");
+				returnStrings.AddRange(ld.serialize());
+			}
+
+			// single line comment signals warps
+			returnStrings.AddRange([" ", "-- Warps --"]);
+			foreach (warpData wd in warpSet)
+				// then each warp for the level is listed out in lines
+				returnStrings.Add(wd.serialize());
+
+			return returnStrings.ToArray(typeof(string));
+		}
 	}
 }

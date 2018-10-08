@@ -208,16 +208,8 @@ public class EditGM : MonoBehaviour {
 	public void saveFile (string filename)
 	{
 		string fpath = "Assets\\Levels\\" + filename + ".txt";
-		GameObject[] pts = new GameObject[placedTiles.Count];
-		string[] lines = new string[pts.Length + 2];
-
-		placedTiles.Keys.CopyTo(pts, 0);
-		// (!!) this bit will have to change
-		lines[0] = "test level";
-		lines[1] = "0 0 0 0 0 -10";
-
-		for (int i = 0; i < pts.Length; i++)
-			lines[i+2] = placedTiles[pts[i]].serialize();
+		// (!!) _levelDataName will be replaced
+		string[] lines = _levelDataName.serialize();
 
 		File.WriteAllLines(fpath, lines);
 	}

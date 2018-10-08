@@ -14,7 +14,8 @@ public class PlayLoader : MonoBehaviour {
 	private GameObject[,] prefabRefs;
 
 	// prefab references
-	// very crude (!!) changes needed
+	// very crude
+	// (!!) changes needed
 	public GameObject dia_black;
 	public GameObject dia_blue;
 	public GameObject dia_brown;
@@ -60,7 +61,8 @@ public class PlayLoader : MonoBehaviour {
 
 	void Awake ()
 	{
-		// crude (!!) changes needed
+		// crude
+		// (!!) changes needed
 		prefabRefs = new GameObject[6,7] {
 			{tri_black, tri_blue, tri_brown, tri_green, tri_orange, tri_purple, tri_red},
 			{dia_black, dia_blue, dia_brown, dia_green, dia_orange, dia_purple, dia_red},
@@ -70,7 +72,9 @@ public class PlayLoader : MonoBehaviour {
 			{wed_black, wed_blue, wed_brown, wed_green, wed_orange, wed_purple, wed_red},
 		};
 
-		// filepath of level to be loaded (!!) prompt for string instead
+		// filepath of level to be loaded
+		// (!) currently just change the string and recompile :|
+		// (!!) prompt for string instead
 		path = "testLevel.txt";
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)
@@ -91,7 +95,8 @@ public class PlayLoader : MonoBehaviour {
 			return;
 		}
 
-		// the first line of the file is ignored, the second line represents the player location
+		// the first line of the file is for comments and is ignored
+		// the second line of the file represents the player location
 		string[] pVals = lines[1].Split(new Char[] {' '});
 		hexLocus pHL = new hexLocus(
 			Int32.Parse(pVals[0]),
