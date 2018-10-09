@@ -6,5 +6,5 @@ Assets/Levels/*.txt
 Assets/Levels/*.txt.meta
 
 # Some more Unity-related ignores
-Library/*
-Temp/*
+Library
+Temp
