@@ -103,7 +103,7 @@ namespace circleXsquares {
 			else this = h4;
 		}
 
-		// constructor simply passes the given coordinates into cSimplify
+		// simple constructor using cSimplify
 		public hexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
 		{
 			a = inA;
@@ -253,8 +253,26 @@ namespace circleXsquares {
 	}
 
 	// (??)
+	// (!!) currently not in use
+	public struct hexOrient
+	{
+
+		// (??)
+		public hexLocus locus;
+		public int rotation;
+
+		// simple constructor
+		public hexOrient (hexLocus inLocus, int inRotation)
+		{
+			locus = inLocus;
+			rotation = inRotation;
+		}
+	}
+
+	// (??)
 	// nb: tileTriggers should really only ever be applied to green (color: 4) tiles
 	// nb2: like any other color tile, triggers can also be warps
+	// (!!) currently not in use
 	public struct tileTrigger
 	{
 
@@ -276,19 +294,19 @@ namespace circleXsquares {
 	public struct tileData
 	{
 
-		// tileData consists of a position, rotation, type, and color
-		public hexLocus locus;
-		public int rotation;
+		// tileData consists of a type, color, position, and rotation
 		public int type;
 		public int color;
+		public hexLocus locus;
+		public int rotation;
 
 		// simple constructor
-		public tileData (hexLocus inLocus, int inRotation, int inType, int inColor)
+		public tileData (int inType, int inColor, hexLocus inLocus, int inRotation)
 		{
-			locus = inLocus;
-			rotation = inRotation;
 			type = inType;
 			color = inColor;
+			locus = inLocus;
+			rotation = inRotation;
 		}
 
 		// serialize turns this tileData into strings separated by spaces
@@ -340,24 +358,27 @@ namespace circleXsquares {
 		public bool isDropDown;
 		// originLayer describes the layer on which the warp will be triggered
 		public int originLayer;
-		// finally, the warp must have a rotation as it occupies physical space in two layers
+		// finally, the warp must have a location and rotation as it occupies physical space in two layers
+		public hexLocus locus;
 		public int rotation;
 
 		// simple constructor
-		public warpData (bool inVictory, bool inDD, int inOrigin, int inRotation)
+		public warpData (bool inVictory, bool inDD, int inOrigin, hexLocus inLocus, int inRotation)
 		{
 			isVictory = inVictory;
 			isDropDown = inDD;
 			originLayer = inOrigin;
+			locus = inLocus;
 			rotation = inRotation;
 		}
 
 		// serialize turns this warpData into strings separated by spaces
 		public string serialize ()
 		{
-			string s = (isActive ? 1 : 0).ToString();
+			string s = (isVictory ? 1 : 0).ToString();
 			s += " " + (isDropDown ? 1 : 0).ToString();
 			s += " " + originLayer.ToString();
+			s += " " + locus.serialize();
 			s += " " + rotation.ToString();
 			return s;
 		}
@@ -370,13 +391,13 @@ namespace circleXsquares {
 		// a layer needs to know it's depth within the level using it
 		public int layerDepth;
 		// the rest of the layer is a set of tiles and a set of checkpoints
-		public ArrayList<tileData> tileSet;
-		public ArrayList<chkpntData> chkpntSet;
+		public List<tileData> tileSet;
+		public List<chkpntData> chkpntSet;
 		// nb: the player will start on the first active checkpoint found searching through the parent,
 		//     searching through layers and then checkpoints in linear order (0->)
 
 		// simple constructor
-		public layerData (int inDepth, ArrayList<tileData> inTiles, ArrayList<chkpntData> inChkpnts)
+		public layerData (int inDepth, List<tileData> inTiles, List<chkpntData> inChkpnts)
 		{
 			layerDepth = inDepth;
 			tileSet = inTiles;
@@ -386,9 +407,9 @@ namespace circleXsquares {
 		// serialize turns this layerData into a "paragraph"-style chunk
 		public string[] serialize ()
 		{
-			ArrayList<string> returnStrings = newArrayList<string>();
+			List<string> returnStrings = new List<string>();
 			// for each layer, we have a single line comment for layer number
-			returnStrings.Add("-- Layer #" + ld.layerDepth.ToString() + " --");
+			returnStrings.Add("-- Layer #" + layerDepth.ToString() + " --");
 			// then each line below that is a serialized tileData
 			foreach (tileData td in tileSet)
 				returnStrings.Add(td.serialize());
@@ -398,8 +419,9 @@ namespace circleXsquares {
 			// then each line below lists out the checkpoints for this layer
 			foreach (chkpntData cpd in chkpntSet)
 				returnStrings.Add(cpd.serialize());
+			returnStrings.Add("-- End Layer --");
 
-			return returnStrings.ToArray(typeof(string));
+			return returnStrings.ToArray();
 		}
 	}
 
@@ -408,11 +430,11 @@ namespace circleXsquares {
 	{
 
 		// a level consists of a set of layers and warps between those layers
-		public ArrayList<layerData> layerSet;
-		public ArrayList<warpData> warpSet;
+		public List<layerData> layerSet;
+		public List<warpData> warpSet;
 
 		// simple constructor
-		public levelData (ArrayList<layerData> inLayers, ArrayList<warpData> inWarps)
+		public levelData (List<layerData> inLayers, List<warpData> inWarps)
 		{
 			layerSet = inLayers;
 			warpSet = inWarps;
@@ -421,7 +443,7 @@ namespace circleXsquares {
 		// serialize turns this levelData into a list of layer chunks
 		public string[] serialize ()
 		{
-			ArrayList<string> returnStrings = new ArrayList<string>();
+			List<string> returnStrings = new List<string>();
 			// first line of the file is reserved for human-readable comments
 			returnStrings.Add("-- Level Comments go here --");
 
@@ -432,12 +454,165 @@ namespace circleXsquares {
 			}
 
 			// single line comment signals warps
-			returnStrings.AddRange([" ", "-- Warps --"]);
+			returnStrings.AddRange(new string[]{" ", "-- Warps --"});
 			foreach (warpData wd in warpSet)
 				// then each warp for the level is listed out in lines
 				returnStrings.Add(wd.serialize());
 
-			return returnStrings.ToArray(typeof(string));
+			return returnStrings.ToArray();
+		}
+	}
+
+	/* Utility Definitions */
+
+	// a class of static file parsing methods useful throughout the ecosystem
+	public static class FileParsing
+	{
+
+		// splitChar is just a useful delimiter for general parsing behavior
+		public static Char[] splitChar = new Char[] {' '};
+
+		// reads an array of strings to parse out level data
+		public static levelData readLevel (string[] lines)
+		{
+			// check to see that we have enough data to work with
+			if (lines.Length < 3) {
+				Debug.LogError("File could not be read correctly.");
+				return new levelData();
+			}
+
+			List<tileData> tileList = new List<tileData>();
+			List<chkpntData> chkpntList = new List<chkpntData>();
+			List<layerData> layerList = new List<layerData>();
+			List<warpData> warpList = new List<warpData>();
+			bool canReadTile = true;
+			bool canReadChkpnt = false;
+			bool canReadWarp = false;
+			// layerAdd will help us track which layer tiles are put into in the level
+			int layerAdd = 0;
+
+			for (int i = 3; i < lines.Length; i++) {
+				// (??)
+				if (lines[i] == "" || lines[i] == " ") continue;
+
+				// a layer comment precedes a list of tiles
+				if (lines[i] == ("-- Layer #" + layerAdd.ToString() + " --")) {
+					canReadTile = true;
+					canReadChkpnt = false;
+					canReadWarp = false;
+					continue;
+				}
+				// a checkpoints comment precedes a list of checkpoints, tied to the last layer comment
+				if (lines[i] == "-- Checkpoints --") {
+					canReadTile = false;
+					canReadChkpnt = true;
+					canReadWarp = false;
+					continue;
+				}
+				// an end layer comment packages all tiles and checkpoints into a layer, and then resets
+				if (lines[i] == "-- End Layer --") {
+					// when we come to the end of a layer, add it to the stack and reset the other lists
+					layerList.Add(new layerData(layerAdd, tileList, chkpntList));
+					tileList = new List<tileData>();
+					chkpntList = new List<chkpntData>();
+					continue;
+				}
+				// a warps comment precedes a list of warps, by convention at the end of a level file
+				if (lines[i] == "-- Warps --") {
+					canReadTile = false;
+					canReadChkpnt = false;
+					canReadWarp = true;
+					continue;
+				}
+
+				// if no comment has been triggered, we should be reading one (and only one) of these three
+				if (canReadTile) tileList.Add(readTile(lines[i]));
+				if (canReadChkpnt) chkpntList.Add(readChkpnt(lines[i]));
+				if (canReadWarp) warpList.Add(readWarp(lines[i]));
+			}
+
+			return new levelData(layerList, warpList);
+		}
+
+		// parses a string to construct a tileData
+		public static tileData readTile (string lineIn)
+		{
+			// split the line into individual items first
+			string[] s = lineIn.Split(splitChar);
+
+			// checks to see if there's enough items to be read
+			if (s.Length < 9) {
+				Debug.LogError("Line for tile data is formatted incorrectly.");
+				return new tileData();
+			}
+
+			// proceeds to read the line items
+			int i = Int32.Parse(s[0]);
+			int j = Int32.Parse(s[1]);
+			hexLocus hl = new hexLocus(
+				Int32.Parse(s[2]),
+				Int32.Parse(s[3]),
+				Int32.Parse(s[4]),
+				Int32.Parse(s[5]),
+				Int32.Parse(s[6]),
+				Int32.Parse(s[7]));
+			int r = Int32.Parse(s[8]);
+
+			return new tileData(i, j, hl, r);
+		}
+
+		// parses a string to construct a chkpntData
+		public static chkpntData readChkpnt (string lineIn)
+		{
+			// split the line into individual items first
+			string[] s = lineIn.Split(splitChar);
+
+			// checks to see if there's enough items to be read
+			if (s.Length < 8) {
+				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+				return new chkpntData();
+			}
+
+			// proceeds to read the line items
+			bool b = Int32.Parse(s[0]) == 0 ? false : true;
+			hexLocus hl = new hexLocus(
+				Int32.Parse(s[1]),
+				Int32.Parse(s[2]),
+				Int32.Parse(s[3]),
+				Int32.Parse(s[4]),
+				Int32.Parse(s[5]),
+				Int32.Parse(s[6]));
+			int r = Int32.Parse(s[7]);
+
+			return new chkpntData(b, hl, r);
+		}
+
+		// parses a string to construct a warpData
+		public static warpData readWarp (string lineIn)
+		{
+			// split the line into individual items first
+			string[] s = lineIn.Split(splitChar);
+
+			// checks to see if there's enough items to be read
+			if (s.Length < 8) {
+				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+				return new warpData();
+			}
+
+			// proceeds to read the line items
+			bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
+			bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
+			int d = Int32.Parse(s[2]);
+			hexLocus hl = new hexLocus(
+				Int32.Parse(s[3]),
+				Int32.Parse(s[4]),
+				Int32.Parse(s[5]),
+				Int32.Parse(s[6]),
+				Int32.Parse(s[7]),
+				Int32.Parse(s[8]));
+			int r = Int32.Parse(s[9]);
+
+			return new warpData(b1, b2, d, hl, r);
 		}
 	}
 }

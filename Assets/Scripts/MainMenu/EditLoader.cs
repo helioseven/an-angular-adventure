@@ -28,17 +28,18 @@ public class EditLoader : MonoBehaviour {
 		// initialization
 		gt = EditGM.instance.genesisTile;
 		level = new Dictionary<GameObject, tileData>();
-		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+		// begin parsing file
+		string[] lines = File.ReadAllLines("Levels\\" + path);
+		levelData ld = FileParsing.readLevel(lines);
 
-		// begin parsing file and building level
-		if (lines.Length < 3) {
-			Debug.LogError("File could not be read correctly.");
-			return;
-		}
+		foreach (tileData td in ld.layerSet[0].tileSet)
+			level.Add(gt.newTile(td), td);
 
+/*
+(!!) Obsolete
 		// after the first two lines of the file, all remaining lines represent tiles
-		for (int i = 2; i < lines.Length; i++) {
-			string[] vals = lines[i].Split(new Char[] {' '});
+		for (int i = 3; i < lines.Length; i++) {
+			string[] vals = lines[i].Split(splitChar);
 			int t = Int32.Parse(vals[0]);
 			int c = Int32.Parse(vals[1]);
 			hexLocus hl = new hexLocus(
@@ -53,6 +54,7 @@ public class EditLoader : MonoBehaviour {
 			tileData td = new tileData(hl, r, t, c);
 			level.Add(gt.newTile(td), td);
 		}
+*/
 
 		// terminates this script when done
 		Destroy(gameObject);

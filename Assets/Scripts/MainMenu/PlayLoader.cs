@@ -64,12 +64,12 @@ public class PlayLoader : MonoBehaviour {
 		// crude
 		// (!!) changes needed
 		prefabRefs = new GameObject[6,7] {
-			{tri_black, tri_blue, tri_brown, tri_green, tri_orange, tri_purple, tri_red},
-			{dia_black, dia_blue, dia_brown, dia_green, dia_orange, dia_purple, dia_red},
-			{trap_black, trap_blue, trap_brown, trap_green, trap_orange, trap_purple, trap_red},
-			{hex_black, hex_blue, hex_brown, hex_green, hex_orange, hex_purple, hex_red},
-			{sqr_black, sqr_blue, sqr_brown, sqr_green, sqr_orange, sqr_purple, sqr_red},
-			{wed_black, wed_blue, wed_brown, wed_green, wed_orange, wed_purple, wed_red},
+			{tri_black, tri_blue, tri_black, tri_green, tri_orange, tri_purple, tri_red},
+			{dia_black, dia_blue, dia_black, dia_green, dia_orange, dia_purple, dia_red},
+			{trap_black, trap_blue, trap_black, trap_green, trap_orange, trap_purple, trap_red},
+			{hex_black, hex_blue, hex_black, hex_green, hex_orange, hex_purple, hex_red},
+			{sqr_black, sqr_blue, sqr_black, sqr_green, sqr_orange, sqr_purple, sqr_red},
+			{wed_black, wed_blue, wed_black, wed_green, wed_orange, wed_purple, wed_red},
 		};
 
 		// filepath of level to be loaded
@@ -87,14 +87,23 @@ public class PlayLoader : MonoBehaviour {
 		// initialization
 		level = new HashSet<GameObject>();
 		playerStart = Vector2.zero;
-		string[] lines = File.ReadAllLines("Assets\\Levels\\" + path);
+		// begin parsing file
+		string[] lines = File.ReadAllLines("Levels\\" + path);
+		levelData ld = FileParsing.readLevel(lines);
 
-		// begin parsing file and building level
-		if (lines.Length < 3) {
-			Debug.LogError("File could not be read correctly.");
-			return;
+		foreach (tileData td in ld.layerSet[0].tileSet) {
+			GameObject pfRef = prefabRefs[td.type, td.color];
+			Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
+			GameObject go = Instantiate(pfRef, td.locus.toUnitySpace(), q) as GameObject;
+			level.Add(go);
 		}
 
+		// hard-coded player start for now (!!) needs to change
+		hexLocus hl = new hexLocus(0, 0, 0, 0, 0, -10);
+		playerStart = hl.toUnitySpace();
+
+/*
+(!!) Obsolete
 		// the first line of the file is for comments and is ignored
 		// the second line of the file represents the player location
 		string[] pVals = lines[1].Split(new Char[] {' '});
@@ -124,6 +133,7 @@ public class PlayLoader : MonoBehaviour {
 			GameObject go = Instantiate(prefabRefs[j,k], hl.toUnitySpace(), Quaternion.Euler(0, 0, 30 * r)) as GameObject;
 			level.Add(go);
 		}
+*/
 
 		// terminates this script when done
 		Destroy(gameObject);

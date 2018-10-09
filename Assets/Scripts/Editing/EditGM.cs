@@ -207,7 +207,12 @@ public class EditGM : MonoBehaviour {
 	// (testing) save level to a file in plain text format
 	public void saveFile (string filename)
 	{
-		string fpath = "Assets\\Levels\\" + filename + ".txt";
+		string fpath = "Levels\\" + filename + ".txt";
+		// (!!) this all is a kludge, just testing that it works
+		List<tileData> tiles = new List<tileData>(placedTiles.Values);
+		layerData layer = new layerData(0, tiles, new List<chkpntData>());
+		List<layerData> layerList = new List<layerData>(new layerData[]{layer});
+		levelData _levelDataName = new levelData(layerList, new List<warpData>());
 		// (!!) _levelDataName will be replaced
 		string[] lines = _levelDataName.serialize();
 
@@ -309,6 +314,6 @@ public class EditGM : MonoBehaviour {
 	private tileData getGTData ()
 	{
 		GenesisTile gt = genesisTile;
-		return new tileData(focus, gt.tileRotation, gt.tileType, gt.tileColor);
+		return new tileData(gt.tileType, gt.tileColor, focus, gt.tileRotation);
 	}
 }
