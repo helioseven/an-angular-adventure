@@ -5,8 +5,9 @@ using circleXsquares;
 
 public class SnapCursor : MonoBehaviour {
 
-	// focus and anchor keep track of where the mouse input is snapping to
+	// focus is the closest snap point to the current mouse position
 	public hexLocus focus { get; private set; }
+	// anchor keeps track of the last input snap point
 	private hexLocus anchor;
 	// fShift updates every frame with the distance between the mouse and the anchor
 	private Vector3 fShift;

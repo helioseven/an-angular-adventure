@@ -11,13 +11,8 @@ public class EditGM : MonoBehaviour {
 
 	// singleton instance
 	[HideInInspector] public static EditGM instance = null;
-	public bool isUpdating { get; private set; }
-	private EditLoader lvlLoad = null;
-	// placedTiles manages all tiles placed into the world space
-	private Dictionary<GameObject, tileData> placedTiles;
 
-	// cursor is a prefab anchor icon
-	public GameObject cursor;
+	private EditLoader lvlLoad = null;
 	// reference to the main creation tool
 	public GenesisTile genesisTile;
 	// anchorIcon keeps track of a single cursor instance
@@ -34,9 +29,9 @@ public class EditGM : MonoBehaviour {
 	private inputKeys gkInputs;
 	private inputKeys gkdInputs;
 
-	// focus is the closest snap point to the current mouse position
-	// the variable is simply updated from anchorIcon, which keeps track of it
-	private hexLocus focus;
+	// placedTiles manages all tiles placed into the world space
+	private Dictionary<GameObject, tileData> placedTiles;
+
 	// isTileSelected and selectedTile track any selected tile in edit mode
 	private bool isTileSelected;
 	private tileData selectedTile;
@@ -103,7 +98,6 @@ public class EditGM : MonoBehaviour {
 			gtBackup = new tileData();
 
 			// initializations for state variables
-			isUpdating = true;
 			menuMode = false;
 			editMode = false;
 			gkInputs = inputKeys.None;
@@ -115,14 +109,9 @@ public class EditGM : MonoBehaviour {
 
 	void Update ()
 	{
-		// escape hatch used when normal behavior is paused by pauseToggle()
-		if (!isUpdating) return;
-
 		// gkInputs and gkdInputs are reset and updated
 		updateInputs();
 
-		// update the focus from anchorIcon
-		focus = anchorIcon.focus;
 		// anchor is updated based on right-click input
 		if (checkKey(inputKeys.Click1, true)) anchorIcon.findNewAnchor(placedTiles);
 
@@ -145,7 +134,7 @@ public class EditGM : MonoBehaviour {
 			if (editMode) updateEditMode();
 			else {
 				// in creation mode, the genesisTile is moved to the current focus
-				genesisTile.transform.position = focus.toUnitySpace();
+				genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
 
 				// the genesisTile tile is placed when left-click is made
 				if (checkKey(inputKeys.Click0, true))
@@ -198,12 +187,6 @@ public class EditGM : MonoBehaviour {
 		editMode = !editMode;
 	}
 
-	// pausing is used by menus that want to suspend normal behavior
-	public void pauseToggle ()
-	{
-		isUpdating = !isUpdating;
-	}
-
 	// (testing) save level to a file in plain text format
 	public void saveFile (string filename)
 	{
@@ -244,7 +227,7 @@ public class EditGM : MonoBehaviour {
 	{
 		if (isTileSelected) {
 			// in edit mode, a selected tile will follow the focus
-			genesisTile.transform.position = focus.toUnitySpace();
+			genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
 
 			// if there is a selected tile, left-click re-places it
 			if (checkKey(inputKeys.Click0, true)) {
@@ -314,6 +297,6 @@ public class EditGM : MonoBehaviour {
 	private tileData getGTData ()
 	{
 		GenesisTile gt = genesisTile;
-		return new tileData(gt.tileType, gt.tileColor, focus, gt.tileRotation);
+		return new tileData(gt.tileType, gt.tileColor, anchorIcon.focus, gt.tileRotation);
 	}
 }
