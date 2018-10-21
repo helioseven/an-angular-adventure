@@ -13,7 +13,7 @@ public class PlayLoader : MonoBehaviour {
 	// 6x7 array of prefab references
 	private GameObject[,] prefabRefs;
 
-	// prefab references
+	// prefab references (included in transform children)
 	public GameObject tileLoader;
 
 	void Awake ()
@@ -36,21 +36,21 @@ public class PlayLoader : MonoBehaviour {
 		SceneManager.LoadScene(1);
 	}
 
-	// supplies a HashSet of tiles representing the level, and a Vector2 representing a starting location
-	public void supplyLevel (out HashSet<GameObject> level, out Vector2 playerStart)
+	// supplies a HashSet of tiles, a level representation, and a Vector2 indicating a starting location
+	public void supplyLevel (out HashSet<GameObject> tiles, out levelData level, out Vector2 playerStart)
 	{
 		// initialization
-		level = new HashSet<GameObject>();
+		tiles = new HashSet<GameObject>();
 		playerStart = Vector2.zero;
 		// begin parsing file
 		string[] lines = File.ReadAllLines("Levels\\" + path);
-		levelData ld = FileParsing.readLevel(lines);
+		level = FileParsing.readLevel(lines);
 
-		foreach (tileData td in ld.layerSet[0].tileSet) {
+		foreach (tileData td in level.layerSet[0].tileSet) {
 			GameObject pfRef = prefabRefs[td.type, td.color];
 			Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
 			GameObject go = Instantiate(pfRef, td.locus.toUnitySpace(), q) as GameObject;
-			level.Add(go);
+			tiles.Add(go);
 		}
 
 		// hard-coded player start for now (!!) needs to change

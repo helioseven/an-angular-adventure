@@ -32,6 +32,7 @@ public class EditLoader : MonoBehaviour {
 		string[] lines = File.ReadAllLines("Levels\\" + path);
 		levelData ld = FileParsing.readLevel(lines);
 
+		// (!!) this is a kludge that needs to change
 		foreach (tileData td in ld.layerSet[0].tileSet)
 			level.Add(gt.newTile(td), td);
 
