@@ -9,18 +9,17 @@ public class PolygonCollider2DEditor : Editor {
         base.OnInspectorGUI();
         PolygonCollider2D collider = (PolygonCollider2D)target;
         Vector2[] oldPoints = collider.points;
+        Vector2[] newPoints;
 
-        int size = collider.points.Length;
+        int size = oldPoints.Length;
         size = EditorGUILayout.IntField("Size:", size);
-        Vector2[] newPoints = new Vector2[size];
+        newPoints = new Vector2[size];
         Array.Copy(oldPoints, newPoints, (oldPoints.Length > newPoints.Length) ? newPoints.Length : oldPoints.Length);
-        collider.points = newPoints;
 
-        Vector2[] points = collider.points;
-        for (int i = 0; i < points.Length; i++) {
-            points[i] = EditorGUILayout.Vector2Field("Point " + i.ToString() + ":", points[i]);
+        for (int i = 0; i < newPoints.Length; i++) {
+            newPoints[i] = EditorGUILayout.Vector2Field("Point " + i.ToString() + ":", newPoints[i]);
         }
-        collider.points = points;
+        collider.points = newPoints;
         EditorUtility.SetDirty(target);
     }
 }

@@ -1,0 +1,9 @@
+okay so here's what to do:
+
+- in your own script, makes sure to import circleXsquares with 'using'
+- create a new hexLocus using one of the two constructors, either:
+	- create new hexLocus (int, int, int, int, int, int) and then Debug.Log each of the coordinates (iA, iB, iC...)
+	- create new hexLocus (Vector3, bool), where true will generate an (a, c, e) point and false a (b, d, f) point
+- add, subtract, multiply, and divde hexLocus together as though they were vectors
+- at any time, use toUnitySpace() to generate a Vector3 representation of the snap point that hexLocus representsnmlp[;oc 
+]

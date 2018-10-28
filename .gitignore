@@ -1,0 +1,10 @@
+# AAA.sublime-project is kept in the repository, workspace is not
+AAA.sublime-workspace
+
+# All user-created levels are stored locally and ignored in the repository
+Assets/Levels/*.txt
+Assets/Levels/*.txt.meta
+
+# Some more Unity-related ignores
+Library/
+Temp/

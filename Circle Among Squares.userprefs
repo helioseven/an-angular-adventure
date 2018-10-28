@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../LiveAudio/Assets/_Scripts/CombatMusicControl.cs">
+    <Files>
+      <File FileName="../LiveAudio/Assets/_Scripts/Sound_Beep_On_Click.cs" Line="13" Column="49" />
+      <File FileName="../LiveAudio/Assets/_Scripts/CombatMusicControl.cs" Line="3" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
