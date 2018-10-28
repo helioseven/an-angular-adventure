@@ -132,14 +132,9 @@ public class EditGM : MonoBehaviour {
 
 			// editMode is set via the toggleEdit() function
 			if (editMode) updateEditMode();
-			else {
-				// in creation mode, the genesisTile is moved to the current focus
-				genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
-
-				// the genesisTile tile is placed when left-click is made
-				if (checkKey(inputKeys.Click0, true))
-					placedTiles.Add(genesisTile.getActiveTile(), getGTData());
-			}
+			// the genesisTile tile is placed when left-click is made
+			else if (checkKey(inputKeys.Click0, true))
+				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 		}
 	}
 
