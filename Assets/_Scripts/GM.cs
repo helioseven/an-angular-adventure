@@ -11,7 +11,6 @@ public class GM : MonoBehaviour {
 
 	public GameObject player;
 	public GameObject death_particles;
-	public GameObject checkpoint_particles;
 
 	private int coins = 0;
 	public Text coinsText;
@@ -43,8 +42,6 @@ public class GM : MonoBehaviour {
 	public void SetCheckPoint( GameObject checkpoint )
 	{
 		curr_checkpoint = checkpoint;
-
-		Instantiate (checkpoint_particles, checkpoint.transform.position, Quaternion.identity);
 	}
 
 	public void addCoin(){
