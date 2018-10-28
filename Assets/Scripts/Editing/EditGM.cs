@@ -113,10 +113,10 @@ public class EditGM : MonoBehaviour {
 		updateInputs();
 
 		// anchor is updated based on right-click input
-		if (checkKey(inputKeys.Click1, true)) anchorIcon.findNewAnchor(placedTiles);
+		if (checkKeysDown(inputKeys.Click1)) anchorIcon.findNewAnchor(placedTiles);
 
 		// menuMode is enabled whenever the space bar is held down
-		menuMode = checkKey(inputKeys.Space, false);
+		menuMode = checkKeys(inputKeys.Space);
 
 		if (menuMode) {
 			// menuPanel is enabled and the genesisTile is disabled during menu mode
@@ -133,7 +133,7 @@ public class EditGM : MonoBehaviour {
 			// editMode is set via the toggleEdit() function
 			if (editMode) updateEditMode();
 			// the genesisTile tile is placed when left-click is made
-			else if (checkKey(inputKeys.Click0, true))
+			else if (checkKeysDown(inputKeys.Click0))
 				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 		}
 	}
@@ -147,13 +147,13 @@ public class EditGM : MonoBehaviour {
 		SceneManager.LoadScene(0);
 	}
 
-	// returns getKeys or getKeyDowns depending on boolean parameter
-	public inputKeys getInputs (bool onlyNewInputs)
-	{
-		// onlyNew determines the response of the function
-		if (onlyNewInputs) return gkdInputs;
-		else return gkInputs;
-	}
+	// simply returns whether the given keys were being held during this frame
+	public bool checkKeys (inputKeys inKeys)
+	{ return (gkInputs & inKeys) == inKeys; }
+
+	// simply returns whether the given keys were pressed on this frame
+	public bool checkKeysDown (inputKeys inKeys)
+	{ return (gkdInputs & inKeys) == inKeys; }
 
 	// toggles editMode and makes associated changes to current
 	public void toggleEdit ()
@@ -203,18 +203,18 @@ public class EditGM : MonoBehaviour {
 	private void updateGT ()
 	{
 		// genesisTile's color is cycled through when Tab is pressed
-		if (checkKey(inputKeys.Tab, true)) genesisTile.cycleColor();
+		if (checkKeysDown(inputKeys.Tab)) genesisTile.cycleColor();
 		// genesisTile is rotated around its pivot,
 		// counter-clockwise when Q is pressed, clockwise when E is pressed
-		if (checkKey(inputKeys.Q, true)) genesisTile.rotate(false);
-		if (checkKey(inputKeys.E, true)) genesisTile.rotate(true);
+		if (checkKeysDown(inputKeys.Q)) genesisTile.rotate(false);
+		if (checkKeysDown(inputKeys.E)) genesisTile.rotate(true);
 		// genesisTile's type is assigned by the numeric keys
-		if (checkKey(inputKeys.One, true)) genesisTile.selectType(0);
-		if (checkKey(inputKeys.Two, true)) genesisTile.selectType(1);
-		if (checkKey(inputKeys.Three, true)) genesisTile.selectType(2);
-		if (checkKey(inputKeys.Four, true)) genesisTile.selectType(3);
-		if (checkKey(inputKeys.Five, true)) genesisTile.selectType(4);
-		if (checkKey(inputKeys.Six, true)) genesisTile.selectType(5);
+		if (checkKeysDown(inputKeys.One)) genesisTile.selectType(0);
+		if (checkKeysDown(inputKeys.Two)) genesisTile.selectType(1);
+		if (checkKeysDown(inputKeys.Three)) genesisTile.selectType(2);
+		if (checkKeysDown(inputKeys.Four)) genesisTile.selectType(3);
+		if (checkKeysDown(inputKeys.Five)) genesisTile.selectType(4);
+		if (checkKeysDown(inputKeys.Six)) genesisTile.selectType(5);
 	}
 
 	// makes changes associated with being in editMode
@@ -225,7 +225,7 @@ public class EditGM : MonoBehaviour {
 			genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
 
 			// if there is a selected tile, left-click re-places it
-			if (checkKey(inputKeys.Click0, true)) {
+			if (checkKeysDown(inputKeys.Click0)) {
 				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 				// restore genesisTile to its backup
 				genesisTile.setProperties(gtBackup);
@@ -236,13 +236,13 @@ public class EditGM : MonoBehaviour {
 			}
 
 			// Delete will destroy the selected tile by simply forgetting about it
-			if (checkKey(inputKeys.Delete, true)) {
+			if (checkKeysDown(inputKeys.Delete)) {
 				genesisTile.setProperties(gtBackup);
 				isTileSelected = false;
 			}
 		} else {
 			// if in editMode and no tile is selected, left-click selects a tile
-			if (checkKey(inputKeys.Click0, true)) {
+			if (checkKeysDown(inputKeys.Click0)) {
 				// first we find out what (if anything) has been clicked on
 				Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 				Collider2D c2d = Physics2D.GetRayIntersection(r).collider;
@@ -278,14 +278,6 @@ public class EditGM : MonoBehaviour {
 			if (Input.GetKey(kc)) gkInputs = gkInputs | (inputKeys) i;
 			if (Input.GetKeyDown(kc)) gkdInputs = gkdInputs | (inputKeys) i;
 		}
-	}
-
-	// returns a bool based on whether the given key is currently pressed
-	// if checkKeyDown is passed true, function will only return true for new presses
-	private bool checkKey (inputKeys inKey, bool checkKeyDown)
-	{
-		inputKeys ik = checkKeyDown ? gkdInputs : gkInputs;
-		return (ik & inKey) == inKey;
 	}
 
 	// returns a tileData representation of the current state of genesisTile
