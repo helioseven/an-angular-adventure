@@ -52,12 +52,12 @@ public class BehaviourScript : MonoBehaviour {
 		// inputs are handled as follows:
 		// BackQuote is a special debugger key
 		if (Input.GetKeyDown(KeyCode.BackQuote)) {
-			Debug.Log(anchor.iA);
-			Debug.Log(anchor.iB);
-			Debug.Log(anchor.iC);
-			Debug.Log(anchor.iD);
-			Debug.Log(anchor.iE);
-			Debug.Log(anchor.iF);
+			Debug.Log(anchor.a);
+			Debug.Log(anchor.b);
+			Debug.Log(anchor.c);
+			Debug.Log(anchor.d);
+			Debug.Log(anchor.e);
+			Debug.Log(anchor.f);
 		}
 		// 123456 manages tile type
 		if (Input.GetKeyDown(KeyCode.Alpha1)) switchTile(tileTypes.Tri);

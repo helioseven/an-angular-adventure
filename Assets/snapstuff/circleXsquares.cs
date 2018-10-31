@@ -1,10 +1,7 @@
 using System;
 using System.Collections;
-<<<<<<< HEAD:Assets/snapstuff/circleXsquares.cs
-=======
 using System.Collections.Generic;
 using UnityEngine;
->>>>>>> master:Assets/Scripts/circleXsquares.cs
 
 namespace circleXsquares {
 
@@ -17,42 +14,13 @@ namespace circleXsquares {
 		//turns out this bugger is pretty dang useful
 		private static readonly float sqrt3 = (float)Math.Sqrt(3f);
 
-<<<<<<< HEAD:Assets/snapstuff/circleXsquares.cs
-		private int a;
-		private int b;
-		private int c;
-		private int d;
-		private int e;
-		private int f;
-
-		// public access interface variables
-		public int iA {
-			get { return a; }
-		}
-		public int iB {
-			get { return b; }
-		}
-		public int iC {
-			get { return c; }
-		}
-		public int iD {
-			get { return d; }
-		}
-		public int iE {
-			get { return e; }
-		}
-		public int iF {
-			get { return f; }
-		}
-=======
 		// primary components are coordinates on overlayed ACE & DEF trigonal axes
-		public int a;
-		public int b;
-		public int c;
-		public int d;
-		public int e;
-		public int f;
->>>>>>> master:Assets/Scripts/circleXsquares.cs
+		public int a { get; private set; }
+		public int b { get; private set; }
+		public int c { get; private set; }
+		public int d { get; private set; }
+		public int e { get; private set; }
+		public int f { get; private set; }
 
 		// operators allow hexLocus to be added and subtracted like vectors
 		// since they are static, coordinate simplification is ensured by the constructor

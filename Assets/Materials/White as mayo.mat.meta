@@ -1,14 +1,7 @@
 fileFormatVersion: 2
-<<<<<<< HEAD:Assets/Materials/White as mayo.mat.meta
 guid: 28320cadc1b814d618e6d921d2cc92fe
-timeCreated: 1455239488
-=======
-guid: 024132385c4f14042ae970b09b040b39
-timeCreated: 1527050072
->>>>>>> master:Assets/Prefabs/Editing/editSqr.prefab.meta
-licenseType: Free
 NativeFormatImporter:
-  mainObjectFileID: 100100000
+  mainObjectFileID: -1
   userData: 
   assetBundleName: 
   assetBundleVariant: 
