@@ -1,10 +1,21 @@
 fileFormatVersion: 2
+<<<<<<< HEAD:Assets/_Scripts/boxScript.cs.meta
 guid: 22f689bbcfd254beca6bb6abb0e6c11d
 timeCreated: 1438036475
+=======
+guid: a0617bd158eff974385c1bfa3919a1c5
+timeCreated: 1525147240
+>>>>>>> master:Assets/Scripts/MainMenu/EditLoader.cs.meta
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - diaTile: {fileID: 1000010348964594, guid: f03f3f3821cbf4048b087f803e1dbb02, type: 2}
+  - hexTile: {fileID: 1000011669162158, guid: 42998da804478c24087dfcd34dd165a8, type: 2}
+  - sqrTile: {fileID: 1000012832498714, guid: 25a608ed3f796134188517496c15fd54, type: 2}
+  - trapTile: {fileID: 1000010294404856, guid: bffc882dfa75f1d469c92de4877ebfc5, type: 2}
+  - triTile: {fileID: 1000011295890946, guid: 8060d10ebda439d4896767b92da16392, type: 2}
+  - wedTile: {fileID: 1000012747395180, guid: 1d44451e4c8d829479db49da2f2833db, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
