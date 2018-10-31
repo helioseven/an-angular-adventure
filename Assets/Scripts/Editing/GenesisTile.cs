@@ -40,8 +40,8 @@ public class GenesisTile : MonoBehaviour {
 		// gets the sprite renderer for each of the tile types and colors
 		for (int i = 0; i < nTypes; i++) {
 			for (int j = 0; j < nColors; j++) {
-				tileRenderers[i, j] =
-					transform.GetChild(i).GetChild(j).GetComponentInChildren<SpriteRenderer>();
+				Transform t = transform.GetChild(i).GetChild(j);
+				tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
 				tileRenderers[i, j].enabled = false;
 			}
 		}

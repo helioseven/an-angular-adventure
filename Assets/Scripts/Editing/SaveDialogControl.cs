@@ -18,7 +18,7 @@ public class SaveDialogControl : MonoBehaviour {
 	// pauses what the EditGM is doing to invoke the save dialog
 	public void invokeDialog ()
 	{
-		EditGM.instance.pauseToggle();
+		EditGM.instance.gameObject.SetActive(false);
 		gameObject.SetActive(true);
 	}
 
@@ -26,7 +26,7 @@ public class SaveDialogControl : MonoBehaviour {
 	public void cancelDialog ()
 	{
 		gameObject.SetActive(false);
-		EditGM.instance.pauseToggle();
+		EditGM.instance.gameObject.SetActive(true);
 	}
 
 	// confirms the file save by passing the entered filename to the EditGM

@@ -14,7 +14,7 @@ public class QuitDialogControl : MonoBehaviour {
 	// pauses what the EditGM is doing to invoke the quit dialog
 	public void invokeDialog ()
 	{
-		EditGM.instance.pauseToggle();
+		EditGM.instance.gameObject.SetActive(false);
 		gameObject.SetActive(true);
 	}
 
@@ -22,7 +22,7 @@ public class QuitDialogControl : MonoBehaviour {
 	public void cancelDialog ()
 	{
 		gameObject.SetActive(false);
-		EditGM.instance.pauseToggle();
+		EditGM.instance.gameObject.SetActive(true);
 	}
 
 	// confirms the file save by passing the entered filename to the EditGM

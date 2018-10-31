@@ -5,14 +5,21 @@ using circleXsquares;
 
 public class SnapCursor : MonoBehaviour {
 
-	// focus and anchor keep track of where the mouse input is snapping to
+	// focus is the closest snap point to the current mouse position
 	public hexLocus focus { get; private set; }
+
+	// reference to the genesis tile
+	private GenesisTile gtRef;
+	// anchor keeps track of the last input snap point
 	private hexLocus anchor;
 	// fShift updates every frame with the distance between the mouse and the anchor
 	private Vector3 fShift;
 
+
 	void Awake ()
 	{
+		gtRef = EditGM.instance.genesisTile;
+
 		focus = new hexLocus();
 		anchor = new hexLocus();
 		fShift = new Vector3();
@@ -20,10 +27,22 @@ public class SnapCursor : MonoBehaviour {
 
 	void Update ()
 	{
-		// focus is updated first based on the anchor and the mouse position
-		fShift = Camera.main.ScreenToWorldPoint(Input.mousePosition) - anchor.toUnitySpace();
+		// tile type needs to be known in order to calculate offset
+		int tt = gtRef.tileType;
+		// tile is the transform of the black (color: 0) tile of type tt
+		Transform tile = gtRef.transform.GetChild(tt).GetChild(0);
+		// tileOffset is the difference between the sprite's and the prefab's positions
+		Vector3 tileOffset = tile.GetChild(0).position - tile.position;
+		// lastly we grab the mouse position
+		Vector3 mouseIn = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+		// fShift is calculated based on the anchor and the mouse position
+		fShift = mouseIn - tileOffset - anchor.toUnitySpace();
 		focus = new hexLocus(fShift);
 		focus += anchor;
+
+		// the position of the genesis tile is updated
+		gtRef.transform.position = focus.toUnitySpace();
 	}
 
 	// finds the closest snap point to the current mouse position and sets the anchor there

@@ -10,15 +10,9 @@ using circleXsquares;
 public class EditGM : MonoBehaviour {
 
 	// singleton instance
-	[HideInInspector]
-	public static EditGM instance = null;
-	public bool isUpdating { get; private set; }
-	private EditLoader lvlLoad = null;
-	// placedTiles manages all tiles placed into the world space
-	private Dictionary<GameObject, tileData> placedTiles;
+	[HideInInspector] public static EditGM instance = null;
 
-	// cursor is a prefab anchor icon
-	public GameObject cursor;
+	private EditLoader lvlLoad = null;
 	// reference to the main creation tool
 	public GenesisTile genesisTile;
 	// anchorIcon keeps track of a single cursor instance
@@ -35,9 +29,9 @@ public class EditGM : MonoBehaviour {
 	private inputKeys gkInputs;
 	private inputKeys gkdInputs;
 
-	// focus is the closest snap point to the current mouse position
-	// the variable is simply updated from anchorIcon, which keeps track of it
-	private hexLocus focus;
+	// placedTiles manages all tiles placed into the world space
+	private Dictionary<GameObject, tileData> placedTiles;
+
 	// isTileSelected and selectedTile track any selected tile in edit mode
 	private bool isTileSelected;
 	private tileData selectedTile;
@@ -104,7 +98,6 @@ public class EditGM : MonoBehaviour {
 			gtBackup = new tileData();
 
 			// initializations for state variables
-			isUpdating = true;
 			menuMode = false;
 			editMode = false;
 			gkInputs = inputKeys.None;
@@ -116,19 +109,14 @@ public class EditGM : MonoBehaviour {
 
 	void Update ()
 	{
-		// escape hatch used when normal behavior is paused by pauseToggle()
-		if (!isUpdating) return;
-
 		// gkInputs and gkdInputs are reset and updated
 		updateInputs();
 
-		// update the focus from anchorIcon
-		focus = anchorIcon.focus;
 		// anchor is updated based on right-click input
-		if (checkKey(inputKeys.Click1, true)) anchorIcon.findNewAnchor(placedTiles);
+		if (checkKeysDown(inputKeys.Click1)) anchorIcon.findNewAnchor(placedTiles);
 
 		// menuMode is enabled whenever the space bar is held down
-		menuMode = checkKey(inputKeys.Space, false);
+		menuMode = checkKeys(inputKeys.Space);
 
 		if (menuMode) {
 			// menuPanel is enabled and the genesisTile is disabled during menu mode
@@ -144,14 +132,9 @@ public class EditGM : MonoBehaviour {
 
 			// editMode is set via the toggleEdit() function
 			if (editMode) updateEditMode();
-			else {
-				// in creation mode, the genesisTile is moved to the current focus
-				genesisTile.transform.position = focus.toUnitySpace();
-
-				// the genesisTile tile is placed when left-click is made
-				if (checkKey(inputKeys.Click0, true))
-					placedTiles.Add(genesisTile.getActiveTile(), getGTData());
-			}
+			// the genesisTile tile is placed when left-click is made
+			else if (checkKeysDown(inputKeys.Click0))
+				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 		}
 	}
 
@@ -164,13 +147,13 @@ public class EditGM : MonoBehaviour {
 		SceneManager.LoadScene(0);
 	}
 
-	// returns getKeys or getKeyDowns depending on boolean parameter
-	public inputKeys getInputs (bool onlyNewInputs)
-	{
-		// onlyNew determines the response of the function
-		if (onlyNewInputs) return gkdInputs;
-		else return gkInputs;
-	}
+	// simply returns whether the given keys were being held during this frame
+	public bool checkKeys (inputKeys inKeys)
+	{ return (gkInputs & inKeys) == inKeys; }
+
+	// simply returns whether the given keys were pressed on this frame
+	public bool checkKeysDown (inputKeys inKeys)
+	{ return (gkdInputs & inKeys) == inKeys; }
 
 	// toggles editMode and makes associated changes to current
 	public void toggleEdit ()
@@ -199,26 +182,17 @@ public class EditGM : MonoBehaviour {
 		editMode = !editMode;
 	}
 
-	// pausing is used by menus that want to suspend normal behavior
-	public void pauseToggle ()
-	{
-		isUpdating = !isUpdating;
-	}
-
 	// (testing) save level to a file in plain text format
 	public void saveFile (string filename)
 	{
-		string fpath = "Assets\\Levels\\" + filename + ".txt";
-		GameObject[] pts = new GameObject[placedTiles.Count];
-		string[] lines = new string[pts.Length + 2];
-
-		placedTiles.Keys.CopyTo(pts, 0);
-		// (!!) this bit will have to change
-		lines[0] = "test level";
-		lines[1] = "0 0 0 0 0 -10";
-
-		for (int i = 0; i < pts.Length; i++)
-			lines[i+2] = placedTiles[pts[i]].serialize();
+		string fpath = "Levels\\" + filename + ".txt";
+		// (!!) this all is a kludge, just testing that it works
+		List<tileData> tiles = new List<tileData>(placedTiles.Values);
+		layerData layer = new layerData(0, tiles, new List<chkpntData>());
+		List<layerData> layerList = new List<layerData>(new layerData[]{layer});
+		levelData _levelDataName = new levelData(layerList, new List<warpData>());
+		// (!!) _levelDataName will be replaced
+		string[] lines = _levelDataName.serialize();
 
 		File.WriteAllLines(fpath, lines);
 	}
@@ -229,18 +203,18 @@ public class EditGM : MonoBehaviour {
 	private void updateGT ()
 	{
 		// genesisTile's color is cycled through when Tab is pressed
-		if (checkKey(inputKeys.Tab, true)) genesisTile.cycleColor();
+		if (checkKeysDown(inputKeys.Tab)) genesisTile.cycleColor();
 		// genesisTile is rotated around its pivot,
 		// counter-clockwise when Q is pressed, clockwise when E is pressed
-		if (checkKey(inputKeys.Q, true)) genesisTile.rotate(false);
-		if (checkKey(inputKeys.E, true)) genesisTile.rotate(true);
+		if (checkKeysDown(inputKeys.Q)) genesisTile.rotate(false);
+		if (checkKeysDown(inputKeys.E)) genesisTile.rotate(true);
 		// genesisTile's type is assigned by the numeric keys
-		if (checkKey(inputKeys.One, true)) genesisTile.selectType(0);
-		if (checkKey(inputKeys.Two, true)) genesisTile.selectType(1);
-		if (checkKey(inputKeys.Three, true)) genesisTile.selectType(2);
-		if (checkKey(inputKeys.Four, true)) genesisTile.selectType(3);
-		if (checkKey(inputKeys.Five, true)) genesisTile.selectType(4);
-		if (checkKey(inputKeys.Six, true)) genesisTile.selectType(5);
+		if (checkKeysDown(inputKeys.One)) genesisTile.selectType(0);
+		if (checkKeysDown(inputKeys.Two)) genesisTile.selectType(1);
+		if (checkKeysDown(inputKeys.Three)) genesisTile.selectType(2);
+		if (checkKeysDown(inputKeys.Four)) genesisTile.selectType(3);
+		if (checkKeysDown(inputKeys.Five)) genesisTile.selectType(4);
+		if (checkKeysDown(inputKeys.Six)) genesisTile.selectType(5);
 	}
 
 	// makes changes associated with being in editMode
@@ -248,10 +222,10 @@ public class EditGM : MonoBehaviour {
 	{
 		if (isTileSelected) {
 			// in edit mode, a selected tile will follow the focus
-			genesisTile.transform.position = focus.toUnitySpace();
+			genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
 
 			// if there is a selected tile, left-click re-places it
-			if (checkKey(inputKeys.Click0, true)) {
+			if (checkKeysDown(inputKeys.Click0)) {
 				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
 				// restore genesisTile to its backup
 				genesisTile.setProperties(gtBackup);
@@ -262,13 +236,13 @@ public class EditGM : MonoBehaviour {
 			}
 
 			// Delete will destroy the selected tile by simply forgetting about it
-			if (checkKey(inputKeys.Delete, true)) {
+			if (checkKeysDown(inputKeys.Delete)) {
 				genesisTile.setProperties(gtBackup);
 				isTileSelected = false;
 			}
 		} else {
 			// if in editMode and no tile is selected, left-click selects a tile
-			if (checkKey(inputKeys.Click0, true)) {
+			if (checkKeysDown(inputKeys.Click0)) {
 				// first we find out what (if anything) has been clicked on
 				Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 				Collider2D c2d = Physics2D.GetRayIntersection(r).collider;
@@ -306,18 +280,10 @@ public class EditGM : MonoBehaviour {
 		}
 	}
 
-	// returns a bool based on whether the given key is currently pressed
-	// if checkKeyDown is passed true, function will only return true for new presses
-	private bool checkKey (inputKeys inKey, bool checkKeyDown)
-	{
-		inputKeys ik = checkKeyDown ? gkdInputs : gkInputs;
-		return (ik & inKey) == inKey;
-	}
-
 	// returns a tileData representation of the current state of genesisTile
 	private tileData getGTData ()
 	{
 		GenesisTile gt = genesisTile;
-		return new tileData(focus, gt.tileRotation, gt.tileType, gt.tileColor);
+		return new tileData(gt.tileType, gt.tileColor, anchorIcon.focus, gt.tileRotation);
 	}
 }

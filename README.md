@@ -9,15 +9,15 @@
 - Executive Summary of Mechanics
     * `Mario Maker` meets `Hand Drawn Mosaics`
 * Version
-    * Pre-Alpha
-    * `Unity 5.5.0f3`
+    * Alpha
+    * `Unity 5.6.0f3`
 
 ### How do I get set up? ###
 
 + Summary of set up
-    * Have unity, use unity.
+    * Have Unity, open repository folder as project.
 * Configuration
-    * Use SourceTree to make git easy on windows
+    * Use SourceTree to make git easy on Windows.
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo) 
     * This readme is formatted using markdown
 * Dependencies
@@ -31,7 +31,7 @@
 * Writing tests
     * Lol what tests?
 * Code review
-    * We should set up code review once we get to the beta stage
+    * We will set up code review once we get to the beta stage
 * Other guidelines
     1. Don't be a dick
     2. Really, don't be a dick.

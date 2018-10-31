@@ -3,20 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using circleXsquares;
 
 public class PlayGM : MonoBehaviour {
 
 	// singleton instance
 	[HideInInspector] public static PlayGM instance = null;
+
 	private PlayLoader lvlLoad = null;
 	private HashSet<GameObject> lvlTiles;
+
+	public levelData lvlData { get; private set; }
+	public GameObject player { get; private set; }
+	public GameObject curr_checkpoint { get; private set; }
 
 	public GameObject player_ref;
 	public GameObject death_particles;
 	public GameObject checkpoint_ref;
-
-	public GameObject player { get; private set; }
-	public GameObject curr_checkpoint { get; private set; }
 
 	void Awake ()
 	{
@@ -25,9 +28,11 @@ public class PlayGM : MonoBehaviour {
 			instance = this;
 			// find the loader
 			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
-			Vector2 v2;
 			// load the level
-			lvlLoad.supplyLevel(out lvlTiles, out v2);
+			Vector2 v2;
+			levelData inLvl;
+			lvlLoad.supplyLevel(out lvlTiles, out inLvl, out v2);
+			lvlData = inLvl;
 			// set checkpoint
 			SetCheckPoint(Instantiate(checkpoint_ref, v2, Quaternion.identity) as GameObject);
 			// instantiate player
@@ -49,8 +54,6 @@ public class PlayGM : MonoBehaviour {
 
 	public void ResetToCheckpoint ()
 	{
-		// log
-//		Debug.Log("Player Respawn at Checkpoint (" + GetInstanceID() + ")");
 		// reset player to last checkpoint's layer
 		player.layer = curr_checkpoint.layer;
 		// move player to last checkpoint
