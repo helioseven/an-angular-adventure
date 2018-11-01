@@ -5,10 +5,11 @@ AAA.sublime-workspace
 Assets/Levels/*.txt
 Assets/Levels/*.txt.meta
 
-<<<<<<< HEAD
-# Some more Unity-related ignores
-=======
 # Unity-related ignores
->>>>>>> master
 Library/
 Temp/
+
+# VisualStudio-related ignores
+*.csproj
+*.sln
+*.usrprefs
