@@ -17,7 +17,6 @@ public class GM : MonoBehaviour {
 	public Text coinsText;
 
 	public GameObject curr_checkpoint;
-//	private Player_Controller player_controller;
 
 	// Use this for initialization
 	void Awake () 
@@ -26,13 +25,6 @@ public class GM : MonoBehaviour {
 			instance = this;
 		else
 			Destroy (gameObject);
-		
-		Setup ();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
 	}
 
 	public void SetCheckPoint( GameObject checkpoint )
