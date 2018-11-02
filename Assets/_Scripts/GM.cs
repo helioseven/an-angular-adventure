@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.UI; // for UI text
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GM : MonoBehaviour {
 
@@ -29,11 +30,6 @@ public class GM : MonoBehaviour {
 		Setup ();
 	}
 	
-	public void Setup()
-	{
-//		player_controller = FindObjectOfType<Player_Controller> ();
-	}
-	
 	// Update is called once per frame
 	void Update () {
 	
@@ -51,13 +47,11 @@ public class GM : MonoBehaviour {
 
 	public void ResetToCheckpoint()
 	{
-		// log
-		Debug.Log ("Player Respawn at Checkpoint");
 		// acivate
 		player.SetActive (true);
 		// layer
 		GM.instance.player.layer = GM.instance.curr_checkpoint.layer;
-		//
+		// update position
 		player.transform.position = curr_checkpoint.transform.position;
 	}
 
@@ -69,7 +63,7 @@ public class GM : MonoBehaviour {
 
 	public void Reset()
 	{
-		Application.LoadLevel(Application.loadedLevel);
+		SceneManager.LoadScene(0);
 	}
 
 }

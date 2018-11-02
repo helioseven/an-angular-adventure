@@ -12,4 +12,4 @@ Temp/
 # VisualStudio-related ignores
 *.csproj
 *.sln
-*.usrprefs
+*.userprefs
