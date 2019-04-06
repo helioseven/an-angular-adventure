@@ -19,10 +19,10 @@ public class PlayLoader : MonoBehaviour {
 	void Awake ()
 	{
 		// prefabs are loaded from a single transform hierarchy
-		prefabRefs = new GameObject[6, 8];
+		prefabRefs = new GameObject[6, 7];
 		for (int i = 0; i < 6; i++) {
 			GameObject tlGroup = tileLoader.transform.GetChild(i).gameObject;
-			for (int j = 0; j < 8; j++) {
+			for (int j = 0; j < 7; j++) {
 				prefabRefs[i, j] = tlGroup.transform.GetChild(j).gameObject;
 			}
 		}

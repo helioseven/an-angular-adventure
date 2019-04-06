@@ -29,8 +29,18 @@ public class EditLoader : MonoBehaviour {
 		gt = EditGM.instance.genesisTile;
 		level = new Dictionary<GameObject, tileData>();
 		// begin parsing file
-		string[] lines = File.ReadAllLines("Levels\\" + path);
-		levelData ld = FileParsing.readLevel(lines);
+		levelData ld = new levelData();
+		bool file_exists = File.Exists("Levels\\" + path);
+		if (file_exists) {
+			string[] lines = File.ReadAllLines("Levels\\" + path);
+			ld = FileParsing.readLevel(lines);
+		} else {
+			ld.layerSet = new List<layerData>();
+			layerData empty_layer = new layerData();
+			empty_layer.tileSet = new List<tileData>();
+			Debug.Log("File not found, loading new level.");
+			ld.layerSet.Add(empty_layer);
+		}
 
 		// (!!) this is a kludge that needs to change
 		foreach (tileData td in ld.layerSet[0].tileSet)
