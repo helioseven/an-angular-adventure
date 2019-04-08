@@ -34,7 +34,7 @@ public class PlayGM : MonoBehaviour {
 			lvlLoad.supplyLevel(out lvlTiles, out inLvl, out v2);
 			lvlData = inLvl;
 			// set checkpoint
-			SetCheckPoint(Instantiate(checkpoint_ref, v2, Quaternion.identity) as GameObject);
+			SetCheckpoint(Instantiate(checkpoint_ref, v2, Quaternion.identity) as GameObject);
 			// instantiate player
 			player = Instantiate(player_ref, v2, Quaternion.identity) as GameObject;
 		} else
@@ -47,7 +47,7 @@ public class PlayGM : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.Escape)) SceneManager.LoadScene(0);
 	}
 
-	public void SetCheckPoint (GameObject checkpoint)
+	public void SetCheckpoint (GameObject checkpoint)
 	{
 		curr_checkpoint = checkpoint;
 	}

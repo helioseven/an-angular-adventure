@@ -1,9 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-// this whole script isn't getting used in this version
-
-public class DropdownTrigger : MonoBehaviour {
+public class Warp : MonoBehaviour {
 
 	void OnTriggerEnter2D(Collider2D other){
 
