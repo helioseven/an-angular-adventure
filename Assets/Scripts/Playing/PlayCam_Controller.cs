@@ -6,20 +6,24 @@ public class PlayCam_Controller : MonoBehaviour {
 
 	private Vector3 velocity = Vector3.zero;
 
+	private GameObject player;
+
 	void Start ()
 	{
+//		gameObject.GetComponent<Camera>().cullingMask = ~(1 << 10);
+
 		velocity = PlayGM.instance.player.transform.position;
+		player = GameObject.FindWithTag("Player");
 	}
 
 	// uses SmoothDamp to move camera towards the player at all times
 	void Update ()
 	{
-		Vector3 target = PlayGM.instance.player.transform.position;
+		Vector3 target = player.transform.position;
 		Vector3 tempVec3 = transform.position;
 
 		tempVec3 = Vector3.SmoothDamp(tempVec3, target, ref velocity, 0.3f);
-		// Vector3.back ensure camera has a lower Z-depth value than objects in the scene
-		tempVec3 += Vector3.back;
+		tempVec3.z = target.z - 8.0f;
 		transform.position = tempVec3;
 	}
 }

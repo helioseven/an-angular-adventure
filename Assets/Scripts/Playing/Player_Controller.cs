@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Player_Controller : MonoBehaviour {
 
+	public int current_level = 0;
+
 	public int speed = 150;
 	public float jump_force = 1000f;
 	private int max_jumps = 1;

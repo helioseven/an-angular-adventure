@@ -37,20 +37,30 @@ public class PlayLoader : MonoBehaviour {
 	}
 
 	// supplies a HashSet of tiles, a level representation, and a Vector2 indicating a starting location
-	public void supplyLevel (out HashSet<GameObject> tiles, out levelData level, out Vector2 playerStart)
+	public void supplyLevel (ref GameObject tiles, out levelData level, out Vector2 playerStart)
 	{
 		// initialization
-		tiles = new HashSet<GameObject>();
+		tiles.transform.position = Vector3.zero;
 		playerStart = Vector2.zero;
 		// begin parsing file
 		string[] lines = File.ReadAllLines("Levels\\" + path);
 		level = FileParsing.readLevel(lines);
+		int levelCount = 0;
 
-		foreach (tileData td in level.layerSet[0].tileSet) {
-			GameObject pfRef = prefabRefs[td.type, td.color];
-			Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
-			GameObject go = Instantiate(pfRef, td.locus.toUnitySpace(), q) as GameObject;
-			tiles.Add(go);
+		// populate tile hierarchy
+		foreach (layerData ld in level.layerSet) {
+			GameObject tileLayer = new GameObject();
+			tileLayer.transform.position = new Vector3(0f, 0f, levelCount++ * 2f);
+			tileLayer.transform.SetParent(tiles.transform);
+
+			foreach (tileData td in ld.tileSet) {
+				GameObject pfRef = prefabRefs[td.type, td.color];
+				Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
+				Vector3 v3 = td.locus.toUnitySpace();
+				v3.z = tileLayer.transform.position.z;
+				GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+				go.transform.SetParent(tileLayer.transform);
+			}
 		}
 
 		// hard-coded player start for now (!!) needs to change

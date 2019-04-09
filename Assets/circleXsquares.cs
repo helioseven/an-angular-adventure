@@ -512,7 +512,7 @@ namespace circleXsquares {
 				// an end layer comment packages all tiles and checkpoints into a layer, and then resets
 				if (lines[i] == "-- End Layer --") {
 					// when we come to the end of a layer, add it to the stack and reset the other lists
-					layerList.Add(new layerData(layerAdd, tileList, chkpntList));
+					layerList.Add(new layerData(layerAdd++, tileList, chkpntList));
 					tileList = new List<tileData>();
 					chkpntList = new List<chkpntData>();
 					continue;
