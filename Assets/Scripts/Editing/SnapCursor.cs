@@ -8,17 +8,17 @@ public class SnapCursor : MonoBehaviour {
 	// focus is the closest snap point to the current mouse position
 	public hexLocus focus { get; private set; }
 
-	// reference to the genesis tile
+	// private variables
+	private EditGM gmRef;
 	private GenesisTile gtRef;
-	// anchor keeps track of the last input snap point
 	private hexLocus anchor;
-	// fShift updates every frame with the distance between the mouse and the anchor
 	private Vector3 fShift;
 
 
 	void Awake ()
 	{
-		gtRef = EditGM.instance.genesisTile;
+		gmRef = EditGM.instance;
+		gtRef = gmRef.genesis_tile;
 
 		focus = new hexLocus();
 		anchor = new hexLocus();
@@ -46,7 +46,7 @@ public class SnapCursor : MonoBehaviour {
 	}
 
 	// finds the closest snap point to the current mouse position and sets the anchor there
-	public void findNewAnchor (Dictionary<GameObject, tileData> placedTiles)
+	public void findNewAnchor ()
 	{
 		// generates a list of all collisions within a radius 0.5 circle from current mouse position
 		hexLocus newAnchor = new hexLocus();
@@ -58,9 +58,12 @@ public class SnapCursor : MonoBehaviour {
 		foreach (Collider2D c2d in hitCols) {
 			PolygonCollider2D pc2d = c2d as PolygonCollider2D;
 			if (pc2d) {
-				// if the collision is not from a placed tile, it is skipped
-				if (!placedTiles.ContainsKey(c2d.gameObject)) continue;
-				hexLocus tHL = placedTiles[c2d.gameObject].locus;
+				int tLayer;
+				tileData tData;
+				bool b = gmRef.getDataFromTile(c2d.gameObject, out tData, out tLayer);
+				// if the collision is not from a tile in the map, it is skipped
+				if (!b) continue;
+				hexLocus tHL = tData.locus;
 				foreach (Vector2 subPoint in pc2d.points) {
 					// adds each vertex to the list of possible snap points
 					hexLocus newPoint = new hexLocus(c2d.transform.TransformPoint(subPoint) - tHL.toUnitySpace());

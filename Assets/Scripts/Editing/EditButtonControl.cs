@@ -19,7 +19,7 @@ public class EditButtonControl : MonoBehaviour {
 	public void toggleColor ()
 	{
 		// bEdit button is 75% grey in creation mode, 100% white in edit mode
-		image.color = EditGM.instance.menuMode ?
+		image.color = EditGM.instance.menu_mode ?
 			new Color(0.75f, 0.75f, 0.75f, 1.0f) : new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 }

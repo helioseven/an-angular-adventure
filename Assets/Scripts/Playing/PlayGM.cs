@@ -11,18 +11,18 @@ public class PlayGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static PlayGM instance = null;
 
-	private PlayLoader lvlLoad = null;
-	public GameObject tile_map;
-
-	public levelData lvlData { get; private set; }
-	public GameObject player { get; private set; }
-	public GameObject curr_checkpoint { get; private set; }
-	public int curr_layer { get; private set; }
-
 	public GameObject player_ref;
 	public GameObject death_particles;
 	public GameObject checkpoint_ref;
 	public GameObject warp_ref;
+
+	private PlayLoader lvlLoad = null;
+	public GameObject tile_map;
+
+	public levelData level_data { get; private set; }
+	public GameObject player { get; private set; }
+	public GameObject curr_checkpoint { get; private set; }
+	public int curr_layer { get; private set; }
 
 	void Awake ()
 	{
@@ -35,7 +35,7 @@ public class PlayGM : MonoBehaviour {
 			Vector2 v2;
 			levelData inLvl;
 			lvlLoad.supplyLevel(ref tile_map, out inLvl, out v2);
-			lvlData = inLvl;
+			level_data = inLvl;
 			// set layer activity
 			ActivateLayer(0);
 			// set checkpoint

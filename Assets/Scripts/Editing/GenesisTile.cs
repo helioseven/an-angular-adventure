@@ -49,6 +49,16 @@ public class GenesisTile : MonoBehaviour {
 		tileRenderers[tileType, tileColor].enabled = true;
 	}
 
+	public void activate()
+	{
+		gameObject.SetActive(true);
+	}
+
+	public void deactivate()
+	{
+		gameObject.SetActive(false);
+	}
+
 	// turns the tile clockwise or counter-clockwise in 30 degree increments
 	public void rotate (bool clockwise)
 	{

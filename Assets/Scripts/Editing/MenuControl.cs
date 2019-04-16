@@ -30,7 +30,8 @@ public class MenuControl : MonoBehaviour {
 	}
 
 	// activates the panel and places it at the given location
-	public void activate (Vector2 inVec2) {
+	public void activate () {
+		Vector2 inVec2 = Vector2.zero;
 		// does nothing the panel is already active or has no canvas
 		if (gameObject.activeSelf && localRT) return;
 
