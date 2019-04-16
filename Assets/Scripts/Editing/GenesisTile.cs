@@ -17,15 +17,16 @@ using circleXsquares;
 
 public class GenesisTile : MonoBehaviour {
 
-	// tileRenderers manages the sprite renderers of the different tile colors
-	private SpriteRenderer[,] tileRenderers;
-
 	// tileRotation represents the number of turns from reference (0 degrees)
 	public int tileRotation { get; private set; }
 	// tileType represents the type of shape
 	public int tileType { get; private set; }
 	// tileColor represents the color of this tile
 	public int tileColor { get; private set; }
+
+	private SnapCursor anchorRef;
+	// tileRenderers manages the sprite renderers of the different tile colors
+	private SpriteRenderer[,] tileRenderers;
 
 	public void Awake ()
 	{
@@ -49,12 +50,28 @@ public class GenesisTile : MonoBehaviour {
 		tileRenderers[tileType, tileColor].enabled = true;
 	}
 
-	public void activate()
+	public void Start ()
+	{
+		anchorRef = EditGM.instance.anchor_icon;
+	}
+
+	public void Update ()
+	{
+		Vector3 v3 = anchorRef.focus.toUnitySpace();
+		v3.z = anchorRef.transform.position.z;
+		transform.position = v3; // <1>
+
+		/*
+		<1> when active, the genesis_tile will follow the focus
+		*/
+	}
+
+	public void activate ()
 	{
 		gameObject.SetActive(true);
 	}
 
-	public void deactivate()
+	public void deactivate ()
 	{
 		gameObject.SetActive(false);
 	}

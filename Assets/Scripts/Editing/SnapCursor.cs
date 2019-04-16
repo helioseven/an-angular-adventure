@@ -13,56 +13,49 @@ public class SnapCursor : MonoBehaviour {
 	private GenesisTile gtRef;
 	private hexLocus anchor;
 	private Vector3 fShift;
+	private Plane layerPlane;
+	private float depth;
 
 
 	void Awake ()
 	{
-		gmRef = EditGM.instance;
-		gtRef = gmRef.genesis_tile;
-
 		focus = new hexLocus();
 		anchor = new hexLocus();
 		fShift = new Vector3();
+		layerPlane = new Plane(Vector3.back, 0f);
+		depth = 0f;
+	}
+
+	void Start ()
+	{
+		gmRef = EditGM.instance;
+		gtRef = gmRef.genesis_tile;
 	}
 
 	void Update ()
 	{
-		// tile type needs to be known in order to calculate offset
 		int tt = gtRef.tileType;
-		// tile is the transform of the black (color: 0) tile of type tt
 		Transform tile = gtRef.transform.GetChild(tt).GetChild(0);
-		// tileOffset is the difference between the sprite's and the prefab's positions
-		Vector3 tileOffset = tile.GetChild(0).position - tile.position;
-		// lastly we grab the mouse position
-		Vector3 mouseIn = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		Vector3 tileOffset = tile.GetChild(0).position - tile.position; // <1>
 
-		/* Need to adapt raycast code from findNewAnchor() to replace the line above. */
-
-		// fShift is calculated based on the anchor and the mouse position
-		fShift = mouseIn - tileOffset - anchor.toUnitySpace();
+		Vector3 mouseIn = findPointOnPlane();
+		fShift = mouseIn - tileOffset - anchor.toUnitySpace(); // <2>
 		focus = new hexLocus(fShift);
-		focus += anchor;
+		focus += anchor; // <3>
 
-		// the position of the genesis tile is updated
-		gtRef.transform.position = focus.toUnitySpace();
+		/*
+		<1> tileOffset is the difference between the sprite's and the prefab's positions
+		<2> fShift is this offset between the anchor point and current mouse position
+		<3> focus is the nearest grid point to which the genesis_tile will snap
+		*/
 	}
 
 	// finds the closest snap point to the current mouse position and sets the anchor there
 	public void findNewAnchor ()
 	{
+		Vector3 mouseIn = findPointOnPlane();
 		// generates a list of all collisions within a radius 0.5 circle from current mouse position
-		hexLocus newAnchor = new hexLocus();
-		float depth = gmRef.tile_map.transform.GetChild(gmRef.active_layer).position.z;
-		Plane layerPlane = new Plane(Vector3.back, Vector3.forward * depth);
-		float distance;
-		Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-		if (!layerPlane.Raycast(inputRay, out distance)) {
-			Debug.LogError("Screen click ray did not intersect with layer plane.");
-			return;
-		}
-		Vector3 planeIntersection = inputRay.GetPoint(distance);
-
-		Collider2D[] hitCols = Physics2D.OverlapCircleAll(planeIntersection, 0.5f, 1);
+		Collider2D[] hitCols = Physics2D.OverlapCircleAll(mouseIn, 0.5f, 1);
 		List<hexLocus> locusSnaps = new List<hexLocus>();
 
 		// checks every vertex of each PolygonCollider reporting a hit
@@ -85,10 +78,11 @@ public class SnapCursor : MonoBehaviour {
 			}
 		}
 
+		hexLocus newAnchor = new hexLocus();
 		// finds the hexLocus with the smallest offset from original input position
 		foreach (hexLocus hL in locusSnaps) {
-			Vector2 newOffset = (Vector2)(hL.toUnitySpace() - planeIntersection);
-			Vector2 oldOffset = (Vector2)(newAnchor.toUnitySpace() - planeIntersection);
+			Vector2 newOffset = (Vector2)(hL.toUnitySpace() - mouseIn);
+			Vector2 oldOffset = (Vector2)(newAnchor.toUnitySpace() - mouseIn);
 			if (oldOffset.magnitude > newOffset.magnitude) newAnchor = hL;
 		}
 
@@ -97,5 +91,18 @@ public class SnapCursor : MonoBehaviour {
 		Vector3 returnV3 = anchor.toUnitySpace();
 		returnV3.z = depth;
 		transform.position = returnV3;
+	}
+
+	private Vector2 findPointOnPlane ()
+	{
+		depth = gmRef.getLayerDepth();
+		layerPlane.distance = depth;
+
+		float distance;
+		Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		if (!layerPlane.Raycast(inputRay, out distance)) {
+			Debug.LogError("Screen click ray did not intersect with layer plane.");
+			return new Vector2();
+		} else return inputRay.GetPoint(distance);
 	}
 }
