@@ -247,26 +247,30 @@ public class EditGM : MonoBehaviour {
 	// makes changes associated with the state of the genesis_tile
 	private void updateGT ()
 	{
+		Vector3 v3 = anchor_icon.focus.toUnitySpace();
+		v3.z = tile_map.transform.GetChild(active_layer).position.z;
+		genesis_tile.transform.position = v3; // <1>
 
-		if (checkKeyDowns(inputKeys.Tab)) genesis_tile.cycleColor(); // <1>
+		if (checkKeyDowns(inputKeys.Tab)) genesis_tile.cycleColor(); // <2>
 
-		if (checkKeyDowns(inputKeys.Q)) genesis_tile.rotate(false); // <2>
+		if (checkKeyDowns(inputKeys.Q)) genesis_tile.rotate(false); // <3>
 		if (checkKeyDowns(inputKeys.E)) genesis_tile.rotate(true);
 
-		if (checkKeyDowns(inputKeys.One)) genesis_tile.selectType(0); // <3>
+		if (checkKeyDowns(inputKeys.One)) genesis_tile.selectType(0); // <4>
 		if (checkKeyDowns(inputKeys.Two)) genesis_tile.selectType(1);
 		if (checkKeyDowns(inputKeys.Three)) genesis_tile.selectType(2);
 		if (checkKeyDowns(inputKeys.Four)) genesis_tile.selectType(3);
 		if (checkKeyDowns(inputKeys.Five)) genesis_tile.selectType(4);
 		if (checkKeyDowns(inputKeys.Six)) genesis_tile.selectType(5);
 
-		if (checkKeyDowns(inputKeys.Click0)) addTile(); // <4>
+		if (checkKeyDowns(inputKeys.Click0)) addTile(); // <5>
 
 		/*
-		<1> when Tab is pressed, cycle through colors
-		<2> Q and E rotate C-CW and CW, respectively
-		<3> numeric keys assign tile type
-		<4> if left click is made, tile is added to the level
+		<1> in creation mode, the genesis_tile will follow the focus
+		<2> when Tab is pressed, cycle through colors
+		<3> Q and E rotate C-CW and CW, respectively
+		<4> numeric keys assign tile type
+		<5> if left click is made, tile is added to the level
 		*/
 	}
 
@@ -274,7 +278,9 @@ public class EditGM : MonoBehaviour {
 	private void updateEditMode ()
 	{
 		if (isTileSelected) {
-			genesis_tile.transform.position = anchor_icon.focus.toUnitySpace(); // <1>
+			Vector3 v3 = anchor_icon.focus.toUnitySpace();
+			v3.z = tile_map.transform.GetChild(active_layer).position.z;
+			genesis_tile.transform.position = v3; // <1>
 
 			if (checkKeyDowns(inputKeys.Click0)) {
 				addTile(); // <2>

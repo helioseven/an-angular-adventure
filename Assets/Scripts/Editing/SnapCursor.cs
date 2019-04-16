@@ -36,6 +36,8 @@ public class SnapCursor : MonoBehaviour {
 		// lastly we grab the mouse position
 		Vector3 mouseIn = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
+		/* Need to adapt raycast code from findNewAnchor() to replace the line above. */
+
 		// fShift is calculated based on the anchor and the mouse position
 		fShift = mouseIn - tileOffset - anchor.toUnitySpace();
 		focus = new hexLocus(fShift);
@@ -50,8 +52,17 @@ public class SnapCursor : MonoBehaviour {
 	{
 		// generates a list of all collisions within a radius 0.5 circle from current mouse position
 		hexLocus newAnchor = new hexLocus();
-		Vector2 inputPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-		Collider2D[] hitCols = Physics2D.OverlapCircleAll(inputPos, 0.5f);
+		float depth = gmRef.tile_map.transform.GetChild(gmRef.active_layer).position.z;
+		Plane layerPlane = new Plane(Vector3.back, Vector3.forward * depth);
+		float distance;
+		Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		if (!layerPlane.Raycast(inputRay, out distance)) {
+			Debug.LogError("Screen click ray did not intersect with layer plane.");
+			return;
+		}
+		Vector3 planeIntersection = inputRay.GetPoint(distance);
+
+		Collider2D[] hitCols = Physics2D.OverlapCircleAll(planeIntersection, 0.5f, 1);
 		List<hexLocus> locusSnaps = new List<hexLocus>();
 
 		// checks every vertex of each PolygonCollider reporting a hit
@@ -76,13 +87,15 @@ public class SnapCursor : MonoBehaviour {
 
 		// finds the hexLocus with the smallest offset from original input position
 		foreach (hexLocus hL in locusSnaps) {
-			Vector2 newOffset = (Vector2)hL.toUnitySpace() - inputPos;
-			Vector2 oldOffset = (Vector2)newAnchor.toUnitySpace() - inputPos;
+			Vector2 newOffset = (Vector2)(hL.toUnitySpace() - planeIntersection);
+			Vector2 oldOffset = (Vector2)(newAnchor.toUnitySpace() - planeIntersection);
 			if (oldOffset.magnitude > newOffset.magnitude) newAnchor = hL;
 		}
 
 		// updates global variables
 		anchor = newAnchor;
-		transform.position = anchor.toUnitySpace();
+		Vector3 returnV3 = anchor.toUnitySpace();
+		returnV3.z = depth;
+		transform.position = returnV3;
 	}
 }
