@@ -26,9 +26,9 @@ public class GenesisTile : MonoBehaviour {
 	// tileColor represents the color of this tile
 	public int tileColor { get; private set; }
 
-	private SnapCursor anchorRef;
-	// tileRenderers manages the sprite renderers of the different tile colors
-	private SpriteRenderer[,] tileRenderers;
+	private SnapCursor anchor_ref;
+	// tile_renderers manages the sprite renderers of the different tile colors
+	private SpriteRenderer[,] tile_renderers;
 
 	public void Awake ()
 	{
@@ -38,17 +38,17 @@ public class GenesisTile : MonoBehaviour {
 
 		int nTypes = transform.childCount;
 		int nColors = transform.GetChild(0).childCount;
-		tileRenderers = new SpriteRenderer[nTypes, nColors];
+		tile_renderers = new SpriteRenderer[nTypes, nColors];
 
 		for (int i = 0; i < nTypes; i++) {
 			for (int j = 0; j < nColors; j++) {
 				Transform t = transform.GetChild(i).GetChild(j);
-				tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>(); // <1>
-				tileRenderers[i, j].enabled = false;
+				tile_renderers[i, j] = t.GetComponentInChildren<SpriteRenderer>(); // <1>
+				tile_renderers[i, j].enabled = false;
 			}
 		}
 
-		tileRenderers[tileType, tileColor].enabled = true; // <2>
+		tile_renderers[tileType, tileColor].enabled = true; // <2>
 
 		/*
 		<1> gets the sprite renderer for each of the tile types and colors
@@ -58,13 +58,13 @@ public class GenesisTile : MonoBehaviour {
 
 	public void Start ()
 	{
-		anchorRef = EditGM.instance.anchor_icon;
+		anchor_ref = EditGM.instance.anchorIcon;
 	}
 
 	public void Update ()
 	{
-		Vector3 v3 = anchorRef.focus.toUnitySpace();
-		v3.z = anchorRef.transform.position.z;
+		Vector3 v3 = anchor_ref.focus.ToUnitySpace();
+		v3.z = anchor_ref.transform.position.z;
 		transform.position = v3; // <1>
 
 		/*
@@ -72,18 +72,18 @@ public class GenesisTile : MonoBehaviour {
 		*/
 	}
 
-	public void activate ()
+	public void Activate ()
 	{
 		gameObject.SetActive(true);
 	}
 
-	public void deactivate ()
+	public void Deactivate ()
 	{
 		gameObject.SetActive(false);
 	}
 
 	// turns the tile clockwise or counter-clockwise in 30 degree increments
-	public void rotate (bool clockwise)
+	public void Rotate (bool clockwise)
 	{
 		tileRotation += clockwise ? -1 : 1;
 		tileRotation = (tileRotation + 12) % 12;
@@ -91,28 +91,28 @@ public class GenesisTile : MonoBehaviour {
 	}
 
 	// disables and enables renderers based on passed type
-	public void selectType (int inType)
+	public void SelectType (int inType)
 	{
-		tileRenderers[tileType, tileColor].enabled = false;
-		tileType = inType % tileRenderers.GetLength(0);
-		tileRenderers[tileType, tileColor].enabled = true;
+		tile_renderers[tileType, tileColor].enabled = false;
+		tileType = inType % tile_renderers.GetLength(0);
+		tile_renderers[tileType, tileColor].enabled = true;
 	}
 
 	// disables and enables renderers based on color
-	public void cycleColor ()
+	public void CycleColor ()
 	{
-		tileRenderers[tileType, tileColor].enabled = false;
-		tileColor = (tileColor + 1) % tileRenderers.GetLength(1);
-		tileRenderers[tileType, tileColor].enabled = true;
+		tile_renderers[tileType, tileColor].enabled = false;
+		tileColor = (tileColor + 1) % tile_renderers.GetLength(1);
+		tile_renderers[tileType, tileColor].enabled = true;
 	}
 
 	// sets type, color, and rotation by passed struct
-	public void setProperties (tileData inData)
+	public void SetProperties (TileData inData)
 	{
-		tileRenderers[tileType, tileColor].enabled = false;
+		tile_renderers[tileType, tileColor].enabled = false;
 		tileType = inData.type;
 		tileColor = inData.color;
-		tileRenderers[tileType, tileColor].enabled = true;
+		tile_renderers[tileType, tileColor].enabled = true;
 
 		tileRotation = inData.rotation;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
@@ -121,18 +121,18 @@ public class GenesisTile : MonoBehaviour {
 	// returns a new tile copied from the tile in active use
 	public GameObject getActiveTile ()
 	{
-		GameObject go = tileRenderers[tileType, tileColor].transform.parent.gameObject;
+		GameObject go = tile_renderers[tileType, tileColor].transform.parent.gameObject;
 		go = Instantiate(go, go.transform.position, go.transform.rotation) as GameObject;
 
 		return go;
 	}
 
 	// returns an instantiated copy of a specified tile
-	public GameObject newTile (tileData inData)
+	public GameObject NewTile (TileData inData)
 	{
-		GameObject go = tileRenderers[inData.type, inData.color].transform.parent.gameObject; // <1>
+		GameObject go = tile_renderers[inData.type, inData.color].transform.parent.gameObject; // <1>
 		Quaternion r = Quaternion.Euler(0, 0, 30 * inData.rotation);
-		Vector3 p = inData.locus.toUnitySpace();
+		Vector3 p = inData.locus.ToUnitySpace();
 
 		go = Instantiate(go, p, r) as GameObject;
 		go.GetComponentInChildren<SpriteRenderer>().enabled = true; // <2>

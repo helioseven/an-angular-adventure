@@ -5,26 +5,24 @@ using circleXsquares;
 
 public class MenuControl : MonoBehaviour {
 
-	// reference to the main camera in the scene
-	private Camera mainCam;
-
 	// private variables
-	private Vector2 localPosition;
-	private RectTransform canvasRT;
-	private RectTransform localRT;
+	private Camera main_cam;
+	private Vector2 local_position;
+	private RectTransform canvas_rt;
+	private RectTransform local_rt;
 
 	public void Awake () {
-		mainCam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
-		localPosition = Vector2.zero;
+		main_cam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+		local_position = Vector2.zero;
 
 		Canvas c = GetComponentInParent<Canvas>();
 		if (c) {
-			canvasRT = c.transform as RectTransform;
-			localRT = transform as RectTransform;
+			canvas_rt = c.transform as RectTransform;
+			local_rt = transform as RectTransform;
 		} else { // <1>
 			Debug.LogError("Failed to find the canvas.");
-			canvasRT = new RectTransform();
-			localRT = new RectTransform();
+			canvas_rt = new RectTransform();
+			local_rt = new RectTransform();
 		}
 
 		gameObject.SetActive(false);
@@ -35,12 +33,12 @@ public class MenuControl : MonoBehaviour {
 	}
 
 	// activates the panel and places it at the given location
-	public void activate () {
-		Vector2 inVec2 = Vector2.zero;
-		if (gameObject.activeSelf && localRT) return; // <1>
+	public void Activate () {
+		Vector2 inV2 = Vector2.zero;
+		if (gameObject.activeSelf && local_rt) return; // <1>
 
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRT, inVec2, mainCam, out localPosition);
-		localRT.localPosition = localPosition; // <2>
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas_rt, inV2, main_cam, out local_position);
+		local_rt.localPosition = local_position; // <2>
 
 		gameObject.SetActive(true);
 
@@ -51,8 +49,8 @@ public class MenuControl : MonoBehaviour {
 	}
 
 	// deactivates the panel
-	public void deactivate () {
-		if (!gameObject.activeSelf && localRT) return; // <1>
+	public void Deactivate () {
+		if (!gameObject.activeSelf && local_rt) return; // <1>
 
 		gameObject.SetActive(false);
 

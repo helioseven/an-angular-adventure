@@ -11,18 +11,18 @@ public class PlayGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static PlayGM instance = null;
 
-	public GameObject player_ref;
-	public GameObject death_particles;
-	public GameObject checkpoint_ref;
-	public GameObject warp_ref;
+	public GameObject playerRef;
+	public GameObject deathParticles;
+	public GameObject checkpointRef;
+	public GameObject warpRef;
 
-	private PlayLoader lvlLoad = null;
-	public GameObject tile_map;
+	private PlayLoader lvl_load = null;
+	public GameObject tileMap;
 
-	public levelData level_data { get; private set; }
+	public LevelData levelData { get; private set; }
 	public GameObject player { get; private set; }
-	public GameObject curr_checkpoint { get; private set; }
-	public int curr_layer { get; private set; }
+	public GameObject currentCheckpoint { get; private set; }
+	public int currentLayer { get; private set; }
 
 	void Awake ()
 	{
@@ -30,19 +30,19 @@ public class PlayGM : MonoBehaviour {
 			// set singleton instance
 			instance = this;
 			// find the loader
-			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
+			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
 			// load the level
 			Vector2 v2;
-			levelData inLvl;
-			lvlLoad.supplyLevel(ref tile_map, out inLvl, out v2);
-			level_data = inLvl;
+			LevelData inLvl;
+			lvl_load.supplyLevel(ref tileMap, out inLvl, out v2);
+			levelData = inLvl;
 			// set layer activity
 			ActivateLayer(0);
 			// set checkpoint
-			SetCheckpoint(Instantiate(checkpoint_ref, v2, Quaternion.identity) as GameObject);
+			SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
 			// instantiate player
-			player = Instantiate(player_ref, v2, Quaternion.identity) as GameObject;
-			curr_layer = 0;
+			player = Instantiate(playerRef, v2, Quaternion.identity) as GameObject;
+			currentLayer = 0;
 		} else
 			Destroy(gameObject);
 	}
@@ -57,14 +57,14 @@ public class PlayGM : MonoBehaviour {
 	{
 		player.SetActive(false);
 		Vector3 p = player.transform.position;
-		UnityEngine.Object dp = Instantiate(death_particles, p, Quaternion.identity);
+		UnityEngine.Object dp = Instantiate(deathParticles, p, Quaternion.identity);
 		Invoke("ResetToCheckpoint", 1f);
 		Destroy(dp, 1.0f);
 	}
 
 	public void Reset ()
 	{
-		foreach (Transform layer in tile_map.transform)
+		foreach (Transform layer in tileMap.transform)
 			foreach (Transform tile in layer) DontDestroyOnLoad(tile.gameObject);
 
 		SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -72,13 +72,13 @@ public class PlayGM : MonoBehaviour {
 
 	public void SetCheckpoint (GameObject checkpoint)
 	{
-		curr_checkpoint = checkpoint;
+		currentCheckpoint = checkpoint;
 	}
 
 	public void ResetToCheckpoint ()
 	{
 		// move player to last checkpoint
-		player.transform.position = curr_checkpoint.transform.position;
+		player.transform.position = currentCheckpoint.transform.position;
 		// acivate
 		player.SetActive(true);
 	}
@@ -87,27 +87,27 @@ public class PlayGM : MonoBehaviour {
 	{
 		// if player's current level matches either base or target, select the other
 		int next_layer;
-		if (curr_layer == warp.base_level)
-			next_layer = warp.target_level;
-		else if (curr_layer == warp.target_level)
-			next_layer = warp.base_level;
+		if (currentLayer == warp.baseLevel)
+			next_layer = warp.targetLevel;
+		else if (currentLayer == warp.targetLevel)
+			next_layer = warp.baseLevel;
 		else
-			next_layer = curr_layer;
+			next_layer = currentLayer;
 
 		// change layers & transparency for base and target layers
 		ActivateLayer(next_layer);
 
 		// change players position and current_level
 		Vector3 p = player.transform.position;
-		p.z = tile_map.transform.GetChild(next_layer).position.z;
+		p.z = tileMap.transform.GetChild(next_layer).position.z;
 		player.transform.position = p;
-		curr_layer = next_layer;
+		currentLayer = next_layer;
 	}
 
 	public void ActivateLayer (int layerIndex)
 	{
 		// simply cycles through all layers and calls SetLayerOpacity appropriately
-		foreach (Transform tileLayer in tile_map.transform) {
+		foreach (Transform tileLayer in tileMap.transform) {
 			int d = tileLayer.GetSiblingIndex();
 			d = Math.Abs(d - layerIndex);
 			SetLayerOpacity(tileLayer, d);

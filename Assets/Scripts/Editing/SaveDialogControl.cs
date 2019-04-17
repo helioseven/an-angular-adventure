@@ -5,14 +5,17 @@ using UnityEngine.UI;
 
 public class SaveDialogControl : MonoBehaviour {
 
-	private Text inField;
+	private Text path_field;
 
-	// establishes a reference to the input field
 	void Awake ()
 	{
-		inField = transform.Find("InputField").Find("Text").GetComponent<Text>();
+		path_field = transform.Find("InputField").Find("Text").GetComponent<Text>(); // <1>
 
 		gameObject.SetActive(false);
+
+		/*
+		<1> establishes a reference to the relevant Text component
+		*/
 	}
 
 	// pauses what the EditGM is doing to invoke the save dialog
@@ -22,7 +25,7 @@ public class SaveDialogControl : MonoBehaviour {
 		gameObject.SetActive(true);
 	}
 
-	// simply cancels the save dialog by deactivating the whole panel
+	// cancels the save dialog by deactivating the panel and resuming EditGM
 	public void cancelDialog ()
 	{
 		gameObject.SetActive(false);
@@ -32,7 +35,7 @@ public class SaveDialogControl : MonoBehaviour {
 	// confirms the file save by passing the entered filename to the EditGM
 	public void confirmSave ()
 	{
-		EditGM.instance.saveFile(inField.text);
+		EditGM.instance.SaveFile(path_field.text);
 		cancelDialog();
 	}
 }

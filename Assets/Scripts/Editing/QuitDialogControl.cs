@@ -5,30 +5,29 @@ using UnityEngine.UI;
 
 public class QuitDialogControl : MonoBehaviour {
 
-	// establishes a reference to the input field
 	void Awake ()
 	{
 		gameObject.SetActive(false);
 	}
 
 	// pauses what the EditGM is doing to invoke the quit dialog
-	public void invokeDialog ()
+	public void InvokeDialog ()
 	{
 		EditGM.instance.gameObject.SetActive(false);
 		gameObject.SetActive(true);
 	}
 
-	// simply cancels the quit dialog by deactivating the whole panel
-	public void cancelDialog ()
+	// cancels the quit dialog by deactivating the panel and resuming EditGM
+	public void CancelDialog ()
 	{
 		gameObject.SetActive(false);
 		EditGM.instance.gameObject.SetActive(true);
 	}
 
-	// confirms the file save by passing the entered filename to the EditGM
-	public void confirmQuit ()
+	// quits out of the editor via EditGM
+	public void ConfirmQuit ()
 	{
-		cancelDialog();
-		EditGM.instance.returnToMainMenu();
+		CancelDialog();
+		EditGM.instance.ReturnToMainMenu();
 	}
 }

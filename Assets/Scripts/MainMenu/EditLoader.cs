@@ -9,13 +9,13 @@ using circleXsquares;
 public class EditLoader : MonoBehaviour {
 
 	private string path;
-	private GenesisTile gtRef;
-	private GameObject[,] prefabRefs;
+	private GenesisTile gt_ref;
+	private GameObject[,] prefab_refs;
 
 	void Awake ()
 	{
 		path = "testLevel.txt"; // <1>
-		prefabRefs = new GameObject[6, 7];
+		prefab_refs = new GameObject[6, 7];
 		DontDestroyOnLoad(gameObject); // <2>
 		SceneManager.LoadScene(2); // <3>
 
@@ -27,43 +27,43 @@ public class EditLoader : MonoBehaviour {
 	}
 
 	// supplies a hierarchy of tiles and a level representation, then returns a lookup mapping
-	public Dictionary<GameObject,tileData> supplyLevel (ref GameObject tile_map, out levelData level)
+	public Dictionary<GameObject,TileData> supplyLevel (ref GameObject tile_map, out LevelData level)
 	{
-		gtRef = EditGM.instance.genesis_tile;
+		gt_ref = EditGM.instance.genesisTile;
 
-		foreach (Transform tileGroup in gtRef.transform)
+		foreach (Transform tileGroup in gt_ref.transform)
 			foreach (Transform tile in tileGroup) {
 				int tgi = tileGroup.GetSiblingIndex();
 				int ti = tile.GetSiblingIndex();
-				prefabRefs[tgi, ti] = tile.gameObject; // <1>
+				prefab_refs[tgi, ti] = tile.gameObject; // <1>
 			}
 
-		Dictionary<GameObject, tileData> returnDict = new Dictionary<GameObject,tileData>();
+		Dictionary<GameObject, TileData> returnDict = new Dictionary<GameObject,TileData>();
 		tile_map.transform.position = Vector3.zero;
 		int layerCount = 0;
 
 		bool file_exists = File.Exists("Levels\\" + path); // <2>
 		if (file_exists) {
 			string[] lines = File.ReadAllLines("Levels\\" + path);
-			level = FileParsing.readLevel(lines); // <3>
+			level = FileParsing.ReadLevel(lines); // <3>
 		} else {
 			Debug.Log("File not found, loading new level.");
-			level = new levelData();
-			level.layerSet = new List<layerData>();
-			layerData empty_layer = new layerData();
-			empty_layer.tileSet = new List<tileData>();
+			level = new LevelData();
+			level.layerSet = new List<LayerData>();
+			LayerData empty_layer = new LayerData();
+			empty_layer.tileSet = new List<TileData>();
 			level.layerSet.Add(empty_layer); // <4>
 		}
 
-		foreach (layerData ld in level.layerSet) {
+		foreach (LayerData ld in level.layerSet) {
 			GameObject tileLayer = new GameObject();
 			tileLayer.transform.position = new Vector3(0f, 0f, layerCount++ * 2f);
 			tileLayer.transform.SetParent(tile_map.transform); // <5>
 
-			foreach (tileData td in ld.tileSet) {
-				GameObject pfRef = prefabRefs[td.type, td.color];
+			foreach (TileData td in ld.tileSet) {
+				GameObject pfRef = prefab_refs[td.type, td.color];
 				Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
-				Vector3 v3 = td.locus.toUnitySpace();
+				Vector3 v3 = td.locus.ToUnitySpace();
 				v3.z = tileLayer.transform.position.z;
 				GameObject go = Instantiate(pfRef, v3, q) as GameObject;
 				go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
@@ -82,7 +82,7 @@ public class EditLoader : MonoBehaviour {
 		<4> if file doesn't exist, empty level is created
 		<5> each tile layer is parented to the tile_map object
 		<6> each tile is parented to its respective layer
-		<7> add the GameObject, tileData pair to the lookup
+		<7> add the GameObject, TileData pair to the lookup
 		<8> when script is done, it self-terminates
 		*/
 	}

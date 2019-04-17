@@ -7,8 +7,8 @@ namespace circleXsquares {
 
 	/* Primary Definitions */
 	
-	// hexLocus describes a location in a hexagonal coodinate system
-	public struct hexLocus
+	// HexLocus describes a location in a hexagonal coodinate system
+	public struct HexLocus
 	{
 
 		//turns out this bugger is pretty dang useful
@@ -22,9 +22,9 @@ namespace circleXsquares {
 		public int e { get; private set; }
 		public int f { get; private set; }
 
-		// operators allow hexLocus to be added and subtracted like vectors
+		// operators allow HexLocus to be added and subtracted like vectors
 		// since they are static, coordinate simplification is ensured by the constructor
-		public static hexLocus operator +(hexLocus h1, hexLocus h2)
+		public static HexLocus operator +(HexLocus h1, HexLocus h2)
 		{
 			int rA, rB, rC, rD, rE, rF;
 			rA = h1.a + h2.a;
@@ -33,9 +33,9 @@ namespace circleXsquares {
 			rD = h1.d + h2.d;
 			rE = h1.e + h2.e;
 			rF = h1.f + h2.f;
-			return new hexLocus(rA, rB, rC, rD, rE, rF);
+			return new HexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator -(hexLocus h1, hexLocus h2)
+		public static HexLocus operator -(HexLocus h1, HexLocus h2)
 		{
 			int rA, rB, rC, rD, rE, rF;
 			rA = h1.a - h2.a;
@@ -44,9 +44,9 @@ namespace circleXsquares {
 			rD = h1.d - h2.d;
 			rE = h1.e - h2.e;
 			rF = h1.f - h2.f;
-			return new hexLocus(rA, rB, rC, rD, rE, rF);
+			return new HexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator *(hexLocus h1, hexLocus h2)
+		public static HexLocus operator *(HexLocus h1, HexLocus h2)
 		{
 			int rA, rB, rC, rD, rE, rF;
 			rA = h1.a * h2.a;
@@ -55,9 +55,9 @@ namespace circleXsquares {
 			rD = h1.d * h2.d;
 			rE = h1.e * h2.e;
 			rF = h1.f * h2.f;
-			return new hexLocus(rA, rB, rC, rD, rE, rF);
+			return new HexLocus(rA, rB, rC, rD, rE, rF);
 		}
-		public static hexLocus operator /(hexLocus h1, hexLocus h2)
+		public static HexLocus operator /(HexLocus h1, HexLocus h2)
 		{
 			int rA, rB, rC, rD, rE, rF;
 			rA = h1.a / h2.a;
@@ -66,27 +66,27 @@ namespace circleXsquares {
 			rD = h1.d / h2.d;
 			rE = h1.e / h2.e;
 			rF = h1.f / h2.f;
-			return new hexLocus(rA, rB, rC, rD, rE, rF);
+			return new HexLocus(rA, rB, rC, rD, rE, rF);
 		}
 
 		// constructor generates a set of coordinates from a Vector2
-		public hexLocus (Vector2 inV2)
+		public HexLocus (Vector2 inV2)
 		{
-			hexLocus h1, h2, h3, h4;
+			HexLocus h1, h2, h3, h4;
 
 			float delta = inV2.y / sqrt3;
-			h1 = new hexLocus((int)Math.Round(inV2.x + delta), 0, (int)Math.Round(delta * 2.0f), 0, 0, 0); // <1>
-			h2 = new hexLocus((int)Math.Round(inV2.x - delta), 0, 0, 0, (int)Math.Round(delta * -2.0f), 0); // <2>
+			h1 = new HexLocus((int)Math.Round(inV2.x + delta), 0, (int)Math.Round(delta * 2.0f), 0, 0, 0); // <1>
+			h2 = new HexLocus((int)Math.Round(inV2.x - delta), 0, 0, 0, (int)Math.Round(delta * -2.0f), 0); // <2>
 
 			delta = inV2.x / sqrt3;
-			h3 = new hexLocus(0, (int)Math.Round(delta * 2.0f), 0, 0, 0, (int)Math.Round(delta - inV2.y)); // <3>
-			h4 = new hexLocus(0, 0, 0, (int)Math.Round(delta * -2.0f), 0, (int)Math.Round(-(delta + inV2.y))); // <4>
+			h3 = new HexLocus(0, (int)Math.Round(delta * 2.0f), 0, 0, 0, (int)Math.Round(delta - inV2.y)); // <3>
+			h4 = new HexLocus(0, 0, 0, (int)Math.Round(delta * -2.0f), 0, (int)Math.Round(-(delta + inV2.y))); // <4>
 
 			float m1, m2, m3, m4; // <5>
-			m1 = (h1.toUnitySpace() - inV2).magnitude;
-			m2 = (h2.toUnitySpace() - inV2).magnitude;
-			m3 = (h3.toUnitySpace() - inV2).magnitude;
-			m4 = (h4.toUnitySpace() - inV2).magnitude;
+			m1 = (h1.ToUnitySpace() - inV2).magnitude;
+			m2 = (h2.ToUnitySpace() - inV2).magnitude;
+			m3 = (h3.ToUnitySpace() - inV2).magnitude;
+			m4 = (h4.ToUnitySpace() - inV2).magnitude;
 
 			if ((m1 < m2) && (m1 < m3) && (m1 < m4)) this = h1;
 			else if ((m2 < m3) && (m2 < m4)) this = h2;
@@ -99,12 +99,12 @@ namespace circleXsquares {
 			<3> h3 finds a (b, f) point
 			<4> h4 finds a (d, f) point
 			<5> magnitude of each is computed
-			<6> the hexLocus of least magnitude is chosen
+			<6> the HexLocus of least magnitude is chosen
 			*/
 		}
 
-		// simple constructor using cSimplify
-		public hexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
+		// simple constructor using Simplify
+		public HexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
 		{
 			a = inA;
 			b = inB;
@@ -113,11 +113,11 @@ namespace circleXsquares {
 			e = inE;
 			f = inF;
 
-			cSimplify();
+			Simplify();
 		}
 
-		// translates a discrete hexLocus into a Unity world space location
-		public Vector2 toUnitySpace ()
+		// translates a discrete HexLocus into a Unity world space location
+		public Vector2 ToUnitySpace ()
 		{
 			float x, y; // <1>
 
@@ -142,8 +142,8 @@ namespace circleXsquares {
 			*/
 		}
 
-		// serialize merely string-separates each component value on a single line
-		public string serialize ()
+		// Serialize merely string-separates each component value on a single line
+		public string Serialize ()
 		{
 			string s = a.ToString();
 			s += " " + b.ToString();
@@ -154,9 +154,9 @@ namespace circleXsquares {
 			return s;
 		}
 
-		// cSimplify simplifies current coordinates to simplest possible terms
+		// Simplify simplifies current coordinates to simplest possible terms
 		// this method should be called every time internal values are changed
-		private void cSimplify ()
+		private void Simplify ()
 		{
 			int inA = a, inB = b, inC = c, inD = d, inE = e, inF = f; // <1>
 			int dS = 0, i = 0; // <2> <3>
@@ -258,15 +258,15 @@ namespace circleXsquares {
 
 	// (??)
 	// (!!) currently not in use
-	public struct hexOrient
+	public struct HexOrient
 	{
 
 		// (??)
-		public hexLocus locus;
+		public HexLocus locus;
 		public int rotation;
 
 		// simple constructor
-		public hexOrient (hexLocus inLocus, int inRotation)
+		public HexOrient (HexLocus inLocus, int inRotation)
 		{
 			locus = inLocus;
 			rotation = inRotation;
@@ -274,19 +274,19 @@ namespace circleXsquares {
 	}
 
 	// (??)
-	// nb: tileTriggers should really only ever be applied to green (color: 4) tiles
+	// nb: TileTriggers should really only ever be applied to green (color: 4) tiles
 	// nb2: like any other color tile, triggers can also be warps
 	// (!!) currently not in use
-	public struct tileTrigger
+	public struct TileTrigger
 	{
 
 		// (??)
 		public bool isActive;
-		public hexLocus targetLocus;
+		public HexLocus targetLocus;
 		public int targetLayer;
 
 		// simple constructor
-		public tileTrigger (bool inActive, hexLocus inLocus, int inLayer)
+		public TileTrigger (bool inActive, HexLocus inLocus, int inLayer)
 		{
 			isActive = inActive;
 			targetLocus = inLocus;
@@ -294,18 +294,18 @@ namespace circleXsquares {
 		}
 	}
 
-	// tileData describes a tile by attributes
-	public struct tileData
+	// TileData describes a tile by attributes
+	public struct TileData
 	{
 
-		// tileData consists of a type, color, position, and rotation
+		// TileData consists of a type, color, position, and rotation
 		public int type;
 		public int color;
-		public hexLocus locus;
+		public HexLocus locus;
 		public int rotation;
 
 		// simple constructor
-		public tileData (int inType, int inColor, hexLocus inLocus, int inRotation)
+		public TileData (int inType, int inColor, HexLocus inLocus, int inRotation)
 		{
 			type = inType;
 			color = inColor;
@@ -313,46 +313,46 @@ namespace circleXsquares {
 			rotation = inRotation;
 		}
 
-		// serialize turns this tileData into strings separated by spaces
-		public string serialize ()
+		// Serialize turns this TileData into strings separated by spaces
+		public string Serialize ()
 		{
 			string s = type.ToString();
 			s += " " + color.ToString();
-			s += " " + locus.serialize();
+			s += " " + locus.Serialize();
 			s += " " + rotation.ToString();
 			return s;
 		}
 	}
 
-	// chkpntData describes the mechanism by which we track player progress
-	public struct chkpntData
+	// ChkpntData describes the mechanism by which we track player progress
+	public struct ChkpntData
 	{
 
 		// a checkpoint simply consists of an activity indicator, and then a location and rotation
 		public bool isActive;
-		public hexLocus locus;
+		public HexLocus locus;
 		public int rotation;
 
 		// simple constructor
-		public chkpntData (bool inActive, hexLocus inLocus, int inRotation)
+		public ChkpntData (bool inActive, HexLocus inLocus, int inRotation)
 		{
 			isActive = inActive;
 			locus = inLocus;
 			rotation = inRotation;
 		}
 
-		// serialize turns this chkpntData into strings separated by spaces
-		public string serialize ()
+		// Serialize turns this ChkpntData into strings separated by spaces
+		public string Serialize ()
 		{
 			string s = (isActive ? 1 : 0).ToString();
-			s += " " + locus.serialize();
+			s += " " + locus.Serialize();
 			s += " " + rotation.ToString();
 			return s;
 		}
 	}
 
-	// warpData describes the mechanism by which players win and move between level layers
-	public struct warpData
+	// WarpData describes the mechanism by which players win and move between level layers
+	public struct WarpData
 	{
 
 		// warps are used as win triggers, of which there may be multiple
@@ -363,11 +363,11 @@ namespace circleXsquares {
 		// originLayer describes the layer on which the warp will be triggered
 		public int originLayer;
 		// finally, the warp must have a location and rotation as it occupies physical space in two layers
-		public hexLocus locus;
+		public HexLocus locus;
 		public int rotation;
 
 		// simple constructor
-		public warpData (bool inVictory, bool inDD, int inOrigin, hexLocus inLocus, int inRotation)
+		public WarpData (bool inVictory, bool inDD, int inOrigin, HexLocus inLocus, int inRotation)
 		{
 			isVictory = inVictory;
 			isDropDown = inDD;
@@ -376,90 +376,90 @@ namespace circleXsquares {
 			rotation = inRotation;
 		}
 
-		// serialize turns this warpData into strings separated by spaces
-		public string serialize ()
+		// Serialize turns this WarpData into strings separated by spaces
+		public string Serialize ()
 		{
 			string s = (isVictory ? 1 : 0).ToString();
 			s += " " + (isDropDown ? 1 : 0).ToString();
 			s += " " + originLayer.ToString();
-			s += " " + locus.serialize();
+			s += " " + locus.Serialize();
 			s += " " + rotation.ToString();
 			return s;
 		}
 	}
 
-	// layerData describes a component of a level by a set of tiles and checkpoints
-	public struct layerData
+	// LayerData describes a component of a level by a set of tiles and checkpoints
+	public struct LayerData
 	{
 
 		// a layer needs to know it's depth within the level using it
 		public int layerDepth;
 		// the rest of the layer is a set of tiles and a set of checkpoints
-		public List<tileData> tileSet;
-		public List<chkpntData> chkpntSet;
+		public List<TileData> tileSet;
+		public List<ChkpntData> chkpntSet;
 
 		// simple constructor
-		public layerData (int inDepth, List<tileData> inTiles, List<chkpntData> inChkpnts)
+		public LayerData (int inDepth, List<TileData> inTiles, List<ChkpntData> inChkpnts)
 		{
 			layerDepth = inDepth;
 			tileSet = inTiles;
 			chkpntSet = inChkpnts;
 		}
 
-		// serialize turns this layerData into a "paragraph"-style chunk
-		public string[] serialize ()
+		// Serialize turns this LayerData into a "paragraph"-style chunk
+		public string[] Serialize ()
 		{
 			List<string> returnStrings = new List<string>();
 			// for each layer, we have a single line comment for layer number
 			returnStrings.Add("-- Layer #" + layerDepth.ToString() + " --");
-			// then each line below that is a serialized tileData
-			foreach (tileData td in tileSet)
-				returnStrings.Add(td.serialize());
+			// then each line below that is a Serialized TileData
+			foreach (TileData td in tileSet)
+				returnStrings.Add(td.Serialize());
 
 			// next is checkpoints, signaled by a human-readable comment line
 			returnStrings.Add("-- Checkpoints --");
 			// then each line below lists out the checkpoints for this layer
-			foreach (chkpntData cpd in chkpntSet)
-				returnStrings.Add(cpd.serialize());
+			foreach (ChkpntData cpd in chkpntSet)
+				returnStrings.Add(cpd.Serialize());
 			returnStrings.Add("-- End Layer --");
 
 			return returnStrings.ToArray();
 		}
 	}
 
-	// levelData is the main aggregate unit of a set of layers and their relationships
-	public struct levelData
+	// LevelData is the main aggregate unit of a set of layers and their relationships
+	public struct LevelData
 	{
 
 		// a level consists of a set of layers and warps between those layers
-		public List<layerData> layerSet;
-		public List<warpData> warpSet;
+		public List<LayerData> layerSet;
+		public List<WarpData> warpSet;
 
 		// simple constructor
-		public levelData (List<layerData> inLayers, List<warpData> inWarps)
+		public LevelData (List<LayerData> inLayers, List<WarpData> inWarps)
 		{
 			layerSet = inLayers;
 			warpSet = inWarps;
 		}
 
-		// serialize turns this levelData into a list of layer chunks
-		public string[] serialize ()
+		// Serialize turns this LevelData into a list of layer chunks
+		public string[] Serialize ()
 		{
 			List<string> returnStrings = new List<string>();
 			// first line of the file is reserved for human-readable comments
 			returnStrings.Add("-- Level Comments go here --");
 
-			foreach (layerData ld in layerSet) {
+			foreach (LayerData ld in layerSet) {
 				// then a chunk is added for each tile in the layer
 				returnStrings.Add(" ");
-				returnStrings.AddRange(ld.serialize());
+				returnStrings.AddRange(ld.Serialize());
 			}
 
 			// single line comment signals warps
 			returnStrings.AddRange(new string[]{" ", "-- Warps --"});
-			foreach (warpData wd in warpSet)
+			foreach (WarpData wd in warpSet)
 				// then each warp for the level is listed out in lines
-				returnStrings.Add(wd.serialize());
+				returnStrings.Add(wd.Serialize());
 
 			return returnStrings.ToArray();
 		}
@@ -475,18 +475,18 @@ namespace circleXsquares {
 		public static Char[] splitChar = new Char[] {' '};
 
 		// reads an array of strings to parse out level data
-		public static levelData readLevel (string[] lines)
+		public static LevelData ReadLevel (string[] lines)
 		{
 			// check to see that we have enough data to work with
 			if (lines.Length < 3) {
 				Debug.LogError("File could not be read correctly.");
-				return new levelData();
+				return new LevelData();
 			}
 
-			List<tileData> tileList = new List<tileData>();
-			List<chkpntData> chkpntList = new List<chkpntData>();
-			List<layerData> layerList = new List<layerData>();
-			List<warpData> warpList = new List<warpData>();
+			List<TileData> tileList = new List<TileData>();
+			List<ChkpntData> chkpntList = new List<ChkpntData>();
+			List<LayerData> layerList = new List<LayerData>();
+			List<WarpData> warpList = new List<WarpData>();
 			bool canReadTile = true;
 			bool canReadChkpnt = false;
 			bool canReadWarp = false;
@@ -514,9 +514,9 @@ namespace circleXsquares {
 				// an end layer comment packages all tiles and checkpoints into a layer, and then resets
 				if (lines[i] == "-- End Layer --") {
 					// when we come to the end of a layer, add it to the stack and reset the other lists
-					layerList.Add(new layerData(layerAdd++, tileList, chkpntList));
-					tileList = new List<tileData>();
-					chkpntList = new List<chkpntData>();
+					layerList.Add(new LayerData(layerAdd++, tileList, chkpntList));
+					tileList = new List<TileData>();
+					chkpntList = new List<ChkpntData>();
 					continue;
 				}
 				// a warps comment precedes a list of warps, by convention at the end of a level file
@@ -528,16 +528,16 @@ namespace circleXsquares {
 				}
 
 				// if no comment has been triggered, we should be reading one (and only one) of these three
-				if (canReadTile) tileList.Add(readTile(lines[i]));
-				if (canReadChkpnt) chkpntList.Add(readChkpnt(lines[i]));
-				if (canReadWarp) warpList.Add(readWarp(lines[i]));
+				if (canReadTile) tileList.Add(ReadTile(lines[i]));
+				if (canReadChkpnt) chkpntList.Add(ReadChkpnt(lines[i]));
+				if (canReadWarp) warpList.Add(ReadWarp(lines[i]));
 			}
 
-			return new levelData(layerList, warpList);
+			return new LevelData(layerList, warpList);
 		}
 
-		// parses a string to construct a tileData
-		public static tileData readTile (string lineIn)
+		// parses a string to construct a TileData
+		public static TileData ReadTile (string lineIn)
 		{
 			// split the line into individual items first
 			string[] s = lineIn.Split(splitChar);
@@ -545,13 +545,13 @@ namespace circleXsquares {
 			// checks to see if there's enough items to be read
 			if (s.Length < 9) {
 				Debug.LogError("Line for tile data is formatted incorrectly.");
-				return new tileData();
+				return new TileData();
 			}
 
 			// proceeds to read the line items
 			int i = Int32.Parse(s[0]);
 			int j = Int32.Parse(s[1]);
-			hexLocus hl = new hexLocus(
+			HexLocus hl = new HexLocus(
 				Int32.Parse(s[2]),
 				Int32.Parse(s[3]),
 				Int32.Parse(s[4]),
@@ -560,11 +560,11 @@ namespace circleXsquares {
 				Int32.Parse(s[7]));
 			int r = Int32.Parse(s[8]);
 
-			return new tileData(i, j, hl, r);
+			return new TileData(i, j, hl, r);
 		}
 
-		// parses a string to construct a chkpntData
-		public static chkpntData readChkpnt (string lineIn)
+		// parses a string to construct a ChkpntData
+		public static ChkpntData ReadChkpnt (string lineIn)
 		{
 			// split the line into individual items first
 			string[] s = lineIn.Split(splitChar);
@@ -572,12 +572,12 @@ namespace circleXsquares {
 			// checks to see if there's enough items to be read
 			if (s.Length < 8) {
 				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
-				return new chkpntData();
+				return new ChkpntData();
 			}
 
 			// proceeds to read the line items
 			bool b = Int32.Parse(s[0]) == 0 ? false : true;
-			hexLocus hl = new hexLocus(
+			HexLocus hl = new HexLocus(
 				Int32.Parse(s[1]),
 				Int32.Parse(s[2]),
 				Int32.Parse(s[3]),
@@ -586,11 +586,11 @@ namespace circleXsquares {
 				Int32.Parse(s[6]));
 			int r = Int32.Parse(s[7]);
 
-			return new chkpntData(b, hl, r);
+			return new ChkpntData(b, hl, r);
 		}
 
-		// parses a string to construct a warpData
-		public static warpData readWarp (string lineIn)
+		// parses a string to construct a WarpData
+		public static WarpData ReadWarp (string lineIn)
 		{
 			// split the line into individual items first
 			string[] s = lineIn.Split(splitChar);
@@ -598,14 +598,14 @@ namespace circleXsquares {
 			// checks to see if there's enough items to be read
 			if (s.Length < 8) {
 				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
-				return new warpData();
+				return new WarpData();
 			}
 
 			// proceeds to read the line items
 			bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
 			bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
 			int d = Int32.Parse(s[2]);
-			hexLocus hl = new hexLocus(
+			HexLocus hl = new HexLocus(
 				Int32.Parse(s[3]),
 				Int32.Parse(s[4]),
 				Int32.Parse(s[5]),
@@ -614,7 +614,7 @@ namespace circleXsquares {
 				Int32.Parse(s[8]));
 			int r = Int32.Parse(s[9]);
 
-			return new warpData(b1, b2, d, hl, r);
+			return new WarpData(b1, b2, d, hl, r);
 		}
 	}
 }

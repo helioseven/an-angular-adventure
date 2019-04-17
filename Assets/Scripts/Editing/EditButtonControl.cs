@@ -12,14 +12,14 @@ public class EditButtonControl : MonoBehaviour {
 	{
 		image = gameObject.GetComponent<Image>();
 
-		gameObject.GetComponent<Button>().onClick.AddListener(toggleColor);
+		gameObject.GetComponent<Button>().onClick.AddListener(ToggleColor);
 	}
 
 	// button doesn't even track it's own state, just asks the EditGM
-	public void toggleColor ()
+	public void ToggleColor ()
 	{
 		// bEdit button is 75% grey in creation mode, 100% white in edit mode
-		image.color = EditGM.instance.menu_mode ?
+		image.color = EditGM.instance.menuMode ?
 			new Color(0.75f, 0.75f, 0.75f, 1.0f) : new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 }
