@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PaletteControl : MonoBehaviour {
 
+	// public read-accessibility state variables
+	public bool activeSelf { get { return gameObject.activeSelf; } private set {} }
+
 	// private variables
 	private Camera main_cam;
 	private Vector2 local_position;
@@ -32,29 +35,22 @@ public class PaletteControl : MonoBehaviour {
 	}
 
 	// activates the panel and places it at the given location
-	public void Activate () {
-		if (gameObject.activeSelf && local_rt) return; // <1>
+	public void Activate (Vector2 inV2) {
+		if (activeSelf) return; // <1>
 
-		Vector2 inV2 = Vector2.zero;
 		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas_rt, inV2, main_cam, out local_position);
 		local_rt.localPosition = local_position; // <2>
 
 		gameObject.SetActive(true);
 
 		/*
-		<1> does nothing if the panel is already active or has no canvas
+		<1> does nothing if the panel is already active
 		<2> the passed position is translated into local rect space, and the panel is moved there
 		*/
 	}
 
 	// deactivates the panel
 	public void Deactivate () {
-		if (!gameObject.activeSelf && local_rt) return; // <1>
-
 		gameObject.SetActive(false);
-
-		/*
-		<1> does nothing if the panel is already inactive or has no canvas
-		*/
 	}
 }

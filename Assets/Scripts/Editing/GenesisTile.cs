@@ -99,10 +99,11 @@ public class GenesisTile : MonoBehaviour {
 	}
 
 	// disables and enables renderers based on color
-	public void CycleColor ()
+	public void CycleColor (bool clockwise)
 	{
 		tile_renderers[tileType, tileColor].enabled = false;
-		tileColor = (tileColor + 1) % tile_renderers.GetLength(1);
+		int newColor = clockwise ? ++tileColor : --tileColor;
+		tileColor = newColor % tile_renderers.GetLength(1);
 		tile_renderers[tileType, tileColor].enabled = true;
 	}
 

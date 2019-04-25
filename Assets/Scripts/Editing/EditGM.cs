@@ -126,45 +126,31 @@ public class EditGM : MonoBehaviour {
 	void Update ()
 	{
 		updateInputs(); // <1>
+		updateUI(); // <2>
 
-		bool mold = menuMode;
-		menuMode = CheckKeyDowns(InputKeys.Space) ? !mold : mold; // <2>
-
-		if (menuMode) {
-			if (!mold) { // <3>
-				palettePanel.Activate();
-				genesisTile.Deactivate();
-			}
-		} else {
-			if (mold) { // <4>
-				palettePanel.Deactivate();
-				genesisTile.Activate();
-			}
-
-			updateWorld(); // <5>
+		if (!menuMode) {
+			updateWorld(); // <3>
 
 			if (editMode) {
-				if (edit_flag) genesisTile.Deactivate(); // <6>
+				if (edit_flag) genesisTile.Deactivate(); // <4>
 
 				updateEditMode();
 			} else {
-				if (edit_flag) genesisTile.Activate(); // <7>
+				if (edit_flag) genesisTile.Activate(); // <5>
 
 				updateGT();
 			}
 		}
 
-		edit_flag = false; // <8>
+		edit_flag = false; // <6>
 
 		/*
 		<1> getKeys and getKeyDowns are updated
-		<2> menuMode is toggled whenever spacebar is pressed
-		<3> if we entered menuMode this frame, we activate menu and deactivate tool
-		<4> if we exited menuMode this frame, we deactivate menu and activate tool
-		<5> 
-		<6> deactivate tool when entering editMode
-		<7> activate tool when exiting editMode
-		<8> reset flag every frame, only set by ToggleEdit()
+		<2> hudPanel and palettePanel are updated
+		<3> anchorIcon and activeLayer are updated
+		<4> deactivate tool when entering editMode
+		<5> activate tool when exiting editMode
+		<6> reset flag every frame, only set by ToggleEdit()
 		*/
 	}
 
@@ -278,6 +264,43 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
+	// updates UI Overlay and Palette panels
+	private void updateUI ()
+	{
+		bool sbckd = CheckKeyDowns(InputKeys.Space);
+		bool tabck = CheckKeys(InputKeys.Tab);
+
+		if (sbckd) { // <1>
+			if (hudPanel.activeSelf) { // <2>
+				hudPanel.Deactivate();
+				menuMode = false;
+			} else { // <3>
+				palettePanel.Deactivate();
+				hudPanel.Activate();
+				menuMode = true;
+			}
+		}
+
+		if (hudPanel.activeSelf) return; // <4>
+
+		if (tabck) { // <5>
+			if (!palettePanel.activeSelf) palettePanel.Activate(Input.mousePosition);
+			menuMode = true;
+		} else if (palettePanel.activeSelf) palettePanel.Deactivate();
+
+		if (menuMode) genesisTile.Deactivate(); // <6>
+		else genesisTile.Activate();
+
+		/*
+		<1> UI is toggled whenever spacebar is pressed
+		<2> when UI is toggled off, deactivate and set menuMode to false
+		<3> when UI is toggled on, activate and set menuMode to true
+		<4> any time at which the UI is on, palette is ignored
+		<5> palette is on whenever tab key is held down
+		<6> if either menu is on, genesisTile is turned off
+		*/
+	}
+
 	// makes changes associated with anchorIcon and activeLayer
 	private void updateWorld ()
 	{
@@ -295,7 +318,8 @@ public class EditGM : MonoBehaviour {
 	// makes changes associated with the state of the genesisTile
 	private void updateGT ()
 	{
-		if (CheckKeyDowns(InputKeys.C)) genesisTile.CycleColor(); // <1>
+		if (CheckKeyDowns(InputKeys.C)) genesisTile.CycleColor(false); // <1>
+		if (CheckKeyDowns(InputKeys.V)) genesisTile.CycleColor(true);
 
 		if (CheckKeyDowns(InputKeys.Z)) genesisTile.Rotate(false); // <2>
 		if (CheckKeyDowns(InputKeys.X)) genesisTile.Rotate(true);

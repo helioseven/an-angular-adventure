@@ -5,13 +5,23 @@ using circleXsquares;
 
 public class HUDControl : MonoBehaviour {
 
+	// public read-accessibility state variables
+	public bool activeSelf { get { return gameObject.activeSelf; } private set {} }
+
+	public void Awake ()
+	{
+		Deactivate();
+	}
+
 	// activates the panel
-	public void Activate () {
+	public void Activate ()
+	{
 		gameObject.SetActive(true);
 	}
 
 	// deactivates the panel
-	public void Deactivate () {
+	public void Deactivate ()
+	{
 		gameObject.SetActive(false);
 	}
 }
