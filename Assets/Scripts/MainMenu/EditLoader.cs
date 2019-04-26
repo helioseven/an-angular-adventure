@@ -16,7 +16,7 @@ public class EditLoader : MonoBehaviour {
 	void Awake ()
 	{
 		path = "testLevel.txt"; // <1>
-		prefab_refs = new GameObject[6, 7];
+		prefab_refs = new GameObject[6, 8];
 		DontDestroyOnLoad(gameObject); // <2>
 		SceneManager.LoadScene(2); // <3>
 

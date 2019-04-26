@@ -72,14 +72,9 @@ public class GenesisTile : MonoBehaviour {
 		*/
 	}
 
-	public void Activate ()
+	public void SetActive (bool inActive)
 	{
-		gameObject.SetActive(true);
-	}
-
-	public void Deactivate ()
-	{
-		gameObject.SetActive(false);
+		gameObject.SetActive(inActive);
 	}
 
 	// turns the tile clockwise or counter-clockwise in 30 degree increments
@@ -118,9 +113,15 @@ public class GenesisTile : MonoBehaviour {
 		tileRotation = inData.rotation;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
 	}
+ 
+	// returns a TileData representation of the genesisTile's current state
+	public TileData GetTileData ()
+	{
+		return new TileData(tileType, tileColor, anchor_ref.focus, tileRotation);
+	}
 
 	// returns a new tile copied from the tile in active use
-	public GameObject getActiveTile ()
+	public GameObject GetActiveTile ()
 	{
 		GameObject go = tile_renderers[tileType, tileColor].transform.parent.gameObject;
 		go = Instantiate(go, go.transform.position, go.transform.rotation) as GameObject;

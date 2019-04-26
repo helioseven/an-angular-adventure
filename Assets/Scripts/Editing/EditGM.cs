@@ -105,7 +105,8 @@ public class EditGM : MonoBehaviour {
 			edit_flag = false;
 			gt_backup = new TileData();
 
-			menuMode = false; // <5>
+			hudPanel.SetActive(false); // <5>
+			menuMode = false;
 			editMode = false;
 			getKeys = InputKeys.None;
 			getKeyDowns = InputKeys.None;
@@ -131,11 +132,11 @@ public class EditGM : MonoBehaviour {
 			updateWorld(); // <3>
 
 			if (editMode) {
-				if (edit_flag) genesisTile.Deactivate(); // <4>
+				if (edit_flag) genesisTile.SetActive(false); // <4>
 
 				updateEditMode();
 			} else {
-				if (edit_flag) genesisTile.Activate(); // <5>
+				if (edit_flag) genesisTile.SetActive(true); // <5>
 
 				updateGT();
 			}
@@ -177,9 +178,9 @@ public class EditGM : MonoBehaviour {
 		}
 
 		/*
-		<1> If the passed tile isn't part of the map, log error and return default values
+		<1> If the passed tile isn't part of the map, output default values and return false
 		<2> If it is, output the tile's layer by parent's sibling index
-		<3> then return the TileData itself via data_lookup
+		<3> then output the TileData itself via data_lookup, and return true
 		*/
 	}
 
@@ -202,17 +203,17 @@ public class EditGM : MonoBehaviour {
 		if (editMode) {
 			genesisTile.SetProperties(gt_backup); // <1>
 			gt_backup = is_tile_selected ? selected_tile : new TileData(); // <2>
-			genesisTile.Activate();
+			genesisTile.SetActive(true);
 		} else {
 			TileData td = gt_backup;
-			gt_backup = getGTData(); // <3>
+			gt_backup = genesisTile.GetTileData(); // <3>
 
 			if (is_tile_selected) {
 				selected_tile = td;
 				genesisTile.SetProperties(selected_tile); // <4>
-				genesisTile.Activate();
+				genesisTile.SetActive(true);
 			}
-			else genesisTile.Deactivate(); // <5>
+			else genesisTile.SetActive(false); // <5>
 		}
 
 		editMode = !editMode; // <6>
@@ -228,7 +229,7 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	// (testing) save level to a file in plain text format
+	// (!!)(testing) save level to a file in plain text format
 	public void SaveFile (string filename)
 	{
 		string fpath = "Levels\\" + filename + ".txt";
@@ -287,8 +288,8 @@ public class EditGM : MonoBehaviour {
 			menuMode = true;
 		} else if (palettePanel.activeSelf) palettePanel.Deactivate();
 
-		if (menuMode) genesisTile.Deactivate(); // <6>
-		else genesisTile.Activate();
+		if (menuMode) genesisTile.SetActive(false); // <6>
+		else genesisTile.SetActive(true);
 
 		/*
 		<1> UI is toggled whenever spacebar is pressed
@@ -352,7 +353,7 @@ public class EditGM : MonoBehaviour {
 				addTile(); // <2>
 
 				genesisTile.SetProperties(gt_backup); // <3>
-				genesisTile.Deactivate();
+				genesisTile.SetActive(false);
 				is_tile_selected = false;
 				return;
 			}
@@ -386,10 +387,10 @@ public class EditGM : MonoBehaviour {
 	// adds a tile to the level based on current state of genesisTile
 	private void addTile ()
 	{
-		levelData.layerSet[infoPanel.activeLayer].tileSet.Add(getGTData()); // <1>
+		levelData.layerSet[infoPanel.activeLayer].tileSet.Add(genesisTile.GetTileData()); // <1>
 
 		Transform tl = tileMap.transform.GetChild(infoPanel.activeLayer);
-		GameObject go = genesisTile.getActiveTile();
+		GameObject go = genesisTile.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
 
 		infoPanel.AddTile(); // <3>
@@ -404,13 +405,13 @@ public class EditGM : MonoBehaviour {
 	// removes the specified tile from the level
 	private void removeTile (GameObject inTile)
 	{
-		gt_backup = getGTData(); // <1>
+		gt_backup = genesisTile.GetTileData(); // <1>
 		int tLayer;
 		TileData tData;
 		bool b = GetDataFromTile(inTile, out tData, out tLayer); // <2>
 		if (b) selected_tile = tData;
 		else return; // <3>
-		genesisTile.Activate();
+		genesisTile.SetActive(true);
 		genesisTile.SetProperties(selected_tile); // <4>
 
 		levelData.layerSet[tLayer].tileSet.Remove(selected_tile); // <5>
@@ -450,13 +451,6 @@ public class EditGM : MonoBehaviour {
 		<1> first set the active layer using the infoPanel
 		<2> add active layer depth and move the snap cursor to the new location
 		*/
-	}
-
-	// returns a TileData representation of the current state of genesisTile
-	private TileData getGTData ()
-	{
-		GenesisTile gt = genesisTile;
-		return new TileData(gt.tileType, gt.tileColor, anchorIcon.focus, gt.tileRotation);
 	}
 
 	// sets the opacity of all tiles within a layer based on distance from infoPanel.activeLayer
