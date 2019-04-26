@@ -9,6 +9,7 @@ using circleXsquares;
 public class EditLoader : MonoBehaviour {
 
 	private string path;
+	private LevelInfoControl info_ref;
 	private GenesisTile gt_ref;
 	private GameObject[,] prefab_refs;
 
@@ -29,6 +30,7 @@ public class EditLoader : MonoBehaviour {
 	// supplies a hierarchy of tiles and a level representation, then returns a lookup mapping
 	public Dictionary<GameObject,TileData> supplyLevel (ref GameObject tile_map, out LevelData level)
 	{
+		info_ref = EditGM.instance.infoPanel;
 		gt_ref = EditGM.instance.genesisTile;
 
 		foreach (Transform tileGroup in gt_ref.transform)
@@ -72,6 +74,7 @@ public class EditLoader : MonoBehaviour {
 			}
 		}
 
+		info_ref.LoadInfo(path, layerCount);
 		Destroy(gameObject); // <8>
 		return returnDict;
 
