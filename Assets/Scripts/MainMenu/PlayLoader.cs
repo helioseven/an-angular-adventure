@@ -9,7 +9,7 @@ using circleXsquares;
 public class PlayLoader : MonoBehaviour {
 
 	// prefab references (included in transform children)
-	public GameObject tileLoader;
+	public GameObject genesisTile;
 
 	// short-form pathname for the level to be loaded
 	private string path;
@@ -20,7 +20,7 @@ public class PlayLoader : MonoBehaviour {
 	{
 		// prefabs are loaded from a single transform hierarchy
 		prefab_refs = new GameObject[6, 7];
-		foreach (Transform tileLayer in tileLoader.transform)
+		foreach (Transform tileLayer in genesisTile.transform)
 			foreach (Transform tile in tileLayer)
 				prefab_refs[tileLayer.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
 

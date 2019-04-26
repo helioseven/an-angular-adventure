@@ -253,7 +253,7 @@ public class EditGM : MonoBehaviour {
 		getKeyDowns = InputKeys.None;
 		int k = 0;
 
-		for (int i = 0; i < 0x10001; i = (i == 0) ? 1 : i * 2) { // <1>
+		for (int i = 0; i < 0x100001; i = (i == 0) ? 1 : i * 2) { // <1>
 			KeyCode kc = key_code_list[k++];
 			if (Input.GetKey(kc)) getKeys = getKeys | (InputKeys) i;
 			if (Input.GetKeyDown(kc)) getKeyDowns = getKeyDowns | (InputKeys) i;
