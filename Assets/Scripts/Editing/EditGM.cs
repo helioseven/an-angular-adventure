@@ -447,7 +447,7 @@ public class EditGM : MonoBehaviour {
 		anchorIcon.transform.position = v3; // <2>
 
 		/*
-		<1> if invalid layerIndex is given, fail quietly
+		<1> first set the active layer using the infoPanel
 		<2> add active layer depth and move the snap cursor to the new location
 		*/
 	}

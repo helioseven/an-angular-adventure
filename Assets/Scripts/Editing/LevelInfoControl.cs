@@ -26,7 +26,7 @@ public class LevelInfoControl : MonoBehaviour {
 		updateUI();
 	}
 
-	//
+	// initialization function, to be called by EditLoader
 	public void LoadInfo (string inName, int inCount)
 	{
 		levelName = inName;
@@ -38,24 +38,29 @@ public class LevelInfoControl : MonoBehaviour {
 		SetActiveLayer(0);
 	}
 
-	//
+	// adds one to layer count
 	public void AddLayer ()
 	{
 		layerCount++;
 		updateUI();
 	}
 
-	//
+	// sets the active layer and updates info accordingly
 	public void SetActiveLayer (int inLayer)
 	{
-		if ((inLayer < 0) || (inLayer >= layerCount)) return;
+		if ((inLayer < 0) || (inLayer >= layerCount)) return; // <1>
 		activeLayer = inLayer;
-		layerTiles = tileMap.GetChild(activeLayer).childCount;
+		layerTiles = tileMap.GetChild(activeLayer).childCount; // <2>
 
 		updateUI();
+
+		/*
+		<1> if invalid layerIndex is given, fail quietly
+		<2> update tile count for this layer by counting tileMap layer's children
+		*/
 	}
 
-	//
+	// adds one to both the layer tile count and the level tile count
 	public void AddTile ()
 	{
 		layerTiles++;
@@ -63,7 +68,7 @@ public class LevelInfoControl : MonoBehaviour {
 		updateUI();
 	}
 
-	//
+	// removes one from both the layer tile count and the level tile count
 	public void RemoveTile ()
 	{
 		layerTiles--;
@@ -73,7 +78,7 @@ public class LevelInfoControl : MonoBehaviour {
 
 	/* Private Functions */
 
-	//
+	// updates the text variables inside the relevant UI sub-elements
 	private void updateUI ()
 	{
 		transform.GetChild(0).GetComponent<Text>().text = levelName;
