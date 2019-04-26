@@ -14,7 +14,7 @@ public class EditGM : MonoBehaviour {
 
 	// references to the loader, UI overlay, tile hierarchy, creation tool, and snap cursor
 	private EditLoader lvl_load = null;
-	public HUDControl hudPanel;
+	public GameObject hudPanel;
 	public LevelInfoControl infoPanel;
 	public PaletteControl palettePanel;
 	public GenesisTile genesisTile;
@@ -271,11 +271,11 @@ public class EditGM : MonoBehaviour {
 
 		if (sbckd) { // <1>
 			if (hudPanel.activeSelf) { // <2>
-				hudPanel.Deactivate();
+				hudPanel.SetActive(false);
 				menuMode = false;
 			} else { // <3>
 				palettePanel.Deactivate();
-				hudPanel.Activate();
+				hudPanel.SetActive(true);
 				menuMode = true;
 			}
 		}
