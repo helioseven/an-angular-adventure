@@ -12,7 +12,7 @@ public class EditGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static EditGM instance = null;
 
-	// references to the loader, UI overlay, tile hierarchy, creation tool, and snap cursor
+	// references to the loader, UI elements, snap cursor, creation tool, and tile hierarchy
 	private EditLoader lvl_load = null;
 	public GameObject hudPanel;
 	public LevelInfoControl infoPanel;

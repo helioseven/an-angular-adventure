@@ -97,7 +97,7 @@ public class GenesisTile : MonoBehaviour {
 	public void CycleColor (bool clockwise)
 	{
 		tile_renderers[tileType, tileColor].enabled = false;
-		int newColor = clockwise ? ++tileColor : --tileColor;
+		int newColor = clockwise ? (tileColor + 9) : (tileColor + 7);
 		tileColor = newColor % tile_renderers.GetLength(1);
 		tile_renderers[tileType, tileColor].enabled = true;
 	}
