@@ -12,7 +12,7 @@ public class ColorSelectControl : MonoBehaviour {
 	void Start ()
 	{
 		gt_ref = EditGM.instance.genesisTile;
-		rt_ref = gameObject.GetComponent<RectTransform>();
+		rt_ref = transform.GetChild(0).GetComponent<RectTransform>();
 		active_color = 0;
 	}
 
