@@ -83,7 +83,7 @@ public class LevelInfoControl : MonoBehaviour {
 	{
 		transform.GetChild(0).GetComponent<Text>().text = levelName;
 		string s = (activeLayer + 1).ToString() + " / " + layerCount.ToString();
-		transform.GetChild(3).GetComponent<Text>().text = s;
+		transform.GetChild(2).GetComponent<Text>().text = s;
 		s = layerTiles.ToString() + " (" + levelTiles.ToString() + ")";
 		transform.GetChild(4).GetComponent<Text>().text = s;
 	}

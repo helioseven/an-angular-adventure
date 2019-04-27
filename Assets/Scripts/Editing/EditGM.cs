@@ -12,8 +12,7 @@ public class EditGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static EditGM instance = null;
 
-	// references to the loader, UI elements, snap cursor, creation tool, and tile hierarchy
-	private EditLoader lvl_load = null;
+	// references to UI elements, snap cursor, creation tool, and tile hierarchy
 	public GameObject hudPanel;
 	public LevelInfoControl infoPanel;
 	public PaletteControl palettePanel;
@@ -23,13 +22,14 @@ public class EditGM : MonoBehaviour {
 
 	// public read-accessibility state variables
 	public LevelData levelData { get; private set; }
-	public bool menuMode { get; private set; }
+	public bool paletteMode { get; private set; }
 	public bool editMode { get; private set; } // <*>
 	public InputKeys getKeys { get; private set; }
 	public InputKeys getKeyDowns { get; private set; }
 	// <*> editMode being false may be referred to in commenting as "creation mode"
 
 	// private variables
+	private EditLoader lvl_load;
 	private bool is_tile_selected;
 	private TileData selected_tile;
 	private bool edit_flag;
@@ -94,31 +94,31 @@ public class EditGM : MonoBehaviour {
 		if (!instance) {
 			instance = this; // <1>
 
-			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-			LevelData inLevel;
-			data_lookup = lvl_load.supplyLevel(ref tileMap, out inLevel); // <2>
-			levelData = inLevel;
-			activateLayer(0); // <3>
-
-			is_tile_selected = false; // <4>
+			is_tile_selected = false; // <2>
 			selected_tile = new TileData();
 			edit_flag = false;
 			gt_backup = new TileData();
 
-			hudPanel.SetActive(false); // <5>
-			menuMode = false;
+			hudPanel.SetActive(false); // <3>
+			paletteMode = false;
 			editMode = false;
 			getKeys = InputKeys.None;
 			getKeyDowns = InputKeys.None;
+
+			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
+			LevelData inLevel;
+			data_lookup = lvl_load.supplyLevel(ref tileMap, out inLevel); // <4>
+			levelData = inLevel;
+			activateLayer(0); // <5>
 		} else
 			Destroy(gameObject); // <6>
 
 		/*
 		<1> set singleton instance
-		<2> file is loaded and parsed
-		<3> layer opacity is set
-		<4> initializations for private variables
-		<5> initializations for state variables
+		<2> initializations for private variables
+		<3> initializations for state variables
+		<4> file is loaded and parsed
+		<5> first layer is activated
 		<6> only one singleton can exist
 		*/
 	}
@@ -128,7 +128,7 @@ public class EditGM : MonoBehaviour {
 		updateInputs(); // <1>
 		updateUI(); // <2>
 
-		if (!menuMode) {
+		if (!paletteMode) {
 			updateWorld(); // <3>
 
 			if (editMode) {
@@ -270,37 +270,24 @@ public class EditGM : MonoBehaviour {
 		bool sbckd = CheckKeyDowns(InputKeys.Space);
 		bool tabck = CheckKeys(InputKeys.Tab);
 
-		if (sbckd) { // <1>
-			if (hudPanel.activeSelf) { // <2>
-				hudPanel.SetActive(false);
-				menuMode = false;
-			} else { // <3>
-				palettePanel.Deactivate();
-				hudPanel.SetActive(true);
-				menuMode = true;
-			}
-		}
+		if (sbckd) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
 
-		if (hudPanel.activeSelf) return; // <4>
-
-		if (tabck) { // <5>
+		if (tabck) { // <2>
 			if (!palettePanel.activeSelf) palettePanel.Activate(Input.mousePosition);
-			menuMode = true;
-		} else if (palettePanel.activeSelf) {
+			paletteMode = true;
+		} else if (palettePanel.activeSelf) { // <3>
 			palettePanel.Deactivate();
-			menuMode = false;
+			paletteMode = false;
 		}
 
-		if (menuMode) genesisTile.SetActive(false); // <6>
+		if (paletteMode) genesisTile.SetActive(false); // <4>
 		else genesisTile.SetActive(true);
 
 		/*
 		<1> UI is toggled whenever spacebar is pressed
-		<2> when UI is toggled off, deactivate and set menuMode to false
-		<3> when UI is toggled on, activate and set menuMode to true
-		<4> any time at which the UI is on, palette is ignored
-		<5> palette is on whenever tab key is held down
-		<6> if either menu is on, genesisTile is turned off
+		<2> palette is on whenever tab key is held down
+		<3> palette is turned off when tab key is released
+		<4> if the palette is on, genesisTile is turned off
 		*/
 	}
 
