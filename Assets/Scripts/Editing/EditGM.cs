@@ -286,7 +286,10 @@ public class EditGM : MonoBehaviour {
 		if (tabck) { // <5>
 			if (!palettePanel.activeSelf) palettePanel.Activate(Input.mousePosition);
 			menuMode = true;
-		} else if (palettePanel.activeSelf) palettePanel.Deactivate();
+		} else if (palettePanel.activeSelf) {
+			palettePanel.Deactivate();
+			menuMode = false;
+		}
 
 		if (menuMode) genesisTile.SetActive(false); // <6>
 		else genesisTile.SetActive(true);
