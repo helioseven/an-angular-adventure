@@ -5,86 +5,83 @@ using UnityEngine.UI;
 
 public class LevelInfoControl : MonoBehaviour {
 
-	// public read-accessibility state variables
-	public string levelName { get; private set; }
-	public int activeLayer { get; private set; }
-	public int layerCount { get; private set; }
-	public int layerTiles { get; private set; }
-	public int levelTiles { get; private set; }
-
 	// private variables
-	private Transform tileMap;
+	private EditGM gm_ref;
+	private Transform tm_ref;
+	private string level_name;
+	private int active_layer;
+	private int layer_count;
+	private int layer_tiles;
+	private int level_tiles;
 
 	void Awake ()
 	{
-		levelName = "N/A";
-		activeLayer = 0;
-		layerCount = 1;
-		layerTiles = 0;
-		levelTiles = 0;
+		level_name = "";
+		active_layer = 0;
+		layer_count = 1;
+		layer_tiles = 0;
+		level_tiles = 0;
 
 		updateUI();
 	}
 
-	// initialization function, to be called by EditLoader
-	public void LoadInfo (string inName, int inCount)
+	void Start ()
 	{
-		levelName = inName;
-		layerCount = inCount;
-
-		tileMap = EditGM.instance.tileMap.transform;
-		foreach (Transform t in tileMap) levelTiles += t.childCount;
-
-		SetActiveLayer(0);
+		gm_ref = EditGM.instance;
+		tm_ref = gm_ref.tileMap.transform;
 	}
 
-	// adds one to layer count
-	public void AddLayer ()
+	void Update ()
 	{
-		layerCount++;
-		updateUI();
-	}
-
-	// sets the active layer and updates info accordingly
-	public void SetActiveLayer (int inLayer)
-	{
-		if ((inLayer < 0) || (inLayer >= layerCount)) return; // <1>
-		activeLayer = inLayer;
-		layerTiles = tileMap.GetChild(activeLayer).childCount; // <2>
-
-		updateUI();
-
-		/*
-		<1> if invalid layerIndex is given, fail quietly
-		<2> update tile count for this layer by counting tileMap layer's children
-		*/
-	}
-
-	// adds one to both the layer tile count and the level tile count
-	public void AddTile ()
-	{
-		layerTiles++;
-		levelTiles++;
-		updateUI();
-	}
-
-	// removes one from both the layer tile count and the level tile count
-	public void RemoveTile ()
-	{
-		layerTiles--;
-		levelTiles--;
-		updateUI();
+		if (level_name != gm_ref.levelName) updateName();
+		bool b1 = active_layer != gm_ref.activeLayer;
+		bool b2 = layer_count != tm_ref.childCount;
+		if (b1 || b2) updateLayers();
+		b1 = layer_tiles != tm_ref.GetChild(gm_ref.activeLayer).childCount;
+		b2 = level_tiles != getTileCount();
+		if (b1 || b2) updateTiles();
 	}
 
 	/* Private Functions */
 
+	// updates the name of the level
+	private void updateName ()
+	{
+		level_name = gm_ref.levelName;
+		updateUI();
+	}
+
+	// updates which is the active layer and the overall layer count
+	private void updateLayers ()
+	{
+		active_layer = gm_ref.activeLayer;
+		layer_count = tm_ref.childCount;
+		updateUI();
+	}
+
+	// updates tile counts for active layer and entire level
+	private void updateTiles ()
+	{
+		layer_tiles = tm_ref.GetChild(gm_ref.activeLayer).childCount;
+		level_tiles = getTileCount();
+		updateUI();
+	}
+
+	// gets a count of all tiles currently in the level
+	private int getTileCount ()
+	{
+		int count = 0;
+		foreach (Transform layer in tm_ref) count += layer.childCount;
+		return count;
+	}
+
 	// updates the text variables inside the relevant UI sub-elements
 	private void updateUI ()
 	{
-		transform.GetChild(0).GetComponent<Text>().text = levelName;
-		string s = (activeLayer + 1).ToString() + " / " + layerCount.ToString();
+		transform.GetChild(0).GetComponent<Text>().text = level_name;
+		string s = (active_layer + 1).ToString() + " / " + layer_count.ToString();
 		transform.GetChild(2).GetComponent<Text>().text = s;
-		s = layerTiles.ToString() + " (" + levelTiles.ToString() + ")";
+		s = layer_tiles.ToString() + " (" + level_tiles.ToString() + ")";
 		transform.GetChild(4).GetComponent<Text>().text = s;
 	}
 }

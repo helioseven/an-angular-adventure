@@ -8,20 +8,24 @@ using circleXsquares;
 
 public class EditLoader : MonoBehaviour {
 
+	// public read-accessibility state variables
+	public string levelName { get; private set; }
+
+	// private variables
 	private string path;
-	private LevelInfoControl info_ref;
 	private GenesisTile gt_ref;
 	private GameObject[,] prefab_refs;
 
 	void Awake ()
 	{
-		path = "testLevel.txt"; // <1>
+		levelName = "testLevel"; // <1>
+		path = levelName + ".txt";
 		prefab_refs = new GameObject[6, 8];
 		DontDestroyOnLoad(gameObject); // <2>
 		SceneManager.LoadScene(2); // <3>
 
 		/*
-		<1> path is hard coded (!!), should be prompt
+		<1> levelName is hard coded (!!), should be prompted
 		<2> this loader stays awake when next scene is loaded
 		<3> load Playing scene (PlayGM will call supplyLevel)
 		*/
@@ -30,7 +34,6 @@ public class EditLoader : MonoBehaviour {
 	// supplies a hierarchy of tiles and a level representation, then returns a lookup mapping
 	public Dictionary<GameObject,TileData> supplyLevel (ref GameObject tile_map, out LevelData level)
 	{
-		info_ref = EditGM.instance.infoPanel;
 		gt_ref = EditGM.instance.genesisTile;
 
 		foreach (Transform tileGroup in gt_ref.transform)
@@ -74,7 +77,6 @@ public class EditLoader : MonoBehaviour {
 			}
 		}
 
-		info_ref.LoadInfo(path, layerCount);
 		Destroy(gameObject); // <8>
 		return returnDict;
 

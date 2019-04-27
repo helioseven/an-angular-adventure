@@ -14,14 +14,15 @@ public class EditGM : MonoBehaviour {
 
 	// references to UI elements, snap cursor, creation tool, and tile hierarchy
 	public GameObject hudPanel;
-	public LevelInfoControl infoPanel;
 	public PaletteControl palettePanel;
 	public GenesisTile genesisTile;
 	public SnapCursor anchorIcon;
 	public GameObject tileMap;
 
 	// public read-accessibility state variables
+	public string levelName { get; private set; }
 	public LevelData levelData { get; private set; }
+	public int activeLayer { get; private set; }
 	public bool paletteMode { get; private set; }
 	public bool editMode { get; private set; } // <*>
 	public InputKeys getKeys { get; private set; }
@@ -100,16 +101,18 @@ public class EditGM : MonoBehaviour {
 			gt_backup = new TileData();
 
 			hudPanel.SetActive(false); // <3>
+			activeLayer = 0;
 			paletteMode = false;
 			editMode = false;
 			getKeys = InputKeys.None;
 			getKeyDowns = InputKeys.None;
 
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
+			levelName = lvl_load.levelName;
 			LevelData inLevel;
 			data_lookup = lvl_load.supplyLevel(ref tileMap, out inLevel); // <4>
 			levelData = inLevel;
-			activateLayer(0); // <5>
+			activateLayer(activeLayer); // <5>
 		} else
 			Destroy(gameObject); // <6>
 
@@ -147,7 +150,7 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> getKeys and getKeyDowns are updated
 		<2> hudPanel and palettePanel are updated
-		<3> anchorIcon and infoPanel are updated
+		<3> anchorIcon and layer changes are updated
 		<4> deactivate tool when entering editMode
 		<5> activate tool when exiting editMode
 		<6> reset flag every frame, only set by ToggleEdit()
@@ -187,7 +190,7 @@ public class EditGM : MonoBehaviour {
 	// simply returns the z value of the current layer's transform
 	public float GetLayerDepth ()
 	{
-		return tileMap.transform.GetChild(infoPanel.activeLayer).position.z;
+		return tileMap.transform.GetChild(activeLayer).position.z;
 	}
 
 	// deletes the current scene and loads the MainMenu scene
@@ -291,13 +294,13 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	// makes changes associated with anchorIcon and infoPanel
+	// makes changes associated with anchorIcon and layer changes
 	private void updateWorld ()
 	{
 		if (CheckKeyDowns(InputKeys.Click1)) anchorIcon.FindNewAnchor(); // <1>
 
-		if (CheckKeyDowns(InputKeys.Q)) activateLayer(infoPanel.activeLayer - 1); // <2>
-		if (CheckKeyDowns(InputKeys.E)) activateLayer(infoPanel.activeLayer + 1);
+		if (CheckKeyDowns(InputKeys.Q)) activateLayer(activeLayer - 1); // <2>
+		if (CheckKeyDowns(InputKeys.E)) activateLayer(activeLayer + 1);
 
 		/*
 		<1> right-click will update snap cursor location
@@ -377,18 +380,15 @@ public class EditGM : MonoBehaviour {
 	// adds a tile to the level based on current state of genesisTile
 	private void addTile ()
 	{
-		levelData.layerSet[infoPanel.activeLayer].tileSet.Add(genesisTile.GetTileData()); // <1>
+		levelData.layerSet[activeLayer].tileSet.Add(genesisTile.GetTileData()); // <1>
 
-		Transform tl = tileMap.transform.GetChild(infoPanel.activeLayer);
+		Transform tl = tileMap.transform.GetChild(activeLayer);
 		GameObject go = genesisTile.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
-
-		infoPanel.AddTile(); // <3>
 
 		/*
 		<1> first, TileData is added to levelData
 		<2> second, a corresponding tile is added to tileMap
-		<3> lastly, the infoPanel is updated
 		*/
 	}
 
@@ -409,8 +409,6 @@ public class EditGM : MonoBehaviour {
 		data_lookup.Remove(inTile);
 		Destroy(inTile);
 
-		infoPanel.RemoveTile();
-
 		/*
 		<1> first, back up genesisTile state
 		<2> next, lookup the tile's TileData
@@ -418,32 +416,35 @@ public class EditGM : MonoBehaviour {
 		<4> then set the genesisTile up to act like the selected tile
 		<5> after all that, levelData is updated
 		<6> reset flag, remove from the lookup, and delete the tile
-		<7> finally, the info panel is updated
 		*/
 	}
 
 	// cycles through all layers, calculates distance, and sets opacity accordingly
-	private void activateLayer (int layerIndex)
+	private void activateLayer (int inLayer)
 	{
-		infoPanel.SetActiveLayer(layerIndex); // <1>
+		bool b = (inLayer < 0) || (inLayer >= tileMap.transform.childCount);
+		if (b) return; // <1>
+		else activeLayer = inLayer; // <2>
 
-		foreach (Transform tileLayer in tileMap.transform) {
-			int d = tileLayer.GetSiblingIndex();
-			d = Math.Abs(d - layerIndex);
-			setLayerOpacity(tileLayer, d);
+		foreach (Transform layer in tileMap.transform) {
+			int d = layer.GetSiblingIndex();
+			d = Math.Abs(d - activeLayer);
+			setLayerOpacity(layer, d); // <3>
 		}
 
 		Vector3 v3 = anchorIcon.transform.position;
 		v3.z = GetLayerDepth();
-		anchorIcon.transform.position = v3; // <2>
+		anchorIcon.transform.position = v3; // <4>
 
 		/*
-		<1> first set the active layer using the infoPanel
-		<2> add active layer depth and move the snap cursor to the new location
+		<1> if invalid layer index is given, fail quietly
+		<2> otherwise update activeLayer and continue
+		<3> ordinal distance from activeLayer is calculated, and opacity set accordingly
+		<4> add active layer depth and move the snap cursor to the new location
 		*/
 	}
 
-	// sets the opacity of all tiles within a layer based on distance from infoPanel.activeLayer
+	// sets the opacity of all tiles within a layer using ordinal distance from activeLayer
 	private void setLayerOpacity (Transform tileLayer, int distance)
 	{
 		float a = 1f; // <1>
