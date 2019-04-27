@@ -18,7 +18,10 @@ public class ColorSelectControl : MonoBehaviour {
 
 	void Update ()
 	{
-		if (active_color != gt_ref.tileColor)
-			rt_ref.Rotate(new Vector3(0, 0, 45 * (gt_ref.tileColor - active_color)));
+		int newColor = gt_ref.tileColor;
+		if (active_color != newColor) {
+			rt_ref.Rotate(new Vector3(0, 0, -45 * (newColor - active_color)));
+			active_color = newColor;
+		}
 	}
 }
