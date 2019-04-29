@@ -7,11 +7,11 @@ public class SnapCursor : MonoBehaviour {
 
 	// focus is the snap point (relative to anchor) closest to the current mouse position
 	public HexLocus focus { get; private set; }
+	public HexLocus anchor { get; private set; }
 
 	// private variables
 	private EditGM gm_ref;
 	private GenesisTile gt_ref;
-	private HexLocus anchor;
 	private Vector2 focus_shift;
 	private Plane layer_plane;
 	private float depth;

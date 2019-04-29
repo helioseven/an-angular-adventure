@@ -22,6 +22,19 @@ namespace circleXsquares {
 		public int e { get; private set; }
 		public int f { get; private set; }
 
+		// comparison operators just compares internal coordinates
+		public static bool operator ==(HexLocus h1, HexLocus h2)
+		{
+			bool bA, bB, bC, bD, bE, bF;
+			bA = h1.a == h2.a;
+			bB = h1.b == h2.b;
+			bC = h1.c == h2.c;
+			bD = h1.d == h2.d;
+			bE = h1.e == h2.e;
+			bF = h1.f == h2.f;
+			return (bA && bB && bC && bD && bE && bF);
+		}
+		public static bool operator !=(HexLocus h1, HexLocus h2) { return !(h1 == h2); }
 		// operators allow HexLocus to be added and subtracted like vectors
 		// since they are static, coordinate simplification is ensured by the constructor
 		public static HexLocus operator +(HexLocus h1, HexLocus h2)
