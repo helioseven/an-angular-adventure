@@ -167,6 +167,10 @@ public class EditGM : MonoBehaviour {
 	public bool CheckKeyDowns (InputKeys inKeys)
 	{ return (getKeyDowns & inKeys) == inKeys; }
 
+	// simply returns the z value of the current layer's transform
+	public float GetLayerDepth ()
+	{ return tileMap.transform.GetChild(activeLayer).position.z; }
+
 	// returns the TileData corresponding to the passed tile, and supplies it's layer
 	public bool GetDataFromTile (GameObject inTile, out TileData outData, out int outLayer)
 	{
@@ -185,12 +189,6 @@ public class EditGM : MonoBehaviour {
 		<2> If it is, output the tile's layer by parent's sibling index
 		<3> then output the TileData itself via data_lookup, and return true
 		*/
-	}
-
-	// simply returns the z value of the current layer's transform
-	public float GetLayerDepth ()
-	{
-		return tileMap.transform.GetChild(activeLayer).position.z;
 	}
 
 	// deletes the current scene and loads the MainMenu scene
