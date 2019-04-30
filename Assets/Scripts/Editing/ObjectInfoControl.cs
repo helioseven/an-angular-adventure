@@ -95,7 +95,7 @@ public class ObjectInfoControl : MonoBehaviour {
 		tile_position = gm_ref.anchorIcon.anchor;
 	}
 
-	// pretty printing of HexLocus coordinates for display
+	// pretty-printing of HexLocus coordinates for display
 	private string printHexLocus (HexLocus inLocus)
 	{
 		string s = "(";
@@ -112,7 +112,7 @@ public class ObjectInfoControl : MonoBehaviour {
 		<1> coordinates are arranged into ACE & BDF triples for human-readability
 		<2> s_vals is twice the size of s to hold interspersing strings as well
 		<3> every even s_vals index is filled with the corresponding int string
-		<4> selective odd s_vals indices are filled with filler
+		<4> selective odd s_vals indices are filled with interspersing filler
 		<5> the concatenation of s_vals is appended to s and returned
 		*/
 	}

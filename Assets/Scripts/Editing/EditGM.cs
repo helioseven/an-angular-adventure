@@ -50,19 +50,21 @@ public class EditGM : MonoBehaviour {
 		Q = 0x20,
 		W = 0x40,
 		E = 0x80,
-		A = 0x100,
-		S = 0x200,
-		D = 0x400,
-		Z = 0x800,
-		X = 0x1000,
-		C = 0x2000,
-		V = 0x4000,
-		One = 0x8000,
-		Two = 0x10000,
-		Three = 0x20000,
-		Four = 0x40000,
-		Five = 0x80000,
-		Six = 0x100000
+		R = 0x100,
+		A = 0x200,
+		S = 0x400,
+		D = 0x800,
+		F = 0x1000,
+		Z = 0x2000,
+		X = 0x4000,
+		C = 0x8000,
+		V = 0x10000,
+		One = 0x20000,
+		Two = 0x40000,
+		Three = 0x80000,
+		Four = 0x100000,
+		Five = 0x200000,
+		Six = 0x400000
 	}
 	// key_code_list is an index mapping between Unity KeyCode and InputKeys
 	private KeyCode[] key_code_list = new KeyCode[] {
@@ -75,9 +77,11 @@ public class EditGM : MonoBehaviour {
 		KeyCode.Q,
 		KeyCode.W,
 		KeyCode.E,
+		KeyCode.R,
 		KeyCode.A,
 		KeyCode.S,
 		KeyCode.D,
+		KeyCode.F,
 		KeyCode.Z,
 		KeyCode.X,
 		KeyCode.C,
@@ -297,23 +301,23 @@ public class EditGM : MonoBehaviour {
 	{
 		if (CheckKeyDowns(InputKeys.Click1)) anchorIcon.FindNewAnchor(); // <1>
 
-		if (CheckKeyDowns(InputKeys.Q)) activateLayer(activeLayer - 1); // <2>
-		if (CheckKeyDowns(InputKeys.E)) activateLayer(activeLayer + 1);
+		if (CheckKeyDowns(InputKeys.F)) activateLayer(activeLayer - 1); // <2>
+		if (CheckKeyDowns(InputKeys.R)) activateLayer(activeLayer + 1);
 
 		/*
 		<1> right-click will update snap cursor location
-		<2> Q and E will change active layer
+		<2> F and R will change active layer
 		*/
 	}
 
 	// makes changes associated with the state of the genesisTile
 	private void updateGT ()
 	{
-		if (CheckKeyDowns(InputKeys.C)) genesisTile.CycleColor(false); // <1>
-		if (CheckKeyDowns(InputKeys.V)) genesisTile.CycleColor(true);
+		if (CheckKeyDowns(InputKeys.Z)) genesisTile.CycleColor(false); // <1>
+		if (CheckKeyDowns(InputKeys.X)) genesisTile.CycleColor(true);
 
-		if (CheckKeyDowns(InputKeys.Z)) genesisTile.Rotate(false); // <2>
-		if (CheckKeyDowns(InputKeys.X)) genesisTile.Rotate(true);
+		if (CheckKeyDowns(InputKeys.Q)) genesisTile.Rotate(false); // <2>
+		if (CheckKeyDowns(InputKeys.E)) genesisTile.Rotate(true);
 
 		if (CheckKeyDowns(InputKeys.One)) genesisTile.SelectType(0); // <3>
 		if (CheckKeyDowns(InputKeys.Two)) genesisTile.SelectType(1);
@@ -325,8 +329,8 @@ public class EditGM : MonoBehaviour {
 		if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <4>
 
 		/*
-		<1> when C is pressed, cycle through colors
-		<2> Z and X rotate C-CW and CW, respectively
+		<1> Z and X rotate through colors
+		<2> Q and E rotate tile C-CW and CW, respectively
 		<3> numeric keys assign tile type
 		<4> if left click is made, tile is added to the level
 		*/
