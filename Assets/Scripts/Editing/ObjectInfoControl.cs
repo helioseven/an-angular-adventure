@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ using circleXsquares;
 
 public class ObjectInfoControl : MonoBehaviour {
 
-	//
+	// private variables
 	private EditGM gm_ref;
 	private GenesisTile gt_ref;
 	private int tile_type;
@@ -65,7 +66,7 @@ public class ObjectInfoControl : MonoBehaviour {
 
 	/* Private Functions */
 
-	//
+	// updates the display image
 	private void updateDisplay ()
 	{
 		Transform t = gt_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
@@ -74,7 +75,7 @@ public class ObjectInfoControl : MonoBehaviour {
 		i.GetComponent<AspectRatioFitter>().aspectRatio = aspect_ratios[tile_type];
 	}
 
-	//
+	// updates the standard attributes panel
 	private void updateInfo ()
 	{
 		Transform t = transform.GetChild(1);
@@ -85,7 +86,7 @@ public class ObjectInfoControl : MonoBehaviour {
 		t.GetChild(7).GetComponent<Text>().text = printHexLocus(tile_position);
 	}
 
-	//
+	// updates private variables from world references
 	private void setValues ()
 	{
 		tile_type = gt_ref.tileType;
@@ -94,12 +95,25 @@ public class ObjectInfoControl : MonoBehaviour {
 		tile_position = gm_ref.anchorIcon.anchor;
 	}
 
-	//
+	// pretty printing of HexLocus coordinates for display
 	private string printHexLocus (HexLocus inLocus)
 	{
-		string s = "";
-		int[] h = new int[] {inLocus.a, inLocus.b, inLocus.c, inLocus.d, inLocus.e, inLocus.f};
-		for (int i = 0; i < 6; i++) s += h.ToString() + ", ";
-		return s.Substring(0, s.Length - 2);
+		string s = "(";
+		int[] vals = new int[] {inLocus.a, inLocus.c, inLocus.e, inLocus.b, inLocus.d, inLocus.f}; // <1>
+		string[] s_vals = new string[vals.Length * 2]; // <2>
+		for (int i = 0; i < 6; i++) s_vals[i * 2] = vals[i].ToString(); // <3>
+		foreach (int i in new int[] {1, 3, 7, 9}) s_vals[i] = ", "; // <4>
+		s_vals[5] = "),\n";
+		s_vals[11] = ")";
+		s += String.Join("", s_vals); // <5>
+		return s;
+
+		/*
+		<1> coordinates are arranged into ACE & BDF triples for human-readability
+		<2> s_vals is twice the size of s to hold interspersing strings as well
+		<3> every even s_vals index is filled with the corresponding int string
+		<4> selective odd s_vals indices are filled with filler
+		<5> the concatenation of s_vals is appended to s and returned
+		*/
 	}
 }

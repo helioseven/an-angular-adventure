@@ -129,6 +129,23 @@ namespace circleXsquares {
 			Simplify();
 		}
 
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override bool Equals(System.Object obj)
+		{
+			HexLocus? inHL = obj as HexLocus?;
+			if (inHL.HasValue) return false;
+			else return this == inHL.Value;
+		}
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override int GetHashCode()
+		{
+			int hash = 0;
+			int[] coordinates = new int[] {this.a, this.b, this.c, this.d, this.e, this.f};
+			for (int i = 0; i < 6; i++) hash += coordinates[i] << i;
+			return hash;
+		}
+
 		// translates a discrete HexLocus into a Unity world space location
 		public Vector2 ToUnitySpace ()
 		{
