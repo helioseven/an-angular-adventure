@@ -11,7 +11,7 @@ public class SnapCursor : MonoBehaviour {
 
 	// private variables
 	private EditGM gm_ref;
-	private GenesisTile gt_ref;
+	private TileCreator tc_ref;
 	private Vector2 focus_shift;
 	private Plane layer_plane;
 	private float depth;
@@ -29,13 +29,13 @@ public class SnapCursor : MonoBehaviour {
 	void Start ()
 	{
 		gm_ref = EditGM.instance;
-		gt_ref = gm_ref.genesisTile;
+		tc_ref = gm_ref.tileCreator;
 	}
 
 	void Update ()
 	{
-		int tt = gt_ref.tileType;
-		Transform tile = gt_ref.transform.GetChild(tt).GetChild(0);
+		int tt = tc_ref.tileType;
+		Transform tile = tc_ref.transform.GetChild(tt).GetChild(0);
 		Vector2 tileOffset = tile.GetChild(0).position - tile.position; // <1>
 
 		Vector2 mouseIn = findPointOnPlane();

@@ -3,7 +3,8 @@ using System;
 using System.Collections;
 using circleXsquares;
 
-/* The "genesis tile" is how new tiles are added to the level in the editor.
+/* The TileCreator is how new tiles are added to the level in the editor. *
+ * (*) all comments here are out of date
  *
  * The editor has two modes, "creation mode" and "editing mode";
  * when the editor is in creation mode, the genesis tile is used as a placeholder
@@ -14,10 +15,10 @@ using circleXsquares;
  *
  * In editing mode, the genesis tile is hijacked by whatever tile occupies the
  * buffer in EditGM.selectedTile (a private variable). EditGM handles the logic of
- * when to do this, GenesisTile handles the logic of how to do it.
+ * when to do this, TileCreator handles the logic of how to do it.
  */
 
-public class GenesisTile : MonoBehaviour {
+public class TileCreator : MonoBehaviour {
 
 	// tileRotation represents the number of turns from reference (0 degrees)
 	public int tileRotation { get; private set; }
@@ -63,12 +64,13 @@ public class GenesisTile : MonoBehaviour {
 
 	public void Update ()
 	{
-		Vector3 v3 = anchor_ref.focus.ToUnitySpace();
-		v3.z = anchor_ref.transform.position.z;
-		transform.position = v3; // <1>
+		Vector3 v3 = anchor_ref.focus.ToUnitySpace(); // <1>
+		v3.z = anchor_ref.transform.position.z; // <2>
+		transform.position = v3;
 
 		/*
 		<1> when active, the genesis_tile will follow the focus
+		<2> get our Z-depth from the SnapCursor
 		*/
 	}
 
@@ -96,10 +98,15 @@ public class GenesisTile : MonoBehaviour {
 	// disables and enables renderers based on color
 	public void CycleColor (bool clockwise)
 	{
+		int cnt = tile_renderers.GetLength(1);
 		tile_renderers[tileType, tileColor].enabled = false;
-		int newColor = clockwise ? (tileColor + 9) : (tileColor + 7);
-		tileColor = newColor % tile_renderers.GetLength(1);
+		int newColor = cnt + (clockwise ? tileColor + 1 : tileColor - 1); // <1>
+		tileColor = newColor % cnt;
 		tile_renderers[tileType, tileColor].enabled = true;
+
+		/*
+		<1> we add cnt so that modulus doesn't choke on a negative number
+		*/
 	}
 
 	// sets type, color, and rotation by passed struct
@@ -142,7 +149,7 @@ public class GenesisTile : MonoBehaviour {
 		return go;
 
 		/*
-		<1> doesn't change the GenesisTile itself, just uses its GameObjects to instantiate a copy as specified
+		<1> doesn't change the TileCreator itself, just uses its GameObjects to instantiate a copy as specified
 		<2> make sure the renderer is on before handing the GameObject off
 		*/
 	}

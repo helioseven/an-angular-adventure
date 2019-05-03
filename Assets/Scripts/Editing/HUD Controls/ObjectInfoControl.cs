@@ -9,7 +9,7 @@ public class ObjectInfoControl : MonoBehaviour {
 
 	// private variables
 	private EditGM gm_ref;
-	private GenesisTile gt_ref;
+	private TileCreator tc_ref;
 	private int tile_type;
 	private int tile_color;
 	private int tile_rotation;
@@ -43,19 +43,21 @@ public class ObjectInfoControl : MonoBehaviour {
 			"Red",
 			"White"
 		};
+
+		transform.GetChild(2).gameObject.SetActive(false);
 	}
 
 	void Start ()
 	{
 		gm_ref = EditGM.instance;
-		gt_ref = gm_ref.genesisTile;
+		tc_ref = gm_ref.tileCreator;
 	}
 
 	void Update ()
 	{
-		bool bType = tile_type != gt_ref.tileType;
-		bool bColor = tile_color != gt_ref.tileColor;
-		bool bRotation = tile_rotation != gt_ref.tileRotation;
+		bool bType = tile_type != tc_ref.tileType;
+		bool bColor = tile_color != tc_ref.tileColor;
+		bool bRotation = tile_rotation != tc_ref.tileRotation;
 		bool bPosition = tile_position != gm_ref.anchorIcon.anchor;
 
 		setValues();
@@ -69,7 +71,7 @@ public class ObjectInfoControl : MonoBehaviour {
 	// updates the display image
 	private void updateDisplay ()
 	{
-		Transform t = gt_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
+		Transform t = tc_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
 		Image i = transform.GetChild(0).GetChild(0).GetComponent<Image>();
 		i.sprite = t.GetComponent<SpriteRenderer>().sprite;
 		i.GetComponent<AspectRatioFitter>().aspectRatio = aspect_ratios[tile_type];
@@ -89,9 +91,9 @@ public class ObjectInfoControl : MonoBehaviour {
 	// updates private variables from world references
 	private void setValues ()
 	{
-		tile_type = gt_ref.tileType;
-		tile_color = gt_ref.tileColor;
-		tile_rotation = gt_ref.tileRotation;
+		tile_type = tc_ref.tileType;
+		tile_color = tc_ref.tileColor;
+		tile_rotation = tc_ref.tileRotation;
 		tile_position = gm_ref.anchorIcon.anchor;
 	}
 

@@ -12,10 +12,12 @@ public class EditGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static EditGM instance = null;
 
-	// references to UI elements, snap cursor, creation tool, and tile hierarchy
+	// references to UI elements, snap cursor, creation tool, checkpoint tool, warp tool, and tile hierarchy
 	public GameObject hudPanel;
 	public PaletteControl palettePanel;
-	public GenesisTile genesisTile;
+	public TileCreator tileCreator;
+	public GameObject chkpntTool;
+	public GameObject warpTool;
 	public SnapCursor anchorIcon;
 	public GameObject tileMap;
 
@@ -34,7 +36,7 @@ public class EditGM : MonoBehaviour {
 	private bool is_tile_selected;
 	private TileData selected_tile;
 	private bool edit_flag;
-	private TileData gt_backup;
+	private TileData tc_backup;
 	private Dictionary<GameObject, TileData> data_lookup;
 
 
@@ -102,9 +104,11 @@ public class EditGM : MonoBehaviour {
 			is_tile_selected = false; // <2>
 			selected_tile = new TileData();
 			edit_flag = false;
-			gt_backup = new TileData();
+			tc_backup = new TileData();
 
 			hudPanel.SetActive(false); // <3>
+			chkpntTool.SetActive(false);
+			warpTool.SetActive(false);
 			activeLayer = 0;
 			paletteMode = false;
 			editMode = false;
@@ -139,11 +143,11 @@ public class EditGM : MonoBehaviour {
 			updateWorld(); // <3>
 
 			if (editMode) {
-				if (edit_flag) genesisTile.SetActive(false); // <4>
+				if (edit_flag) tileCreator.SetActive(false); // <4>
 
 				updateEditMode();
 			} else {
-				if (edit_flag) genesisTile.SetActive(true); // <5>
+				if (edit_flag) tileCreator.SetActive(true); // <5>
 
 				updateGT();
 			}
@@ -206,29 +210,29 @@ public class EditGM : MonoBehaviour {
 	public void ToggleEdit ()
 	{
 		if (editMode) {
-			genesisTile.SetProperties(gt_backup); // <1>
-			gt_backup = is_tile_selected ? selected_tile : new TileData(); // <2>
-			genesisTile.SetActive(true);
+			tileCreator.SetProperties(tc_backup); // <1>
+			tc_backup = is_tile_selected ? selected_tile : new TileData(); // <2>
+			tileCreator.SetActive(true);
 		} else {
-			TileData td = gt_backup;
-			gt_backup = genesisTile.GetTileData(); // <3>
+			TileData td = tc_backup;
+			tc_backup = tileCreator.GetTileData(); // <3>
 
 			if (is_tile_selected) {
 				selected_tile = td;
-				genesisTile.SetProperties(selected_tile); // <4>
-				genesisTile.SetActive(true);
+				tileCreator.SetProperties(selected_tile); // <4>
+				tileCreator.SetActive(true);
 			}
-			else genesisTile.SetActive(false); // <5>
+			else tileCreator.SetActive(false); // <5>
 		}
 
 		editMode = !editMode; // <6>
 		edit_flag = true;
 
 		/*
-		<1> if we're in editMode, restore the genesisTile to previous properties
-		<2> if there's a tile selected, it's properties are stored in gt_backup
-		<3> if we're in creation mode, current state of genesisTile is stored
-		<4> if there's a tile selected, it's properties are restored from gt_backup
+		<1> if we're in editMode, restore the tileCreator to previous properties
+		<2> if there's a tile selected, it's properties are stored in tc_backup
+		<3> if we're in creation mode, current state of tileCreator is stored
+		<4> if there's a tile selected, it's properties are restored from tc_backup
 		<5> if no tile is selected, we deactivate the tool
 		<6> either way, editMode is toggled and flag is set
 		*/
@@ -285,14 +289,14 @@ public class EditGM : MonoBehaviour {
 			paletteMode = false;
 		}
 
-		if (paletteMode) genesisTile.SetActive(false); // <4>
-		else genesisTile.SetActive(true);
+		if (paletteMode) tileCreator.SetActive(false); // <4>
+		else tileCreator.SetActive(true);
 
 		/*
 		<1> UI is toggled whenever spacebar is pressed
 		<2> palette is on whenever tab key is held down
 		<3> palette is turned off when tab key is released
-		<4> if the palette is on, genesisTile is turned off
+		<4> if the palette is on, tileCreator is turned off
 		*/
 	}
 
@@ -310,21 +314,21 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	// makes changes associated with the state of the genesisTile
+	// makes changes associated with the state of the tileCreator
 	private void updateGT ()
 	{
-		if (CheckKeyDowns(InputKeys.Z)) genesisTile.CycleColor(false); // <1>
-		if (CheckKeyDowns(InputKeys.X)) genesisTile.CycleColor(true);
+		if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false); // <1>
+		if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
-		if (CheckKeyDowns(InputKeys.Q)) genesisTile.Rotate(false); // <2>
-		if (CheckKeyDowns(InputKeys.E)) genesisTile.Rotate(true);
+		if (CheckKeyDowns(InputKeys.Q)) tileCreator.Rotate(false); // <2>
+		if (CheckKeyDowns(InputKeys.E)) tileCreator.Rotate(true);
 
-		if (CheckKeyDowns(InputKeys.One)) genesisTile.SelectType(0); // <3>
-		if (CheckKeyDowns(InputKeys.Two)) genesisTile.SelectType(1);
-		if (CheckKeyDowns(InputKeys.Three)) genesisTile.SelectType(2);
-		if (CheckKeyDowns(InputKeys.Four)) genesisTile.SelectType(3);
-		if (CheckKeyDowns(InputKeys.Five)) genesisTile.SelectType(4);
-		if (CheckKeyDowns(InputKeys.Six)) genesisTile.SelectType(5);
+		if (CheckKeyDowns(InputKeys.One)) tileCreator.SelectType(0); // <3>
+		if (CheckKeyDowns(InputKeys.Two)) tileCreator.SelectType(1);
+		if (CheckKeyDowns(InputKeys.Three)) tileCreator.SelectType(2);
+		if (CheckKeyDowns(InputKeys.Four)) tileCreator.SelectType(3);
+		if (CheckKeyDowns(InputKeys.Five)) tileCreator.SelectType(4);
+		if (CheckKeyDowns(InputKeys.Six)) tileCreator.SelectType(5);
 
 		if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <4>
 
@@ -342,19 +346,19 @@ public class EditGM : MonoBehaviour {
 		if (is_tile_selected) {
 			Vector3 v3 = anchorIcon.focus.ToUnitySpace();
 			v3.z = GetLayerDepth();
-			genesisTile.transform.position = v3; // <1>
+			tileCreator.transform.position = v3; // <1>
 
 			if (CheckKeyDowns(InputKeys.Click0)) {
 				addTile(); // <2>
 
-				genesisTile.SetProperties(gt_backup); // <3>
-				genesisTile.SetActive(false);
+				tileCreator.SetProperties(tc_backup); // <3>
+				tileCreator.SetActive(false);
 				is_tile_selected = false;
 				return;
 			}
 
 			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
-				genesisTile.SetProperties(gt_backup);
+				tileCreator.SetProperties(tc_backup);
 				is_tile_selected = false;
 			}
 		} else {
@@ -370,7 +374,7 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> in edit mode, a selected tile will follow the focus
 		<2> if there is a selected tile, left click will place it again
-		<3> we then restore genesisTile to its backup, reset flag, and return
+		<3> we then restore tileCreator to its backup, reset flag, and return
 		<4> if there is a selected tile, Delete will simply forget it
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
@@ -379,13 +383,13 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	// adds a tile to the level based on current state of genesisTile
+	// adds a tile to the level based on current state of tileCreator
 	private void addTile ()
 	{
-		levelData.layerSet[activeLayer].tileSet.Add(genesisTile.GetTileData()); // <1>
+		levelData.layerSet[activeLayer].tileSet.Add(tileCreator.GetTileData()); // <1>
 
 		Transform tl = tileMap.transform.GetChild(activeLayer);
-		GameObject go = genesisTile.GetActiveTile();
+		GameObject go = tileCreator.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
 
 		/*
@@ -397,14 +401,14 @@ public class EditGM : MonoBehaviour {
 	// removes the specified tile from the level
 	private void removeTile (GameObject inTile)
 	{
-		gt_backup = genesisTile.GetTileData(); // <1>
+		tc_backup = tileCreator.GetTileData(); // <1>
 		int tLayer;
 		TileData tData;
 		bool b = GetDataFromTile(inTile, out tData, out tLayer); // <2>
 		if (b) selected_tile = tData;
 		else return; // <3>
-		genesisTile.SetActive(true);
-		genesisTile.SetProperties(selected_tile); // <4>
+		tileCreator.SetActive(true);
+		tileCreator.SetProperties(selected_tile); // <4>
 
 		levelData.layerSet[tLayer].tileSet.Remove(selected_tile); // <5>
 		is_tile_selected = true; // <6>
@@ -412,10 +416,10 @@ public class EditGM : MonoBehaviour {
 		Destroy(inTile);
 
 		/*
-		<1> first, back up genesisTile state
+		<1> first, back up tileCreator state
 		<2> next, lookup the tile's TileData
 		<3> if the specified tile is not part of tileMap, we ignore
-		<4> then set the genesisTile up to act like the selected tile
+		<4> then set the tileCreator up to act like the selected tile
 		<5> after all that, levelData is updated
 		<6> reset flag, remove from the lookup, and delete the tile
 		*/

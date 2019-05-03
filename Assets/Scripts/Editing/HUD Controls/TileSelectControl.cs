@@ -7,7 +7,7 @@ public class TileSelectControl : MonoBehaviour {
 
 	// private variables
 	private EditGM gm_ref;
-	private GenesisTile gt_ref;
+	private TileCreator tc_ref;
 	private bool is_active;
 	private int active_tile;
 	private int active_color;
@@ -15,7 +15,7 @@ public class TileSelectControl : MonoBehaviour {
 	void Start ()
 	{
 		gm_ref = EditGM.instance;
-		gt_ref = gm_ref.genesisTile;
+		tc_ref = gm_ref.tileCreator;
 		is_active = true;
 		active_tile = 0;
 		active_color = 0;
@@ -23,8 +23,8 @@ public class TileSelectControl : MonoBehaviour {
 
 	void Update ()
 	{
-		if (active_tile != gt_ref.tileType) updateType();
-		if (active_color != gt_ref.tileColor) updateColor();
+		if (active_tile != tc_ref.tileType) updateType();
+		if (active_color != tc_ref.tileColor) updateColor();
 		if (is_active == gm_ref.editMode) updateActive();
 	}
 
@@ -45,7 +45,7 @@ public class TileSelectControl : MonoBehaviour {
 	private void updateType ()
 	{
 		transform.GetChild(active_tile).GetComponent<Image>().enabled = false; // <1>
-		active_tile = gt_ref.tileType;
+		active_tile = tc_ref.tileType;
 		if (is_active) transform.GetChild(active_tile).GetComponent<Image>().enabled = true; // <2>
 
 		/*
@@ -57,15 +57,15 @@ public class TileSelectControl : MonoBehaviour {
 	// updates the color of each selector's tile
 	private void updateColor ()
 	{
-		int newColor = gt_ref.tileColor;
+		int newColor = tc_ref.tileColor;
 		foreach (Transform selector in transform) {
-			Transform t = gt_ref.transform.GetChild(selector.GetSiblingIndex()).GetChild(newColor).GetChild(0); // <1>
+			Transform t = tc_ref.transform.GetChild(selector.GetSiblingIndex()).GetChild(newColor).GetChild(0); // <1>
 			Sprite newSprite = t.GetComponent<SpriteRenderer>().sprite; // <2>
 			selector.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite; // <3>
 		}
 
 		/*
-		<1> gets the appropriate transform in the genesisTile hierarchy
+		<1> gets the appropriate transform in the tileCreator hierarchy
 		<2> gets the sprite from that that transform
 		<3> assigns that sprite to the appropriate selector
 		*/

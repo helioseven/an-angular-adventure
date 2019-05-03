@@ -5,7 +5,7 @@ using UnityEngine;
 public class ColorSelectControl : MonoBehaviour {
 
 	// private variables
-	private GenesisTile gt_ref;
+	private TileCreator tc_ref;
 	private RectTransform rt_ref;
 	private int active_color;
 	private float start_time;
@@ -14,7 +14,7 @@ public class ColorSelectControl : MonoBehaviour {
 
 	void Start ()
 	{
-		gt_ref = EditGM.instance.genesisTile;
+		tc_ref = EditGM.instance.tileCreator;
 		rt_ref = transform.GetChild(0).GetComponent<RectTransform>();
 		active_color = 0;
 		start_time = 0f;
@@ -22,7 +22,7 @@ public class ColorSelectControl : MonoBehaviour {
 
 	void Update ()
 	{
-		int newColor = gt_ref.tileColor;
+		int newColor = tc_ref.tileColor;
 		if (active_color != newColor) { // <1>
 			rt_ref.transform.GetChild(active_color).localScale = Vector3.one; // <2>
 
@@ -41,7 +41,7 @@ public class ColorSelectControl : MonoBehaviour {
 		}
 
 		/*
-		<1> whenever the genesisTile changes color, this script reacts and updates target
+		<1> whenever the tileCreator changes color, this script reacts and updates target
 		<2> the current target has its scale reset to one
 		<3> start time for transition effect is logged
 		<4> target rotations are simply increments of 45 degrees

@@ -13,7 +13,7 @@ public class EditLoader : MonoBehaviour {
 
 	// private variables
 	private string path;
-	private GenesisTile gt_ref;
+	private TileCreator tc_ref;
 	private GameObject[,] prefab_refs;
 
 	void Awake ()
@@ -34,9 +34,9 @@ public class EditLoader : MonoBehaviour {
 	// supplies a hierarchy of tiles and a level representation, then returns a lookup mapping
 	public Dictionary<GameObject,TileData> supplyLevel (ref GameObject tile_map, out LevelData level)
 	{
-		gt_ref = EditGM.instance.genesisTile;
+		tc_ref = EditGM.instance.tileCreator;
 
-		foreach (Transform tileGroup in gt_ref.transform)
+		foreach (Transform tileGroup in tc_ref.transform)
 			foreach (Transform tile in tileGroup) {
 				int tgi = tileGroup.GetSiblingIndex();
 				int ti = tile.GetSiblingIndex();
