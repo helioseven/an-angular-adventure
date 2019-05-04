@@ -22,21 +22,23 @@ public class EditGM : MonoBehaviour {
 	public GameObject tileMap;
 
 	// public read-accessibility state variables
+	public InputKeys getKeys { get; private set; }
+	public InputKeys getKeyDowns { get; private set; }
 	public string levelName { get; private set; }
 	public LevelData levelData { get; private set; }
 	public int activeLayer { get; private set; }
 	public bool paletteMode { get; private set; }
-	public bool editMode { get; private set; } // <*>
-	public InputKeys getKeys { get; private set; }
-	public InputKeys getKeyDowns { get; private set; }
-	// <*> editMode being false may be referred to in commenting as "creation mode"
+	public bool creationMode { get; private set; }
+	public bool editMode { get; private set; }
+	public bool selectionMode { get; private set; }
 
 	// private variables
 	private EditLoader lvl_load;
+	private GameObject current_tool;
+	private int tool_rotation;
 	private bool is_tile_selected;
 	private TileData selected_tile;
-	private bool edit_flag;
-	private TileData tc_backup;
+	private TileData tile_buffer;
 	private Dictionary<GameObject, TileData> data_lookup;
 
 
@@ -101,19 +103,22 @@ public class EditGM : MonoBehaviour {
 		if (!instance) {
 			instance = this; // <1>
 
-			is_tile_selected = false; // <2>
+			current_tool = tileCreator.gameObject; // <2>
+			tool_rotation = 0;
+			is_tile_selected = false;
 			selected_tile = new TileData();
-			edit_flag = false;
-			tc_backup = new TileData();
+			tile_buffer = new TileData();
 
 			hudPanel.SetActive(false); // <3>
 			chkpntTool.SetActive(false);
 			warpTool.SetActive(false);
-			activeLayer = 0;
-			paletteMode = false;
-			editMode = false;
 			getKeys = InputKeys.None;
 			getKeyDowns = InputKeys.None;
+			activeLayer = 0;
+			paletteMode = false;
+			creationMode = true;
+			editMode = false;
+			selectionMode = false;
 
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			levelName = lvl_load.levelName;
@@ -138,30 +143,14 @@ public class EditGM : MonoBehaviour {
 	{
 		updateInputs(); // <1>
 		updateUI(); // <2>
-
-		if (!paletteMode) {
-			updateWorld(); // <3>
-
-			if (editMode) {
-				if (edit_flag) tileCreator.SetActive(false); // <4>
-
-				updateEditMode();
-			} else {
-				if (edit_flag) tileCreator.SetActive(true); // <5>
-
-				updateGT();
-			}
-		}
-
-		edit_flag = false; // <6>
+		updateLevel(); // <3>
+		updateTool(); // <4>
 
 		/*
 		<1> getKeys and getKeyDowns are updated
 		<2> hudPanel and palettePanel are updated
 		<3> anchorIcon and layer changes are updated
-		<4> deactivate tool when entering editMode
-		<5> activate tool when exiting editMode
-		<6> reset flag every frame, only set by ToggleEdit()
+		<4> whichever tool is currently active is updated
 		*/
 	}
 
@@ -206,16 +195,22 @@ public class EditGM : MonoBehaviour {
 		SceneManager.LoadScene(0);
 	}
 
+	//
+	public void ToggleCreate ()
+	{
+		//
+	}
+
 	// toggles editMode and makes associated changes to current
 	public void ToggleEdit ()
 	{
 		if (editMode) {
-			tileCreator.SetProperties(tc_backup); // <1>
-			tc_backup = is_tile_selected ? selected_tile : new TileData(); // <2>
+			tileCreator.SetProperties(tile_buffer); // <1>
+			tile_buffer = is_tile_selected ? selected_tile : new TileData(); // <2>
 			tileCreator.SetActive(true);
 		} else {
-			TileData td = tc_backup;
-			tc_backup = tileCreator.GetTileData(); // <3>
+			TileData td = tile_buffer;
+			tile_buffer = tileCreator.GetTileData(); // <3>
 
 			if (is_tile_selected) {
 				selected_tile = td;
@@ -226,16 +221,21 @@ public class EditGM : MonoBehaviour {
 		}
 
 		editMode = !editMode; // <6>
-		edit_flag = true;
 
 		/*
 		<1> if we're in editMode, restore the tileCreator to previous properties
-		<2> if there's a tile selected, it's properties are stored in tc_backup
+		<2> if there's a tile selected, it's properties are stored in tile_buffer
 		<3> if we're in creation mode, current state of tileCreator is stored
-		<4> if there's a tile selected, it's properties are restored from tc_backup
+		<4> if there's a tile selected, it's properties are restored from tile_buffer
 		<5> if no tile is selected, we deactivate the tool
 		<6> either way, editMode is toggled and flag is set
 		*/
+	}
+
+	//
+	public void ToggleSelect ()
+	{
+		//
 	}
 
 	// (!!)(testing) save level to a file in plain text format
@@ -262,7 +262,7 @@ public class EditGM : MonoBehaviour {
 		getKeyDowns = InputKeys.None;
 		int k = 0;
 
-		for (int i = 0; i < 0x100001; i = (i == 0) ? 1 : i * 2) { // <1>
+		for (int i = 0; i < 0x400001; i = (i == 0) ? 1 : i * 2) { // <1>
 			KeyCode kc = key_code_list[k++];
 			if (Input.GetKey(kc)) getKeys = getKeys | (InputKeys) i;
 			if (Input.GetKeyDown(kc)) getKeyDowns = getKeyDowns | (InputKeys) i;
@@ -276,47 +276,42 @@ public class EditGM : MonoBehaviour {
 	// updates UI Overlay and Palette panels
 	private void updateUI ()
 	{
-		bool sbckd = CheckKeyDowns(InputKeys.Space);
-		bool tabck = CheckKeys(InputKeys.Tab);
+		bool sbCKD = CheckKeyDowns(InputKeys.Space);
+		bool tabCK = CheckKeys(InputKeys.Tab);
 
-		if (sbckd) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
+		if (sbCKD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
 
-		if (tabck) { // <2>
-			if (!palettePanel.activeSelf) palettePanel.Activate(Input.mousePosition);
-			paletteMode = true;
-		} else if (palettePanel.activeSelf) { // <3>
-			palettePanel.Deactivate();
-			paletteMode = false;
-		}
-
-		if (paletteMode) tileCreator.SetActive(false); // <4>
-		else tileCreator.SetActive(true);
+		if (paletteMode != tabCK) palettePanel.TogglePalette(); // <2>
+		paletteMode = palettePanel.gameObject.activeSelf;
 
 		/*
 		<1> UI is toggled whenever spacebar is pressed
-		<2> palette is on whenever tab key is held down
-		<3> palette is turned off when tab key is released
-		<4> if the palette is on, tileCreator is turned off
+		<2> palette is toggled whenever tab key is held down or released
 		*/
 	}
 
 	// makes changes associated with anchorIcon and layer changes
-	private void updateWorld ()
+	private void updateLevel ()
 	{
-		if (CheckKeyDowns(InputKeys.Click1)) anchorIcon.FindNewAnchor(); // <1>
+		if (paletteMode) return; // <1>
 
-		if (CheckKeyDowns(InputKeys.F)) activateLayer(activeLayer - 1); // <2>
+		if (CheckKeyDowns(InputKeys.Click1)) anchorIcon.FindNewAnchor(); // <2>
+
+		if (CheckKeyDowns(InputKeys.F)) activateLayer(activeLayer - 1); // <3>
 		if (CheckKeyDowns(InputKeys.R)) activateLayer(activeLayer + 1);
 
 		/*
-		<1> right-click will update snap cursor location
-		<2> F and R will change active layer
+		<1> skip this sub-routine if the palette is active
+		<2> right-click will update snap cursor location
+		<3> F and R will change active layer
 		*/
 	}
 
 	// makes changes associated with the state of the tileCreator
-	private void updateGT ()
+	private void updateTool ()
 	{
+		// (!!) stuff missing here
+
 		if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false); // <1>
 		if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
@@ -343,6 +338,8 @@ public class EditGM : MonoBehaviour {
 	// makes changes associated with being in editMode
 	private void updateEditMode ()
 	{
+		// (!!) all this needs to change
+
 		if (is_tile_selected) {
 			Vector3 v3 = anchorIcon.focus.ToUnitySpace();
 			v3.z = GetLayerDepth();
@@ -351,14 +348,14 @@ public class EditGM : MonoBehaviour {
 			if (CheckKeyDowns(InputKeys.Click0)) {
 				addTile(); // <2>
 
-				tileCreator.SetProperties(tc_backup); // <3>
+				tileCreator.SetProperties(tile_buffer); // <3>
 				tileCreator.SetActive(false);
 				is_tile_selected = false;
 				return;
 			}
 
 			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
-				tileCreator.SetProperties(tc_backup);
+				tileCreator.SetProperties(tile_buffer);
 				is_tile_selected = false;
 			}
 		} else {
@@ -401,7 +398,7 @@ public class EditGM : MonoBehaviour {
 	// removes the specified tile from the level
 	private void removeTile (GameObject inTile)
 	{
-		tc_backup = tileCreator.GetTileData(); // <1>
+		tile_buffer = tileCreator.GetTileData(); // <1>
 		int tLayer;
 		TileData tData;
 		bool b = GetDataFromTile(inTile, out tData, out tLayer); // <2>
