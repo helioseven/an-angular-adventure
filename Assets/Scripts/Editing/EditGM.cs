@@ -130,7 +130,7 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> set singleton instance
 		<2> initializations for private variables
-		<3> initializations for state variables
+		<3> initializations for connected state variables
 		<4> file is loaded and parsed
 		<5> first layer is activated
 		<6> only one singleton can exist
@@ -141,17 +141,20 @@ public class EditGM : MonoBehaviour {
 	{
 		updateInputs(); // <1>
 		updateUI(); // <2>
-		if (paletteMode) return;
-		updateLevel(); // <3>
-		if (createMode) updateCreate(); // <4>
-		if (editMode) updateEdit();
-		if (selectMode) updateSelect();
+		if (paletteMode) return; // <3>
+		updateLevel(); // <4>
+		if (createMode) updateCreate(); // <5>
+		if (editMode) updateEdit(); // <6>
+		if (selectMode) updateSelect(); // <7>
 
 		/*
 		<1> getKeys and getKeyDowns are updated
 		<2> hudPanel and palettePanel are updated
-		<3> anchorIcon and layer changes are updated
-		<4> whichever tool is currently active is updated
+		<3> if the palette is active, skip the rest
+		<4> anchorIcon and layer changes are updated
+		<5> current tool is updated for createMode
+		<6> current tool is updated for editMode
+		<7> current tool is updated for selectMode
 		*/
 	}
 
@@ -169,8 +172,8 @@ public class EditGM : MonoBehaviour {
 	public float GetLayerDepth ()
 	{ return tileMap.transform.GetChild(activeLayer).position.z; }
 
-	// returns the TileData corresponding to the passed tile, and supplies it's layer
-	public bool GetDataFromTile (GameObject inTile, out TileData outData, out int outLayer)
+	// if passed object is a tile, supplies corresponding TileData and it's layer
+	public bool IsMappedTile (GameObject inTile, out TileData outData, out int outLayer)
 	{
 		if (!inTile.transform.IsChildOf(tileMap.transform)) { // <1>
 			outLayer = 0;
@@ -301,6 +304,7 @@ public class EditGM : MonoBehaviour {
 
 		if (paletteMode != tabCK) {
 			palettePanel.TogglePalette(); // <2>
+			// (!!) something going wrong here
 			// current_tool.SetActive(!current_tool.activeSelf);
 		}
 		paletteMode = palettePanel.gameObject.activeSelf;
@@ -331,22 +335,22 @@ public class EditGM : MonoBehaviour {
 		bool b1 = current_tool == tileCreator.gameObject;
 		bool b2 = current_tool == chkpntTool;
 		bool b3 = current_tool == warpTool;
-		if (!b1 && !b2 && !b3) return;
+		if (!b1 && !b2 && !b3) return; // <1>
 
 		bool bRot = false;
 		if (CheckKeyDowns(InputKeys.Q)) { tool_rotation++; bRot = true; } // <2>
 		if (CheckKeyDowns(InputKeys.E)) { tool_rotation--; bRot = true; }
 
 		if (b1) {
-			if (bRot) tileCreator.SetRotation(tool_rotation);
-			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false); // <1>
+			if (bRot) tileCreator.SetRotation(tool_rotation); // <3>
+			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false);
 			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
 			if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <4>
 		}
 
 		Vector3 pos, rot;
-		getToolOrient(out pos, out rot);
+		getToolOrient(out pos, out rot); // <5>
 		if (b2) {
 			chkpntTool.transform.position = pos;
 			if (bRot) chkpntTool.transform.eulerAngles = rot;
@@ -360,22 +364,25 @@ public class EditGM : MonoBehaviour {
 			if (CheckKeyDowns(InputKeys.Click0)) Debug.Log("Place warp.");
 		}
 
-		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool);
+		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool); // <6>
 		if (!b3 && CheckKeyDowns(InputKeys.V)) setTool(warpTool);
 		bool bType = false;
-		if (CheckKeyDowns(InputKeys.One)) { tileCreator.SelectType(0); bType = true; } // <3>
+		if (CheckKeyDowns(InputKeys.One)) { tileCreator.SelectType(0); bType = true; }
 		if (CheckKeyDowns(InputKeys.Two)) { tileCreator.SelectType(1); bType = true; }
 		if (CheckKeyDowns(InputKeys.Three)) { tileCreator.SelectType(2); bType = true; }
 		if (CheckKeyDowns(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
 		if (CheckKeyDowns(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
 		if (CheckKeyDowns(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
-		if (!b1 && bType) setTool(tileCreator.gameObject);
+		if (!b1 && bType) setTool(tileCreator.gameObject); // <7>
 
 		/*
-		<2> Q and E rotate tile C-CW and CW, respectively
-		<3> numeric keys assign tile type
-		<1> Z and X rotate through colors
-		<4> if left click is made, tile is added to the level
+		<1> first, figure out which tool is active and return if none
+		<2> Q and E rotate the current tool C-CW and CW, respectively
+		<3> when tileCreator is active, Z and X rotate through colors
+		<4> and then if left click is made, tile is added to the level
+		<5> if one of the other two tools is active, we get an orientation for them
+		<6> C and V activate the checkpoint and warp tools, respectively
+		<7> numeric keys assign tile type and activate tileCreator
 		*/
 	}
 
@@ -451,7 +458,7 @@ public class EditGM : MonoBehaviour {
 		tile_buffer = tileCreator.GetTileData(); // <1>
 		int tLayer;
 		TileData tData;
-		bool b = GetDataFromTile(inTile, out tData, out tLayer); // <2>
+		bool b = IsMappedTile(inTile, out tData, out tLayer); // <2>
 		if (b) selected_tile = tData;
 		else return; // <3>
 		tileCreator.SetActive(true);

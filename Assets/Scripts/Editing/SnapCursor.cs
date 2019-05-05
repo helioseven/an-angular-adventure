@@ -62,7 +62,7 @@ public class SnapCursor : MonoBehaviour {
 			if (pc2d) { // <2>
 				int tLayer;
 				TileData tData;
-				bool b = gm_ref.GetDataFromTile(c2d.gameObject, out tData, out tLayer);
+				bool b = gm_ref.IsMappedTile(c2d.gameObject, out tData, out tLayer);
 				if (!b) continue; // <3>
 				HexLocus tHL = tData.locus;
 				foreach (Vector2 subPoint in pc2d.points) { // <4>
@@ -93,11 +93,13 @@ public class SnapCursor : MonoBehaviour {
 		<3> if the collision is not from a tile in the map, it is skipped
 		<4> we now check every vertex of of the collider's polygon
 		<5> each vertex is translated from local space into world space
-		<6> adds each vertex to the list of possible snap points
+		<6> adds each translated vertex to the list of possible snap points
 		<7> finds the HexLocus with the smallest offset from original input position
 		<8> updates global variables
 		*/
 	}
+
+	/* Private Functions */
 
 	// uses mouse position ray's intersection with current level plane to generate a 2D coordinate
 	private Vector2 findPointOnPlane ()

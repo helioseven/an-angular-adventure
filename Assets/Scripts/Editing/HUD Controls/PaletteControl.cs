@@ -35,7 +35,9 @@ public class PaletteControl : MonoBehaviour {
 	public void TogglePalette () {
 		if (gameObject.activeSelf) gameObject.SetActive(false); // <1>
 		else {
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas_rt, Input.mousePosition, main_cam, out local_position);
+			Vector2 lp, mP = Input.mousePosition;
+			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas_rt, mP, main_cam, out lp);
+			local_position = lp;
 			local_rt.localPosition = local_position; // <2>
 
 			gameObject.SetActive(true);
