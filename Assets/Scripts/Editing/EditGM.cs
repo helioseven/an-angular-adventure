@@ -238,7 +238,7 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	//
+	// switches into selectMode
 	public void EnterSelect ()
 	{
 		if (selectMode) return;
@@ -301,7 +301,7 @@ public class EditGM : MonoBehaviour {
 
 		if (paletteMode != tabCK) {
 			palettePanel.TogglePalette(); // <2>
-			current_tool.SetActive(!current_tool.activeSelf);
+			// current_tool.SetActive(!current_tool.activeSelf);
 		}
 		paletteMode = palettePanel.gameObject.activeSelf;
 
@@ -328,35 +328,16 @@ public class EditGM : MonoBehaviour {
 	// makes changes associated with being in createMode
 	private void updateCreate ()
 	{
-		bool b1 = current_tool == chkpntTool;
-		bool b2 = current_tool == tileCreator.gameObject;
+		bool b1 = current_tool == tileCreator.gameObject;
+		bool b2 = current_tool == chkpntTool;
 		bool b3 = current_tool == warpTool;
+		if (!b1 && !b2 && !b3) return;
+
 		bool bRot = false;
+		if (CheckKeyDowns(InputKeys.Q)) { tool_rotation++; bRot = true; } // <2>
+		if (CheckKeyDowns(InputKeys.E)) { tool_rotation--; bRot = true; }
 
-		if (b1 || b2 || b3) {
-			if (CheckKeyDowns(InputKeys.Q)) {
-				tool_rotation++; // <2>
-				bRot = true;
-			}
-			if (CheckKeyDowns(InputKeys.E)) {
-				tool_rotation--;
-				bRot = true;
-			}
-
-			if (CheckKeyDowns(InputKeys.One)) tileCreator.SelectType(0); // <3>
-			if (CheckKeyDowns(InputKeys.Two)) tileCreator.SelectType(1);
-			if (CheckKeyDowns(InputKeys.Three)) tileCreator.SelectType(2);
-			if (CheckKeyDowns(InputKeys.Four)) tileCreator.SelectType(3);
-			if (CheckKeyDowns(InputKeys.Five)) tileCreator.SelectType(4);
-			if (CheckKeyDowns(InputKeys.Six)) tileCreator.SelectType(5);
-
-			InputKeys typeKeys = InputKeys.One | InputKeys.Two;
-			typeKeys |= InputKeys.Three | InputKeys.Four;
-			typeKeys |= InputKeys.Five | InputKeys.Six;
-			if (!b2 && CheckKeyDowns(typeKeys)) setTool(tileCreator.gameObject);
-		}
-
-		if (b2) {
+		if (b1) {
 			if (bRot) tileCreator.SetRotation(tool_rotation);
 			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false); // <1>
 			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
@@ -364,21 +345,31 @@ public class EditGM : MonoBehaviour {
 			if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <4>
 		}
 
-		Vector3 rot = new Vector3(0, 0, 30 * tool_rotation);
-		Vector3 pos = anchorIcon.focus.ToUnitySpace();
-		pos.z = anchorIcon.transform.position.z;
-
-		if (b1) {
+		Vector3 pos, rot;
+		getToolOrient(out pos, out rot);
+		if (b2) {
 			chkpntTool.transform.position = pos;
-			chkpntTool.transform.eulerAngles = rot;
+			if (bRot) chkpntTool.transform.eulerAngles = rot;
+
 			if (CheckKeyDowns(InputKeys.Click0)) Debug.Log("Place checkpoint.");
 		}
-
 		if (b3) {
 			warpTool.transform.position = pos;
-			warpTool.transform.eulerAngles = rot;
+			if (bRot) warpTool.transform.eulerAngles = rot;
+
 			if (CheckKeyDowns(InputKeys.Click0)) Debug.Log("Place warp.");
 		}
+
+		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool);
+		if (!b3 && CheckKeyDowns(InputKeys.V)) setTool(warpTool);
+		bool bType = false;
+		if (CheckKeyDowns(InputKeys.One)) { tileCreator.SelectType(0); bType = true; } // <3>
+		if (CheckKeyDowns(InputKeys.Two)) { tileCreator.SelectType(1); bType = true; }
+		if (CheckKeyDowns(InputKeys.Three)) { tileCreator.SelectType(2); bType = true; }
+		if (CheckKeyDowns(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
+		if (CheckKeyDowns(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
+		if (CheckKeyDowns(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
+		if (!b1 && bType) setTool(tileCreator.gameObject);
 
 		/*
 		<2> Q and E rotate tile C-CW and CW, respectively
@@ -399,6 +390,8 @@ public class EditGM : MonoBehaviour {
 			if (CheckKeyDowns(InputKeys.Click0)) {
 				addTile(); // <2>
 
+				if (!tile_buffer.HasValue) tileCreator.SetProperties(new TileData());
+				else tileCreator.SetProperties(tile_buffer.Value);
 				tileCreator.SetActive(false); // <3>
 				selected_tile = null;
 				return;
@@ -409,19 +402,8 @@ public class EditGM : MonoBehaviour {
 				selected_tile = null;
 			}
 		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
-/*
-			float d;
-			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-			Plane p = new Plane(Vector3.back, GetLayerDepth());
-			if (!p.Raycast(r, out d)) {
-				Debug.LogError("Screen click ray did not intersect with layer plane.");
-				return;
-			}
-			Vector2 v2 = r.GetPoint(d);
-*/
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <6>
-			Debug.Log(c2d);
 			if (!c2d) return; // <7>
 			if (c2d.transform.IsChildOf(tileMap.transform)) removeTile(c2d.gameObject); // <8>
 			// else remove chkpnt or warp
@@ -448,11 +430,14 @@ public class EditGM : MonoBehaviour {
 	// adds a tile to the level based on current state of tileCreator
 	private void addTile ()
 	{
-		levelData.layerSet[activeLayer].tileSet.Add(tileCreator.GetTileData()); // <1>
+		TileData td = tileCreator.GetTileData();
+		levelData.layerSet[activeLayer].tileSet.Add(td); // <1>
 
 		Transform tl = tileMap.transform.GetChild(activeLayer);
 		GameObject go = tileCreator.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
+
+		data_lookup[go] = td; // <3>
 
 		/*
 		<1> first, TileData is added to levelData
@@ -548,5 +533,13 @@ public class EditGM : MonoBehaviour {
 		<3> if this isn't the active layer, opacity and layer are set accordingly
 		<4> the calculated opacity and layer are applied to all tiles within the layer
 		*/
+	}
+
+	//
+	private void getToolOrient (out Vector3 pos, out Vector3 rot)
+	{
+		rot = new Vector3(0, 0, 30 * tool_rotation);
+		pos = anchorIcon.focus.ToUnitySpace();
+		pos.z = anchorIcon.transform.position.z;
 	}
 }
