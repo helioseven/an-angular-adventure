@@ -31,8 +31,9 @@ public class TileCreator : MonoBehaviour {
 	// tile_renderers manages the sprite renderers of the different tile colors
 	private SpriteRenderer[,] tile_renderers;
 
-	public void Awake ()
+	public void Start ()
 	{
+		anchor_ref = EditGM.instance.anchorIcon;
 		tileRotation = 0;
 		tileType = 0;
 		tileColor = 0;
@@ -57,11 +58,6 @@ public class TileCreator : MonoBehaviour {
 		*/
 	}
 
-	public void Start ()
-	{
-		anchor_ref = EditGM.instance.anchorIcon;
-	}
-
 	public void Update ()
 	{
 		Vector3 v3 = anchor_ref.focus.ToUnitySpace(); // <1>
@@ -80,10 +76,9 @@ public class TileCreator : MonoBehaviour {
 	}
 
 	// turns the tile clockwise or counter-clockwise in 30 degree increments
-	public void Rotate (bool clockwise)
+	public void SetRotation (int inRotation)
 	{
-		tileRotation += clockwise ? -1 : 1;
-		tileRotation = (tileRotation + 12) % 12;
+		tileRotation = (inRotation + 12) % 12;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
 	}
 

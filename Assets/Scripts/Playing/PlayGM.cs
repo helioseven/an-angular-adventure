@@ -87,10 +87,10 @@ public class PlayGM : MonoBehaviour {
 	{
 		// if player's current level matches either base or target, select the other
 		int next_layer;
-		if (currentLayer == warp.baseLevel)
-			next_layer = warp.targetLevel;
-		else if (currentLayer == warp.targetLevel)
-			next_layer = warp.baseLevel;
+		if (currentLayer == warp.baseLayer)
+			next_layer = warp.targetLayer;
+		else if (currentLayer == warp.targetLayer)
+			next_layer = warp.baseLayer;
 		else
 			next_layer = currentLayer;
 
