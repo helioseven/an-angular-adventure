@@ -133,7 +133,7 @@ namespace circleXsquares {
 		public override bool Equals(System.Object obj)
 		{
 			HexLocus? inHL = obj as HexLocus?;
-			if (inHL.HasValue) return false;
+			if (!inHL.HasValue) return false;
 			else return this == inHL.Value;
 		}
 
@@ -304,8 +304,6 @@ namespace circleXsquares {
 	}
 
 	// (??)
-	// nb: TileTriggers should really only ever be applied to green (color: 4) tiles
-	// nb2: like any other color tile, triggers can also be warps
 	// (!!) currently not in use
 	public struct TileTrigger
 	{
@@ -358,17 +356,15 @@ namespace circleXsquares {
 	public struct ChkpntData
 	{
 
-		// a checkpoint simply consists of an activity indicator, and then a location and rotation
+		// a checkpoint simply consists of an activity indicator, and a location
 		public bool isActive;
 		public HexLocus locus;
-		public int rotation;
 
 		// simple constructor
-		public ChkpntData (bool inActive, HexLocus inLocus, int inRotation)
+		public ChkpntData (bool inActive, HexLocus inLocus)
 		{
 			isActive = inActive;
 			locus = inLocus;
-			rotation = inRotation;
 		}
 
 		// Serialize turns this ChkpntData into strings separated by spaces
@@ -376,7 +372,6 @@ namespace circleXsquares {
 		{
 			string s = (isActive ? 1 : 0).ToString();
 			s += " " + locus.Serialize();
-			s += " " + rotation.ToString();
 			return s;
 		}
 	}
@@ -387,22 +382,19 @@ namespace circleXsquares {
 
 		// warps are used as win triggers, of which there may be multiple
 		public bool isVictory;
-		// otherwise, warps move the player up or down one layer in a level
-		// nb: as a consequence, warps will occupy the same position in both layers
-		public bool isDropDown;
-		// originLayer describes the layer on which the warp will be triggered
+		// otherwise, warps consist of two-way flag, origin and target layers, and a position
+		public bool isTwoWay;
 		public int originLayer;
-		// finally, the warp must have a location and rotation as it occupies physical space in two layers
+		public int targetLayer;
 		public HexLocus locus;
-		public int rotation;
 
 		// simple constructor
-		public WarpData (bool inVictory, bool inDD, int inOrigin, HexLocus inLocus, int inRotation)
+		public WarpData (bool inVictory, bool inTW, int inOrigin, int inTarget, int inRotation)
 		{
 			isVictory = inVictory;
-			isDropDown = inDD;
+			isTwoWay = inTW;
 			originLayer = inOrigin;
-			locus = inLocus;
+			targetLayer = inTarget;
 			rotation = inRotation;
 		}
 
@@ -410,10 +402,10 @@ namespace circleXsquares {
 		public string Serialize ()
 		{
 			string s = (isVictory ? 1 : 0).ToString();
-			s += " " + (isDropDown ? 1 : 0).ToString();
+			s += " " + (isTwoWay ? 1 : 0).ToString();
 			s += " " + originLayer.ToString();
+			s += " " + targetLayer.ToString();
 			s += " " + locus.Serialize();
-			s += " " + rotation.ToString();
 			return s;
 		}
 	}

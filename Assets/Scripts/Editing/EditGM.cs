@@ -36,10 +36,11 @@ public class EditGM : MonoBehaviour {
 	private EditLoader lvl_load;
 	private GameObject current_tool;
 	private int tool_rotation;
+	private GameObject selected_obj;
 	private TileData? selected_tile;
-	private TileData? tile_buffer;
+	private HexLocus? special_HL;
+	private TileData tile_buffer;
 	private Dictionary<GameObject, TileData> data_lookup;
-
 
 	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
@@ -104,8 +105,10 @@ public class EditGM : MonoBehaviour {
 
 			current_tool = tileCreator.gameObject; // <2>
 			tool_rotation = 0;
+			selected_obj = null;
 			selected_tile = null;
-			tile_buffer = null;
+			special_HL = null;
+			tile_buffer = new TileData();
 
 			hudPanel.SetActive(false); // <3>
 			chkpntTool.SetActive(false);
@@ -175,7 +178,7 @@ public class EditGM : MonoBehaviour {
 	// if passed object is a tile, supplies corresponding TileData and it's layer
 	public bool IsMappedTile (GameObject inTile, out TileData outData, out int outLayer)
 	{
-		if (!inTile.transform.IsChildOf(tileMap.transform)) { // <1>
+		if (!inTile || !inTile.transform.IsChildOf(tileMap.transform)) { // <1>
 			outLayer = 0;
 			outData = new TileData();
 			return false;
@@ -202,53 +205,65 @@ public class EditGM : MonoBehaviour {
 	// switches into createMode
 	public void EnterCreate ()
 	{
-		if (createMode) return;
-		if (editMode || selectMode) {
-			if (tile_buffer.HasValue) tileCreator.SetProperties(tile_buffer.Value); // <1>	
-			tile_buffer = selected_tile; // <2>
+		if (createMode || !(editMode || selectMode)) return; // <1>
+		if (editMode && selected_obj) { // <2>
+			if (selected_tile.HasValue) { // <3>
+				tileCreator.SetProperties(selected_tile.Value);
+				selected_obj = addTile();
+			} else if (special_HL.HasValue) selected_obj = addSpecial(current_tool, special_HL.Value); // <4>
 		}
 
+		tileCreator.SetProperties(tile_buffer); // <5>
 		tileCreator.SetActive(true);
 		createMode = true;
 		editMode = false;
 		selectMode = false;
+
+		/*
+		<1> only do anything if currently in editMode or selectMode
+		<2> conditional logic for switching out of editMode while an object is selected
+		<3> if the selected object is a tile, add it back to the level via tileCreator
+		<4> otherwise, the selected special object is added back to the level
+		<5> tileCreator values are recovered from tile_buffer, and is then activated
+		*/
 	}
 
 	// switches into editMode
 	public void EnterEdit ()
 	{
-		if (editMode) return;
-		if (createMode) {
-			selected_tile = tile_buffer;
-			tile_buffer = tileCreator.GetTileData(); // <3>
-		}
-		if (selectMode) {
-			// something
-		}
+		if (editMode || !(createMode || selectMode)) return; // <1>
+		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
-		if (selected_tile.HasValue) {
-			tileCreator.SetProperties(selected_tile.Value); // <4>
-			tileCreator.SetActive(true);
-		} else tileCreator.SetActive(false);
+		if (selected_obj) {
+			if (selected_tile.HasValue) {
+				removeTile(selected_obj); // <3>
+				tileCreator.SetProperties(selected_tile.Value);
+				setTool(tileCreator.gameObject);
+			} else if (special_HL.HasValue) {
+				removeSpecial(special_HL.Value); // <4>
+				if (selected_obj.GetComponent<Checkpoint>()) setTool(chkpntTool);
+				else if (selected_obj.GetComponent<Warp>()) setTool(warpTool);
+			}
+		} else tileCreator.SetActive(false); // <5>
 		createMode = false;
 		editMode = true;
-		selectMode = false; // <6>
+		selectMode = false;
 
 		/*
-		<3> if we're in creation mode, current state of tileCreator is stored
-		<4> if there's a tile selected, it's properties are restored from tile_buffer
-		<6> either way, editMode is toggled and flag is set
+		<1> only do anyting if currently in creationMode or selectMode
+		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
+		<3> if there's a tile selected, it is removed from the tile map and used to set the tileCreator
+		<4> if there's a special object selected, it is removed from the level
+		<5> if nothing is selected, make sure tileCreator is disabled
 		*/
 	}
 
 	// switches into selectMode
 	public void EnterSelect ()
 	{
-		if (selectMode) return;
-		if (createMode) {
-			selected_tile = tile_buffer;
-			tile_buffer = tileCreator.GetTileData(); // <1>
-		}
+		if (selectMode || !(createMode || editMode)) return; // <1>
+		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
+
 		if (editMode) {
 			// something
 		}
@@ -257,6 +272,11 @@ public class EditGM : MonoBehaviour {
 		createMode = false;
 		editMode = false;
 		selectMode = true;
+
+		/*
+		<1> only do anyting if currently in creationMode or editMode
+		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
+		*/
 	}
 
 	// (!!)(testing) save level to a file in plain text format
@@ -389,7 +409,7 @@ public class EditGM : MonoBehaviour {
 	// makes changes associated with being in editMode
 	private void updateEdit ()
 	{
-		if (selected_tile.HasValue) {
+		if (selected_obj.HasValue) {
 			Vector3 v3 = anchorIcon.focus.ToUnitySpace();
 			v3.z = GetLayerDepth();
 			tileCreator.transform.position = v3; // <1>
@@ -400,13 +420,13 @@ public class EditGM : MonoBehaviour {
 				if (!tile_buffer.HasValue) tileCreator.SetProperties(new TileData());
 				else tileCreator.SetProperties(tile_buffer.Value);
 				tileCreator.SetActive(false); // <3>
-				selected_tile = null;
+				selected_obj = null;
 				return;
 			}
 
 			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
 				tileCreator.SetActive(false);
-				selected_tile = null;
+				selected_obj = null;
 			}
 		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -434,8 +454,8 @@ public class EditGM : MonoBehaviour {
 		//
 	}
 
-	// adds a tile to the level based on current state of tileCreator
-	private void addTile ()
+	// adds a tile to the level based on current state of tileCreator and returns a reference
+	private GameObject addTile ()
 	{
 		TileData td = tileCreator.GetTileData();
 		levelData.layerSet[activeLayer].tileSet.Add(td); // <1>
@@ -445,10 +465,12 @@ public class EditGM : MonoBehaviour {
 		go.transform.SetParent(tl); // <2>
 
 		data_lookup[go] = td; // <3>
+		return go;
 
 		/*
 		<1> first, TileData is added to levelData
 		<2> second, a corresponding tile is added to tileMap
+		<3> lastly, the tile's gameObject is added to the lookup dictionary and returned
 		*/
 	}
 
@@ -459,13 +481,12 @@ public class EditGM : MonoBehaviour {
 		int tLayer;
 		TileData tData;
 		bool b = IsMappedTile(inTile, out tData, out tLayer); // <2>
-		if (b) selected_tile = tData;
+		if (b) selected_obj = tData;
 		else return; // <3>
 		tileCreator.SetActive(true);
-		tileCreator.SetProperties(selected_tile.Value); // <4>
+		tileCreator.SetProperties(selected_obj.Value); // <4>
 
-		levelData.layerSet[tLayer].tileSet.Remove(selected_tile.Value); // <5>
-		// is_tile_selected = true; // <6>
+		levelData.layerSet[tLayer].tileSet.Remove(selected_obj.Value); // <5>
 		data_lookup.Remove(inTile);
 		Destroy(inTile);
 
@@ -477,6 +498,18 @@ public class EditGM : MonoBehaviour {
 		<5> after all that, levelData is updated
 		<6> reset flag, remove from the lookup, and delete the tile
 		*/
+	}
+
+	//
+	private GameObject addSpecial (GameObject inSpecial, HexLocus inLocus)
+	{
+		//
+	}
+
+	//
+	private void removeSpecial (HexLocus inLocus)
+	{
+		//
 	}
 
 	// sets the currently active tool
