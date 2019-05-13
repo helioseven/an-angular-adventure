@@ -20,23 +20,23 @@ using circleXsquares;
 
 public class TileCreator : MonoBehaviour {
 
-	// tileRotation represents the number of turns from reference (0 degrees)
-	public int tileRotation { get; private set; }
-	// tileType represents the type of shape
+	// public read-accessibility state variables
 	public int tileType { get; private set; }
-	// tileColor represents the color of this tile
 	public int tileColor { get; private set; }
+	public HexOrient tileOrient { get; private set; }
 
+	private EditGM gm_ref;
 	private SnapCursor anchor_ref;
 	// tile_renderers manages the sprite renderers of the different tile colors
 	private SpriteRenderer[,] tile_renderers;
 
-	public void Start ()
+	void Start ()
 	{
-		anchor_ref = EditGM.instance.anchorIcon;
-		tileRotation = 0;
+		gm_ref = EditGM.instance;
+		anchor_ref = gm_ref.anchorIcon;
 		tileType = 0;
 		tileColor = 0;
+		tileOrient = new HexOrient(new HexLocus(), 0, 0);
 
 		int nTypes = transform.childCount;
 		int nColors = transform.GetChild(0).childCount;
@@ -58,28 +58,18 @@ public class TileCreator : MonoBehaviour {
 		*/
 	}
 
-	public void Update ()
+	void Update ()
 	{
-		Vector3 v3 = anchor_ref.focus.ToUnitySpace(); // <1>
-		v3.z = anchor_ref.transform.position.z; // <2>
+		tileOrient = new HexOrient(anchor_ref.focus, tileOrient.rotation, gm_ref.activeLayer);
+
+		Vector3 v3 = tileOrient.locus.ToUnitySpace(); // <1>
+		v3.z = gm_ref.GetLayerDepth(tileOrient.layer); // <2>
 		transform.position = v3;
 
 		/*
 		<1> when active, the genesis_tile will follow the focus
 		<2> get our Z-depth from the SnapCursor
 		*/
-	}
-
-	public void SetActive (bool inActive)
-	{
-		gameObject.SetActive(inActive);
-	}
-
-	// turns the tile clockwise or counter-clockwise in 30 degree increments
-	public void SetRotation (int inRotation)
-	{
-		tileRotation = (inRotation + 12) % 12;
-		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
 	}
 
 	// disables and enables renderers based on passed type
@@ -104,6 +94,24 @@ public class TileCreator : MonoBehaviour {
 		*/
 	}
 
+	// turns the transform in 30 degree increments
+	public void SetRotation (int inRotation)
+	{
+		tileOrient = new HexOrient(tileOrient.locus, (inRotation + 12) % 12, tileOrient.layer);
+		transform.eulerAngles = new Vector3(0, 0, 30 * tileOrient.rotation);
+	}
+
+	// translates and rotates the transform according to given orientation
+	public void SetOrientation (HexOrient inOrient)
+	{
+		tileOrient = inOrient;
+
+		Vector3 v3 = tileOrient.locus.ToUnitySpace();
+		v3.z = gm_ref.GetLayerDepth(tileOrient.layer);
+		transform.position = v3;
+		SetRotation(tileOrient.rotation);
+	}
+
 	// sets type, color, and rotation by passed struct
 	public void SetProperties (TileData inData)
 	{
@@ -112,18 +120,17 @@ public class TileCreator : MonoBehaviour {
 		tileColor = inData.color;
 		tile_renderers[tileType, tileColor].enabled = true;
 
-		tileRotation = inData.orient.rotation;
-		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
+		SetOrientation(inData.orient);
 	}
  
 	// returns a TileData representation of the genesisTile's current state
 	public TileData GetTileData ()
 	{
-		return new TileData(tileType, tileColor, new HexOrient(anchor_ref.focus, tileRotation, EditGM.instance.activeLayer));
+		return new TileData(tileType, tileColor, tileOrient);
 	}
 
 	// returns a new tile copied from the tile in active use
-	public GameObject GetActiveTile ()
+	public GameObject GetActiveCopy ()
 	{
 		GameObject go = tile_renderers[tileType, tileColor].transform.parent.gameObject;
 		go = Instantiate(go, go.transform.position, go.transform.rotation) as GameObject;

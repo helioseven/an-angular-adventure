@@ -57,7 +57,7 @@ public class ObjectInfoControl : MonoBehaviour {
 	{
 		bool bType = tile_type != tc_ref.tileType;
 		bool bColor = tile_color != tc_ref.tileColor;
-		bool bRotation = tile_rotation != tc_ref.tileRotation;
+		bool bRotation = tile_rotation != tc_ref.tileOrient.rotation;
 		bool bPosition = tile_position != gm_ref.anchorIcon.anchor;
 
 		setValues();
@@ -93,7 +93,7 @@ public class ObjectInfoControl : MonoBehaviour {
 	{
 		tile_type = tc_ref.tileType;
 		tile_color = tc_ref.tileColor;
-		tile_rotation = tc_ref.tileRotation;
+		tile_rotation = tc_ref.tileOrient.rotation;
 		tile_position = gm_ref.anchorIcon.anchor;
 	}
 

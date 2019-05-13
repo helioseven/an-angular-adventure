@@ -5,7 +5,7 @@ using circleXsquares;
 
 public class SnapCursor : MonoBehaviour {
 
-	// focus is the snap point (relative to anchor) closest to the current mouse position
+	// public read-accessibility state variables
 	public HexLocus focus { get; private set; }
 	public HexLocus anchor { get; private set; }
 

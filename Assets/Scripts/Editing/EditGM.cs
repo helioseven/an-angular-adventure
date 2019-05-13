@@ -99,7 +99,7 @@ public class EditGM : MonoBehaviour {
 		KeyCode.Alpha6
 	};
 
-	// a struct to help us keep track of what the hell is going on (active/inactive) when switching modes and/or tools
+	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
 	private struct SelectedItem {
 
 		public GameObject instance;
@@ -207,7 +207,11 @@ public class EditGM : MonoBehaviour {
 
 	// simply returns the z value of the current layer's transform
 	public float GetLayerDepth ()
-	{ return tileMap.transform.GetChild(activeLayer).position.z; }
+	{ return GetLayerDepth(activeLayer); }
+
+	// simply returns the z value of the given layer's transform
+	public float GetLayerDepth (int inLayer)
+	{ return tileMap.transform.GetChild(inLayer).position.z; }
 
 	// if passed object is a tile, supplies corresponding TileData
 	public bool IsMappedTile (GameObject inTile, out TileData outData)
@@ -226,6 +230,22 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
+	//
+	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
+	{
+		//
+		outData = new ChkpntData();
+		return false;
+	}
+
+	//
+	public bool IsMappedWarp (GameObject inWarp, out WarpData outData)
+	{
+		//
+		outData = new WarpData();
+		return false;
+	}
+
 	// deletes the current scene and loads the MainMenu scene
 	public void ReturnToMainMenu ()
 	{ SceneManager.LoadScene(0); } // (!!) should prompt if unsaved
@@ -237,7 +257,7 @@ public class EditGM : MonoBehaviour {
 		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <2>
 
 		tileCreator.SetProperties(tile_buffer); // <3>
-		tileCreator.SetActive(true);
+		tileCreator.gameObject.SetActive(true);
 		createMode = true;
 		editMode = false;
 		selectMode = false;
@@ -256,7 +276,7 @@ public class EditGM : MonoBehaviour {
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
 		if (selected_item.HasValue) removeSelectedItem(selected_item.Value); // <3>
-		else tileCreator.SetActive(false); // <4>
+		else tileCreator.gameObject.SetActive(false); // <4>
 		createMode = false;
 		editMode = true;
 		selectMode = false;
@@ -276,7 +296,7 @@ public class EditGM : MonoBehaviour {
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
 		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <3>
-		tileCreator.SetActive(false); // <4>
+		tileCreator.gameObject.SetActive(false); // <4>
 		createMode = false;
 		editMode = false;
 		selectMode = true;
@@ -363,14 +383,14 @@ public class EditGM : MonoBehaviour {
 		if (!b1 && !b2 && !b3) return; // <1>
 
 		if (b1) {
-			int rot = tileCreator.tileRotation;
+			int rot = tileCreator.tileOrient.rotation;
 			if (CheckKeyDowns(InputKeys.Q)) tileCreator.SetRotation(rot + 1); // <2>
 			if (CheckKeyDowns(InputKeys.E)) tileCreator.SetRotation(rot - 1);
 
 			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false);
 			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
-			if (CheckKeyDowns(InputKeys.Click0)) addTile(tileCreator.GetTileData()); // <3>
+			if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <3>
 		}
 
 		Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
@@ -412,22 +432,21 @@ public class EditGM : MonoBehaviour {
 	private void updateEdit ()
 	{
 		if (selected_item.HasValue) {
-			Vector3 v3 = anchorIcon.focus.ToUnitySpace();
-			v3.z = GetLayerDepth();
-			tileCreator.transform.position = v3; // <1>
+			SelectedItem si = selected_item.Value;
+			if (si.tileData.HasValue) {
+				if (CheckKeyDowns(InputKeys.Click0)) {
+					addTile(si.tileData.Value); // <2>
 
-			if (CheckKeyDowns(InputKeys.Click0)) {
-				addTile(tileCreator.GetTileData()); // <2>
+					tileCreator.SetProperties(tile_buffer);
+					tileCreator.gameObject.SetActive(false); // <3>
+					selected_item = null;
+					return;
+				}
 
-				tileCreator.SetProperties(tile_buffer);
-				tileCreator.SetActive(false); // <3>
-				selected_item = null;
-				return;
-			}
-
-			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
-				tileCreator.SetActive(false);
-				selected_item = null;
+				if (CheckKeyDowns(InputKeys.Delete)) { // <4>
+					tileCreator.gameObject.SetActive(false);
+					selected_item = null;
+				}
 			}
 		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -495,20 +514,40 @@ public class EditGM : MonoBehaviour {
 	}
 
 	// adds a passed tileData to the level and returns a reference
+	private GameObject addTile ()
+	{
+		TileData td = tileCreator.GetTileData();
+		levelData.tileSet.Add(td); // <1>
+
+		Transform tl = tileMap.transform.GetChild(td.orient.layer);
+		GameObject go = tileCreator.GetActiveCopy();
+		go.transform.SetParent(tl); // <2>
+
+		tile_lookup[go] = td; // <3>
+		return go;
+
+		/*
+		<1> first, TileData is gathered from tileCreator and added to levelData
+		<2> second, a corresponding tile copy from tileCreator is added to tileMap
+		<3> lastly, the tile's gameObject is added to the lookup dictionary and returned
+		*/
+	}
+
+	// adds a passed tileData to the level and returns a reference
 	private GameObject addTile (TileData inData)
 	{
 		levelData.tileSet.Add(inData); // <1>
 
 		Transform tl = tileMap.transform.GetChild(inData.orient.layer);
-		GameObject go = tileCreator.GetActiveTile();
+		GameObject go = tileCreator.NewTile(inData);
 		go.transform.SetParent(tl); // <2>
 
 		tile_lookup[go] = inData; // <3>
 		return go;
 
 		/*
-		<1> first, TileData is added to levelData
-		<2> second, a corresponding tile is added to tileMap
+		<1> first, the given TileData is added to levelData
+		<2> second, a corresponding new tile is added to tileMap
 		<3> lastly, the tile's gameObject is added to the lookup dictionary and returned
 		*/
 	}
@@ -522,7 +561,7 @@ public class EditGM : MonoBehaviour {
 		if (b) selected_item = new SelectedItem(inTile, tData);
 		else return; // <3>
 		tileCreator.SetProperties(tData); // <4>
-		tileCreator.SetActive(true);
+		tileCreator.gameObject.SetActive(true);
 
 		levelData.tileSet.Remove(tData); // <5>
 		tile_lookup.Remove(inTile);
@@ -530,8 +569,8 @@ public class EditGM : MonoBehaviour {
 
 		/*
 		<1> first, back up tileCreator state
-		<2> next, lookup the tile's TileData
-		<3> if the specified tile is not part of tileMap, we ignore
+		<2> next, lookup the item's TileData
+		<3> if the specified item is not part of tileMap, we ignore
 		<4> then set the tileCreator up to act like the selected tile
 		<5> after all that, levelData is updated
 		<6> reset flag, remove from the lookup, and delete the tile
