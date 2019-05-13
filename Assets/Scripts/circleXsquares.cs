@@ -286,39 +286,31 @@ namespace circleXsquares {
 		}
 	}
 
-	// (??)
-	// (!!) currently not in use
+	// HexOrient describes an orientation within the game space
 	public struct HexOrient
 	{
 
-		// (??)
+		// HexOrient consists of a locus, rotation, and layer
 		public HexLocus locus;
 		public int rotation;
+		public int layer;
 
 		// simple constructor
-		public HexOrient (HexLocus inLocus, int inRotation)
+		public HexOrient (HexLocus inLocus, int inRotation, int inLayer)
 		{
 			locus = inLocus;
 			rotation = inRotation;
+			layer = inLayer;
+			if (layer < 0) layer = 0;
 		}
-	}
 
-	// (??)
-	// (!!) currently not in use
-	public struct TileTrigger
-	{
-
-		// (??)
-		public bool isActive;
-		public HexLocus targetLocus;
-		public int targetLayer;
-
-		// simple constructor
-		public TileTrigger (bool inActive, HexLocus inLocus, int inLayer)
+		// Serialize turns this HexOrient into strings separated by spaces
+		public string Serialize ()
 		{
-			isActive = inActive;
-			targetLocus = inLocus;
-			targetLayer = inLayer;
+			string s = locus.Serialize();
+			s += " " + rotation.ToString();
+			s += " " + layer.ToString();
+			return s;
 		}
 	}
 
@@ -329,16 +321,14 @@ namespace circleXsquares {
 		// TileData consists of a type, color, position, and rotation
 		public int type;
 		public int color;
-		public HexLocus locus;
-		public int rotation;
+		public HexOrient orient;
 
 		// simple constructor
-		public TileData (int inType, int inColor, HexLocus inLocus, int inRotation)
+		public TileData (int inType, int inColor, HexOrient inOrient)
 		{
 			type = inType;
 			color = inColor;
-			locus = inLocus;
-			rotation = inRotation;
+			orient = inOrient;
 		}
 
 		// Serialize turns this TileData into strings separated by spaces
@@ -346,8 +336,7 @@ namespace circleXsquares {
 		{
 			string s = type.ToString();
 			s += " " + color.ToString();
-			s += " " + locus.Serialize();
-			s += " " + rotation.ToString();
+			s += " " + orient.Serialize();
 			return s;
 		}
 	}
@@ -356,22 +345,23 @@ namespace circleXsquares {
 	public struct ChkpntData
 	{
 
-		// a checkpoint simply consists of an activity indicator, and a location
-		public bool isActive;
+		// a checkpoint simply consists of a location and layer (no rotation)
 		public HexLocus locus;
+		public int layer;
 
 		// simple constructor
-		public ChkpntData (bool inActive, HexLocus inLocus)
+		public ChkpntData (HexLocus inLocus, int inLayer)
 		{
-			isActive = inActive;
 			locus = inLocus;
+			layer = inLayer;
+			if (layer < 0) layer = 0;
 		}
 
 		// Serialize turns this ChkpntData into strings separated by spaces
 		public string Serialize ()
 		{
-			string s = (isActive ? 1 : 0).ToString();
-			s += " " + locus.Serialize();
+			string s = locus.Serialize();
+			s += " " + layer.ToString();
 			return s;
 		}
 	}
@@ -382,20 +372,18 @@ namespace circleXsquares {
 
 		// warps are used as win triggers, of which there may be multiple
 		public bool isVictory;
-		// otherwise, warps consist of two-way flag, origin and target layers, and a position
+		// otherwise, warps consist of a two-way flag, orientation, and target layer
 		public bool isTwoWay;
-		public int originLayer;
+		public HexOrient orient;
 		public int targetLayer;
-		public HexLocus locus;
 
 		// simple constructor
-		public WarpData (bool inVictory, bool inTW, int inOrigin, int inTarget, HexLocus inLocus)
+		public WarpData (bool inVictory, bool inTW, HexOrient inOrient, int inTarget)
 		{
 			isVictory = inVictory;
 			isTwoWay = inTW;
-			originLayer = inOrigin;
+			orient = inOrient;
 			targetLayer = inTarget;
-			locus = inLocus;
 		}
 
 		// Serialize turns this WarpData into strings separated by spaces
@@ -403,64 +391,26 @@ namespace circleXsquares {
 		{
 			string s = (isVictory ? 1 : 0).ToString();
 			s += " " + (isTwoWay ? 1 : 0).ToString();
-			s += " " + originLayer.ToString();
+			s += " " + orient.Serialize();
 			s += " " + targetLayer.ToString();
-			s += " " + locus.Serialize();
 			return s;
 		}
 	}
 
-	// LayerData describes a component of a level by a set of tiles and checkpoints
-	public struct LayerData
-	{
-
-		// a layer needs to know it's depth within the level using it
-		public int layerDepth;
-		// the rest of the layer is a set of tiles and a set of checkpoints
-		public List<TileData> tileSet;
-		public List<ChkpntData> chkpntSet;
-
-		// simple constructor
-		public LayerData (int inDepth, List<TileData> inTiles, List<ChkpntData> inChkpnts)
-		{
-			layerDepth = inDepth;
-			tileSet = inTiles;
-			chkpntSet = inChkpnts;
-		}
-
-		// Serialize turns this LayerData into a "paragraph"-style chunk
-		public string[] Serialize ()
-		{
-			List<string> returnStrings = new List<string>();
-			// for each layer, we have a single line comment for layer number
-			returnStrings.Add("-- Layer #" + layerDepth.ToString() + " --");
-			// then each line below that is a Serialized TileData
-			foreach (TileData td in tileSet)
-				returnStrings.Add(td.Serialize());
-
-			// next is checkpoints, signaled by a human-readable comment line
-			returnStrings.Add("-- Checkpoints --");
-			// then each line below lists out the checkpoints for this layer
-			foreach (ChkpntData cpd in chkpntSet)
-				returnStrings.Add(cpd.Serialize());
-			returnStrings.Add("-- End Layer --");
-
-			return returnStrings.ToArray();
-		}
-	}
-
-	// LevelData is the main aggregate unit of a set of layers and their relationships
+	// LevelData is the main aggregate unit
 	public struct LevelData
 	{
 
-		// a level consists of a set of layers and warps between those layers
-		public List<LayerData> layerSet;
+		// a level consists of a set of tiles, checkpoints, and warps
+		public List<TileData> tileSet;
+		public List<ChkpntData> chkpntSet;
 		public List<WarpData> warpSet;
 
 		// simple constructor
-		public LevelData (List<LayerData> inLayers, List<WarpData> inWarps)
+		public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<WarpData> inWarps)
 		{
-			layerSet = inLayers;
+			tileSet = inTiles;
+			chkpntSet = inChkpnts;
 			warpSet = inWarps;
 		}
 
@@ -469,19 +419,17 @@ namespace circleXsquares {
 		{
 			List<string> returnStrings = new List<string>();
 			// first line of the file is reserved for human-readable comments
-			returnStrings.Add("-- Level Comments go here --");
+			returnStrings.Add("-- level comments goes here --");
+			// second line will get used for player start information
+			returnStrings.AddRange(new string[] {"-- player start info goes here --", " ", "-- Tiles --"});
+			foreach (TileData td in tileSet) returnStrings.Add(td.Serialize());
 
-			foreach (LayerData ld in layerSet) {
-				// then a chunk is added for each tile in the layer
-				returnStrings.Add(" ");
-				returnStrings.AddRange(ld.Serialize());
-			}
+			returnStrings.AddRange(new string[] {"-- End Tiles --", " ", "-- Checkpoints --"});
+			foreach (ChkpntData cd in chkpntSet) returnStrings.Add(cd.Serialize());
 
-			// single line comment signals warps
-			returnStrings.AddRange(new string[]{" ", "-- Warps --"});
-			foreach (WarpData wd in warpSet)
-				// then each warp for the level is listed out in lines
-				returnStrings.Add(wd.Serialize());
+			returnStrings.AddRange(new string[] {"-- End Checkpoints --", " ", "-- Warps --"});
+			foreach (WarpData wd in warpSet) returnStrings.Add(wd.Serialize());
+			returnStrings.Add("-- End Warps --");
 
 			return returnStrings.ToArray();
 		}
@@ -500,52 +448,48 @@ namespace circleXsquares {
 		public static LevelData ReadLevel (string[] lines)
 		{
 			// check to see that we have enough data to work with
-			if (lines.Length < 3) {
+			if (lines.Length < 10) {
 				Debug.LogError("File could not be read correctly.");
 				return new LevelData();
 			}
 
 			List<TileData> tileList = new List<TileData>();
 			List<ChkpntData> chkpntList = new List<ChkpntData>();
-			List<LayerData> layerList = new List<LayerData>();
 			List<WarpData> warpList = new List<WarpData>();
-			bool canReadTile = true;
-			bool canReadChkpnt = false;
-			bool canReadWarp = false;
-			// layerAdd will help us track which layer tiles are put into in the level
-			int layerAdd = 0;
+			bool canReadTile = false, canReadChkpnt = false, canReadWarp = false;
 
 			for (int i = 3; i < lines.Length; i++) {
-				// (??)
+				// skip over empty lines
 				if (lines[i] == "" || lines[i] == " ") continue;
 
-				// a layer comment precedes a list of tiles
-				if (lines[i] == ("-- Layer #" + layerAdd.ToString() + " --")) {
+				// a tiles comment precedes a list of tiles
+				if (lines[i] == ("-- Tiles --")) {
 					canReadTile = true;
-					canReadChkpnt = false;
-					canReadWarp = false;
 					continue;
 				}
-				// a checkpoints comment precedes a list of checkpoints, tied to the last layer comment
+				// a checkpoints comment precedes a list of checkpoints
 				if (lines[i] == "-- Checkpoints --") {
-					canReadTile = false;
 					canReadChkpnt = true;
-					canReadWarp = false;
 					continue;
 				}
-				// an end layer comment packages all tiles and checkpoints into a layer, and then resets
-				if (lines[i] == "-- End Layer --") {
-					// when we come to the end of a layer, add it to the stack and reset the other lists
-					layerList.Add(new LayerData(layerAdd++, tileList, chkpntList));
-					tileList = new List<TileData>();
-					chkpntList = new List<ChkpntData>();
-					continue;
-				}
-				// a warps comment precedes a list of warps, by convention at the end of a level file
+				// a warps comment precedes a list of warps
 				if (lines[i] == "-- Warps --") {
-					canReadTile = false;
-					canReadChkpnt = false;
 					canReadWarp = true;
+					continue;
+				}
+				// an end tiles comment follows a list of tiles
+				if (lines[i] == ("-- End Tiles --")) {
+					canReadTile = false;
+					continue;
+				}
+				// an end checkpoints comment follows a list of checkpoints
+				if (lines[i] == "-- End Checkpoints --") {
+					canReadChkpnt = false;
+					continue;
+				}
+				// and warps comment follows a list of warps
+				if (lines[i] == "-- End Warps --") {
+					canReadWarp = false;
 					continue;
 				}
 
@@ -555,7 +499,7 @@ namespace circleXsquares {
 				if (canReadWarp) warpList.Add(ReadWarp(lines[i]));
 			}
 
-			return new LevelData(layerList, warpList);
+			return new LevelData(tileList, chkpntList, warpList);
 		}
 
 		// parses a string to construct a TileData
@@ -565,7 +509,7 @@ namespace circleXsquares {
 			string[] s = lineIn.Split(splitChar);
 
 			// checks to see if there's enough items to be read
-			if (s.Length < 9) {
+			if (s.Length < 10) {
 				Debug.LogError("Line for tile data is formatted incorrectly.");
 				return new TileData();
 			}
@@ -581,8 +525,9 @@ namespace circleXsquares {
 				Int32.Parse(s[6]),
 				Int32.Parse(s[7]));
 			int r = Int32.Parse(s[8]);
+			int y = Int32.Parse(s[9]);
 
-			return new TileData(i, j, hl, r);
+			return new TileData(i, j, new HexOrient(hl, r, y));
 		}
 
 		// parses a string to construct a ChkpntData
@@ -598,16 +543,16 @@ namespace circleXsquares {
 			}
 
 			// proceeds to read the line items
-			bool b = Int32.Parse(s[0]) == 0 ? false : true;
 			HexLocus hl = new HexLocus(
+				Int32.Parse(s[0]),
 				Int32.Parse(s[1]),
 				Int32.Parse(s[2]),
 				Int32.Parse(s[3]),
 				Int32.Parse(s[4]),
-				Int32.Parse(s[5]),
-				Int32.Parse(s[6]));
+				Int32.Parse(s[5]));
+			int y = Int32.Parse(s[6]);
 
-			return new ChkpntData(b, hl);
+			return new ChkpntData(hl, y);
 		}
 
 		// parses a string to construct a WarpData
@@ -625,17 +570,18 @@ namespace circleXsquares {
 			// proceeds to read the line items
 			bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
 			bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
-			int o = Int32.Parse(s[2]);
-			int d = Int32.Parse(s[3]);
 			HexLocus hl = new HexLocus(
+				Int32.Parse(s[2]),
+				Int32.Parse(s[3]),
 				Int32.Parse(s[4]),
 				Int32.Parse(s[5]),
 				Int32.Parse(s[6]),
-				Int32.Parse(s[7]),
-				Int32.Parse(s[8]),
-				Int32.Parse(s[9]));
+				Int32.Parse(s[7]));
+			int r = Int32.Parse(s[8]);
+			int y = Int32.Parse(s[9]);
+			int d = Int32.Parse(s[10]);
 
-			return new WarpData(b1, b2, o, d, hl);
+			return new WarpData(b1, b2, new HexOrient(hl, r, y), d);
 		}
 	}
 }

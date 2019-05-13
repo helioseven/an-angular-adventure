@@ -20,6 +20,8 @@ public class EditGM : MonoBehaviour {
 	public GameObject warpTool;
 	public SnapCursor anchorIcon;
 	public GameObject tileMap;
+	public GameObject chkpntMap;
+	public GameObject warpMap;
 
 	// public read-accessibility state variables
 	public InputKeys getKeys { get; private set; }
@@ -37,7 +39,7 @@ public class EditGM : MonoBehaviour {
 	private SelectedItem? selected_item;
 	private GameObject current_tool;
 	private TileData tile_buffer;
-	private Dictionary<GameObject, TileData> data_lookup;
+	private Dictionary<GameObject, TileData> tile_lookup;
 
 	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
@@ -102,33 +104,29 @@ public class EditGM : MonoBehaviour {
 		public TileData? tileData;
 		public ChkpntData? chkpntData;
 		public WarpData? warpData;
-		public int layerIndex;
 
-		public SelectedItem (GameObject inInstance, TileData inTile, int inIndex)
+		public SelectedItem (GameObject inInstance, TileData inTile)
 		{
 			instance = inInstance;
 			tileData = inTile;
 			chkpntData = null;
 			warpData = null;
-			layerIndex = inIndex;
 		}
 
-		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt, int inIndex)
+		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
 		{
 			instance = inInstance;
 			tileData = null;
 			chkpntData = inChkpnt;
 			warpData = null;
-			layerIndex = inIndex;
 		}
 
-		public SelectedItem (GameObject inInstance, WarpData inWarp, int inIndex)
+		public SelectedItem (GameObject inInstance, WarpData inWarp)
 		{
 			instance = inInstance;
 			tileData = null;
 			chkpntData = null;
 			warpData = inWarp;
-			layerIndex = inIndex;
 		}
 	}
 
@@ -155,7 +153,7 @@ public class EditGM : MonoBehaviour {
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			levelName = lvl_load.levelName;
 			LevelData inLevel;
-			data_lookup = lvl_load.supplyLevel(ref tileMap, out inLevel); // <4>
+			tile_lookup = lvl_load.supplyLevel(ref tileMap, ref chkpntMap, ref warpMap, out inLevel); // <4>
 			levelData = inLevel;
 			activateLayer(activeLayer); // <5>
 		} else
@@ -206,23 +204,20 @@ public class EditGM : MonoBehaviour {
 	public float GetLayerDepth ()
 	{ return tileMap.transform.GetChild(activeLayer).position.z; }
 
-	// if passed object is a tile, supplies corresponding TileData and it's layer
-	public bool IsMappedTile (GameObject inTile, out TileData outData, out int outLayer)
+	// if passed object is a tile, supplies corresponding TileData
+	public bool IsMappedTile (GameObject inTile, out TileData outData)
 	{
 		if (!inTile || !inTile.transform.IsChildOf(tileMap.transform)) { // <1>
-			outLayer = 0;
 			outData = new TileData();
 			return false;
 		} else {
-			outLayer = inTile.transform.parent.GetSiblingIndex(); // <2>
-			outData = data_lookup[inTile]; // <3>
+			outData = tile_lookup[inTile]; // <2>
 			return true;
 		}
 
 		/*
 		<1> If the passed tile isn't part of the map, output default values and return false
-		<2> If it is, output the tile's layer by parent's sibling index
-		<3> then output the TileData itself via data_lookup, and return true
+		<2> If it is, then output the TileData itself via tile_lookup and return true
 		*/
 	}
 
@@ -292,15 +287,10 @@ public class EditGM : MonoBehaviour {
 	// (!!)(testing) save level to a file in plain text format
 	public void SaveFile (string filename)
 	{
+		// (!!) should prompt for string instead
 		string fpath = "Levels\\" + filename + ".txt";
-		// (!!) this all is a kludge, just testing that it works
-		List<TileData> tiles = new List<TileData>(data_lookup.Values);
-		LayerData layer = new LayerData(0, tiles, new List<ChkpntData>());
-		List<LayerData> layerList = new List<LayerData>(new LayerData[]{layer});
-		LevelData _LevelDataName = new LevelData(layerList, new List<WarpData>());
-		// (!!) _LevelDataName will be replaced
-		string[] lines = _LevelDataName.Serialize();
 
+		string[] lines = levelData.Serialize();
 		File.WriteAllLines(fpath, lines);
 	}
 
@@ -375,7 +365,7 @@ public class EditGM : MonoBehaviour {
 			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false);
 			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
-			if (CheckKeyDowns(InputKeys.Click0)) addTile(tileCreator.GetTileData(), activeLayer); // <3>
+			if (CheckKeyDowns(InputKeys.Click0)) addTile(tileCreator.GetTileData()); // <3>
 		}
 
 		Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
@@ -383,13 +373,13 @@ public class EditGM : MonoBehaviour {
 		if (b2) {
 			chkpntTool.transform.position = pos;
 
-			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(new ChkpntData(false, anchorIcon.focus), activeLayer);
+			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(new ChkpntData(anchorIcon.focus, activeLayer));
 		}
 		if (b3) {
 			warpTool.transform.position = pos;
 
-			WarpData wd = new WarpData(false, true, activeLayer, activeLayer + 1, anchorIcon.focus);
-			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(wd, activeLayer);
+			WarpData wd = new WarpData(false, true, new HexOrient(anchorIcon.focus, 0, activeLayer), activeLayer + 1);
+			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(wd);
 		}
 
 		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool); // <5>
@@ -422,7 +412,7 @@ public class EditGM : MonoBehaviour {
 			tileCreator.transform.position = v3; // <1>
 
 			if (CheckKeyDowns(InputKeys.Click0)) {
-				addTile(tileCreator.GetTileData(), activeLayer); // <2>
+				addTile(tileCreator.GetTileData()); // <2>
 
 				tileCreator.SetProperties(tile_buffer);
 				tileCreator.SetActive(false); // <3>
@@ -443,9 +433,8 @@ public class EditGM : MonoBehaviour {
 			}
 			GameObject go = c2d.gameObject;
 			TileData td;
-			int i;
-			if (IsMappedTile(go, out td, out i)) { // <8>
-				selected_item = new SelectedItem(go, td, i);
+			if (IsMappedTile(go, out td)) { // <8>
+				selected_item = new SelectedItem(go, td);
 				removeTile(go);
 			}
 			// else remove chkpnt or warp
@@ -474,13 +463,13 @@ public class EditGM : MonoBehaviour {
 	{
 		if (inItem.tileData.HasValue) {
 			TileData td = inItem.tileData.Value;
-			inItem.instance = addTile(td, inItem.layerIndex);
+			inItem.instance = addTile(td);
 		} else if (inItem.chkpntData.HasValue) {
 			ChkpntData cd = inItem.chkpntData.Value;
-			inItem.instance = addSpecial(cd, inItem.layerIndex);
+			inItem.instance = addSpecial(cd);
 		} else if (inItem.warpData.HasValue) {
 			WarpData wd = inItem.warpData.Value;
-			inItem.instance = addSpecial(wd, inItem.layerIndex);
+			inItem.instance = addSpecial(wd);
 		}
 	}
 
@@ -501,15 +490,15 @@ public class EditGM : MonoBehaviour {
 	}
 
 	// adds a passed tileData to the level and returns a reference
-	private GameObject addTile (TileData inData, int inLayer)
+	private GameObject addTile (TileData inData)
 	{
-		levelData.layerSet[inLayer].tileSet.Add(inData); // <1>
+		levelData.tileSet.Add(inData); // <1>
 
-		Transform tl = tileMap.transform.GetChild(activeLayer);
+		Transform tl = tileMap.transform.GetChild(inData.orient.layer);
 		GameObject go = tileCreator.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
 
-		data_lookup[go] = inData; // <3>
+		tile_lookup[go] = inData; // <3>
 		return go;
 
 		/*
@@ -523,16 +512,15 @@ public class EditGM : MonoBehaviour {
 	private void removeTile (GameObject inTile)
 	{
 		tile_buffer = tileCreator.GetTileData(); // <1>
-		int tLayer;
 		TileData tData;
-		bool b = IsMappedTile(inTile, out tData, out tLayer); // <2>
-		if (b) selected_item = new SelectedItem(inTile, tData, activeLayer);
+		bool b = IsMappedTile(inTile, out tData); // <2>
+		if (b) selected_item = new SelectedItem(inTile, tData);
 		else return; // <3>
 		tileCreator.SetProperties(tData); // <4>
 		tileCreator.SetActive(true);
 
-		levelData.layerSet[tLayer].tileSet.Remove(tData); // <5>
-		data_lookup.Remove(inTile);
+		levelData.tileSet.Remove(tData); // <5>
+		tile_lookup.Remove(inTile);
 		Destroy(inTile);
 
 		/*
@@ -546,7 +534,7 @@ public class EditGM : MonoBehaviour {
 	}
 
 	//
-	private GameObject addSpecial (ChkpntData inChkpnt, int inLayer)
+	private GameObject addSpecial (ChkpntData inChkpnt)
 	{
 		//
 		Debug.Log("Place checkpoint.");
@@ -554,7 +542,7 @@ public class EditGM : MonoBehaviour {
 	}
 
 	//
-	private GameObject addSpecial (WarpData inWarp, int inLayer)
+	private GameObject addSpecial (WarpData inWarp)
 	{
 		//
 		Debug.Log("Place checkpoint.");

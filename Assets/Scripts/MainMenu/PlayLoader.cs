@@ -39,7 +39,7 @@ public class PlayLoader : MonoBehaviour {
 		// initialization
 		tiles.transform.position = Vector3.zero;
 		playerStart = Vector2.zero;
-		int layerCount = 0;
+
 		// begin parsing file
 		bool file_exists = File.Exists("Levels\\" + path);
 		if (file_exists) {
@@ -50,6 +50,7 @@ public class PlayLoader : MonoBehaviour {
 			return;
 		}
 
+/*
 		// populate tile hierarchy
 		foreach (LayerData ld in level.layerSet) {
 			GameObject tileLayer = new GameObject();
@@ -65,6 +66,7 @@ public class PlayLoader : MonoBehaviour {
 				go.transform.SetParent(tileLayer.transform);
 			}
 		}
+*/
 
 		// hard-coded player start for now (!!) needs to change
 		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -10);

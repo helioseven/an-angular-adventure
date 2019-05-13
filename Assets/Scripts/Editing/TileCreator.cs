@@ -112,14 +112,14 @@ public class TileCreator : MonoBehaviour {
 		tileColor = inData.color;
 		tile_renderers[tileType, tileColor].enabled = true;
 
-		tileRotation = inData.rotation;
+		tileRotation = inData.orient.rotation;
 		transform.eulerAngles = new Vector3(0, 0, 30 * tileRotation);
 	}
  
 	// returns a TileData representation of the genesisTile's current state
 	public TileData GetTileData ()
 	{
-		return new TileData(tileType, tileColor, anchor_ref.focus, tileRotation);
+		return new TileData(tileType, tileColor, new HexOrient(anchor_ref.focus, tileRotation, EditGM.instance.activeLayer));
 	}
 
 	// returns a new tile copied from the tile in active use
@@ -135,8 +135,8 @@ public class TileCreator : MonoBehaviour {
 	public GameObject NewTile (TileData inData)
 	{
 		GameObject go = tile_renderers[inData.type, inData.color].transform.parent.gameObject; // <1>
-		Quaternion r = Quaternion.Euler(0, 0, 30 * inData.rotation);
-		Vector3 p = inData.locus.ToUnitySpace();
+		Quaternion r = Quaternion.Euler(0, 0, 30 * inData.orient.rotation);
+		Vector3 p = inData.orient.locus.ToUnitySpace();
 
 		go = Instantiate(go, p, r) as GameObject;
 		go.GetComponentInChildren<SpriteRenderer>().enabled = true; // <2>

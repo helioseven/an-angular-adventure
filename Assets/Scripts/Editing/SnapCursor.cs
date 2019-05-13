@@ -64,11 +64,10 @@ public class SnapCursor : MonoBehaviour {
 		foreach (Collider2D c2d in hitCols) {
 			PolygonCollider2D pc2d = c2d as PolygonCollider2D;
 			if (pc2d) { // <2>
-				int tLayer;
 				TileData tData;
-				bool b = gm_ref.IsMappedTile(c2d.gameObject, out tData, out tLayer);
+				bool b = gm_ref.IsMappedTile(c2d.gameObject, out tData);
 				if (!b) continue; // <3>
-				HexLocus tHL = tData.locus;
+				HexLocus tHL = tData.orient.locus;
 				foreach (Vector2 subPoint in pc2d.points) { // <4>
 					Vector2 v2 = c2d.transform.TransformPoint(subPoint); // <5>
 					HexLocus newPoint = new HexLocus(v2 - tHL.ToUnitySpace());
