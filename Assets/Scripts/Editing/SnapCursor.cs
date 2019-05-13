@@ -34,19 +34,23 @@ public class SnapCursor : MonoBehaviour {
 
 	void Update ()
 	{
-		int tt = tc_ref.tileType;
-		Transform tile = tc_ref.transform.GetChild(tt).GetChild(0);
-		Vector2 tileOffset = tile.GetChild(0).position - tile.position; // <1>
+		Vector2 tileOffset = Vector2.zero;
+		if (tc_ref.gameObject.activeSelf) { // <1>
+			int tt = tc_ref.tileType;
+			Transform tile = tc_ref.transform.GetChild(tt).GetChild(0);
+			tileOffset = tile.GetChild(0).position - tile.position; // <2>
+		}
 
 		Vector2 mouseIn = findPointOnPlane();
-		focus_shift = mouseIn - tileOffset - anchor.ToUnitySpace(); // <2>
+		focus_shift = mouseIn - tileOffset - anchor.ToUnitySpace(); // <3>
 		focus = new HexLocus(focus_shift);
-		focus += anchor; // <3>
+		focus += anchor; // <4>
 
 		/*
-		<1> tileOffset is the difference between the sprite's and the prefab's positions
-		<2> focus_shift is this offset between the anchor point and current mouse position
-		<3> focus is the nearest grid point to which the genesis_tile will snap
+		<1> if the tileCreator is active, an offset needs to be calculated
+		<2> tileOffset is the difference between the sprite's and the prefab's positions
+		<3> focus_shift is this offset between the anchor point and current mouse position
+		<4> focus is the nearest grid point to which the genesis_tile will snap
 		*/
 	}
 

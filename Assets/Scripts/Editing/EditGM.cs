@@ -34,11 +34,8 @@ public class EditGM : MonoBehaviour {
 
 	// private variables
 	private EditLoader lvl_load;
+	private SelectedItem? selected_item;
 	private GameObject current_tool;
-	private int tool_rotation;
-	private GameObject selected_obj;
-	private TileData? selected_tile;
-	private HexLocus? special_HL;
 	private TileData tile_buffer;
 	private Dictionary<GameObject, TileData> data_lookup;
 
@@ -98,16 +95,50 @@ public class EditGM : MonoBehaviour {
 		KeyCode.Alpha6
 	};
 
+	// a struct to help us keep track of what the hell is going on (active/inactive) when switching modes and/or tools
+	private struct SelectedItem {
+
+		public GameObject instance;
+		public TileData? tileData;
+		public ChkpntData? chkpntData;
+		public WarpData? warpData;
+		public int layerIndex;
+
+		public SelectedItem (GameObject inInstance, TileData inTile, int inIndex)
+		{
+			instance = inInstance;
+			tileData = inTile;
+			chkpntData = null;
+			warpData = null;
+			layerIndex = inIndex;
+		}
+
+		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt, int inIndex)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = inChkpnt;
+			warpData = null;
+			layerIndex = inIndex;
+		}
+
+		public SelectedItem (GameObject inInstance, WarpData inWarp, int inIndex)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = null;
+			warpData = inWarp;
+			layerIndex = inIndex;
+		}
+	}
+
 	void Awake ()
 	{
 		if (!instance) {
 			instance = this; // <1>
 
 			current_tool = tileCreator.gameObject; // <2>
-			tool_rotation = 0;
-			selected_obj = null;
-			selected_tile = null;
-			special_HL = null;
+			selected_item = null;
 			tile_buffer = new TileData();
 
 			hudPanel.SetActive(false); // <3>
@@ -197,23 +228,15 @@ public class EditGM : MonoBehaviour {
 
 	// deletes the current scene and loads the MainMenu scene
 	public void ReturnToMainMenu ()
-	{
-		// (!!) should prompt if unsaved
-		SceneManager.LoadScene(0);
-	}
+	{ SceneManager.LoadScene(0); } // (!!) should prompt if unsaved
 
 	// switches into createMode
 	public void EnterCreate ()
 	{
 		if (createMode || !(editMode || selectMode)) return; // <1>
-		if (editMode && selected_obj) { // <2>
-			if (selected_tile.HasValue) { // <3>
-				tileCreator.SetProperties(selected_tile.Value);
-				selected_obj = addTile();
-			} else if (special_HL.HasValue) selected_obj = addSpecial(current_tool, special_HL.Value); // <4>
-		}
+		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <2>
 
-		tileCreator.SetProperties(tile_buffer); // <5>
+		tileCreator.SetProperties(tile_buffer); // <3>
 		tileCreator.SetActive(true);
 		createMode = true;
 		editMode = false;
@@ -222,9 +245,7 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> only do anything if currently in editMode or selectMode
 		<2> conditional logic for switching out of editMode while an object is selected
-		<3> if the selected object is a tile, add it back to the level via tileCreator
-		<4> otherwise, the selected special object is added back to the level
-		<5> tileCreator values are recovered from tile_buffer, and is then activated
+		<3> tileCreator values are recovered from tile_buffer, and is then activated
 		*/
 	}
 
@@ -234,17 +255,8 @@ public class EditGM : MonoBehaviour {
 		if (editMode || !(createMode || selectMode)) return; // <1>
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
-		if (selected_obj) {
-			if (selected_tile.HasValue) {
-				removeTile(selected_obj); // <3>
-				tileCreator.SetProperties(selected_tile.Value);
-				setTool(tileCreator.gameObject);
-			} else if (special_HL.HasValue) {
-				removeSpecial(special_HL.Value); // <4>
-				if (selected_obj.GetComponent<Checkpoint>()) setTool(chkpntTool);
-				else if (selected_obj.GetComponent<Warp>()) setTool(warpTool);
-			}
-		} else tileCreator.SetActive(false); // <5>
+		if (selected_item.HasValue) removeSelectedItem(selected_item.Value); // <3>
+		else tileCreator.SetActive(false); // <4>
 		createMode = false;
 		editMode = true;
 		selectMode = false;
@@ -252,9 +264,8 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> only do anyting if currently in creationMode or selectMode
 		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
-		<3> if there's a tile selected, it is removed from the tile map and used to set the tileCreator
-		<4> if there's a special object selected, it is removed from the level
-		<5> if nothing is selected, make sure tileCreator is disabled
+		<3> conditional logic for switching into editMode while an object is selected
+		<4> if nothing is selected, make sure tileCreator is disabled
 		*/
 	}
 
@@ -264,11 +275,8 @@ public class EditGM : MonoBehaviour {
 		if (selectMode || !(createMode || editMode)) return; // <1>
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
-		if (editMode) {
-			// something
-		}
-
-		tileCreator.SetActive(false);
+		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <3>
+		tileCreator.SetActive(false); // <4>
 		createMode = false;
 		editMode = false;
 		selectMode = true;
@@ -276,6 +284,8 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> only do anyting if currently in creationMode or editMode
 		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
+		<3> conditional logic for switching out of editMode while an object is selected
+		<4> tileCreator should always be disabled in selectMode
 		*/
 	}
 
@@ -357,34 +367,32 @@ public class EditGM : MonoBehaviour {
 		bool b3 = current_tool == warpTool;
 		if (!b1 && !b2 && !b3) return; // <1>
 
-		bool bRot = false;
-		if (CheckKeyDowns(InputKeys.Q)) { tool_rotation++; bRot = true; } // <2>
-		if (CheckKeyDowns(InputKeys.E)) { tool_rotation--; bRot = true; }
-
 		if (b1) {
-			if (bRot) tileCreator.SetRotation(tool_rotation); // <3>
+			int rot = tileCreator.tileRotation;
+			if (CheckKeyDowns(InputKeys.Q)) tileCreator.SetRotation(rot + 1); // <2>
+			if (CheckKeyDowns(InputKeys.E)) tileCreator.SetRotation(rot - 1);
+
 			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false);
 			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
 
-			if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <4>
+			if (CheckKeyDowns(InputKeys.Click0)) addTile(tileCreator.GetTileData(), activeLayer); // <3>
 		}
 
-		Vector3 pos, rot;
-		getToolOrient(out pos, out rot); // <5>
+		Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
+		pos.z = anchorIcon.transform.position.z;
 		if (b2) {
 			chkpntTool.transform.position = pos;
-			if (bRot) chkpntTool.transform.eulerAngles = rot;
 
-			if (CheckKeyDowns(InputKeys.Click0)) Debug.Log("Place checkpoint.");
+			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(new ChkpntData(false, anchorIcon.focus), activeLayer);
 		}
 		if (b3) {
 			warpTool.transform.position = pos;
-			if (bRot) warpTool.transform.eulerAngles = rot;
 
-			if (CheckKeyDowns(InputKeys.Click0)) Debug.Log("Place warp.");
+			WarpData wd = new WarpData(false, true, activeLayer, activeLayer + 1, anchorIcon.focus);
+			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(wd, activeLayer);
 		}
 
-		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool); // <6>
+		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool); // <5>
 		if (!b3 && CheckKeyDowns(InputKeys.V)) setTool(warpTool);
 		bool bType = false;
 		if (CheckKeyDowns(InputKeys.One)) { tileCreator.SelectType(0); bType = true; }
@@ -393,58 +401,65 @@ public class EditGM : MonoBehaviour {
 		if (CheckKeyDowns(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
 		if (CheckKeyDowns(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
 		if (CheckKeyDowns(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
-		if (!b1 && bType) setTool(tileCreator.gameObject); // <7>
+		if (!b1 && bType) setTool(tileCreator.gameObject); // <6>
 
 		/*
 		<1> first, figure out which tool is active and return if none
-		<2> Q and E rotate the current tool C-CW and CW, respectively
-		<3> when tileCreator is active, Z and X rotate through colors
-		<4> and then if left click is made, tile is added to the level
-		<5> if one of the other two tools is active, we get an orientation for them
-		<6> C and V activate the checkpoint and warp tools, respectively
-		<7> numeric keys assign tile type and activate tileCreator
+		<2> Q and E rotate the tileCreator C-CW and CW, respectively
+		<3> and then if left click is made, tile is added to the level
+		<4> if one of the other two tools is active, we get an orientation for them
+		<5> C and V activate the checkpoint and warp tools, respectively
+		<6> numeric keys assign tile type and activate tileCreator
 		*/
 	}
 
 	// makes changes associated with being in editMode
 	private void updateEdit ()
 	{
-		if (selected_obj.HasValue) {
+		if (selected_item.HasValue) {
 			Vector3 v3 = anchorIcon.focus.ToUnitySpace();
 			v3.z = GetLayerDepth();
 			tileCreator.transform.position = v3; // <1>
 
 			if (CheckKeyDowns(InputKeys.Click0)) {
-				addTile(); // <2>
+				addTile(tileCreator.GetTileData(), activeLayer); // <2>
 
-				if (!tile_buffer.HasValue) tileCreator.SetProperties(new TileData());
-				else tileCreator.SetProperties(tile_buffer.Value);
+				tileCreator.SetProperties(tile_buffer);
 				tileCreator.SetActive(false); // <3>
-				selected_obj = null;
+				selected_item = null;
 				return;
 			}
 
 			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
 				tileCreator.SetActive(false);
-				selected_obj = null;
+				selected_item = null;
 			}
 		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <6>
-			if (!c2d) return; // <7>
-			if (c2d.transform.IsChildOf(tileMap.transform)) removeTile(c2d.gameObject); // <8>
+			if (!c2d) { // <7>
+				selected_item = null;
+				return;
+			}
+			GameObject go = c2d.gameObject;
+			TileData td;
+			int i;
+			if (IsMappedTile(go, out td, out i)) { // <8>
+				selected_item = new SelectedItem(go, td, i);
+				removeTile(go);
+			}
 			// else remove chkpnt or warp
 		}
 
 		/*
 		<1> in edit mode, a selected tile will follow the focus
 		<2> if there is a selected tile, left click will place it again
-		<3> we then restore tileCreator to its backup, reset flag, and return
+		<3> we then restore tileCreator to its backup, deselect selected_item and return
 		<4> if there is a selected tile, Delete will simply forget it
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
-		<7> if nothing is clicked on, return
-		<8> if a tile was clicked on, it is removed
+		<7> if nothing is clicked on, deselect selected_item and return
+		<8> if a tile was clicked on, it is made into a new SelectedItem and removed
 		*/
 	}
 
@@ -454,17 +469,47 @@ public class EditGM : MonoBehaviour {
 		//
 	}
 
-	// adds a tile to the level based on current state of tileCreator and returns a reference
-	private GameObject addTile ()
+	// used when leaving editMode, places a given SelectedItem where it indicates it belongs
+	private void addSelectedItem (SelectedItem inItem)
 	{
-		TileData td = tileCreator.GetTileData();
-		levelData.layerSet[activeLayer].tileSet.Add(td); // <1>
+		if (inItem.tileData.HasValue) {
+			TileData td = inItem.tileData.Value;
+			inItem.instance = addTile(td, inItem.layerIndex);
+		} else if (inItem.chkpntData.HasValue) {
+			ChkpntData cd = inItem.chkpntData.Value;
+			inItem.instance = addSpecial(cd, inItem.layerIndex);
+		} else if (inItem.warpData.HasValue) {
+			WarpData wd = inItem.warpData.Value;
+			inItem.instance = addSpecial(wd, inItem.layerIndex);
+		}
+	}
+
+	// used when entering editMode with an item selected, removes the current instance of SelectedItem
+	private void removeSelectedItem (SelectedItem inItem)
+	{
+		if (inItem.tileData.HasValue) {
+			removeTile(inItem.instance);
+			tileCreator.SetProperties(inItem.tileData.Value);
+			setTool(tileCreator.gameObject);
+		} else if (inItem.chkpntData.HasValue) {
+			removeSpecial(inItem.instance);
+			setTool(chkpntTool);
+		} else if (inItem.warpData.HasValue) {
+			removeSpecial(inItem.instance);
+			setTool(warpTool);
+		}
+	}
+
+	// adds a passed tileData to the level and returns a reference
+	private GameObject addTile (TileData inData, int inLayer)
+	{
+		levelData.layerSet[inLayer].tileSet.Add(inData); // <1>
 
 		Transform tl = tileMap.transform.GetChild(activeLayer);
 		GameObject go = tileCreator.GetActiveTile();
 		go.transform.SetParent(tl); // <2>
 
-		data_lookup[go] = td; // <3>
+		data_lookup[go] = inData; // <3>
 		return go;
 
 		/*
@@ -481,12 +526,12 @@ public class EditGM : MonoBehaviour {
 		int tLayer;
 		TileData tData;
 		bool b = IsMappedTile(inTile, out tData, out tLayer); // <2>
-		if (b) selected_obj = tData;
+		if (b) selected_item = new SelectedItem(inTile, tData, activeLayer);
 		else return; // <3>
+		tileCreator.SetProperties(tData); // <4>
 		tileCreator.SetActive(true);
-		tileCreator.SetProperties(selected_obj.Value); // <4>
 
-		levelData.layerSet[tLayer].tileSet.Remove(selected_obj.Value); // <5>
+		levelData.layerSet[tLayer].tileSet.Remove(tData); // <5>
 		data_lookup.Remove(inTile);
 		Destroy(inTile);
 
@@ -501,15 +546,26 @@ public class EditGM : MonoBehaviour {
 	}
 
 	//
-	private GameObject addSpecial (GameObject inSpecial, HexLocus inLocus)
+	private GameObject addSpecial (ChkpntData inChkpnt, int inLayer)
 	{
 		//
+		Debug.Log("Place checkpoint.");
+		return new GameObject();
 	}
 
 	//
-	private void removeSpecial (HexLocus inLocus)
+	private GameObject addSpecial (WarpData inWarp, int inLayer)
 	{
 		//
+		Debug.Log("Place checkpoint.");
+		return new GameObject();
+	}
+
+	//
+	private void removeSpecial (GameObject inSpecial)
+	{
+		//
+		Debug.Log("Remove special.");
 	}
 
 	// sets the currently active tool
@@ -573,13 +629,5 @@ public class EditGM : MonoBehaviour {
 		<3> if this isn't the active layer, opacity and layer are set accordingly
 		<4> the calculated opacity and layer are applied to all tiles within the layer
 		*/
-	}
-
-	//
-	private void getToolOrient (out Vector3 pos, out Vector3 rot)
-	{
-		rot = new Vector3(0, 0, 30 * tool_rotation);
-		pos = anchorIcon.focus.ToUnitySpace();
-		pos.z = anchorIcon.transform.position.z;
 	}
 }

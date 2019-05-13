@@ -389,13 +389,13 @@ namespace circleXsquares {
 		public HexLocus locus;
 
 		// simple constructor
-		public WarpData (bool inVictory, bool inTW, int inOrigin, int inTarget, int inRotation)
+		public WarpData (bool inVictory, bool inTW, int inOrigin, int inTarget, HexLocus inLocus)
 		{
 			isVictory = inVictory;
 			isTwoWay = inTW;
 			originLayer = inOrigin;
 			targetLayer = inTarget;
-			rotation = inRotation;
+			locus = inLocus;
 		}
 
 		// Serialize turns this WarpData into strings separated by spaces
@@ -592,7 +592,7 @@ namespace circleXsquares {
 			string[] s = lineIn.Split(splitChar);
 
 			// checks to see if there's enough items to be read
-			if (s.Length < 8) {
+			if (s.Length < 7) {
 				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
 				return new ChkpntData();
 			}
@@ -606,9 +606,8 @@ namespace circleXsquares {
 				Int32.Parse(s[4]),
 				Int32.Parse(s[5]),
 				Int32.Parse(s[6]));
-			int r = Int32.Parse(s[7]);
 
-			return new ChkpntData(b, hl, r);
+			return new ChkpntData(b, hl);
 		}
 
 		// parses a string to construct a WarpData
@@ -618,7 +617,7 @@ namespace circleXsquares {
 			string[] s = lineIn.Split(splitChar);
 
 			// checks to see if there's enough items to be read
-			if (s.Length < 8) {
+			if (s.Length < 10) {
 				Debug.LogError("Line for checkpoint data is formatted incorrectly.");
 				return new WarpData();
 			}
@@ -626,17 +625,17 @@ namespace circleXsquares {
 			// proceeds to read the line items
 			bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
 			bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
-			int d = Int32.Parse(s[2]);
+			int o = Int32.Parse(s[2]);
+			int d = Int32.Parse(s[3]);
 			HexLocus hl = new HexLocus(
-				Int32.Parse(s[3]),
 				Int32.Parse(s[4]),
 				Int32.Parse(s[5]),
 				Int32.Parse(s[6]),
 				Int32.Parse(s[7]),
-				Int32.Parse(s[8]));
-			int r = Int32.Parse(s[9]);
+				Int32.Parse(s[8]),
+				Int32.Parse(s[9]));
 
-			return new WarpData(b1, b2, d, hl, r);
+			return new WarpData(b1, b2, o, d, hl);
 		}
 	}
 }
