@@ -40,6 +40,8 @@ public class EditGM : MonoBehaviour {
 	private GameObject current_tool;
 	private TileData tile_buffer;
 	private Dictionary<GameObject, TileData> tile_lookup;
+	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
+	private Dictionary<GameObject, WarpData> warp_lookup;
 
 	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
@@ -138,6 +140,9 @@ public class EditGM : MonoBehaviour {
 			current_tool = tileCreator.gameObject; // <2>
 			selected_item = null;
 			tile_buffer = new TileData();
+			tile_lookup = new Dictionary<GameObject, TileData>();
+			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
+			warp_lookup = new Dictionary<GameObject, WarpData>();
 
 			hudPanel.SetActive(false); // <3>
 			chkpntTool.SetActive(false);
@@ -152,9 +157,9 @@ public class EditGM : MonoBehaviour {
 
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			levelName = lvl_load.levelName;
-			LevelData inLevel;
-			tile_lookup = lvl_load.supplyLevel(ref tileMap, ref chkpntMap, ref warpMap, out inLevel); // <4>
-			levelData = inLevel;
+			levelData = lvl_load.supplyLevel(); // <4>
+			buildLevel(levelData);
+
 			activateLayer(activeLayer); // <5>
 		} else
 			Destroy(gameObject); // <6>
@@ -568,6 +573,83 @@ public class EditGM : MonoBehaviour {
 		current_tool.SetActive(false);
 		current_tool = inTool;
 		current_tool.SetActive(true);
+	}
+
+	// instantiates GameObjects and builds lookup dictionaries based on the given LevelData
+	private void buildLevel (LevelData inLevel)
+	{
+		GameObject[,] prefab_refs = new GameObject[6, 8];
+		foreach (Transform tileGroup in tileCreator.transform)
+			foreach (Transform tile in tileGroup) {
+				int tgi = tileGroup.GetSiblingIndex();
+				int ti = tile.GetSiblingIndex();
+				prefab_refs[tgi, ti] = tile.gameObject; // <1>
+			}
+
+		foreach (TileData td in inLevel.tileSet) { // <2>
+			addLayers(td.orient.layer); // <3>
+			Transform tileLayer = tileMap.transform.GetChild(td.orient.layer);
+			GameObject pfRef = prefab_refs[td.type, td.color];
+			Vector3 v3 = td.orient.locus.ToUnitySpace();
+			v3.z = tileLayer.position.z;
+			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
+			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+			go.transform.SetParent(tileLayer);
+			tile_lookup.Add(go, td); // <4>
+		}
+
+		foreach (ChkpntData cd in inLevel.chkpntSet) { // <5>
+			addLayers(cd.layer); // <6>
+			Vector3 v3 = cd.locus.ToUnitySpace();
+			v3.z = tileMap.transform.GetChild(cd.layer).position.z; // <7>
+			GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+			go.GetComponent<SpriteRenderer>().enabled = true;
+			go.transform.SetParent(chkpntMap.transform);
+			chkpnt_lookup.Add(go, cd); // <8>
+		}
+
+		foreach (WarpData wd in inLevel.warpSet) { // <9>
+			addLayers(wd.orient.layer); // <10>
+			Vector3 v3 = wd.orient.locus.ToUnitySpace();
+			v3.z = tileMap.transform.GetChild(wd.orient.layer).position.z; // <11>
+			Quaternion q = Quaternion.Euler(0, 0, 30 * wd.orient.rotation);
+			GameObject go = Instantiate(warpTool, v3, q) as GameObject;
+			go.GetComponent<SpriteRenderer>().enabled = true;
+			go.transform.SetParent(warpMap.transform);
+			warp_lookup.Add(go, wd); // <12>
+		}
+
+		/*
+		<1> first, prefab references are arrayed for indexed access
+		<2> build each tile in the level
+		<3> make sure there are enough layers for the new tile
+		<4> add the GameObject,TileData pair to tile_lookup
+		<5> build each checkpoint in the level
+		<6> make sure there are enough layers for the new checkpoint
+		<7> checkpoints' z positions are assigned by corresponding tileMap layer
+		<8> add the GameObject,ChkpntData pair to chkpnt_lookup
+		<9> build each warp in the level
+		<10> make sure there are enough layers for the new warp
+		<11> warps' z positions are assigned by corresponding tileMap layer
+		<12> add the GameObject,WarpData pair to warp_lookup
+		*/
+	}
+
+	// simply adds layers to the level until there are enough layers to account for the given layer
+	private void addLayers(int inLayer)
+	{
+		if (inLayer < tileMap.transform.childCount) return; // <1>
+		for (int i = tileMap.transform.childCount; i <= inLayer; i++) { // <2>
+			GameObject tileLayer = new GameObject("Layer #" + i.ToString());
+			tileLayer.transform.position = new Vector3(0f, 0f, i * 2f);
+			tileLayer.transform.SetParent(tileMap.transform);
+		}
+
+		/*
+		<1> if there are already more layers than the passed index, simply return
+		<2> otherwise, create layers until the passed index is reached
+		*/
 	}
 
 	// cycles through all layers, calculates distance, and sets opacity accordingly
