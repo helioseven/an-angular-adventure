@@ -216,7 +216,7 @@ public class EditGM : MonoBehaviour {
 	// if passed object is a tile, supplies corresponding TileData
 	public bool IsMappedTile (GameObject inTile, out TileData outData)
 	{
-		if (!inTile || !inTile.transform.IsChildOf(tileMap.transform)) { // <1>
+		if (!inTile || !tile_lookup.ContainsKey(inTile)) { // <1>
 			outData = new TileData();
 			return false;
 		} else {
@@ -230,20 +230,38 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	//
+	// if passed object is a checkpoint, supplies corresponding ChkpntData
 	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
 	{
-		//
-		outData = new ChkpntData();
-		return false;
+		if (!inChkpnt || !chkpnt_lookup.ContainsKey(inChkpnt)) { // <1>
+			outData = new ChkpntData();
+			return false;
+		} else {
+			outData = chkpnt_lookup[inChkpnt]; // <2>
+			return true;
+		}
+
+		/*
+		<1> If the passed checkpoint isn't part of the map, output default values and return false
+		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
+		*/
 	}
 
-	//
+	// if passed object is a checkpoint, supplies corresponding WarpData
 	public bool IsMappedWarp (GameObject inWarp, out WarpData outData)
 	{
-		//
-		outData = new WarpData();
-		return false;
+		if (!inWarp || !warp_lookup.ContainsKey(inWarp)) { // <1>
+			outData = new WarpData();
+			return false;
+		} else {
+			outData = warp_lookup[inWarp]; // <2>
+			return true;
+		}
+
+		/*
+		<1> If the passed checkpoint isn't part of the map, output default values and return false
+		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
+		*/
 	}
 
 	// deletes the current scene and loads the MainMenu scene
@@ -257,7 +275,7 @@ public class EditGM : MonoBehaviour {
 		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <2>
 
 		tileCreator.SetProperties(tile_buffer); // <3>
-		tileCreator.gameObject.SetActive(true);
+		setTool(tileCreator.gameObject);
 		createMode = true;
 		editMode = false;
 		selectMode = false;
@@ -276,7 +294,7 @@ public class EditGM : MonoBehaviour {
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
 		if (selected_item.HasValue) removeSelectedItem(selected_item.Value); // <3>
-		else tileCreator.gameObject.SetActive(false); // <4>
+		else current_tool.SetActive(false); // <4>
 		createMode = false;
 		editMode = true;
 		selectMode = false;
@@ -285,7 +303,7 @@ public class EditGM : MonoBehaviour {
 		<1> only do anyting if currently in creationMode or selectMode
 		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
 		<3> conditional logic for switching into editMode while an object is selected
-		<4> if nothing is selected, make sure tileCreator is disabled
+		<4> if nothing is selected, make sure current_tool is disabled
 		*/
 	}
 
@@ -296,7 +314,7 @@ public class EditGM : MonoBehaviour {
 		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
 		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <3>
-		tileCreator.gameObject.SetActive(false); // <4>
+		current_tool.SetActive(false); // <4>
 		createMode = false;
 		editMode = false;
 		selectMode = true;
@@ -305,11 +323,11 @@ public class EditGM : MonoBehaviour {
 		<1> only do anyting if currently in creationMode or editMode
 		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
 		<3> conditional logic for switching out of editMode while an object is selected
-		<4> tileCreator should always be disabled in selectMode
+		<4> current_tool should always be disabled in selectMode
 		*/
 	}
 
-	// (!!)(testing) save level to a file in plain text format
+	// (!!)(incomplete) save level to a file in plain text format
 	public void SaveFile (string filename)
 	{
 		// (!!) should prompt for string instead
@@ -433,20 +451,20 @@ public class EditGM : MonoBehaviour {
 	{
 		if (selected_item.HasValue) {
 			SelectedItem si = selected_item.Value;
-			if (si.tileData.HasValue) {
-				if (CheckKeyDowns(InputKeys.Click0)) {
-					addTile(si.tileData.Value); // <2>
-
+			if (CheckKeyDowns(InputKeys.Click0)) {
+				if (si.tileData.HasValue) {
+					addTile(); // <2>
 					tileCreator.SetProperties(tile_buffer);
-					tileCreator.gameObject.SetActive(false); // <3>
-					selected_item = null;
-					return;
 				}
 
-				if (CheckKeyDowns(InputKeys.Delete)) { // <4>
-					tileCreator.gameObject.SetActive(false);
-					selected_item = null;
-				}
+				current_tool.SetActive(false); // <3>
+				selected_item = null;
+				return;
+			}
+
+			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
+				current_tool.SetActive(false);
+				selected_item = null;
 			}
 		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -467,7 +485,7 @@ public class EditGM : MonoBehaviour {
 		/*
 		<1> in edit mode, a selected tile will follow the focus
 		<2> if there is a selected tile, left click will place it again
-		<3> we then restore tileCreator to its backup, deselect selected_item and return
+		<3> then restore tileCreator, turn off current_tool, deselect selected_item, and return
 		<4> if there is a selected tile, Delete will simply forget it
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
@@ -534,15 +552,15 @@ public class EditGM : MonoBehaviour {
 	}
 
 	// adds a passed tileData to the level and returns a reference
-	private GameObject addTile (TileData inData)
+	private GameObject addTile (TileData inTile)
 	{
-		levelData.tileSet.Add(inData); // <1>
+		levelData.tileSet.Add(inTile); // <1>
 
-		Transform tl = tileMap.transform.GetChild(inData.orient.layer);
-		GameObject go = tileCreator.NewTile(inData);
+		Transform tl = tileMap.transform.GetChild(inTile.orient.layer);
+		GameObject go = tileCreator.NewTile(inTile);
 		go.transform.SetParent(tl); // <2>
 
-		tile_lookup[go] = inData; // <3>
+		tile_lookup[go] = inTile; // <3>
 		return go;
 
 		/*
@@ -552,7 +570,7 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	// removes the specified tile from the level
+	// removes a given tile from the level
 	private void removeTile (GameObject inTile)
 	{
 		tile_buffer = tileCreator.GetTileData(); // <1>
@@ -561,7 +579,7 @@ public class EditGM : MonoBehaviour {
 		if (b) selected_item = new SelectedItem(inTile, tData);
 		else return; // <3>
 		tileCreator.SetProperties(tData); // <4>
-		tileCreator.gameObject.SetActive(true);
+		setTool(tileCreator.gameObject);
 
 		levelData.tileSet.Remove(tData); // <5>
 		tile_lookup.Remove(inTile);
@@ -577,27 +595,72 @@ public class EditGM : MonoBehaviour {
 		*/
 	}
 
-	//
+	// adds a passed ChkpntData to the level and returns a reference
 	private GameObject addSpecial (ChkpntData inChkpnt)
 	{
-		//
-		Debug.Log("Place checkpoint.");
-		return new GameObject();
+		levelData.chkpntSet.Add(inChkpnt); // <1>
+
+		Vector3 v3 = inChkpnt.locus.ToUnitySpace();
+		v3.z = GetLayerDepth(inChkpnt.layer);
+		GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+		go.transform.SetParent(chkpntMap.transform); // <2>
+
+		chkpnt_lookup[go] = inChkpnt; // <3>
+		return go;
+
+		/*
+		<1> first, the given ChkpntData is added to levelData
+		<2> second, a corresponding new checkpoint is added to chkpntMap
+		<3> lastly, the checkpoint's gameObject is added to the lookup dictionary and returned
+		*/
 	}
 
-	//
+	// adds a passed WarpData to the level and returns a reference
 	private GameObject addSpecial (WarpData inWarp)
 	{
-		//
-		Debug.Log("Place checkpoint.");
-		return new GameObject();
+		levelData.warpSet.Add(inWarp); // <1>
+
+		Vector3 v3 = inWarp.orient.locus.ToUnitySpace();
+		v3.z = GetLayerDepth(inWarp.orient.layer);
+		GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
+		go.transform.SetParent(warpMap.transform); // <2>
+
+		warp_lookup[go] = inWarp; // <3>
+		return go;
+
+		/*
+		<1> first, the given ChkpntData is added to levelData
+		<2> second, a corresponding new checkpoint is added to chkpntMap
+		<3> lastly, the checkpoint's gameObject is added to the lookup dictionary and returned
+		*/
 	}
 
-	//
+	// removes a given special from the level
 	private void removeSpecial (GameObject inSpecial)
 	{
-		//
-		Debug.Log("Remove special.");
+		ChkpntData cData;
+		WarpData wData;
+		if (IsMappedChkpnt(inSpecial, out cData)) { // <1>
+			selected_item = new SelectedItem(inSpecial, cData);
+			setTool(chkpntTool);
+
+			levelData.chkpntSet.Remove(cData);
+			chkpnt_lookup.Remove(inSpecial);
+		} else if (IsMappedWarp(inSpecial, out wData)) { // <2>
+			selected_item = new SelectedItem(inSpecial, wData);
+			setTool(warpTool);
+
+			levelData.warpSet.Remove(wData);
+			warp_lookup.Remove(inSpecial);
+		} else return; // <3>
+
+		Destroy(inSpecial);
+
+		/*
+		<1> first, check to see whether the given item is a checkpoint
+		<2> then check to see whether the given item is a warp
+		<3> if neither simply return, otherwise destroy the object
+		*/
 	}
 
 	// sets the currently active tool
