@@ -3,7 +3,10 @@ AAA.sublime-workspace
 
 # All user-created levels are stored locally and ignored in the repository
 Levels/*.txt
-Levels/*.txt.meta
+Levels/*.txt
+
+# So Meta
+*.meta
 
 # Unity-related ignores
 Library/

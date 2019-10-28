@@ -27,7 +27,7 @@ public class PlayLoader : MonoBehaviour {
 		// filepath of level to be loaded
 		// (!) currently just change the string and recompile :|
 		// (!!) prompt for string instead
-		path = "testLevel.txt";
+		path = "asdf.txt";
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)
 		SceneManager.LoadScene(1);
@@ -44,29 +44,31 @@ public class PlayLoader : MonoBehaviour {
 		bool file_exists = File.Exists("Levels\\" + path);
 		if (file_exists) {
 			string[] lines = File.ReadAllLines("Levels\\" + path);
-			level = FileParsing.ReadLevel(lines);
-		} else {
+            Debug.Log(lines.Length);
+            for(int i = 0; i < lines.Length; i++)
+            {
+                Debug.Log(lines[i]);
+            }
+            level = FileParsing.ReadLevel(lines);
+            Debug.Log(level);
+        } else {
 			level = new LevelData();
 			return;
 		}
 
-/*
 		// populate tile hierarchy
-		foreach (LayerData ld in level.layerSet) {
-			GameObject tileLayer = new GameObject();
-			tileLayer.transform.position = new Vector3(0f, 0f, layerCount++ * 2f);
-			tileLayer.transform.SetParent(tiles.transform);
+		GameObject tileLayer = new GameObject();
+		tileLayer.transform.position = new Vector3(0f, 0f, 0f);
+		tileLayer.transform.SetParent(tiles.transform);
 
-			foreach (TileData td in ld.tileSet) {
-				GameObject pfRef = prefab_refs[td.type, td.color];
-				Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
-				Vector3 v3 = td.locus.ToUnitySpace();
-				v3.z = tileLayer.transform.position.z;
-				GameObject go = Instantiate(pfRef, v3, q) as GameObject;
-				go.transform.SetParent(tileLayer.transform);
-			}
+		foreach (TileData td in level.tileSet) {
+			GameObject pfRef = prefab_refs[td.type, td.color];
+			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
+			Vector3 v3 = td.orient.locus.ToUnitySpace();
+			v3.z = tileLayer.transform.position.z;
+			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			go.transform.SetParent(tileLayer.transform);
 		}
-*/
 
 		// hard-coded player start for now (!!) needs to change
 		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -10);
