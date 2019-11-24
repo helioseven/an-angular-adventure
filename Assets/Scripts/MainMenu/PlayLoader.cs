@@ -27,7 +27,7 @@ public class PlayLoader : MonoBehaviour {
 		// filepath of level to be loaded
 		// (!) currently just change the string and recompile :|
 		// (!!) prompt for string instead
-		path = "asdf.txt";
+		path = "testLevel.txt";
 		DontDestroyOnLoad(gameObject);
 		// load Playing scene (PlayGM will call supplyLevel)
 		SceneManager.LoadScene(1);
@@ -41,17 +41,12 @@ public class PlayLoader : MonoBehaviour {
 		playerStart = Vector2.zero;
 
 		// begin parsing file
-		bool file_exists = File.Exists("Levels\\" + path);
+		bool file_exists = File.Exists("Levels/" + path);
 		if (file_exists) {
-			string[] lines = File.ReadAllLines("Levels\\" + path);
-            Debug.Log(lines.Length);
-            for(int i = 0; i < lines.Length; i++)
-            {
-                Debug.Log(lines[i]);
-            }
+			string[] lines = File.ReadAllLines("Levels/" + path);
             level = FileParsing.ReadLevel(lines);
-            Debug.Log(level);
         } else {
+			Debug.Log("File not found, loading new level.");
 			level = new LevelData();
 			return;
 		}

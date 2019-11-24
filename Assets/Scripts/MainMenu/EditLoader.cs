@@ -31,10 +31,10 @@ public class EditLoader : MonoBehaviour {
 	// supplies the tileMap with gameObjects and supplies a level representation, then returns a lookup mapping
 	public LevelData supplyLevel ()
 	{
-		bool file_exists = File.Exists("Levels\\" + path); // <1>
+		bool file_exists = File.Exists("Levels/" + path); // <1>
 		LevelData ld;
 		if (file_exists) {
-			string[] lines = File.ReadAllLines("Levels\\" + path);
+			string[] lines = File.ReadAllLines("Levels/" + path);
 			ld = FileParsing.ReadLevel(lines); // <2>
 		} else {
 			Debug.Log("File not found, loading new level.");

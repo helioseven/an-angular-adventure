@@ -2,8 +2,12 @@
 	"folders":
 	[
 		{
-			"path": "Assets\\Scripts",
-			"file_exclude_patterns": ["*.meta"]
+			"path": "Assets",
+			"file_include_patterns": ["*.cs"]
+		}
+		{
+			"path": "Levels",
+			"file_include_patterns": ["*.txt"]
 		}
 	]
 }
