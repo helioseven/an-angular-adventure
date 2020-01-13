@@ -91,8 +91,6 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             {
                 BuildTargetGroup.Android,
                 BuildTargetGroup.iOS,
-				BuildTargetGroup.PSM, 
-				BuildTargetGroup.Tizen, 
 				BuildTargetGroup.WSA 
             };
 

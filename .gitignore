@@ -1,16 +1,18 @@
-# Ignore Everything
-/*
+# All user-created levels are only stored locally, except testLevel
+[Ll]evels/*.txt
+![Ll]evels/testLevel.txt
 
-# Except for these:
-!/.gitignore
+# Unity-related ignores
+[Ll]ibrary/
+[Ll]ogs/
+[Pp]ackages/*
+![Pp]ackages/manifest.json
+[Tt]emp/
 
-!/Assets
-!/Packages
-!/ProjectSettings
+# VisualStudio-related ignores
+*.csproj
+*.sln
+*.userprefs
 
-!/Levels
-/Levels/*
-!/Levels/testLevel.txt
-!/Levels/testLevel.txt.meta
-
-!/AAA.sublime-project
+# Sublime-related ignores (AAA.sublime-project is kept)
+*.sublime-workspace

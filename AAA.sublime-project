@@ -2,12 +2,26 @@
 	"folders":
 	[
 		{
-			"path": "Assets",
-			"file_include_patterns": ["*.cs"]
-		}
-		{
-			"path": "Levels",
-			"file_include_patterns": ["*.txt"]
+			"path": ".",
+			"folder_exclude_patterns": [
+				"Assets/Audio",
+				"Assets/Materials",
+				"Assets/Prefabs",
+				"Assets/Scenes",
+				"Assets/Sprites",
+				"Assets/Standard Assets",
+				"Library",
+				"Logs",
+				"Packages",
+				"ProjectSettings",
+				"Temp"
+			],
+			"file_include_patterns": [
+				"*.cs",
+				".gitignore",
+				"*.sublime-project",
+				"*.txt"
+			]
 		}
 	]
 }
