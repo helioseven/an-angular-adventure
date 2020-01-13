@@ -8,24 +8,21 @@ using circleXsquares;
 
 public class PlayLoader : MonoBehaviour {
 
+	// prefab references (included in transform children)
+	public GameObject genesisTile;
+
 	// short-form pathname for the level to be loaded
 	private string path;
 	// 6x7 array of prefab references
-	private GameObject[,] prefabRefs;
-
-	// prefab references (included in transform children)
-	public GameObject tileLoader;
+	private GameObject[,] prefab_refs;
 
 	void Awake ()
 	{
 		// prefabs are loaded from a single transform hierarchy
-		prefabRefs = new GameObject[6, 8];
-		for (int i = 0; i < 6; i++) {
-			GameObject tlGroup = tileLoader.transform.GetChild(i).gameObject;
-			for (int j = 0; j < 8; j++) {
-				prefabRefs[i, j] = tlGroup.transform.GetChild(j).gameObject;
-			}
-		}
+		prefab_refs = new GameObject[6, 8];
+		foreach (Transform tileLayer in genesisTile.transform)
+			foreach (Transform tile in tileLayer)
+				prefab_refs[tileLayer.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
 
 		// filepath of level to be loaded
 		// (!) currently just change the string and recompile :|
@@ -36,26 +33,41 @@ public class PlayLoader : MonoBehaviour {
 		SceneManager.LoadScene(1);
 	}
 
-	// supplies a HashSet of tiles, a level representation, and a Vector2 indicating a starting location
-	public void supplyLevel (out HashSet<GameObject> tiles, out levelData level, out Vector2 playerStart)
+	// supplies a hierarchy of tiles, a level representation, and a Vector2 indicating a starting location
+	public void supplyLevel (ref GameObject tiles, out LevelData level, out Vector2 playerStart)
 	{
 		// initialization
-		tiles = new HashSet<GameObject>();
+		tiles.transform.position = Vector3.zero;
 		playerStart = Vector2.zero;
-		// begin parsing file
-		string[] lines = File.ReadAllLines("Levels\\" + path);
-		level = FileParsing.readLevel(lines);
 
-		foreach (tileData td in level.layerSet[0].tileSet) {
-			GameObject pfRef = prefabRefs[td.type, td.color];
-			Quaternion q = Quaternion.Euler(0, 0, 30 * td.rotation);
-			GameObject go = Instantiate(pfRef, td.locus.toUnitySpace(), q) as GameObject;
-			tiles.Add(go);
+		// begin parsing file
+		bool file_exists = File.Exists("Levels/" + path);
+		if (file_exists) {
+			string[] lines = File.ReadAllLines("Levels/" + path);
+            level = FileParsing.ReadLevel(lines);
+        } else {
+			Debug.Log("File not found, loading new level.");
+			level = new LevelData();
+			return;
+		}
+
+		// populate tile hierarchy
+		GameObject tileLayer = new GameObject();
+		tileLayer.transform.position = new Vector3(0f, 0f, 0f);
+		tileLayer.transform.SetParent(tiles.transform);
+
+		foreach (TileData td in level.tileSet) {
+			GameObject pfRef = prefab_refs[td.type, td.color];
+			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
+			Vector3 v3 = td.orient.locus.ToUnitySpace();
+			v3.z = tileLayer.transform.position.z;
+			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			go.transform.SetParent(tileLayer.transform);
 		}
 
 		// hard-coded player start for now (!!) needs to change
-		hexLocus hl = new hexLocus(0, 0, 0, 0, 0, -10);
-		playerStart = hl.toUnitySpace();
+		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -10);
+		playerStart = hl.ToUnitySpace();
 
 		// terminates this script when done
 		Destroy(gameObject);

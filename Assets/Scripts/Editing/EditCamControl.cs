@@ -2,72 +2,45 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-using inputKeys = EditGM.inputKeys;
+using InputKeys = EditGM.InputKeys;
 
 public class EditCamControl : MonoBehaviour {
 
-	private EditGM gmRef;
+	// private variables
+	private EditGM gm_ref;
+	private InputKeys key_mask;
+	private InputKeys cam_inputs;
 
-	void Awake ()
+	void Start ()
 	{
-		gmRef = EditGM.instance;
+		gm_ref = EditGM.instance;
+		key_mask = (InputKeys.W | InputKeys.A | InputKeys.S | InputKeys.D);
 	}
 
 	void Update ()
 	{
-		Vector3 tempVec3 = transform.position;
+		cam_inputs = gm_ref.getKeys;
+		cam_inputs &= key_mask; // <1>
 
-		inputKeys camInputs = inputKeys.None;
-		inputKeys[] wsadInputs = new inputKeys[] {inputKeys.W, inputKeys.S, inputKeys.A, inputKeys.D};
-		foreach (inputKeys ik in wsadInputs) {
-			if (gmRef.checkKeys(ik)) camInputs |= ik;
-		}
-/*
-		// camInputs isolates meaningful camera-controlling key inputs
-		inputKeys camInputs = (inputKeys.W | inputKeys.A | inputKeys.S | inputKeys.D);
-		// gets a copy of current getKeys from GM instance
-		inputKeys getKeys = EditGM.instance.getInputs(false);
-		camInputs = camInputs & getKeys;
-*/
+		InputKeys tempKeys = (InputKeys.W | InputKeys.S); // <2>
+		if (gm_ref.CheckKeys(tempKeys)) cam_inputs ^= tempKeys;
+		tempKeys = (InputKeys.A | InputKeys.D);
+		if (gm_ref.CheckKeys(tempKeys)) cam_inputs ^= tempKeys;
 
-		// tempKeys is used to identify opposite-direction pairs and remove them
-		inputKeys tempKeys = (inputKeys.W | inputKeys.S);
-		if ((camInputs & tempKeys) == tempKeys) camInputs ^= tempKeys;
-		tempKeys = (inputKeys.A | inputKeys.D);
-		if ((camInputs & tempKeys) == tempKeys) camInputs ^= tempKeys;
+		Vector3 v3 = transform.position; // <3>
+		if ((cam_inputs & InputKeys.W) == InputKeys.W) v3.y += (5.0f * Time.deltaTime);
+		if ((cam_inputs & InputKeys.A) == InputKeys.A) v3.x -= (5.0f * Time.deltaTime);
+		if ((cam_inputs & InputKeys.S) == InputKeys.S) v3.y -= (5.0f * Time.deltaTime);
+		if ((cam_inputs & InputKeys.D) == InputKeys.D) v3.x += (5.0f * Time.deltaTime);
 
-		// uses the isolated camInputs to modify a temporary position variable
-		switch (camInputs) {
-			case inputKeys.W: {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.A: {
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.S: {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				break; }
-			case inputKeys.D: {
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.W | inputKeys.A): {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.W | inputKeys.D): {
-				tempVec3.y += (5.0f * Time.deltaTime);
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.S | inputKeys.A): {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				tempVec3.x -= (5.0f * Time.deltaTime);
-				break; }
-			case (inputKeys.S | inputKeys.D): {
-				tempVec3.y -= (5.0f * Time.deltaTime);
-				tempVec3.x += (5.0f * Time.deltaTime);
-				break; }
-		}
-
-		transform.position = tempVec3;
+		v3.z = gm_ref.GetLayerDepth() - 8f; // <4>
+		transform.position = v3;
 	}
+
+	/*
+	<1> mask identifying the relevant keys (WASD) to the camera control
+	<2> tempKeys is used to identify opposite-direction pairs and remove them
+	<3> uses the isolated cam_inputs to modify a temporary position variable
+	<4> get layer depth from the GM, set it back 8 units, and use to set position
+	*/
 }

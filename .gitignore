@@ -1,16 +1,18 @@
-# AAA.sublime-project is kept in the repository, workspace is not
-AAA.sublime-workspace
-
-# All user-created levels are stored locally and ignored in the repository
-Levels/*.txt
-Levels/*.txt.meta
+# All user-created levels are only stored locally, except testLevel
+[Ll]evels/*.txt
+![Ll]evels/testLevel.txt
 
 # Unity-related ignores
-Library/
-Temp/
+[Ll]ibrary/
+[Ll]ogs/
+[Pp]ackages/*
+![Pp]ackages/manifest.json
+[Tt]emp/
 
-#VS-related ignores
+# VisualStudio-related ignores
 *.csproj
-*.user
-*.userprefs
 *.sln
+*.userprefs
+
+# Sublime-related ignores (AAA.sublime-project is kept)
+*.sublime-workspace

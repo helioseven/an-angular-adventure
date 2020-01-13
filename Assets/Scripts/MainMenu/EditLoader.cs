@@ -8,35 +8,47 @@ using circleXsquares;
 
 public class EditLoader : MonoBehaviour {
 
-	// short-form pathname for the level to be loaded
+	// public read-accessibility state variables
+	public string levelName { get; private set; }
+
+	// private variables
 	private string path;
-	private GenesisTile gt;
 
 	void Awake ()
 	{
-		// filepath of level to be loaded
-		// (!!) prompt for string instead
-		path = "testLevel.txt";
-		DontDestroyOnLoad(gameObject);
-		// load Playing scene (PlayGM will call supplyLevel)
-		SceneManager.LoadScene(2);
+		levelName = "testLevel"; // <1>
+		path = levelName + ".txt";
+		DontDestroyOnLoad(gameObject); // <2>
+		SceneManager.LoadScene(2); // <3>
+
+		/*
+		<1> levelName is hard coded (!!), should be prompted
+		<2> this loader stays awake when next scene is loaded
+		<3> load Editing scene (EditGM will call supplyLevel)
+		*/
 	}
 
-	// supplies a Dictionary of <tile, tileData> pairs representing the level
-	public void supplyLevel (out Dictionary<GameObject, tileData> level)
+	// supplies the tileMap with gameObjects and supplies a level representation, then returns a lookup mapping
+	public LevelData supplyLevel ()
 	{
-		// initialization
-		gt = EditGM.instance.genesisTile;
-		level = new Dictionary<GameObject, tileData>();
-		// begin parsing file
-		string[] lines = File.ReadAllLines("Levels\\" + path);
-		levelData ld = FileParsing.readLevel(lines);
+		bool file_exists = File.Exists("Levels/" + path); // <1>
+		LevelData ld;
+		if (file_exists) {
+			string[] lines = File.ReadAllLines("Levels/" + path);
+			ld = FileParsing.ReadLevel(lines); // <2>
+		} else {
+			Debug.Log("File not found, loading new level.");
+			ld = new LevelData(); // <3>
+		}
 
-		// (!!) this is a kludge that needs to change
-		foreach (tileData td in ld.layerSet[0].tileSet)
-			level.Add(gt.newTile(td), td);
+		Destroy(gameObject); // <4>
+		return ld;
 
-		// terminates this script when done
-		Destroy(gameObject);
+		/*
+		<1> first, check to see whether the file exists
+		<2> if file exists, it is loaded and parsed
+		<3> if file doesn't exist, empty level is created
+		<4> when script is done, it schedules self-termination and returns
+		*/
 	}
 }

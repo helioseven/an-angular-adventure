@@ -7,39 +7,45 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
 
-public class EditGM : MonoBehaviour {
+public partial class EditGM : MonoBehaviour {
 
 	// singleton instance
 	[HideInInspector] public static EditGM instance = null;
 
-	private EditLoader lvlLoad = null;
-	// reference to the main creation tool
-	public GenesisTile genesisTile;
-	// anchorIcon keeps track of a single cursor instance
+	// references to UI elements, snap cursor, creation tool, checkpoint tool, warp tool, and tile hierarchy
+	public GameObject hudPanel;
+	public PaletteControl palettePanel;
+	public TileCreator tileCreator;
+	public GameObject chkpntTool;
+	public GameObject warpTool;
 	public SnapCursor anchorIcon;
-	// reference to the script attached to the UI overlay
-	public MenuControl menuPanel;
+	public GameObject tileMap;
+	public GameObject chkpntMap;
+	public GameObject warpMap;
 
-	// menuMode enables OnGUI
-	public bool menuMode { get; private set; }
-	// editMode enables editing of previously placed tiles
-	// editMode being false is referred to in commenting as "creation mode"
+	// public read-accessibility state variables
+	public InputKeys getKeys { get; private set; }
+	public InputKeys getKeyDowns { get; private set; }
+	public string levelName { get; private set; }
+	public LevelData levelData { get; private set; }
+	public int activeLayer { get; private set; }
+	public bool paletteMode { get; private set; }
+	public bool createMode { get; private set; }
 	public bool editMode { get; private set; }
-	// gkInputs and gkdInputs track GetKey() and GetKeyDown() states
-	private inputKeys gkInputs;
-	private inputKeys gkdInputs;
+	public bool selectMode { get; private set; }
 
-	// placedTiles manages all tiles placed into the world space
-	private Dictionary<GameObject, tileData> placedTiles;
+	// private variables
+	private EditLoader lvl_load;
+	private SelectedItem? selected_item;
+	private GameObject current_tool;
+	private TileData tile_buffer;
+	private Dictionary<GameObject, TileData> tile_lookup;
+	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
+	private Dictionary<GameObject, WarpData> warp_lookup;
 
-	// isTileSelected and selectedTile track any selected tile in edit mode
-	private bool isTileSelected;
-	private tileData selectedTile;
-	private tileData gtBackup;
-
-	// inputKeys helps manage keyboard input
+	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
-	public enum inputKeys {
+	public enum InputKeys {
 		None = 0x0,
 		Space = 0x1,
 		Tab = 0x2,
@@ -49,18 +55,24 @@ public class EditGM : MonoBehaviour {
 		Q = 0x20,
 		W = 0x40,
 		E = 0x80,
-		A = 0x100,
-		S = 0x200,
-		D = 0x400,
-		One = 0x800,
-		Two = 0x1000,
-		Three = 0x2000,
-		Four = 0x4000,
-		Five = 0x8000,
-		Six = 0x10000
+		R = 0x100,
+		A = 0x200,
+		S = 0x400,
+		D = 0x800,
+		F = 0x1000,
+		Z = 0x2000,
+		X = 0x4000,
+		C = 0x8000,
+		V = 0x10000,
+		One = 0x20000,
+		Two = 0x40000,
+		Three = 0x80000,
+		Four = 0x100000,
+		Five = 0x200000,
+		Six = 0x400000
 	}
-	// keyCodeList is mapped onto inputKeys in order
-	private KeyCode[] keyCodeList = new KeyCode[] {
+	// key_code_list is an index mapping between Unity KeyCode and InputKeys
+	private KeyCode[] key_code_list = new KeyCode[] {
 		KeyCode.None,
 		KeyCode.Space,
 		KeyCode.Tab,
@@ -70,9 +82,15 @@ public class EditGM : MonoBehaviour {
 		KeyCode.Q,
 		KeyCode.W,
 		KeyCode.E,
+		KeyCode.R,
 		KeyCode.A,
 		KeyCode.S,
 		KeyCode.D,
+		KeyCode.F,
+		KeyCode.Z,
+		KeyCode.X,
+		KeyCode.C,
+		KeyCode.V,
 		KeyCode.Alpha1,
 		KeyCode.Alpha2,
 		KeyCode.Alpha3,
@@ -81,209 +99,209 @@ public class EditGM : MonoBehaviour {
 		KeyCode.Alpha6
 	};
 
+	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
+	private struct SelectedItem {
+
+		public GameObject instance;
+		public TileData? tileData;
+		public ChkpntData? chkpntData;
+		public WarpData? warpData;
+
+		public SelectedItem (GameObject inInstance, TileData inTile)
+		{
+			instance = inInstance;
+			tileData = inTile;
+			chkpntData = null;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = inChkpnt;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, WarpData inWarp)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = null;
+			warpData = inWarp;
+		}
+	}
+
 	void Awake ()
 	{
 		if (!instance) {
-			// set singleton instance
-			instance = this;
+			instance = this; // <1>
 
-			// level is loaded from file
-			placedTiles = new Dictionary<GameObject, tileData>();
-			lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-			lvlLoad.supplyLevel(out placedTiles);
+			current_tool = tileCreator.gameObject; // <2>
+			selected_item = null;
+			tile_buffer = new TileData();
+			tile_lookup = new Dictionary<GameObject, TileData>();
+			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
+			warp_lookup = new Dictionary<GameObject, WarpData>();
 
-			// initializations for selection variables
-			isTileSelected = false;
-			selectedTile = new tileData();
-			gtBackup = new tileData();
-
-			// initializations for state variables
-			menuMode = false;
+			hudPanel.SetActive(false); // <3>
+			chkpntTool.SetActive(false);
+			warpTool.SetActive(false);
+			getKeys = InputKeys.None;
+			getKeyDowns = InputKeys.None;
+			activeLayer = 0;
+			paletteMode = false;
+			createMode = true;
 			editMode = false;
-			gkInputs = inputKeys.None;
-			gkdInputs = inputKeys.None;
+			selectMode = false;
+
+			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
+			levelName = lvl_load.levelName;
+			levelData = lvl_load.supplyLevel(); // <4>
+			buildLevel(levelData);
+
+			activateLayer(activeLayer); // <5>
 		} else
-			// only one singleton can exist
-			Destroy(gameObject);
+			Destroy(gameObject); // <6>
+
+		/*
+		<1> set singleton instance
+		<2> initializations for private variables
+		<3> initializations for connected state variables
+		<4> file is loaded and parsed
+		<5> first layer is activated
+		<6> only one singleton can exist
+		*/
 	}
 
 	void Update ()
 	{
-		// gkInputs and gkdInputs are reset and updated
-		updateInputs();
+		updateInputs(); // <1>
+		updateUI(); // <2>
+		if (paletteMode) return; // <3>
+		updateLevel(); // <4>
+		if (createMode) updateCreate(); // <5>
+		if (editMode) updateEdit(); // <6>
+		if (selectMode) updateSelect(); // <7>
 
-		// anchor is updated based on right-click input
-		if (checkKeysDown(inputKeys.Click1)) anchorIcon.findNewAnchor(placedTiles);
-
-		// menuMode is enabled whenever the space bar is held down
-		menuMode = checkKeys(inputKeys.Space);
-
-		if (menuMode) {
-			// menuPanel is enabled and the genesisTile is disabled during menu mode
-			menuPanel.activate(Input.mousePosition);
-			genesisTile.gameObject.SetActive(false);
-		} else {
-			// menuPanel is disabled and the genesisTile is enabled when not in menu mode
-			menuPanel.deactivate();
-			genesisTile.gameObject.SetActive((editMode && !isTileSelected) ? false : true);
-
-			// if genesisTile is active, check various inputs for state changes
-			if (genesisTile.gameObject.activeSelf) updateGT();
-
-			// editMode is set via the toggleEdit() function
-			if (editMode) updateEditMode();
-			// the genesisTile tile is placed when left-click is made
-			else if (checkKeysDown(inputKeys.Click0))
-				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
-		}
+		/*
+		<1> getKeys and getKeyDowns are updated
+		<2> hudPanel and palettePanel are updated
+		<3> if the palette is active, skip the rest
+		<4> anchorIcon and layer changes are updated
+		<5> current tool is updated for createMode
+		<6> current tool is updated for editMode
+		<7> current tool is updated for selectMode
+		*/
 	}
 
 	/* Public Functions */
 
-	// deletes the current scene and loads the MainMenu scene
-	public void returnToMainMenu ()
+	// switches into createMode
+	public void EnterCreate ()
 	{
-		// (!!) prompt if unsaved
-		SceneManager.LoadScene(0);
+		if (createMode || !(editMode || selectMode)) return; // <1>
+		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <2>
+
+		tileCreator.SetProperties(tile_buffer); // <3>
+		setTool(tileCreator.gameObject);
+		createMode = true;
+		editMode = false;
+		selectMode = false;
+
+		/*
+		<1> only do anything if currently in editMode or selectMode
+		<2> conditional logic for switching out of editMode while an object is selected
+		<3> tileCreator values are recovered from tile_buffer, and is then activated
+		*/
 	}
 
-	// simply returns whether the given keys were being held during this frame
-	public bool checkKeys (inputKeys inKeys)
-	{ return (gkInputs & inKeys) == inKeys; }
-
-	// simply returns whether the given keys were pressed on this frame
-	public bool checkKeysDown (inputKeys inKeys)
-	{ return (gkdInputs & inKeys) == inKeys; }
-
-	// toggles editMode and makes associated changes to current
-	public void toggleEdit ()
+	// switches into editMode
+	public void EnterEdit ()
 	{
-		if (editMode) {
-			// if we're in editMode, restore the genesisTile to previous properties
-			genesisTile.setProperties(gtBackup);
-			// if there's a tile selected, it's properties are stored in gtBackup
-			gtBackup = (isTileSelected) ? selectedTile : new tileData();
-			genesisTile.gameObject.SetActive(true);
-		} else {
-			tileData td = gtBackup;
-			// if we're not in editMode, current state of genesisTile is stored
-			gtBackup = getGTData();
+		if (editMode || !(createMode || selectMode)) return; // <1>
+		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
 
-			// if there's a tile selected, it's properties are restored from gtBackup
-			if (isTileSelected) {
-				selectedTile = td;
-				genesisTile.setProperties(selectedTile);
-				genesisTile.gameObject.SetActive(true);
-			}
-			else genesisTile.gameObject.SetActive(false);
+		if (selected_item.HasValue) removeSelectedItem(selected_item.Value); // <3>
+		else current_tool.SetActive(false); // <4>
+		createMode = false;
+		editMode = true;
+		selectMode = false;
+
+		/*
+		<1> only do anyting if currently in creationMode or selectMode
+		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
+		<3> conditional logic for switching into editMode while an object is selected
+		<4> if nothing is selected, make sure current_tool is disabled
+		*/
+	}
+
+	// switches into selectMode
+	public void EnterSelect ()
+	{
+		if (selectMode || !(createMode || editMode)) return; // <1>
+		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
+
+		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <3>
+		current_tool.SetActive(false); // <4>
+		createMode = false;
+		editMode = false;
+		selectMode = true;
+
+		/*
+		<1> only do anyting if currently in creationMode or editMode
+		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
+		<3> conditional logic for switching out of editMode while an object is selected
+		<4> current_tool should always be disabled in selectMode
+		*/
+	}
+
+	// cycles through all layers, calculates distance, and sets opacity accordingly
+	private void activateLayer (int inLayer)
+	{
+		bool b = (inLayer < 0) || (inLayer >= tileMap.transform.childCount);
+		if (b) return; // <1>
+		else activeLayer = inLayer; // <2>
+
+		foreach (Transform layer in tileMap.transform) {
+			int d = layer.GetSiblingIndex();
+			d = Math.Abs(d - activeLayer);
+			setLayerOpacity(layer, d); // <3>
 		}
-		
-		// either way, editMode is toggled
-		editMode = !editMode;
+
+		Vector3 v3 = anchorIcon.transform.position;
+		v3.z = GetLayerDepth();
+		anchorIcon.transform.position = v3; // <4>
+
+		/*
+		<1> if invalid layer index is given, fail quietly
+		<2> otherwise update activeLayer and continue
+		<3> ordinal distance from activeLayer is calculated, and opacity set accordingly
+		<4> add active layer depth and move the snap cursor to the new location
+		*/
 	}
 
-	// (testing) save level to a file in plain text format
-	public void saveFile (string filename)
+	// sets the opacity of all tiles within a layer using ordinal distance from activeLayer
+	private void setLayerOpacity (Transform tileLayer, int distance)
 	{
-		string fpath = "Levels\\" + filename + ".txt";
-		// (!!) this all is a kludge, just testing that it works
-		List<tileData> tiles = new List<tileData>(placedTiles.Values);
-		layerData layer = new layerData(0, tiles, new List<chkpntData>());
-		List<layerData> layerList = new List<layerData>(new layerData[]{layer});
-		levelData _levelDataName = new levelData(layerList, new List<warpData>());
-		// (!!) _levelDataName will be replaced
-		string[] lines = _levelDataName.serialize();
-
-		File.WriteAllLines(fpath, lines);
-	}
-
-	/* Private Functions */
-
-	// makes changes associated with the state of the genesisTile
-	private void updateGT ()
-	{
-		// genesisTile's color is cycled through when Tab is pressed
-		if (checkKeysDown(inputKeys.Tab)) genesisTile.cycleColor();
-		// genesisTile is rotated around its pivot,
-		// counter-clockwise when Q is pressed, clockwise when E is pressed
-		if (checkKeysDown(inputKeys.Q)) genesisTile.rotate(false);
-		if (checkKeysDown(inputKeys.E)) genesisTile.rotate(true);
-		// genesisTile's type is assigned by the numeric keys
-		if (checkKeysDown(inputKeys.One)) genesisTile.selectType(0);
-		if (checkKeysDown(inputKeys.Two)) genesisTile.selectType(1);
-		if (checkKeysDown(inputKeys.Three)) genesisTile.selectType(2);
-		if (checkKeysDown(inputKeys.Four)) genesisTile.selectType(3);
-		if (checkKeysDown(inputKeys.Five)) genesisTile.selectType(4);
-		if (checkKeysDown(inputKeys.Six)) genesisTile.selectType(5);
-	}
-
-	// makes changes associated with being in editMode
-	private void updateEditMode ()
-	{
-		if (isTileSelected) {
-			// in edit mode, a selected tile will follow the focus
-			genesisTile.transform.position = anchorIcon.focus.toUnitySpace();
-
-			// if there is a selected tile, left-click re-places it
-			if (checkKeysDown(inputKeys.Click0)) {
-				placedTiles.Add(genesisTile.getActiveTile(), getGTData());
-				// restore genesisTile to its backup
-				genesisTile.setProperties(gtBackup);
-				genesisTile.gameObject.SetActive(false);
-				// deactivate isTileSelected flag
-				isTileSelected = false;
-				return;
-			}
-
-			// Delete will destroy the selected tile by simply forgetting about it
-			if (checkKeysDown(inputKeys.Delete)) {
-				genesisTile.setProperties(gtBackup);
-				isTileSelected = false;
-			}
-		} else {
-			// if in editMode and no tile is selected, left-click selects a tile
-			if (checkKeysDown(inputKeys.Click0)) {
-				// first we find out what (if anything) has been clicked on
-				Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-				Collider2D c2d = Physics2D.GetRayIntersection(r).collider;
-				if (!c2d) return;
-				GameObject go = c2d.gameObject;
-
-				// back up the genesisTile data for creation mode
-				gtBackup = getGTData();
-				// grab the tile data in question from the dictionary
-				selectedTile = placedTiles[go];
-				// set the genesisTile up to act like the selected tile
-				genesisTile.gameObject.SetActive(true);
-				genesisTile.setProperties(selectedTile);
-
-				// activate isTileSelected flag
-				isTileSelected = true;
-				// remove the dictionary entry and then destroys the object
-				placedTiles.Remove(go);
-				Destroy(go);
-			}
+		float a = 1f; // <1>
+		int l = 0; // <2>
+		if (distance != 0) { // <3>
+			a = 1f / (distance + 1f);
+			l = 9;
 		}
-	}
+		Color c = new Color(1f, 1f, 1f, a);
 
-	// updates gkInputs and gkdInputs each frame
-	private void updateInputs ()
-	{
-		gkInputs = inputKeys.None;
-		gkdInputs = inputKeys.None;
-
-		// assigns enum flags by powers of 2
-		for (int k = 0, i = 0; i < 0x10001; i = (i == 0) ? 1 : i * 2) {
-			KeyCode kc = keyCodeList[k++];
-			if (Input.GetKey(kc)) gkInputs = gkInputs | (inputKeys) i;
-			if (Input.GetKeyDown(kc)) gkdInputs = gkdInputs | (inputKeys) i;
+		foreach (Transform tile in tileLayer) { // <4>
+			tile.gameObject.layer = l;
+			tile.GetChild(0).GetComponent<SpriteRenderer>().color = c;
 		}
-	}
 
-	// returns a tileData representation of the current state of genesisTile
-	private tileData getGTData ()
-	{
-		GenesisTile gt = genesisTile;
-		return new tileData(gt.tileType, gt.tileColor, anchorIcon.focus, gt.tileRotation);
+		/*
+		<1> a represents an alpha value
+		<2> l represents the physics layer we will be setting
+		<3> if this isn't the active layer, opacity and layer are set accordingly
+		<4> the calculated opacity and layer are applied to all tiles within the layer
+		*/
 	}
 }

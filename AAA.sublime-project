@@ -2,7 +2,26 @@
 	"folders":
 	[
 		{
-			"path": "/C/Users/Micah/Documents/an_angular_adventure"
+			"path": ".",
+			"folder_exclude_patterns": [
+				"Assets/Audio",
+				"Assets/Materials",
+				"Assets/Prefabs",
+				"Assets/Scenes",
+				"Assets/Sprites",
+				"Assets/Standard Assets",
+				"Library",
+				"Logs",
+				"Packages",
+				"ProjectSettings",
+				"Temp"
+			],
+			"file_include_patterns": [
+				"*.cs",
+				".gitignore",
+				"*.sublime-project",
+				"*.txt"
+			]
 		}
 	]
 }

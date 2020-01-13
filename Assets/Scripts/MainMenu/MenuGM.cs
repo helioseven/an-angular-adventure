@@ -15,16 +15,16 @@ public class MenuGM : MonoBehaviour {
 
 	void Awake ()
 	{		
-		playButton.onClick.AddListener(startPlay);
-		editButton.onClick.AddListener(startEdit);
+		playButton.onClick.AddListener(StartPlay);
+		editButton.onClick.AddListener(StartEdit);
 	}
 
-	private void startPlay ()
+	private void StartPlay ()
 	{
 		Instantiate(playLoader);
 	}
 
-	private void startEdit ()
+	private void StartEdit ()
 	{
 		Instantiate(editLoader);
 	}
