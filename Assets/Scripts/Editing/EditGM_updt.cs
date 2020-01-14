@@ -112,7 +112,7 @@ public partial class EditGM {
 		<3> and then if left click is made, tile is added to the level
 		<4> if one of the other two tools is active, we get an orientation for them
 		<5> C and V activate the checkpoint and warp tools, respectively
-		<6> numeric keys assign tile type and activate tileCreator
+		<6> numeric keys assign tile type and activate tileCreator tool
 		*/
 	}
 
@@ -167,6 +167,6 @@ public partial class EditGM {
 	// makes changes associated with being in selectMode
 	private void updateSelect ()
 	{
-		//
+		return;
 	}
 }

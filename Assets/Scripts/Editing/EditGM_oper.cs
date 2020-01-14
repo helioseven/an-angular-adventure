@@ -172,6 +172,30 @@ public partial class EditGM {
 		*/
 	}
 
+	// sets the opacity of all tiles within a layer using ordinal distance from activeLayer
+	private void setLayerOpacity (Transform tileLayer, int distance)
+	{
+		float a = 1f; // <1>
+		int l = 0; // <2>
+		if (distance != 0) { // <3>
+			a = 1f / (distance + 1f);
+			l = 9;
+		}
+		Color c = new Color(1f, 1f, 1f, a);
+
+		foreach (Transform tile in tileLayer) { // <4>
+			tile.gameObject.layer = l;
+			tile.GetChild(0).GetComponent<SpriteRenderer>().color = c;
+		}
+
+		/*
+		<1> a represents an alpha value
+		<2> l represents the physics layer we will be setting
+		<3> if this isn't the active layer, opacity and layer are set accordingly
+		<4> the calculated opacity and layer are applied to all tiles within the layer
+		*/
+	}
+
 	// sets the currently active tool
 	private void setTool (GameObject inTool)
 	{
@@ -184,6 +208,47 @@ public partial class EditGM {
 		current_tool.SetActive(false);
 		current_tool = inTool;
 		current_tool.SetActive(true);
+	}
+
+	// cycles through all layers, calculates distance, and sets opacity accordingly
+	private void activateLayer (int inLayer)
+	{
+		bool b = (inLayer < 0) || (inLayer >= tileMap.transform.childCount);
+		if (b) return; // <1>
+		else activeLayer = inLayer; // <2>
+
+		foreach (Transform layer in tileMap.transform) {
+			int d = layer.GetSiblingIndex();
+			d = Math.Abs(d - activeLayer);
+			setLayerOpacity(layer, d); // <3>
+		}
+
+		Vector3 v3 = anchorIcon.transform.position;
+		v3.z = GetLayerDepth();
+		anchorIcon.transform.position = v3; // <4>
+
+		/*
+		<1> if invalid layer index is given, fail quietly
+		<2> otherwise update activeLayer and continue
+		<3> ordinal distance from activeLayer is calculated, and opacity set accordingly
+		<4> add active layer depth and move the snap cursor to the new location
+		*/
+	}
+
+	// simply adds layers to the level until there are enough layers to account for the given layer
+	private void addLayers(int inLayer)
+	{
+		if (inLayer < tileMap.transform.childCount) return; // <1>
+		for (int i = tileMap.transform.childCount; i <= inLayer; i++) { // <2>
+			GameObject tileLayer = new GameObject("Layer #" + i.ToString());
+			tileLayer.transform.position = new Vector3(0f, 0f, i * 2f);
+			tileLayer.transform.SetParent(tileMap.transform);
+		}
+
+		/*
+		<1> if there are already more layers than the passed index, simply return
+		<2> otherwise, create layers until the passed index is reached
+		*/
 	}
 
 	// instantiates GameObjects and builds lookup dictionaries based on the given LevelData
@@ -244,22 +309,6 @@ public partial class EditGM {
 		<10> make sure there are enough layers for the new warp
 		<11> warps' z positions are assigned by corresponding tileMap layer
 		<12> add the GameObject,WarpData pair to warp_lookup
-		*/
-	}
-
-	// simply adds layers to the level until there are enough layers to account for the given layer
-	private void addLayers(int inLayer)
-	{
-		if (inLayer < tileMap.transform.childCount) return; // <1>
-		for (int i = tileMap.transform.childCount; i <= inLayer; i++) { // <2>
-			GameObject tileLayer = new GameObject("Layer #" + i.ToString());
-			tileLayer.transform.position = new Vector3(0f, 0f, i * 2f);
-			tileLayer.transform.SetParent(tileMap.transform);
-		}
-
-		/*
-		<1> if there are already more layers than the passed index, simply return
-		<2> otherwise, create layers until the passed index is reached
 		*/
 	}
 }

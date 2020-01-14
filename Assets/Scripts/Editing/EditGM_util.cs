@@ -9,6 +9,95 @@ using circleXsquares;
 
 public partial class EditGM {
 
+	// InputKeys wraps keyboard input into a bit-flag enum
+	[Flags]
+	public enum InputKeys {
+		None = 0x0,
+		Space = 0x1,
+		Tab = 0x2,
+		Delete = 0x4,
+		Click0 = 0x8,
+		Click1 = 0x10,
+		Q = 0x20,
+		W = 0x40,
+		E = 0x80,
+		R = 0x100,
+		A = 0x200,
+		S = 0x400,
+		D = 0x800,
+		F = 0x1000,
+		Z = 0x2000,
+		X = 0x4000,
+		C = 0x8000,
+		V = 0x10000,
+		One = 0x20000,
+		Two = 0x40000,
+		Three = 0x80000,
+		Four = 0x100000,
+		Five = 0x200000,
+		Six = 0x400000
+	}
+	// key_code_list is an index mapping between Unity KeyCode and InputKeys
+	private KeyCode[] key_code_list = new KeyCode[] {
+		KeyCode.None,
+		KeyCode.Space,
+		KeyCode.Tab,
+		KeyCode.Delete,
+		KeyCode.Mouse0,
+		KeyCode.Mouse1,
+		KeyCode.Q,
+		KeyCode.W,
+		KeyCode.E,
+		KeyCode.R,
+		KeyCode.A,
+		KeyCode.S,
+		KeyCode.D,
+		KeyCode.F,
+		KeyCode.Z,
+		KeyCode.X,
+		KeyCode.C,
+		KeyCode.V,
+		KeyCode.Alpha1,
+		KeyCode.Alpha2,
+		KeyCode.Alpha3,
+		KeyCode.Alpha4,
+		KeyCode.Alpha5,
+		KeyCode.Alpha6
+	};
+
+	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
+	private struct SelectedItem {
+
+		public GameObject instance;
+		public TileData? tileData;
+		public ChkpntData? chkpntData;
+		public WarpData? warpData;
+
+		public SelectedItem (GameObject inInstance, TileData inTile)
+		{
+			instance = inInstance;
+			tileData = inTile;
+			chkpntData = null;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = inChkpnt;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, WarpData inWarp)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = null;
+			warpData = inWarp;
+		}
+	}
+
 	// simply returns whether the given keys were being held during this frame
 	public bool CheckKeys (InputKeys inKeys)
 	{ return (getKeys & inKeys) == inKeys; }
