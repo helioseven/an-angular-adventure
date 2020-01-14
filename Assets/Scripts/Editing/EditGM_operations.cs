@@ -9,6 +9,39 @@ using circleXsquares;
 
 public partial class EditGM {
 
+	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
+	private struct SelectedItem {
+
+		public GameObject instance;
+		public TileData? tileData;
+		public ChkpntData? chkpntData;
+		public WarpData? warpData;
+
+		public SelectedItem (GameObject inInstance, TileData inTile)
+		{
+			instance = inInstance;
+			tileData = inTile;
+			chkpntData = null;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = inChkpnt;
+			warpData = null;
+		}
+
+		public SelectedItem (GameObject inInstance, WarpData inWarp)
+		{
+			instance = inInstance;
+			tileData = null;
+			chkpntData = null;
+			warpData = inWarp;
+		}
+	}
+
 	// used when leaving editMode, places a given SelectedItem where it indicates it belongs
 	private void addSelectedItem (SelectedItem inItem)
 	{

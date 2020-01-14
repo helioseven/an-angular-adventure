@@ -65,39 +65,6 @@ public partial class EditGM {
 		KeyCode.Alpha6
 	};
 
-	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
-	private struct SelectedItem {
-
-		public GameObject instance;
-		public TileData? tileData;
-		public ChkpntData? chkpntData;
-		public WarpData? warpData;
-
-		public SelectedItem (GameObject inInstance, TileData inTile)
-		{
-			instance = inInstance;
-			tileData = inTile;
-			chkpntData = null;
-			warpData = null;
-		}
-
-		public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
-		{
-			instance = inInstance;
-			tileData = null;
-			chkpntData = inChkpnt;
-			warpData = null;
-		}
-
-		public SelectedItem (GameObject inInstance, WarpData inWarp)
-		{
-			instance = inInstance;
-			tileData = null;
-			chkpntData = null;
-			warpData = inWarp;
-		}
-	}
-
 	// simply returns whether the given keys were being held during this frame
 	public bool CheckKeys (InputKeys inKeys)
 	{ return (getKeys & inKeys) == inKeys; }

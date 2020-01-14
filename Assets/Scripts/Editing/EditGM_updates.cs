@@ -149,7 +149,11 @@ public partial class EditGM {
 				selected_item = new SelectedItem(go, td);
 				removeTile(go);
 			}
-			// else remove chkpnt or warp
+			ChkpntData cd;
+			WarpData wd;
+			if (IsMappedChkpnt(go, out cd)) selected_item = new SelectedItem(go, cd);
+			if (IsMappedWarp(go, out wd)) selected_item = new SelectedItem(go, wd);
+			removeSpecial(go); // <9>
 		}
 
 		/*
@@ -159,14 +163,37 @@ public partial class EditGM {
 		<4> if there is a selected tile, Delete will simply forget it
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
-		<7> if nothing is clicked on, deselect selected_item and return
+		<7> if nothing is clicked on, null out selected_item and return
 		<8> if a tile was clicked on, it is made into a new SelectedItem and removed
+		<9> otherwise out click was on a special, which is made into a new SelectedItem and removed
 		*/
 	}
 
 	// makes changes associated with being in selectMode
 	private void updateSelect ()
 	{
-		return;
+		if (CheckKeyDowns(InputKeys.Click0)) { // <1>
+			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <2>
+			if (!c2d || (selected_item.HasValue && (selected_item.Value.instance == c2d.gameObject))) { // <3>
+				selected_item = null;
+				return;
+			} else { // <4>
+				GameObject go = c2d.gameObject;
+				TileData td;
+				if (IsMappedTile(go, out td)) selected_item = new SelectedItem(go, td);
+				ChkpntData cd;
+				if (IsMappedChkpnt(go, out cd)) selected_item = new SelectedItem(go, cd);
+				WarpData wd;
+				if (IsMappedWarp(go, out wd)) selected_item = new SelectedItem(go, wd);
+			}
+		}
+
+		/*
+		<1> in select mode, clicking is the only function
+		<2> first find out what (if anything) was clicked on
+		<3> if nothing was clicked on, or if the currently selected tile was clicked on, deselect and return
+		<4> otherwise we select according to what was clicked on
+		*/
 	}
 }
