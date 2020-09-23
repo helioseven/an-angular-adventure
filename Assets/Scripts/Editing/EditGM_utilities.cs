@@ -132,7 +132,7 @@ public partial class EditGM {
 		*/
 	}
 
-	// deletes the current scene and loads the MainMenu scene
+	// (!!)(incomplete) deletes the current scene and loads the MainMenu scene
 	public void ReturnToMainMenu ()
 	{ SceneManager.LoadScene(0); } // (!!) should prompt if unsaved
 

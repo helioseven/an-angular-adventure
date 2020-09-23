@@ -58,7 +58,8 @@ public partial class EditGM : MonoBehaviour {
 			hudPanel.SetActive(false); // <3>
 			chkpntTool.SetActive(false);
 			warpTool.SetActive(false);
-			getKeys = InputKeys.None;
+
+			getKeys = InputKeys.None; // <4>
 			getKeyDowns = InputKeys.None;
 			activeLayer = 0;
 			paletteMode = false;
@@ -68,20 +69,21 @@ public partial class EditGM : MonoBehaviour {
 
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			levelName = lvl_load.levelName;
-			levelData = lvl_load.supplyLevel(); // <4>
+			levelData = lvl_load.supplyLevel(); // <5>
 			buildLevel(levelData);
 
-			activateLayer(activeLayer); // <5>
+			activateLayer(activeLayer); // <6>
 		} else
-			Destroy(gameObject); // <6>
+			Destroy(gameObject); // <7>
 
 		/*
 		<1> set singleton instance
-		<2> initializations for private variables
+		<2> initializations for private state variables
 		<3> initializations for connected state variables
-		<4> file is loaded and parsed
-		<5> first layer is activated
-		<6> only one singleton can exist
+		<4> initializations for public state variables
+		<5> file is loaded and parsed
+		<6> first layer is activated
+		<7> only one singleton can exist
 		*/
 	}
 

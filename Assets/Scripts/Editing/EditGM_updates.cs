@@ -109,7 +109,7 @@ public partial class EditGM {
 		/*
 		<1> first, figure out which tool is active and return if none
 		<2> Q and E rotate the tileCreator C-CW and CW, respectively
-		<3> and then if left click is made, tile is added to the level
+		<3> if left click is made, tile is added to the level
 		<4> if one of the other two tools is active, we get an orientation for them
 		<5> C and V activate the checkpoint and warp tools, respectively
 		<6> numeric keys assign tile type and activate tileCreator tool
