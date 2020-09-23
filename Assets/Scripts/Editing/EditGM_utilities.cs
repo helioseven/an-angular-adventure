@@ -13,23 +13,23 @@ public partial class EditGM {
 	[Flags]
 	public enum InputKeys {
 		None = 0x0,
-		Space = 0x1,
-		Tab = 0x2,
+		HUD = 0x1,
+		Palette = 0x2,
 		Delete = 0x4,
-		Click0 = 0x8,
-		Click1 = 0x10,
-		Q = 0x20,
-		W = 0x40,
-		E = 0x80,
-		R = 0x100,
-		A = 0x200,
-		S = 0x400,
-		D = 0x800,
-		F = 0x1000,
-		Z = 0x2000,
-		X = 0x4000,
-		C = 0x8000,
-		V = 0x10000,
+		ClickMain = 0x8,
+		ClickAlt = 0x10,
+		CCW = 0x20,
+		Up = 0x40,
+		CW = 0x80,
+		In = 0x100,
+		Left = 0x200,
+		Down = 0x400,
+		Right = 0x800,
+		Out = 0x1000,
+		ColorCCW = 0x2000,
+		ColorCW = 0x4000,
+		Chkpnt = 0x8000,
+		Warp = 0x10000,
 		One = 0x20000,
 		Two = 0x40000,
 		Three = 0x80000,
@@ -37,41 +37,56 @@ public partial class EditGM {
 		Five = 0x200000,
 		Six = 0x400000
 	}
-	// key_code_list is an index mapping between Unity KeyCode and InputKeys
-	private KeyCode[] key_code_list = new KeyCode[] {
-		KeyCode.None,
-		KeyCode.Space,
-		KeyCode.Tab,
-		KeyCode.Delete,
-		KeyCode.Mouse0,
-		KeyCode.Mouse1,
-		KeyCode.Q,
-		KeyCode.W,
-		KeyCode.E,
-		KeyCode.R,
-		KeyCode.A,
-		KeyCode.S,
-		KeyCode.D,
-		KeyCode.F,
-		KeyCode.Z,
-		KeyCode.X,
-		KeyCode.C,
-		KeyCode.V,
-		KeyCode.Alpha1,
-		KeyCode.Alpha2,
-		KeyCode.Alpha3,
-		KeyCode.Alpha4,
-		KeyCode.Alpha5,
-		KeyCode.Alpha6
-	};
 
 	// simply returns whether the given keys were being held during this frame
 	public bool CheckKeys (InputKeys inKeys)
-	{ return (getKeys & inKeys) == inKeys; }
+	{ return (getInputs & inKeys) == inKeys; }
 
 	// simply returns whether the given keys were pressed on this frame
 	public bool CheckKeyDowns (InputKeys inKeys)
-	{ return (getKeyDowns & inKeys) == inKeys; }
+	{ return (getInputDowns & inKeys) == inKeys; }
+
+	// returns an InputKeys according to various axes and buttons
+	public InputKeys GetAllInputs () {
+		bool[] b = new bool[23]{ // <1>
+			Input.GetButton("Jump"),
+			Input.GetButton("Palette"),
+			Input.GetButton("Delete"),
+			Input.GetButton("Mouse ButtonLeft"),
+			Input.GetButton("Mouse ButtonRight"),
+			Input.GetAxis("Rotate") < 0,
+			Input.GetAxis("Vertical") > 0,
+			Input.GetAxis("Rotate") > 0,
+			Input.GetAxis("Depth") > 0,
+			Input.GetAxis("Horizontal") < 0,
+			Input.GetAxis("Vertical") < 0,
+			Input.GetAxis("Horizontal") > 0,
+			Input.GetAxis("Depth") < 0,
+			Input.GetAxis("CycleColor") < 0,
+			Input.GetAxis("CycleColor") > 0,
+			Input.GetButton("ChkpntTool"),
+			Input.GetButton("WarpTool"),
+			Input.GetButton("Tile1"),
+			Input.GetButton("Tile2"),
+			Input.GetButton("Tile3"),
+			Input.GetButton("Tile4"),
+			Input.GetButton("Tile5"),
+			Input.GetButton("Tile6")
+		};
+
+		int k = 0;
+		InputKeys now = InputKeys.None;
+		for (int i = 1; i < 0x400001; i = i * 2) { // <2>
+			if (b[k++]) now = now | (InputKeys) i;
+		}
+
+		return now;
+
+		/*
+		<1> first, determine the state of various inputs
+		<2> then assign enum flags by powers of 2
+		*/
+	}
 
 	// simply returns the z value of the current layer's transform
 	public float GetLayerDepth ()

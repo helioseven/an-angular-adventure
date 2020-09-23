@@ -24,8 +24,8 @@ public partial class EditGM : MonoBehaviour {
 	public GameObject warpMap;
 
 	// public read-accessibility state variables
-	public InputKeys getKeys { get; private set; }
-	public InputKeys getKeyDowns { get; private set; }
+	public InputKeys getInputs { get; private set; }
+	public InputKeys getInputDowns { get; private set; }
 	public string levelName { get; private set; }
 	public LevelData levelData { get; private set; }
 	public int activeLayer { get; private set; }
@@ -59,8 +59,8 @@ public partial class EditGM : MonoBehaviour {
 			chkpntTool.SetActive(false);
 			warpTool.SetActive(false);
 
-			getKeys = InputKeys.None; // <4>
-			getKeyDowns = InputKeys.None;
+			getInputs = InputKeys.None; // <4>
+			getInputDowns = InputKeys.None;
 			activeLayer = 0;
 			paletteMode = false;
 			createMode = true;
@@ -98,7 +98,7 @@ public partial class EditGM : MonoBehaviour {
 		if (selectMode) updateSelect(); // <7>
 
 		/*
-		<1> getKeys and getKeyDowns are updated
+		<1> getInputs and getInputDowns are updated
 		<2> hudPanel and palettePanel are updated
 		<3> if the palette is active, skip the rest
 		<4> anchorIcon and layer changes are updated
