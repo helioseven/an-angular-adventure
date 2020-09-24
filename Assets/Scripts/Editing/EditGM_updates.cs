@@ -9,6 +9,8 @@ using circleXsquares;
 
 public partial class EditGM {
 
+	/* Update Mechanisms */
+
 	// updates getKeys and getKeyDowns each frame
 	private void updateInputs ()
 	{
