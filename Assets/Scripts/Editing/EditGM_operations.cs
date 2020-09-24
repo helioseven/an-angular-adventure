@@ -9,6 +9,8 @@ using circleXsquares;
 
 public partial class EditGM {
 
+	/* Private Operations */
+
 	// a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
 	private struct SelectedItem {
 
