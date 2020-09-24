@@ -102,54 +102,12 @@ public partial class EditGM {
 	/* Public Utilities */
 
 	// simply returns whether the given keys were being held during this frame
-	public bool CheckKeys (InputKeys inKeys)
+	public bool CheckInput (InputKeys inKeys)
 	{ return (getInputs & inKeys) == inKeys; }
 
 	// simply returns whether the given keys were pressed on this frame
-	public bool CheckKeyDowns (InputKeys inKeys)
+	public bool CheckInputDown (InputKeys inKeys)
 	{ return (getInputDowns & inKeys) == inKeys; }
-
-	// returns an InputKeys according to various axes and buttons
-	public InputKeys GetAllInputs () {
-		bool[] b = new bool[23]{ // <1>
-			Input.GetButton("Jump"),
-			Input.GetButton("Palette"),
-			Input.GetButton("Delete"),
-			Input.GetButton("Mouse ButtonLeft"),
-			Input.GetButton("Mouse ButtonRight"),
-			Input.GetAxis("Rotate") < 0,
-			Input.GetAxis("Vertical") > 0,
-			Input.GetAxis("Rotate") > 0,
-			Input.GetAxis("Depth") > 0,
-			Input.GetAxis("Horizontal") < 0,
-			Input.GetAxis("Vertical") < 0,
-			Input.GetAxis("Horizontal") > 0,
-			Input.GetAxis("Depth") < 0,
-			Input.GetAxis("CycleColor") < 0,
-			Input.GetAxis("CycleColor") > 0,
-			Input.GetButton("ChkpntTool"),
-			Input.GetButton("WarpTool"),
-			Input.GetButton("Tile1"),
-			Input.GetButton("Tile2"),
-			Input.GetButton("Tile3"),
-			Input.GetButton("Tile4"),
-			Input.GetButton("Tile5"),
-			Input.GetButton("Tile6")
-		};
-
-		int k = 0;
-		InputKeys now = InputKeys.None;
-		for (int i = 1; i < 0x400001; i = i * 2) { // <2>
-			if (b[k++]) now = now | (InputKeys) i;
-		}
-
-		return now;
-
-		/*
-		<1> first, determine the state of various inputs
-		<2> then assign enum flags by powers of 2
-		*/
-	}
 
 	// simply returns the z value of the current layer's transform
 	public float GetLayerDepth ()

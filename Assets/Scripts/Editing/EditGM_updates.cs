@@ -10,30 +10,89 @@ using circleXsquares;
 public partial class EditGM {
 
 	/* Update Mechanisms */
-
-	// updates getKeys and getKeyDowns each frame
+	
+	// updates getInputs and getInputDowns with appropriate InputKeys
 	private void updateInputs ()
 	{
-		getKeys = InputKeys.None;
-		getKeyDowns = InputKeys.None;
-		int k = 0;
+		bool[] b = new bool[23]{ // <1>
+			Input.GetButton("Jump"),
+			Input.GetButton("Palette"),
+			Input.GetButton("Delete"),
+			Input.GetButton("Mouse ButtonLeft"),
+			Input.GetButton("Mouse ButtonRight"),
+			Input.GetAxis("Rotate") < 0,
+			Input.GetAxis("Vertical") > 0,
+			Input.GetAxis("Rotate") > 0,
+			Input.GetAxis("Depth") > 0,
+			Input.GetAxis("Horizontal") < 0,
+			Input.GetAxis("Vertical") < 0,
+			Input.GetAxis("Horizontal") > 0,
+			Input.GetAxis("Depth") < 0,
+			Input.GetAxis("CycleColor") < 0,
+			Input.GetAxis("CycleColor") > 0,
+			Input.GetButton("ChkpntTool"),
+			Input.GetButton("WarpTool"),
+			Input.GetButton("Tile1"),
+			Input.GetButton("Tile2"),
+			Input.GetButton("Tile3"),
+			Input.GetButton("Tile4"),
+			Input.GetButton("Tile5"),
+			Input.GetButton("Tile6")
+		};
 
-		for (int i = 0; i < 0x400001; i = (i == 0) ? 1 : i * 2) { // <1>
-			KeyCode kc = key_code_list[k++];
-			if (Input.GetKey(kc)) getKeys = getKeys | (InputKeys) i;
-			if (Input.GetKeyDown(kc)) getKeyDowns = getKeyDowns | (InputKeys) i;
+		int k = 0;
+		InputKeys now = InputKeys.None;
+		for (int i = 1; i < 0x400001; i = i * 2) { // <2>
+			if (b[k++]) now = now | (InputKeys) i;
 		}
+		getInputs = now; // <3>
+
+		b = new bool[23]{
+			Input.GetButtonDown("Jump"),
+			Input.GetButtonDown("Palette"),
+			Input.GetButtonDown("Delete"),
+			Input.GetButtonDown("Mouse ButtonLeft"),
+			Input.GetButtonDown("Mouse ButtonRight"),
+			Input.GetButtonDown("Rotate"),
+			Input.GetButtonDown("Vertical"),
+			Input.GetButtonDown("Rotate"),
+			Input.GetButtonDown("Depth"),
+			Input.GetButtonDown("Horizontal"),
+			Input.GetButtonDown("Vertical"),
+			Input.GetButtonDown("Horizontal"),
+			Input.GetButtonDown("Depth"),
+			Input.GetButtonDown("CycleColor"),
+			Input.GetButtonDown("CycleColor"),
+			Input.GetButtonDown("ChkpntTool"),
+			Input.GetButtonDown("WarpTool"),
+			Input.GetButtonDown("Tile1"),
+			Input.GetButtonDown("Tile2"),
+			Input.GetButtonDown("Tile3"),
+			Input.GetButtonDown("Tile4"),
+			Input.GetButtonDown("Tile5"),
+			Input.GetButtonDown("Tile6")
+		};
+
+		k = 0;
+		now = InputKeys.None;
+		for (int i = 1; i < 0x400001; i = i * 2) {
+			if (b[k++]) now = now | (InputKeys) i;
+		}
+		getInputDowns = now; // <4>
 
 		/*
-		<1> assigns enum flags by powers of 2
+		<1> first, determine the state of various inputs
+		<2> enum bit flags are assigned by powers of 2
+		<3> assign public member for input flags
+		<4> same as above for input down flags
 		*/
 	}
 
 	// updates UI Overlay and Palette panels
 	private void updateUI ()
 	{
-		bool sbCKD = CheckKeyDowns(InputKeys.Space);
-		bool tabCK = CheckKeys(InputKeys.Tab);
+		bool sbCKD = CheckInputDown(InputKeys.HUD);
+		bool tabCK = CheckInput(InputKeys.Palette);
 
 		if (sbCKD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
 
@@ -53,10 +112,10 @@ public partial class EditGM {
 	// makes changes associated with anchorIcon and layer changes
 	private void updateLevel ()
 	{
-		if (CheckKeyDowns(InputKeys.Click1)) anchorIcon.FindNewAnchor(); // <2>
+		if (CheckInputDown(InputKeys.ClickAlt)) anchorIcon.FindNewAnchor(); // <2>
 
-		if (CheckKeyDowns(InputKeys.F)) activateLayer(activeLayer - 1); // <3>
-		if (CheckKeyDowns(InputKeys.R)) activateLayer(activeLayer + 1);
+		if (CheckInputDown(InputKeys.Out)) activateLayer(activeLayer - 1); // <3>
+		if (CheckInputDown(InputKeys.In)) activateLayer(activeLayer + 1);
 
 		/*
 		<2> right-click will update snap cursor location
@@ -74,13 +133,13 @@ public partial class EditGM {
 
 		if (b1) {
 			int rot = tileCreator.tileOrient.rotation;
-			if (CheckKeyDowns(InputKeys.Q)) tileCreator.SetRotation(rot + 1); // <2>
-			if (CheckKeyDowns(InputKeys.E)) tileCreator.SetRotation(rot - 1);
+			if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
+			if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
 
-			if (CheckKeyDowns(InputKeys.Z)) tileCreator.CycleColor(false);
-			if (CheckKeyDowns(InputKeys.X)) tileCreator.CycleColor(true);
+			if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
+			if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
 
-			if (CheckKeyDowns(InputKeys.Click0)) addTile(); // <3>
+			if (CheckInputDown(InputKeys.ClickMain)) addTile(); // <3>
 		}
 
 		Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
@@ -88,24 +147,24 @@ public partial class EditGM {
 		if (b2) {
 			chkpntTool.transform.position = pos;
 
-			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(new ChkpntData(anchorIcon.focus, activeLayer));
+			if (CheckInputDown(InputKeys.ClickMain)) addSpecial(new ChkpntData(anchorIcon.focus, activeLayer));
 		}
 		if (b3) {
 			warpTool.transform.position = pos;
 
 			WarpData wd = new WarpData(false, true, new HexOrient(anchorIcon.focus, 0, activeLayer), activeLayer + 1);
-			if (CheckKeyDowns(InputKeys.Click0)) addSpecial(wd);
+			if (CheckInputDown(InputKeys.ClickMain)) addSpecial(wd);
 		}
 
-		if (!b2 && CheckKeyDowns(InputKeys.C)) setTool(chkpntTool); // <5>
-		if (!b3 && CheckKeyDowns(InputKeys.V)) setTool(warpTool);
+		if (!b2 && CheckInputDown(InputKeys.Chkpnt)) setTool(chkpntTool); // <5>
+		if (!b3 && CheckInputDown(InputKeys.Warp)) setTool(warpTool);
 		bool bType = false;
-		if (CheckKeyDowns(InputKeys.One)) { tileCreator.SelectType(0); bType = true; }
-		if (CheckKeyDowns(InputKeys.Two)) { tileCreator.SelectType(1); bType = true; }
-		if (CheckKeyDowns(InputKeys.Three)) { tileCreator.SelectType(2); bType = true; }
-		if (CheckKeyDowns(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
-		if (CheckKeyDowns(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
-		if (CheckKeyDowns(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
+		if (CheckInputDown(InputKeys.One)) { tileCreator.SelectType(0); bType = true; }
+		if (CheckInputDown(InputKeys.Two)) { tileCreator.SelectType(1); bType = true; }
+		if (CheckInputDown(InputKeys.Three)) { tileCreator.SelectType(2); bType = true; }
+		if (CheckInputDown(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
+		if (CheckInputDown(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
+		if (CheckInputDown(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
 		if (!b1 && bType) setTool(tileCreator.gameObject); // <6>
 
 		/*
@@ -123,7 +182,7 @@ public partial class EditGM {
 	{
 		if (selected_item.HasValue) {
 			SelectedItem si = selected_item.Value;
-			if (CheckKeyDowns(InputKeys.Click0)) {
+			if (CheckInputDown(InputKeys.ClickMain)) {
 				if (si.tileData.HasValue) {
 					addTile(); // <2>
 					tileCreator.SetProperties(tile_buffer);
@@ -131,14 +190,8 @@ public partial class EditGM {
 
 				current_tool.SetActive(false); // <3>
 				selected_item = null;
-				return;
 			}
-
-			if (CheckKeyDowns(InputKeys.Delete)) { // <4>
-				current_tool.SetActive(false);
-				selected_item = null;
-			}
-		} else if (CheckKeyDowns(InputKeys.Click0)) { // <5>
+		} else if (CheckInputDown(InputKeys.ClickMain)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <6>
 			if (!c2d) { // <7>
@@ -174,7 +227,7 @@ public partial class EditGM {
 	// makes changes associated with being in selectMode
 	private void updateSelect ()
 	{
-		if (CheckKeyDowns(InputKeys.Click0)) { // <1>
+		if (CheckInputDown(InputKeys.ClickMain)) { // <1>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
 			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <2>
 			if (!c2d || (selected_item.HasValue && (selected_item.Value.instance == c2d.gameObject))) { // <3>
