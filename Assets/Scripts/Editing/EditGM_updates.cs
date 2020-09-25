@@ -52,35 +52,9 @@ public partial class EditGM {
 		}
 		getInputDowns = now; // <4>
 
-		b = new bool[23]{ // <5>
-			Input.GetAxis("Jump") > 0,
-			Input.GetAxis("Palette") > 0,
-			Input.GetAxis("Delete") > 0,
-			Input.GetAxis("Mouse ButtonLeft") > 0,
-			Input.GetAxis("Mouse ButtonRight") > 0,
-			Input.GetAxis("ChkpntTool") > 0,
-			Input.GetAxis("WarpTool") > 0,
-			Input.GetAxis("Tile1") > 0,
-			Input.GetAxis("Tile2") > 0,
-			Input.GetAxis("Tile3") > 0,
-			Input.GetAxis("Tile4") > 0,
-			Input.GetAxis("Tile5") > 0,
-			Input.GetAxis("Tile6") > 0,
-			Input.GetAxis("Rotate") < 0,
-			Input.GetAxis("Vertical") > 0,
-			Input.GetAxis("Rotate") > 0,
-			Input.GetAxis("Depth") > 0,
-			Input.GetAxis("Horizontal") < 0,
-			Input.GetAxis("Vertical") < 0,
-			Input.GetAxis("Horizontal") > 0,
-			Input.GetAxis("Depth") < 0,
-			Input.GetAxis("CycleColor") < 0,
-			Input.GetAxis("CycleColor") > 0
-		};
-
 		k = 0;
 		now = InputKeys.None;
-		for (int i = 1; i <= 0x400000; i = i * 2) {
+		for (int i = 1; i <= 0x400000; i = i * 2) { // <5>
 			if (b[k++]) now = now | (InputKeys) i;
 		}
 		getInputs = now;
@@ -88,7 +62,7 @@ public partial class EditGM {
 		/*
 		<1> do InputDowns first so we can compare vs last frame inputs
 		<2> enum bit flags are assigned by powers of 2
-		<3> CheckInput tells us whether this input was
+		<3> CheckInput tells us whether this input was active last frame
 		<4> assign public member for inputdown flags
 		<5> same as above for regular input flags
 		*/
@@ -107,7 +81,7 @@ public partial class EditGM {
 			// (!!) something going wrong here
 			// current_tool.SetActive(!current_tool.activeSelf);
 		}
-		paletteMode = palettePanel.gameObject.activeSelf;
+		paletteMode = tabCI;
 
 		/*
 		<1> UI is toggled whenever spacebar is pressed
