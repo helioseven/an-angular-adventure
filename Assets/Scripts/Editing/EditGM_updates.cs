@@ -15,11 +15,19 @@ public partial class EditGM {
 	private void updateInputs ()
 	{
 		bool[] b = new bool[23]{ // <1>
-			Input.GetButton("Jump"),
-			Input.GetButton("Palette"),
-			Input.GetButton("Delete"),
-			Input.GetButton("Mouse ButtonLeft"),
-			Input.GetButton("Mouse ButtonRight"),
+			Input.GetButtonDown("Jump"),
+			Input.GetButtonDown("Palette"),
+			Input.GetButtonDown("Delete"),
+			Input.GetButtonDown("Mouse ButtonLeft"),
+			Input.GetButtonDown("Mouse ButtonRight"),
+			Input.GetButtonDown("ChkpntTool"),
+			Input.GetButtonDown("WarpTool"),
+			Input.GetButtonDown("Tile1"),
+			Input.GetButtonDown("Tile2"),
+			Input.GetButtonDown("Tile3"),
+			Input.GetButtonDown("Tile4"),
+			Input.GetButtonDown("Tile5"),
+			Input.GetButtonDown("Tile6"),
 			Input.GetAxis("Rotate") < 0,
 			Input.GetAxis("Vertical") > 0,
 			Input.GetAxis("Rotate") > 0,
@@ -30,73 +38,71 @@ public partial class EditGM {
 			Input.GetAxis("Depth") < 0,
 			Input.GetAxis("CycleColor") < 0,
 			Input.GetAxis("CycleColor") > 0,
-			Input.GetButton("ChkpntTool"),
-			Input.GetButton("WarpTool"),
-			Input.GetButton("Tile1"),
-			Input.GetButton("Tile2"),
-			Input.GetButton("Tile3"),
-			Input.GetButton("Tile4"),
-			Input.GetButton("Tile5"),
-			Input.GetButton("Tile6")
 		};
 
 		int k = 0;
 		InputKeys now = InputKeys.None;
-		for (int i = 1; i < 0x400001; i = i * 2) { // <2>
-			if (b[k++]) now = now | (InputKeys) i;
+		for (int i = 1; i <= 0x400000; i = i * 2) { // <2>
+			if (i >= 0x2000) {
+				InputKeys ik = (InputKeys) i;
+				if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i; // <3>
+			} else {
+				if (b[k++]) now = now | (InputKeys) i;
+			}
 		}
-		getInputs = now; // <3>
+		getInputDowns = now; // <4>
 
-		b = new bool[23]{
-			Input.GetButtonDown("Jump"),
-			Input.GetButtonDown("Palette"),
-			Input.GetButtonDown("Delete"),
-			Input.GetButtonDown("Mouse ButtonLeft"),
-			Input.GetButtonDown("Mouse ButtonRight"),
-			Input.GetButtonDown("Rotate"),
-			Input.GetButtonDown("Vertical"),
-			Input.GetButtonDown("Rotate"),
-			Input.GetButtonDown("Depth"),
-			Input.GetButtonDown("Horizontal"),
-			Input.GetButtonDown("Vertical"),
-			Input.GetButtonDown("Horizontal"),
-			Input.GetButtonDown("Depth"),
-			Input.GetButtonDown("CycleColor"),
-			Input.GetButtonDown("CycleColor"),
-			Input.GetButtonDown("ChkpntTool"),
-			Input.GetButtonDown("WarpTool"),
-			Input.GetButtonDown("Tile1"),
-			Input.GetButtonDown("Tile2"),
-			Input.GetButtonDown("Tile3"),
-			Input.GetButtonDown("Tile4"),
-			Input.GetButtonDown("Tile5"),
-			Input.GetButtonDown("Tile6")
+		b = new bool[23]{ // <5>
+			Input.GetAxis("Jump") > 0,
+			Input.GetAxis("Palette") > 0,
+			Input.GetAxis("Delete") > 0,
+			Input.GetAxis("Mouse ButtonLeft") > 0,
+			Input.GetAxis("Mouse ButtonRight") > 0,
+			Input.GetAxis("ChkpntTool") > 0,
+			Input.GetAxis("WarpTool") > 0,
+			Input.GetAxis("Tile1") > 0,
+			Input.GetAxis("Tile2") > 0,
+			Input.GetAxis("Tile3") > 0,
+			Input.GetAxis("Tile4") > 0,
+			Input.GetAxis("Tile5") > 0,
+			Input.GetAxis("Tile6") > 0,
+			Input.GetAxis("Rotate") < 0,
+			Input.GetAxis("Vertical") > 0,
+			Input.GetAxis("Rotate") > 0,
+			Input.GetAxis("Depth") > 0,
+			Input.GetAxis("Horizontal") < 0,
+			Input.GetAxis("Vertical") < 0,
+			Input.GetAxis("Horizontal") > 0,
+			Input.GetAxis("Depth") < 0,
+			Input.GetAxis("CycleColor") < 0,
+			Input.GetAxis("CycleColor") > 0
 		};
 
 		k = 0;
 		now = InputKeys.None;
-		for (int i = 1; i < 0x400001; i = i * 2) {
+		for (int i = 1; i <= 0x400000; i = i * 2) {
 			if (b[k++]) now = now | (InputKeys) i;
 		}
-		getInputDowns = now; // <4>
+		getInputs = now;
 
 		/*
-		<1> first, determine the state of various inputs
+		<1> do InputDowns first so we can compare vs last frame inputs
 		<2> enum bit flags are assigned by powers of 2
-		<3> assign public member for input flags
-		<4> same as above for input down flags
+		<3> CheckInput tells us whether this input was
+		<4> assign public member for inputdown flags
+		<5> same as above for regular input flags
 		*/
 	}
 
 	// updates UI Overlay and Palette panels
 	private void updateUI ()
 	{
-		bool sbCKD = CheckInputDown(InputKeys.HUD);
-		bool tabCK = CheckInput(InputKeys.Palette);
+		bool sbCID = CheckInputDown(InputKeys.HUD);
+		bool tabCI = CheckInput(InputKeys.Palette);
 
-		if (sbCKD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
+		if (sbCID) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
 
-		if (paletteMode != tabCK) {
+		if (paletteMode != tabCI) {
 			palettePanel.TogglePalette(); // <2>
 			// (!!) something going wrong here
 			// current_tool.SetActive(!current_tool.activeSelf);
