@@ -30,15 +30,28 @@ public partial class EditGM : MonoBehaviour {
 	public LevelData levelData { get; private set; }
 	public int activeLayer { get; private set; }
 	public bool paletteMode { get; private set; }
-	public bool createMode { get; private set; }
-	public bool editMode { get; private set; }
-	public bool selectMode { get; private set; }
+	public bool selectMode {
+		get { return current_mode == EditorMode.Select; }
+		set {}
+	}
+	public bool editMode {
+		get { return current_mode == EditorMode.Edit; }
+		set {}
+	}
+	public bool createMode {
+		get { return current_mode == EditorMode.Create; }
+		set {}
+	}
+	public bool paintMode {
+		get { return current_mode == EditorMode.Paint; }
+		set {}
+	}
 
 	// private variables
 	private EditLoader lvl_load;
-	private SelectedItem? selected_item;
+	private EditorMode current_mode;
+	private SelectedItem selected_item;
 	private GameObject current_tool;
-	private TileData tile_buffer;
 	private Dictionary<GameObject, TileData> tile_lookup;
 	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
 	private Dictionary<GameObject, WarpData> warp_lookup;
@@ -49,8 +62,8 @@ public partial class EditGM : MonoBehaviour {
 			instance = this; // <1>
 
 			current_tool = tileCreator.gameObject; // <2>
-			selected_item = null;
-			tile_buffer = new TileData();
+			current_mode = EditorMode.Create;
+			selected_item = new SelectedItem();
 			tile_lookup = new Dictionary<GameObject, TileData>();
 			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
 			warp_lookup = new Dictionary<GameObject, WarpData>();
@@ -62,9 +75,6 @@ public partial class EditGM : MonoBehaviour {
 			getKeyDowns = InputKeys.None;
 			activeLayer = 0;
 			paletteMode = false;
-			createMode = true;
-			editMode = false;
-			selectMode = false;
 
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
 			levelName = lvl_load.levelName;
@@ -91,9 +101,10 @@ public partial class EditGM : MonoBehaviour {
 		updateUI(); // <2>
 		if (paletteMode) return; // <3>
 		updateLevel(); // <4>
-		if (createMode) updateCreate(); // <5>
-		if (editMode) updateEdit(); // <6>
 		if (selectMode) updateSelect(); // <7>
+		if (editMode) updateEdit(); // <6>
+		if (createMode) updateCreate(); // <5>
+		if (paintMode) updatePaint();
 
 		/*
 		<1> getKeys and getKeyDowns are updated

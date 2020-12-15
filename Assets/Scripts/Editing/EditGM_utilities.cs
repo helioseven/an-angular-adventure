@@ -9,6 +9,17 @@ using circleXsquares;
 
 public partial class EditGM {
 
+	/* Enums */
+
+	// EditorMode establishes the different modes the editor can be in
+	[Flags]
+	public enum EditorMode {
+		Select = 0x0,
+		Edit = 0x1,
+		Create = 0x2,
+		Paint = 0x4
+	}
+
 	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
 	public enum InputKeys {
@@ -70,71 +81,108 @@ public partial class EditGM {
 	// switches into createMode
 	public void EnterCreate ()
 	{
-		if (createMode || !(editMode || selectMode)) return; // <1>
-		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <2>
+		if (createMode) return; // <1>
 
-		tileCreator.SetProperties(tile_buffer); // <3>
-		setTool(tileCreator.gameObject);
-		createMode = true;
-		editMode = false;
-		selectMode = false;
+		if (selected_item.instance) {
+			if (selected_item.tileData.HasValue) {
+				tileCreator.SetProperties(selected_item.tileData.Value);
+				setTool(tileCreator.gameObject); // <2>
+			}
+			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
+			if (selected_item.warpData.HasValue) setTool(warpTool);
+			if (editMode) addSelectedItem(); // <3>
+			else selected_item = new SelectedItem(); // <4>
+		} else {
+			setTool(tileCreator.gameObject); // <5>
+		}
+
+		current_mode = EditorMode.Create;
 
 		/*
-		<1> only do anything if currently in editMode or selectMode
-		<2> conditional logic for switching out of editMode while an object is selected
-		<3> tileCreator values are recovered from tile_buffer, and is then activated
+		<1> if already in createMode, simply escape
+		<2> if selected_item is a tile, use its tileData to set tile tool
+		<3> if exiting editMode, add selected_item back to the level
+		<4> if not exiting editMode, simply unselect selected_item
+		<5> if no selected_item, default to tile tool
 		*/
 	}
 
 	// switches into editMode
 	public void EnterEdit ()
 	{
-		if (editMode || !(createMode || selectMode)) return; // <1>
-		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
+		if (editMode) return; // <1>
 
-		if (selected_item.HasValue) removeSelectedItem(selected_item.Value); // <3>
-		else current_tool.SetActive(false); // <4>
-		createMode = false;
-		editMode = true;
-		selectMode = false;
+		if (selected_item.instance) {
+			if (selected_item.tileData.HasValue) {
+				tileCreator.SetProperties(selected_item.tileData.Value);
+				setTool(tileCreator.gameObject); // <2>
+			}
+			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
+			if (selected_item.warpData.HasValue) setTool(warpTool);
+			removeSelectedItem(); // <3>
+		} else {
+			setTool(tileCreator.gameObject); // <4>
+		}
+
+		current_mode = EditorMode.Edit;
 
 		/*
-		<1> only do anyting if currently in creationMode or selectMode
-		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
-		<3> conditional logic for switching into editMode while an object is selected
-		<4> if nothing is selected, make sure current_tool is disabled
+		<1> if already in editMode, simply escape
+		<2> if selected_item is a tile, use its tileData to set tile tool
+		<3> regardless of item selected, unselect it
+		<4> if no selected_item, default to tile tool
+		*/
+	}
+
+	// switches into paintMode
+	public void EnterPaint ()
+	{
+		if (paintMode) return; // <1>
+
+		if (selected_item.instance) {
+			if (selected_item.tileData.HasValue) tileCreator.SetProperties(selected_item.tileData.Value); // <2>
+			if (editMode) addSelectedItem(); // <3>
+			else selected_item = new SelectedItem(); // <4>
+		}
+
+		setTool(tileCreator.gameObject); // <5>
+		current_mode = EditorMode.Paint;
+
+		/*
+		<1> if already in paintMode, simply escape
+		<2> if selected_item is a tile, use its tileData to set tile tool
+		<3> if in editMode, add selected_item back to the level
+		<4> if not in editMode, simply unselect selected_item
+		<5> always enter paintMode with tile tool enabled
 		*/
 	}
 
 	// switches into selectMode
 	public void EnterSelect ()
 	{
-		if (selectMode || !(createMode || editMode)) return; // <1>
-		if (createMode) tile_buffer = tileCreator.GetTileData(); // <2>
+		if (selectMode) return; // <1>
 
-		if (editMode && selected_item.HasValue) addSelectedItem(selected_item.Value); // <3>
-		current_tool.SetActive(false); // <4>
-		createMode = false;
-		editMode = false;
-		selectMode = true;
+		if (editMode && selected_item.instance) addSelectedItem(); // <2>
+
+		current_tool.SetActive(false); // <3>
+		current_mode = EditorMode.Select;
 
 		/*
 		<1> only do anyting if currently in creationMode or editMode
-		<2> if we're in creation mode, current state of tileCreator is stored in tile_buffer
-		<3> conditional logic for switching out of editMode while an object is selected
-		<4> current_tool should always be disabled in selectMode
+		<2> conditional logic for switching out of editMode while an object is selected
+		<3> current_tool should always be disabled in selectMode
 		*/
 	}
 
 	/* Public Utilities */
 
-	// simply returns whether the given keys were being held during this frame
-	public bool CheckKeys (InputKeys inKeys)
-	{ return (getKeys & inKeys) == inKeys; }
-
 	// simply returns whether the given keys were pressed on this frame
 	public bool CheckKeyDowns (InputKeys inKeys)
 	{ return (getKeyDowns & inKeys) == inKeys; }
+
+	// simply returns whether the given keys were being held during this frame
+	public bool CheckKeys (InputKeys inKeys)
+	{ return (getKeys & inKeys) == inKeys; }
 
 	// simply returns the z value of the current layer's transform
 	public float GetLayerDepth ()
