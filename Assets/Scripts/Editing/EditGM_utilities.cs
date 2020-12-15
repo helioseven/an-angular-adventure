@@ -83,14 +83,15 @@ public partial class EditGM {
 	{
 		if (createMode) return; // <1>
 
-		if (selected_item.instance) {
+		if (selected_item != new SelectedItem()) {
+			if (editMode) addSelectedItem(); // <2>
+
 			if (selected_item.tileData.HasValue) {
 				tileCreator.SetProperties(selected_item.tileData.Value);
-				setTool(tileCreator.gameObject); // <2>
+				setTool(tileCreator.gameObject); // <3>
 			}
 			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
 			if (selected_item.warpData.HasValue) setTool(warpTool);
-			if (editMode) addSelectedItem(); // <3>
 			else selected_item = new SelectedItem(); // <4>
 		} else {
 			setTool(tileCreator.gameObject); // <5>
@@ -100,8 +101,8 @@ public partial class EditGM {
 
 		/*
 		<1> if already in createMode, simply escape
-		<2> if selected_item is a tile, use its tileData to set tile tool
-		<3> if exiting editMode, add selected_item back to the level
+		<2> if exiting editMode, add selected_item back to the level
+		<3> if selected_item is a tile, use its tileData to set tile tool
 		<4> if not exiting editMode, simply unselect selected_item
 		<5> if no selected_item, default to tile tool
 		*/
@@ -112,7 +113,7 @@ public partial class EditGM {
 	{
 		if (editMode) return; // <1>
 
-		if (selected_item.instance) {
+		if (selected_item != new SelectedItem()) {
 			if (selected_item.tileData.HasValue) {
 				tileCreator.SetProperties(selected_item.tileData.Value);
 				setTool(tileCreator.gameObject); // <2>
@@ -120,6 +121,9 @@ public partial class EditGM {
 			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
 			if (selected_item.warpData.HasValue) setTool(warpTool);
 			removeSelectedItem(); // <3>
+			Destroy(selected_item.instance);
+			selected_item.instance = null;
+
 		} else {
 			setTool(tileCreator.gameObject); // <4>
 		}
@@ -139,7 +143,7 @@ public partial class EditGM {
 	{
 		if (paintMode) return; // <1>
 
-		if (selected_item.instance) {
+		if (selected_item != new SelectedItem()) {
 			if (selected_item.tileData.HasValue) tileCreator.SetProperties(selected_item.tileData.Value); // <2>
 			if (editMode) addSelectedItem(); // <3>
 			else selected_item = new SelectedItem(); // <4>
@@ -162,7 +166,7 @@ public partial class EditGM {
 	{
 		if (selectMode) return; // <1>
 
-		if (editMode && selected_item.instance) addSelectedItem(); // <2>
+		if (editMode && selected_item != new SelectedItem()) addSelectedItem(); // <2>
 
 		current_tool.SetActive(false); // <3>
 		current_mode = EditorMode.Select;

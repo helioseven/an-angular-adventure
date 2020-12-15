@@ -115,7 +115,7 @@ public partial class EditGM {
 	// used when leaving editMode, places selected_item where it indicates it belongs
 	private void addSelectedItem ()
 	{
-		if (!selected_item.instance) return; // <1>
+		if (selected_item == new SelectedItem()) return; // <1>
 		if (selected_item.tileData.HasValue) {  // <2>
 			TileData td = selected_item.tileData.Value;
 			selected_item.instance = addTile(td);
@@ -126,12 +126,10 @@ public partial class EditGM {
 			WarpData wd = selected_item.warpData.Value;
 			selected_item.instance = addSpecial(wd);
 		}
-		selected_item = new SelectedItem(); // <3>
 
 		/*
 		<1> if nothing is selected, escape
 		<2> for each item type, use item data to restore item
-		<3> reset selected_item
 		*/
 	}
 
