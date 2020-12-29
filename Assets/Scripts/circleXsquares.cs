@@ -312,6 +312,31 @@ namespace circleXsquares {
 			s += " " + layer.ToString();
 			return s;
 		}
+
+		public static bool operator ==(HexOrient ho1, HexOrient ho2)
+		{
+			bool b = true;
+			if (ho1.locus != ho2.locus) b = false;
+			if (ho1.rotation != ho2.rotation) b = false;
+			if (ho1.layer != ho2.layer) b = false;
+			return b;
+		}
+
+		public static bool operator !=(HexOrient ho1, HexOrient ho2) { return !(ho1 == ho2); }
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override bool Equals(System.Object obj)
+		{
+			HexOrient? inHO = obj as HexOrient?;
+			if (!inHO.HasValue) return false;
+			else return this == inHO.Value;
+		}
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
 	}
 
 	// TileData describes a tile by attributes
@@ -339,6 +364,31 @@ namespace circleXsquares {
 			s += " " + orient.Serialize();
 			return s;
 		}
+
+		public static bool operator ==(TileData td1, TileData td2)
+		{
+			bool b = true;
+			if (td1.type != td2.type) b = false;
+			if (td1.color != td2.color) b = false;
+			if (td1.orient != td2.orient) b = false;
+			return b;
+		}
+
+		public static bool operator !=(TileData td1, TileData td2) { return !(td1 == td2); }
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override bool Equals(System.Object obj)
+		{
+			TileData? inTD = obj as TileData?;
+			if (!inTD.HasValue) return false;
+			else return this == inTD.Value;
+		}
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
+		}
 	}
 
 	// ChkpntData describes the mechanism by which we track player progress
@@ -363,6 +413,30 @@ namespace circleXsquares {
 			string s = locus.Serialize();
 			s += " " + layer.ToString();
 			return s;
+		}
+
+		public static bool operator ==(ChkpntData cd1, ChkpntData cd2)
+		{
+			bool b = true;
+			if (cd1.locus != cd2.locus) b = false;
+			if (cd1.layer != cd2.layer) b = false;
+			return b;
+		}
+
+		public static bool operator !=(ChkpntData cd1, ChkpntData cd2) { return !(cd1 == cd2); }
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override bool Equals(System.Object obj)
+		{
+			ChkpntData? inCD = obj as ChkpntData?;
+			if (!inCD.HasValue) return false;
+			else return this == inCD.Value;
+		}
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 
@@ -394,6 +468,32 @@ namespace circleXsquares {
 			s += " " + orient.Serialize();
 			s += " " + targetLayer.ToString();
 			return s;
+		}
+
+		public static bool operator ==(WarpData wd1, WarpData wd2)
+		{
+			bool b = true;
+			if (wd1.isVictory != wd2.isVictory) b = false;
+			if (wd1.isTwoWay != wd2.isTwoWay) b = false;
+			if (wd1.orient != wd2.orient) b = false;
+			if (wd1.targetLayer != wd2.targetLayer) b = false;
+			return b;
+		}
+
+		public static bool operator !=(WarpData wd1, WarpData wd2) { return !(wd1 == wd2); }
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override bool Equals(System.Object obj)
+		{
+			WarpData? inWD = obj as WarpData?;
+			if (!inWD.HasValue) return false;
+			else return this == inWD.Value;
+		}
+
+		// .NET expects this behavior to be overridden when overriding ==/!= operators
+		public override int GetHashCode()
+		{
+			return base.GetHashCode();
 		}
 	}
 
