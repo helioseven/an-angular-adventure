@@ -30,7 +30,7 @@ public class Player_Controller : MonoBehaviour {
 		jump_force_vec = new Vector2(0.0f , jumpForce);
 		ground_check_collider = gameObject.GetComponent<Collider2D>();
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		UpdateJumping();
@@ -56,7 +56,7 @@ public class Player_Controller : MonoBehaviour {
 		if (num_jumps == 0 ) {
 			canJump = canJump && ground_check_collider.IsTouchingLayers();
 		}
-		
+
 		if (canJump && Input.GetKeyDown(KeyCode.Space)) {
 			// increment numJumps
 			num_jumps++;
@@ -64,7 +64,7 @@ public class Player_Controller : MonoBehaviour {
 			jump_now = true;
 		}
 	}
-	
+
 	void UpdateGravity()
 	{
 		// GRAVITY
@@ -74,21 +74,21 @@ public class Player_Controller : MonoBehaviour {
 			Physics2D.gravity = new Vector2(0.0f, -9.81f);
 			jump_force_vec = new Vector2(0.0f, jumpForce);
 		}
-		
+
 		// Gravity left
 		if (Input.GetKeyDown(KeyCode.A)) {
 			grav_dir = Gravity_Direction.left;
 			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
 			jump_force_vec = new Vector2(jumpForce, 0.0f);
 		}
-		
+
 		// Gravity Up
 		if (Input.GetKeyDown(KeyCode.W)) {
 			grav_dir = Gravity_Direction.up;
 			Physics2D.gravity = new Vector2(0.0f, 9.81f);
 			jump_force_vec = new Vector2(0.0f, -jumpForce);
 		}
-		
+
 		if (Input.GetKeyDown(KeyCode.D)) {
 			grav_dir = Gravity_Direction.right;
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
@@ -113,11 +113,11 @@ public class Player_Controller : MonoBehaviour {
 
 	void Jump()
 	{
-		if(jump_now)
+		if (jump_now)
 		{
 			// jump by force (acceleration)
 			rb2d.AddForce ( jump_force_vec );
-			
+
 			// jump logic
 			jump_now = false;
 		}

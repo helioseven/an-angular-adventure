@@ -14,7 +14,7 @@ public partial class EditGM {
 	// updates getInputs and getInputDowns with appropriate InputKeys
 	private void updateInputs ()
 	{
-		bool[] b = new bool[23]{ // <1>
+		bool[] b = new bool[23] { // <1>
 			Input.GetButton("Jump"),
 			Input.GetButton("Palette"),
 			Input.GetButton("Delete"),

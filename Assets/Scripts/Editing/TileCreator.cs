@@ -122,7 +122,7 @@ public class TileCreator : MonoBehaviour {
 
 		SetOrientation(inData.orient);
 	}
- 
+
 	// returns a TileData representation of the genesisTile's current state
 	public TileData GetTileData ()
 	{

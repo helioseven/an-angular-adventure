@@ -44,8 +44,8 @@ public class PlayLoader : MonoBehaviour {
 		bool file_exists = File.Exists("Levels/" + path);
 		if (file_exists) {
 			string[] lines = File.ReadAllLines("Levels/" + path);
-            level = FileParsing.ReadLevel(lines);
-        } else {
+			level = FileParsing.ReadLevel(lines);
+		} else {
 			Debug.Log("File not found, loading new level.");
 			level = new LevelData();
 			return;

@@ -14,7 +14,7 @@ public class MenuGM : MonoBehaviour {
 	public GameObject editLoader;
 
 	void Awake ()
-	{		
+	{
 		playButton.onClick.AddListener(StartPlay);
 		editButton.onClick.AddListener(StartEdit);
 	}
