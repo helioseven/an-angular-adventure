@@ -144,6 +144,7 @@ public class TileCreator : MonoBehaviour {
 		GameObject go = tile_renderers[inData.type, inData.color].transform.parent.gameObject; // <1>
 		Quaternion r = Quaternion.Euler(0, 0, 30 * inData.orient.rotation);
 		Vector3 p = inData.orient.locus.ToUnitySpace();
+		p.z = gm_ref.GetLayerDepth();
 
 		go = Instantiate(go, p, r) as GameObject;
 		go.GetComponentInChildren<SpriteRenderer>().enabled = true; // <2>

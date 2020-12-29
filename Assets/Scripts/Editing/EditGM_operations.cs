@@ -189,17 +189,17 @@ public partial class EditGM {
 	{
 		levelData.tileSet.Add(inTile); // <1>
 
+		GameObject go = tileCreator.NewTile(inTile); // <2>
 		Transform tl = tileMap.transform.GetChild(inTile.orient.layer);
-		GameObject go = tileCreator.NewTile(inTile);
-		go.transform.SetParent(tl); // <2>
+		go.transform.SetParent(tl);
 
 		tile_lookup[go] = inTile; // <3>
 		return go;
 
 		/*
 		<1> first, the given TileData is added to levelData
-		<2> second, a corresponding new tile is added to tileMap
-		<3> lastly, the tile's gameObject is added to the lookup dictionary and returned
+		<2> second, a new tile is created and added to tileMap
+		<3> lastly, return tile's gameObject after adding to lookup
 		*/
 	}
 
