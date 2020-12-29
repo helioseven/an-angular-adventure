@@ -2,8 +2,8 @@
 [Ll]evels/*.txt
 # testLevel is an exception which will be removed later in the dev process
 ![Ll]evels/testLevel.txt
-# NoProj is a folder designated for non-tracked items
-NoProj/
+# NonRepo is a folder designated for non-tracked items
+NonRepo/
 
 # Unity-related ignores
 [Ll]ibrary/
