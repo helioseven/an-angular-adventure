@@ -43,12 +43,8 @@ public partial class EditGM {
 		int k = 0;
 		InputKeys now = InputKeys.None;
 		for (int i = 1; i <= 0x400000; i = i * 2) { // <2>
-			if (i >= 0x2000) {
-				InputKeys ik = (InputKeys) i;
-				if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i; // <3>
-			} else {
-				if (b[k++]) now = now | (InputKeys) i;
-			}
+			InputKeys ik = (InputKeys) i;
+			if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i; // <3>
 		}
 		getInputDowns = now; // <4>
 
