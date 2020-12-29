@@ -139,7 +139,8 @@ public partial class EditGM {
 			}
 			if (b3 && chkclck) {
 				warpTool.transform.position = pos;
-				WarpData wd = new WarpData(false, true, new HexOrient(anchorIcon.focus, 0, activeLayer), activeLayer + 1);
+				HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
+				WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
 				addSpecial(wd);
 			}
 		}
@@ -182,23 +183,39 @@ public partial class EditGM {
 	private void updateEdit ()
 	{
 		if (selected_item != new SelectedItem()) {
-			SelectedItem si = selected_item;
-			if (CheckInputDown(InputKeys.ClickMain)) {
-				Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
-				pos.z = anchorIcon.transform.position.z;
+			bool b1 = current_tool == tileCreator.gameObject;
+			bool b2 = current_tool == chkpntTool;
+			bool b3 = current_tool == warpTool;
+			if (!b1 && !b2 && !b3) return; // <1>
 
-				if (si.tileData.HasValue) addTile(); // <2>
-				if (si.chkpntData.HasValue) {
+			bool chkclck = CheckInputDown(InputKeys.ClickMain);
+			Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
+			pos.z = anchorIcon.transform.position.z;
+			SelectedItem si = selected_item;
+			if (b1) {
+				int rot = tileCreator.tileOrient.rotation;
+				if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
+				if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
+
+				if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
+				if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
+
+				if (chkclck) addTile();
+			} else {
+				if (b2 && chkclck) {
 					chkpntTool.transform.position = pos;
 					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
 					addSpecial(cd);
 				}
-				if (si.warpData.HasValue) {
+				if (b3 && chkclck) {
 					warpTool.transform.position = pos;
-					WarpData wd = new WarpData(false, true, new HexOrient(anchorIcon.focus, 0, activeLayer), activeLayer + 1);
+					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
+					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
 					addSpecial(wd);
 				}
+			}
 
+			if (chkclck) {
 				current_tool.SetActive(false); // <3>
 				selected_item = new SelectedItem();
 				return;
@@ -243,8 +260,8 @@ public partial class EditGM {
 
 		/*
 		<1> in edit mode, a selected tile will follow the focus
-		<2> if there is a selected tile, left click will place it again
-		<3> then restore tileCreator, turn off current_tool, deselect selected_item, and return
+		<2> if tile selected, rotate, color-change, or replace according to input
+		<3> if any tool used, turn off current_tool, deselect selected_item, and return
 		<4> if there is a selected tile, Delete will destroy instance and forget
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
