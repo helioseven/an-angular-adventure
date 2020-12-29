@@ -223,9 +223,10 @@ public partial class EditGM {
 			GameObject go = c2d.gameObject;
 			TileData td;
 			if (IsMappedTile(go, out td)) { // <8>
+				if (td.orient.layer != activeLayer) return;
 				selected_item = new SelectedItem(null, td);
 				tileCreator.SetProperties(td);
-				removeTile(go);
+				removeTile(go); // <9>
 				Destroy(go);
 			} else {
 				ChkpntData cd;
@@ -238,7 +239,7 @@ public partial class EditGM {
 					selected_item = new SelectedItem(null, wd);
 					setTool(warpTool);
 				}
-				removeSpecial(go); // <9>
+				removeSpecial(go); // <10>
 				Destroy(go);
 			}
 			current_tool.SetActive(true);
@@ -251,9 +252,10 @@ public partial class EditGM {
 		<4> if there is a selected tile, Delete will destroy instance and forget
 		<5> if there is no selected tile, left-click selects a tile
 		<6> first we find out what (if anything) has been clicked on
-		<7> if nothing is clicked on, null out selected_item and return
-		<8> if a tile was clicked on, it is made into a new SelectedItem and removed
-		<9> otherwise out click was on a special, which is made into a new SelectedItem and removed
+		<7> if nothing is clicked, null out selected_item and return
+		<8> if tile is clicked, make it into new SelectedItem and remove
+		<9> once SelectedItem emulates the tile, destroy it
+		<10> if special is clicked, same as tile more or less
 		*/
 	}
 
