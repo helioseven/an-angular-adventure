@@ -141,7 +141,7 @@ public partial class EditGM {
 		Vector3 v3 = inChkpnt.locus.ToUnitySpace();
 		v3.z = GetLayerDepth(inChkpnt.layer);
 		GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
-
+		go.GetComponent<SpecialCreator>().enabled = false;
 		go.transform.SetParent(chkpntMap.transform); // <2>
 
 		chkpnt_lookup[go] = inChkpnt; // <3>

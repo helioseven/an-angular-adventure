@@ -116,35 +116,15 @@ public partial class EditGM {
 	{
 		if (tool_mode == EditTools.Eraser) return; // <1>
 
-		bool chkclck = CheckInputDown(InputKeys.ClickMain);
-		switch (tool_mode) {
-			case EditTools.Tile: {
-				updateTileProperties(); // <2>
-				if (chkclck) addTile(); // <3>
-				break;
-			}
-			case EditTools.Chkpnt: {
-				ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
-				addSpecial(cd); // <4>
-				break;
-			}
-			case EditTools.Warp: {
-				// currently cannot rotate the warp tool
-				HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
-				WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
-				addSpecial(wd); // <4>
-				break;
-			}
-			default: break;
-		}
+		updateTool(); // <2>
 
 		if (CheckInputDown(InputKeys.Chkpnt)) {
 			current_tool.SetActive(false);
-			setTool(EditTools.Chkpnt); // <5>
+			setTool(EditTools.Chkpnt); // <3>
 		}
 		if (CheckInputDown(InputKeys.Warp)) {
 			current_tool.SetActive(false);
-			setTool(EditTools.Warp); // <5>
+			setTool(EditTools.Warp); // <3>
 		}
 
 		InputKeys nums = InputKeys.One;
@@ -156,19 +136,17 @@ public partial class EditGM {
 		nums &= getInputDowns;
 		if (nums != InputKeys.None) {
 			current_tool.SetActive(false);
-			setTool(EditTools.Tile); // <6>
+			setTool(EditTools.Tile); // <4>
 		}
 
-		current_tool.SetActive(true); // <7>
+		current_tool.SetActive(true); // <5>
 
 		/*
 		<1> break if eraser is active, because it shouldn't be
-		<2> update tile rotation, color, and type
-		<3> if left click is made, tile is added to the level
-		<4> if a special tool is active, add special
-		<5> C and V activate the checkpoint and warp tools, respectively
-		<6> if numeric key was pressed, set tileCreator as tool
-		<7> whichever tool is being used should always be active
+		<2> update active tool according to input
+		<3> C and V activate the checkpoint and warp tools, respectively
+		<4> if numeric key was pressed, set tileCreator as tool
+		<5> whichever tool is being used should always be active
 		*/
 	}
 
@@ -178,30 +156,9 @@ public partial class EditGM {
 		if (selected_item != new SelectedItem()) {
 			if (tool_mode == EditTools.Eraser) return; // <1>
 
-			bool chkclck = CheckInputDown(InputKeys.ClickMain);
-			SelectedItem si = selected_item;
-			switch (tool_mode) {
-				case EditTools.Tile: {
-					updateTileProperties(); // <2>
-					if (chkclck) addTile();
-					break;
-				}
-				case EditTools.Chkpnt: {
-					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
-					addSpecial(cd);
-					break;
-				}
-				case EditTools.Warp: {
-					// currently cannot rotate the warp tool
-					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
-					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
-					addSpecial(wd);
-					break;
-				}
-				default: break;
-			}
+			updateTool(); // <2>
 
-			if (chkclck) {
+			if (CheckInputDown(InputKeys.ClickMain)) {
 				current_tool.SetActive(false); // <3>
 				selected_item = new SelectedItem();
 				return;
@@ -246,7 +203,7 @@ public partial class EditGM {
 
 		/*
 		<1> in edit mode, a selected tile will follow the focus
-		<2> if tile selected, rotate, color-change, or replace according to input
+		<2> update active tool according to input
 		<3> if any tool used, turn off current_tool, deselect selected_item, and return
 		<4> if there is a selected tile, Delete will destroy instance and forget
 		<5> if there is no selected tile, left-click selects a tile
@@ -292,24 +249,62 @@ public partial class EditGM {
 		*/
 	}
 
-	//
+	// handles input relating to the current tool
+	private void updateTool ()
+	{
+		bool chkclck = CheckInputDown(InputKeys.ClickMain);
+		switch (tool_mode) {
+			case EditTools.Tile: {
+				updateTileProperties(); // <1>
+				if (chkclck) addTile(); // <2>
+				break;
+			}
+			case EditTools.Chkpnt: {
+				if (chkclck) {
+					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
+					addSpecial(cd); // <2>
+				}
+				break;
+			}
+			case EditTools.Warp: {
+				// currently cannot rotate the warp tool
+				if (chkclck) {
+					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
+					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
+					addSpecial(wd); // <2>
+				}
+				break;
+			}
+			default: break;
+		}
+
+		/*
+		<1> update tile creator properties first, regardless
+		<2> if main click, add relevant tool item to the level
+		*/
+	}
+
+	// handles input that modifies the tile creator tool
 	private void updateTileProperties ()
 	{
-		// update tile rotation
 		int rot = tileCreator.tileOrient.rotation;
 		if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1);
-		if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
+		if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1); // <1>
 
-		// update tile color
 		if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
-		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
+		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true); // <2>
 
-		// update tile type
 		if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
 		if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
 		if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
 		if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
 		if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
-		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5);
+		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5); // <3>
+
+		/*
+		<1> update tile rotation
+		<2> update tile color
+		<3> update tile type
+		*/
 	}
 }
