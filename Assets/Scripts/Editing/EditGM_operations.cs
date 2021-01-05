@@ -141,6 +141,7 @@ public partial class EditGM {
 		Vector3 v3 = inChkpnt.locus.ToUnitySpace();
 		v3.z = GetLayerDepth(inChkpnt.layer);
 		GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+
 		go.transform.SetParent(chkpntMap.transform); // <2>
 
 		chkpnt_lookup[go] = inChkpnt; // <3>
@@ -161,6 +162,7 @@ public partial class EditGM {
 		Vector3 v3 = inWarp.orient.locus.ToUnitySpace();
 		v3.z = GetLayerDepth(inWarp.orient.layer);
 		GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
+		go.GetComponent<SpecialCreator>().enabled = false;
 		go.transform.SetParent(warpMap.transform); // <2>
 
 		warp_lookup[go] = inWarp; // <3>
@@ -370,5 +372,7 @@ public partial class EditGM {
 			}
 			default: break;
 		}
+
+		tool_mode = inTool;
 	}
 }
