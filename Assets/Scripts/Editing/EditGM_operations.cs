@@ -234,6 +234,8 @@ public partial class EditGM {
 			GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
 			go.GetComponent<SpriteRenderer>().enabled = true;
 			go.transform.SetParent(chkpntMap.transform);
+			go.SetActive(true);
+			go.GetComponent<SpecialCreator>().enabled = false;
 			chkpnt_lookup.Add(go, cd); // <8>
 		}
 
@@ -245,6 +247,8 @@ public partial class EditGM {
 			GameObject go = Instantiate(warpTool, v3, q) as GameObject;
 			go.GetComponent<SpriteRenderer>().enabled = true;
 			go.transform.SetParent(warpMap.transform);
+			go.SetActive(true);
+			go.GetComponent<SpecialCreator>().enabled = false;
 			warp_lookup.Add(go, wd); // <12>
 		}
 
