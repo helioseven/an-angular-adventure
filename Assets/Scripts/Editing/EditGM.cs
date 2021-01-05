@@ -50,6 +50,7 @@ public partial class EditGM : MonoBehaviour {
 	// private variables
 	private EditLoader lvl_load;
 	private EditorMode current_mode;
+	private EditTools tool_mode;
 	private SelectedItem selected_item;
 	private GameObject current_tool;
 	private Dictionary<GameObject, TileData> tile_lookup;
@@ -61,8 +62,9 @@ public partial class EditGM : MonoBehaviour {
 		if (!instance) {
 			instance = this; // <1>
 
-			current_tool = tileCreator.gameObject; // <2>
-			current_mode = EditorMode.Create;
+			current_mode = EditorMode.Create; // <2>
+			tool_mode = EditTools.Tile;
+			current_tool = tileCreator.gameObject;
 			selected_item = new SelectedItem();
 			tile_lookup = new Dictionary<GameObject, TileData>();
 			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
