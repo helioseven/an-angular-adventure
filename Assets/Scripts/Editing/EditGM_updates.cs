@@ -114,13 +114,10 @@ public partial class EditGM {
 	// makes changes associated with being in createMode
 	private void updateCreate ()
 	{
-		bool b1 = current_tool == tileCreator.gameObject;
-		bool b2 = current_tool == chkpntTool;
-		bool b3 = current_tool == warpTool;
-		if (!b1 && !b2 && !b3) return; // <1>
+		if (tool_mode == EditTools.Eraser) return; // <1>
 
 		bool chkclck = CheckInputDown(InputKeys.ClickMain);
-		if (b1) {
+		if (tool_mode == EditTools.Tile) {
 			int rot = tileCreator.tileOrient.rotation;
 			if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
 			if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
@@ -132,12 +129,12 @@ public partial class EditGM {
 		} else {
 			Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
 			pos.z = anchorIcon.transform.position.z;
-			if (b2 && chkclck) {
+			if (tool_mode == EditTools.Chkpnt && chkclck) {
 				chkpntTool.transform.position = pos;
 				ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
 				addSpecial(cd);
 			}
-			if (b3 && chkclck) {
+			if (tool_mode == EditTools.Warp && chkclck) {
 				warpTool.transform.position = pos;
 				HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
 				WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
@@ -145,14 +142,14 @@ public partial class EditGM {
 			}
 		}
 
-		if (!b2 && CheckInputDown(InputKeys.Chkpnt)) {
+		if (tool_mode != EditTools.Chkpnt && CheckInputDown(InputKeys.Chkpnt)) {
 			current_tool.SetActive(false);
-			setTool(chkpntTool); // <5>
+			setTool(EditTools.Chkpnt); // <5>
 			current_tool.SetActive(true);
 		}
-		if (!b3 && CheckInputDown(InputKeys.Warp)) {
+		if (tool_mode != EditTools.Warp && CheckInputDown(InputKeys.Warp)) {
 			current_tool.SetActive(false);
-			setTool(warpTool);
+			setTool(EditTools.Warp);
 			current_tool.SetActive(true);
 		}
 
@@ -163,9 +160,9 @@ public partial class EditGM {
 		if (CheckInputDown(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
 		if (CheckInputDown(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
 		if (CheckInputDown(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
-		if (!b1 && bType) {
+		if (tool_mode != EditTools.Tile && bType) {
 			current_tool.SetActive(false);
-			setTool(tileCreator.gameObject); // <6>
+			setTool(EditTools.Tile); // <6>
 			current_tool.SetActive(true);
 		}
 
@@ -183,16 +180,13 @@ public partial class EditGM {
 	private void updateEdit ()
 	{
 		if (selected_item != new SelectedItem()) {
-			bool b1 = current_tool == tileCreator.gameObject;
-			bool b2 = current_tool == chkpntTool;
-			bool b3 = current_tool == warpTool;
-			if (!b1 && !b2 && !b3) return; // <1>
+			if (tool_mode == EditTools.Eraser) return; // <1>
 
 			bool chkclck = CheckInputDown(InputKeys.ClickMain);
 			Vector3 pos = anchorIcon.focus.ToUnitySpace(); // <4>
 			pos.z = anchorIcon.transform.position.z;
 			SelectedItem si = selected_item;
-			if (b1) {
+			if (tool_mode == EditTools.Tile) {
 				int rot = tileCreator.tileOrient.rotation;
 				if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
 				if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
@@ -202,12 +196,12 @@ public partial class EditGM {
 
 				if (chkclck) addTile();
 			} else {
-				if (b2 && chkclck) {
+				if (tool_mode == EditTools.Chkpnt && chkclck) {
 					chkpntTool.transform.position = pos;
 					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
 					addSpecial(cd);
 				}
-				if (b3 && chkclck) {
+				if (tool_mode == EditTools.Warp && chkclck) {
 					warpTool.transform.position = pos;
 					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
 					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
@@ -246,11 +240,11 @@ public partial class EditGM {
 				WarpData wd;
 				if (IsMappedChkpnt(go, out cd)) {
 					selected_item = new SelectedItem(null, cd);
-					setTool(chkpntTool);
+					setTool(EditTools.Chkpnt);
 				}
 				if (IsMappedWarp(go, out wd)) {
 					selected_item = new SelectedItem(null, wd);
-					setTool(warpTool);
+					setTool(EditTools.Warp);
 				}
 				removeSpecial(go); // <10>
 				Destroy(go);

@@ -270,13 +270,13 @@ public partial class EditGM {
 		if (selected_item.tileData.HasValue) {
 			removeTile(selected_item.instance);
 			tileCreator.SetProperties(selected_item.tileData.Value);
-			setTool(tileCreator.gameObject);
+			setTool(EditTools.Tile);
 		} else if (selected_item.chkpntData.HasValue) {
 			removeSpecial(selected_item.instance);
-			setTool(chkpntTool);
+			setTool(EditTools.Chkpnt);
 		} else if (selected_item.warpData.HasValue) {
 			removeSpecial(selected_item.instance);
-			setTool(warpTool);
+			setTool(EditTools.Warp);
 		}
 	}
 
@@ -287,13 +287,13 @@ public partial class EditGM {
 		WarpData wData;
 		if (IsMappedChkpnt(inSpecial, out cData)) { // <1>
 			selected_item = new SelectedItem(inSpecial, cData);
-			setTool(chkpntTool);
+			setTool(EditTools.Chkpnt);
 
 			levelData.chkpntSet.Remove(cData);
 			chkpnt_lookup.Remove(inSpecial);
 		} else if (IsMappedWarp(inSpecial, out wData)) { // <2>
 			selected_item = new SelectedItem(inSpecial, wData);
-			setTool(warpTool);
+			setTool(EditTools.Warp);
 
 			levelData.warpSet.Remove(wData);
 			warp_lookup.Remove(inSpecial);
@@ -348,14 +348,27 @@ public partial class EditGM {
 	}
 
 	// sets the currently active tool
-	private void setTool (GameObject inTool)
+	private void setTool (EditTools inTool)
 	{
-		bool b = false;
-		b |= inTool == chkpntTool;
-		b |= inTool == tileCreator.gameObject;
-		b |= inTool == warpTool;
-		if (!b) return;
-
-		current_tool = inTool;
+		switch (inTool) {
+			case EditTools.Tile: {
+				current_tool = tileCreator.gameObject;
+				break;
+			}
+			case EditTools.Chkpnt: {
+				current_tool = chkpntTool;
+				break;
+			}
+			case EditTools.Warp: {
+				current_tool = warpTool;
+				break;
+			}
+			case EditTools.Eraser: {
+				// missing implementation
+				current_tool = null;
+				break;
+			}
+			default: break;
+		}
 	}
 }

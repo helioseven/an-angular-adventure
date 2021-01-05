@@ -20,6 +20,15 @@ public partial class EditGM {
 		Paint = 0x4
 	}
 
+	//
+	[Flags]
+	public enum EditTools {
+		Tile = 0x0,
+		Chkpnt = 0x1,
+		Warp = 0x2,
+		Eraser = 0x4
+	}
+
 	// InputKeys wraps keyboard input into a bit-flag enum
 	[Flags]
 	public enum InputKeys {
@@ -61,13 +70,13 @@ public partial class EditGM {
 
 			if (selected_item.tileData.HasValue) {
 				tileCreator.SetProperties(selected_item.tileData.Value);
-				setTool(tileCreator.gameObject); // <3>
+				setTool(EditTools.Tile); // <3>
 			}
-			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
-			if (selected_item.warpData.HasValue) setTool(warpTool);
+			if (selected_item.chkpntData.HasValue) setTool(EditTools.Chkpnt);
+			if (selected_item.warpData.HasValue) setTool(EditTools.Warp);
 			else selected_item = new SelectedItem(); // <4>
 		} else {
-			setTool(tileCreator.gameObject); // <5>
+			setTool(EditTools.Tile); // <5>
 		}
 
 		current_mode = EditorMode.Create;
@@ -89,16 +98,16 @@ public partial class EditGM {
 		if (selected_item != new SelectedItem()) {
 			if (selected_item.tileData.HasValue) {
 				tileCreator.SetProperties(selected_item.tileData.Value);
-				setTool(tileCreator.gameObject); // <2>
+				setTool(EditTools.Tile); // <2>
 			}
-			if (selected_item.chkpntData.HasValue) setTool(chkpntTool);
-			if (selected_item.warpData.HasValue) setTool(warpTool);
+			if (selected_item.chkpntData.HasValue) setTool(EditTools.Chkpnt);
+			if (selected_item.warpData.HasValue) setTool(EditTools.Warp);
 			removeSelectedItem(); // <3>
 			Destroy(selected_item.instance);
 			selected_item.instance = null;
 
 		} else {
-			setTool(tileCreator.gameObject); // <4>
+			setTool(EditTools.Tile); // <4>
 		}
 
 		current_mode = EditorMode.Edit;
@@ -122,7 +131,7 @@ public partial class EditGM {
 			else selected_item = new SelectedItem(); // <4>
 		}
 
-		setTool(tileCreator.gameObject); // <5>
+		setTool(EditTools.Tile); // <5>
 		current_mode = EditorMode.Paint;
 
 		/*
