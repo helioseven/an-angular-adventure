@@ -20,7 +20,7 @@ public partial class EditGM {
 		Paint = 0x4
 	}
 
-	//
+	// EditTools establishes the different tools usable in the editor
 	[Flags]
 	public enum EditTools {
 		Tile = 0x0,

@@ -118,12 +118,7 @@ public partial class EditGM {
 
 		bool chkclck = CheckInputDown(InputKeys.ClickMain);
 		if (tool_mode == EditTools.Tile) {
-			int rot = tileCreator.tileOrient.rotation;
-			if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
-			if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
-
-			if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
-			if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
+			updateTileProperties(); // <2>
 
 			if (chkclck) addTile(); // <3>
 		} else {
@@ -145,26 +140,25 @@ public partial class EditGM {
 		if (tool_mode != EditTools.Chkpnt && CheckInputDown(InputKeys.Chkpnt)) {
 			current_tool.SetActive(false);
 			setTool(EditTools.Chkpnt); // <5>
-			current_tool.SetActive(true);
 		}
 		if (tool_mode != EditTools.Warp && CheckInputDown(InputKeys.Warp)) {
 			current_tool.SetActive(false);
 			setTool(EditTools.Warp);
-			current_tool.SetActive(true);
 		}
 
-		bool bType = false;
-		if (CheckInputDown(InputKeys.One)) { tileCreator.SelectType(0); bType = true; }
-		if (CheckInputDown(InputKeys.Two)) { tileCreator.SelectType(1); bType = true; }
-		if (CheckInputDown(InputKeys.Three)) { tileCreator.SelectType(2); bType = true; }
-		if (CheckInputDown(InputKeys.Four)) { tileCreator.SelectType(3); bType = true; }
-		if (CheckInputDown(InputKeys.Five)) { tileCreator.SelectType(4); bType = true; }
-		if (CheckInputDown(InputKeys.Six)) { tileCreator.SelectType(5); bType = true; }
-		if (tool_mode != EditTools.Tile && bType) {
+		InputKeys nums = InputKeys.One;
+		nums |= InputKeys.Two;
+		nums |= InputKeys.Three;
+		nums |= InputKeys.Four;
+		nums |= InputKeys.Five;
+		nums |= InputKeys.Six;
+		nums &= getInputDowns;
+		if (nums != InputKeys.None) {
 			current_tool.SetActive(false);
 			setTool(EditTools.Tile); // <6>
-			current_tool.SetActive(true);
 		}
+
+		current_tool.SetActive(true);
 
 		/*
 		<1> first, figure out which tool is active and return if none
@@ -187,12 +181,7 @@ public partial class EditGM {
 			pos.z = anchorIcon.transform.position.z;
 			SelectedItem si = selected_item;
 			if (tool_mode == EditTools.Tile) {
-				int rot = tileCreator.tileOrient.rotation;
-				if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1); // <2>
-				if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
-
-				if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
-				if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
+				updateTileProperties(); // <2>
 
 				if (chkclck) addTile();
 			} else {
@@ -298,5 +287,26 @@ public partial class EditGM {
 		<3> if nothing was clicked on, or if the currently selected tile was clicked on, deselect and return
 		<4> otherwise we select according to what was clicked on
 		*/
+	}
+
+	//
+	private void updateTileProperties ()
+	{
+		// update tile rotation
+		int rot = tileCreator.tileOrient.rotation;
+		if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1);
+		if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1);
+
+		// update tile color
+		if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
+		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true);
+
+		// update tile type
+		if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
+		if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
+		if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
+		if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
+		if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
+		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5);
 	}
 }
