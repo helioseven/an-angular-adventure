@@ -234,7 +234,6 @@ public partial class EditGM {
 			Vector3 v3 = cd.locus.ToUnitySpace();
 			v3.z = tileMap.transform.GetChild(cd.layer).position.z; // <7>
 			GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
-			go.GetComponent<SpriteRenderer>().enabled = true;
 			go.transform.SetParent(chkpntMap.transform);
 			go.SetActive(true);
 			go.GetComponent<SpecialCreator>().enabled = false;

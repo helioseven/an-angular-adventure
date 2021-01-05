@@ -3288,6 +3288,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 582737717}
   m_CullTransparentMesh: 0
+--- !u!1 &600276108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 600276110}
+  - component: {fileID: 600276109}
+  m_Layer: 0
+  m_Name: CheckpointTool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &600276109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600276108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &600276110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 600276108}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4086340629730806}
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619949556
 GameObject:
   m_ObjectHideFlags: 0
@@ -7067,7 +7111,7 @@ MonoBehaviour:
   hudPanel: {fileID: 1249965603}
   palettePanel: {fileID: 765649599}
   tileCreator: {fileID: 515141213}
-  chkpntTool: {fileID: 1466859543171642}
+  chkpntTool: {fileID: 600276108}
   warpTool: {fileID: 2068855241}
   anchorIcon: {fileID: 1740795237}
   tileMap: {fileID: 1833171069}
@@ -9932,26 +9976,13 @@ GameObject:
   - component: {fileID: 4086340629730806}
   - component: {fileID: 212771283233520576}
   - component: {fileID: 58681736292349124}
-  - component: {fileID: 1466859543171643}
   m_Layer: 0
-  m_Name: CheckpointTool
+  m_Name: checkpoint_tool
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1466859543171643
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1466859543171642}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &4086340629730806
 Transform:
   m_ObjectHideFlags: 0
@@ -9963,8 +9994,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.25, y: 0.25, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_Father: {fileID: 600276110}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4772593006671243
 Transform:
