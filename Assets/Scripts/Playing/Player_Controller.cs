@@ -6,7 +6,7 @@ public class Player_Controller : MonoBehaviour {
 
 	public int speed = 150;
 	public float jumpForce = 1000f;
-	public float verticalMovementFactor = 0.15f;
+	public float verticalMovementFactor = 0.25f;
 
 	private int max_jumps = 1;
 	private int num_jumps;
@@ -67,7 +67,7 @@ public class Player_Controller : MonoBehaviour {
 	}
 
 	void UpdateGravity()
-	{
+	{/*
 		// GRAVITY
 		//Gravity Down
 		if (Input.GetKeyDown(KeyCode.S)) {
@@ -95,7 +95,7 @@ public class Player_Controller : MonoBehaviour {
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
 			jump_force_vec = new Vector2(-jumpForce, 0.0f);
 		}
-	}
+	*/}
 
 	void Move()
 	{
