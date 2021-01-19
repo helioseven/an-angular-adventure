@@ -178,6 +178,25 @@ public partial class EditGM {
 	public float GetLayerDepth (int inLayer)
 	{ return tileMap.transform.GetChild(inLayer).position.z; }
 
+	// returns first collider hit on active layer under click
+	public Collider2D GetObjectClicked ()
+	{
+		Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+		Plane p = new Plane(Vector3.forward, -2f * activeLayer); // <1>
+		float f;
+		p.Raycast(r, out f);
+		Vector3 v3 = r.GetPoint(f); // <2>
+		v3.z -= 1f;
+		r = new Ray(v3, Vector3.forward);
+		return Physics2D.GetRayIntersection(r, 2f).collider; // <3>
+
+		/*
+		<1> use plane at active layer depth
+		<2> get point of intersection with active layer plane
+		<3> cast a forward-facing ray through layer at intersection point
+		*/
+	}
+
 	// if passed object is a tile, supplies corresponding TileData
 	public bool IsMappedTile (GameObject inTile, out TileData outData)
 	{
