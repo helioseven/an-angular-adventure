@@ -171,17 +171,27 @@ public partial class EditGM {
 			}
 		} else if (CheckInputDown(InputKeys.ClickMain)) { // <5>
 			Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-			Collider2D c2d = Physics2D.GetRayIntersection(r).collider; // <6>
-			if (!c2d) { // <7>
+			Plane p = new Plane(Vector3.forward, -2f * activeLayer);
+			float f;
+			p.Raycast(r, out f);
+			Vector3 v3 = r.GetPoint(f);
+			v3.z -= 1f;
+			r = new Ray(v3, Vector3.forward); // <6>
+
+			Collider2D c2d = Physics2D.GetRayIntersection(r, 2f).collider; // <7>
+			if (!c2d) {
 				selected_item = new SelectedItem();
 				return;
 			}
+
 			GameObject go = c2d.gameObject;
 			TileData td;
 			if (IsMappedTile(go, out td)) { // <8>
 				if (td.orient.layer != activeLayer) return;
 				selected_item = new SelectedItem(null, td);
 				tileCreator.SetProperties(td);
+				setTool(EditTools.Tile);
+
 				removeTile(go); // <9>
 				Destroy(go);
 			} else {
@@ -207,8 +217,8 @@ public partial class EditGM {
 		<3> if any tool used, turn off current_tool, deselect selected_item, and return
 		<4> if there is a selected tile, Delete will destroy instance and forget
 		<5> if there is no selected tile, left-click selects a tile
-		<6> first we find out what (if anything) has been clicked on
-		<7> if nothing is clicked, null out selected_item and return
+		<6> cast a forward-facing ray at plane intersection point
+		<7> check click, if miss null out selected_item and return
 		<8> if tile is clicked, make it into new SelectedItem and remove
 		<9> once SelectedItem emulates the tile, destroy it
 		<10> if special is clicked, same as tile more or less
