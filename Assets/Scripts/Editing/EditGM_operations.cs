@@ -234,6 +234,7 @@ public partial class EditGM {
 			Vector3 v3 = cd.locus.ToUnitySpace();
 			v3.z = tileMap.transform.GetChild(cd.layer).position.z; // <7>
 			GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+			go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
 			go.transform.SetParent(chkpntMap.transform);
 			go.SetActive(true);
 			go.GetComponent<SpecialCreator>().enabled = false;
@@ -246,7 +247,7 @@ public partial class EditGM {
 			v3.z = tileMap.transform.GetChild(wd.orient.layer).position.z; // <11>
 			Quaternion q = Quaternion.Euler(0, 0, 30 * wd.orient.rotation);
 			GameObject go = Instantiate(warpTool, v3, q) as GameObject;
-			go.GetComponent<SpriteRenderer>().enabled = true;
+			go.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
 			go.transform.SetParent(warpMap.transform);
 			go.SetActive(true);
 			go.GetComponent<SpecialCreator>().enabled = false;
