@@ -11,16 +11,19 @@ public class PlayGM : MonoBehaviour {
 	// singleton instance
 	[HideInInspector] public static PlayGM instance = null;
 
-	public GameObject playerRef;
-	public GameObject deathParticles;
+	public GameObject boundary_down;
+	public GameObject boundary_left;
+	public GameObject boundary_right;
+	public GameObject boundary_up;
 	public GameObject checkpointRef;
+	public GameObject deathParticles;
+	public GameObject player;
 	public GameObject warpRef;
 
 	private PlayLoader lvl_load = null;
 	public GameObject tileMap;
 
 	public LevelData levelData { get; private set; }
-	public GameObject player { get; private set; }
 	public GameObject currentCheckpoint { get; private set; }
 	public int currentLayer { get; private set; }
 
@@ -31,20 +34,31 @@ public class PlayGM : MonoBehaviour {
 			instance = this;
 			// find the loader
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
-			// load the level
-			Vector2 v2;
-			LevelData inLvl;
-			lvl_load.supplyLevel(ref tileMap, out inLvl, out v2);
-			levelData = inLvl;
-			// set layer activity
-			ActivateLayer(0);
-			// set checkpoint
-			SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
-			// instantiate player
-			player = Instantiate(playerRef, v2, Quaternion.identity) as GameObject;
-			currentLayer = 0;
+			// find the player
+			player = GameObject.FindWithTag("Player");
 		} else
 			Destroy(gameObject);
+	}
+
+	void Start ()
+	{
+		// load the level
+		Vector2 v2;
+		LevelData inLvl;
+		lvl_load.supplyLevel(ref tileMap, out inLvl, out v2);
+		levelData = inLvl;
+
+		// set layer activity
+		currentLayer = 0;
+		ActivateLayer(0);
+
+		// set boundaries
+
+		// set player position
+		player.transform.position = v2;
+
+		// set checkpoint
+		SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
 	}
 
 	void Update ()

@@ -66,7 +66,7 @@ public class PlayLoader : MonoBehaviour {
 		}
 
 		// hard-coded player start for now (!!) needs to change
-		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -10);
+		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -8);
 		playerStart = hl.ToUnitySpace();
 
 		// terminates this script when done
