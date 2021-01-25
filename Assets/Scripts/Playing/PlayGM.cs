@@ -21,11 +21,15 @@ public class PlayGM : MonoBehaviour {
 	public GameObject warpRef;
 
 	private PlayLoader lvl_load = null;
+	// prefab references (included in transform children)
+	public GameObject TileCreator;
 	public GameObject tileMap;
 
 	public LevelData levelData { get; private set; }
 	public GameObject currentCheckpoint { get; private set; }
 	public int currentLayer { get; private set; }
+
+	private HexLocus playerStart;
 
 	void Awake ()
 	{
@@ -36,17 +40,14 @@ public class PlayGM : MonoBehaviour {
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
 			// find the player
 			player = GameObject.FindWithTag("Player");
-		} else
-			Destroy(gameObject);
+		} else Destroy(gameObject);
 	}
 
 	void Start ()
 	{
 		// load the level
-		Vector2 v2;
-		LevelData inLvl;
-		lvl_load.supplyLevel(ref tileMap, out inLvl, out v2);
-		levelData = inLvl;
+		levelData = lvl_load.supplyLevel();
+		buildLevel(levelData);
 
 		// set layer activity
 		currentLayer = 0;
@@ -55,10 +56,10 @@ public class PlayGM : MonoBehaviour {
 		// set boundaries
 
 		// set player position
-		player.transform.position = v2;
+		player.transform.position = playerStart.ToUnitySpace();
 
 		// set checkpoint
-		SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
+		// SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
 	}
 
 	void Update ()
@@ -126,6 +127,38 @@ public class PlayGM : MonoBehaviour {
 			d = Math.Abs(d - layerIndex);
 			SetLayerOpacity(tileLayer, d);
 		}
+	}
+
+	private void buildLevel (LevelData inLevel)
+	{
+		// prefabs are loaded from TileCreator into 6x8 array
+		GameObject[,] prefab_refs = new GameObject[6, 8];
+		foreach (Transform tileType in TileCreator.transform)
+			foreach (Transform tile in tileType)
+				prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
+
+		// create level layers (hard-coded amount for now)
+		for (int i = 1; i < 3; i++) {
+			// create each tileLayer
+			GameObject tileLayer = new GameObject();
+			tileLayer.name = "Layer #" + i;
+			tileLayer.transform.position = new Vector3(0f, 0f, 2f * i);
+			tileLayer.transform.SetParent(tileMap.transform);
+		}
+
+		// populate tile hierarchy
+		foreach (TileData td in inLevel.tileSet) {
+			GameObject pfRef = prefab_refs[td.type, td.color];
+			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
+			Vector3 v3 = td.orient.locus.ToUnitySpace();
+			int tdLayer = td.orient.layer;
+			v3.z = 2f * tdLayer;
+			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			go.transform.SetParent(tileMap.transform.GetChild(tdLayer));
+		}
+
+		// hard-coded player start for now (!!) needs to change
+		playerStart = new HexLocus(0, 0, 0, 0, 0, -8);
 	}
 
 	private void SetLayerOpacity (Transform tileLayer, int distance)

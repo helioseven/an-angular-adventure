@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -8,68 +7,47 @@ using circleXsquares;
 
 public class PlayLoader : MonoBehaviour {
 
-	// prefab references (included in transform children)
-	public GameObject genesisTile;
+	// public read-accessibility state variables
+	public string levelName { get; private set; }
 
-	// short-form pathname for the level to be loaded
+	// private variables
 	private string path;
-	// 6x7 array of prefab references
-	private GameObject[,] prefab_refs;
 
 	void Awake ()
 	{
-		// prefabs are loaded from a single transform hierarchy
-		prefab_refs = new GameObject[6, 8];
-		foreach (Transform tileLayer in genesisTile.transform)
-			foreach (Transform tile in tileLayer)
-				prefab_refs[tileLayer.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
+		levelName = "testLevel"; // <1>
+		path = levelName + ".txt";
+		DontDestroyOnLoad(gameObject); // <2>
+		SceneManager.LoadScene(1); // <3>
 
-		// filepath of level to be loaded
-		// (!) currently just change the string and recompile :|
-		// (!!) prompt for string instead
-		path = "testLevel.txt";
-		DontDestroyOnLoad(gameObject);
-		// load Playing scene (PlayGM will call supplyLevel)
-		SceneManager.LoadScene(1);
+		/*
+		<1> levelName is hard coded (!!), should be prompted
+		<2> this loader stays awake when next scene is loaded
+		<3> load Editing scene (EditGM will call supplyLevel)
+		*/
 	}
 
-	// supplies a hierarchy of tiles, a level representation, and a Vector2 indicating a starting location
-	public void supplyLevel (ref GameObject tiles, out LevelData level, out Vector2 playerStart)
-	{
-		// initialization
-		tiles.transform.position = Vector3.zero;
-		playerStart = Vector2.zero;
-
-		// begin parsing file
-		bool file_exists = File.Exists("Levels/" + path);
+	// supplies a levelData from file
+	public LevelData supplyLevel ()
+	{		
+		bool file_exists = File.Exists("Levels/" + path); // <1>
+		LevelData ld;
 		if (file_exists) {
 			string[] lines = File.ReadAllLines("Levels/" + path);
-			level = FileParsing.ReadLevel(lines);
+			ld = FileParsing.ReadLevel(lines); // <2>
 		} else {
 			Debug.Log("File not found, loading new level.");
-			level = new LevelData();
-			return;
+			ld = new LevelData(); // <3>
 		}
 
-		// populate tile hierarchy
-		GameObject tileLayer = new GameObject();
-		tileLayer.transform.position = new Vector3(0f, 0f, 0f);
-		tileLayer.transform.SetParent(tiles.transform);
+		Destroy(gameObject); // <4>
+		return ld;
 
-		foreach (TileData td in level.tileSet) {
-			GameObject pfRef = prefab_refs[td.type, td.color];
-			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
-			Vector3 v3 = td.orient.locus.ToUnitySpace();
-			v3.z = tileLayer.transform.position.z;
-			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
-			go.transform.SetParent(tileLayer.transform);
-		}
-
-		// hard-coded player start for now (!!) needs to change
-		HexLocus hl = new HexLocus(0, 0, 0, 0, 0, -8);
-		playerStart = hl.ToUnitySpace();
-
-		// terminates this script when done
-		Destroy(gameObject);
+		/*
+		<1> first, check to see whether the file exists
+		<2> if file exists, it is loaded and parsed
+		<3> if file doesn't exist, empty level is created
+		<4> when script is done, it schedules self-termination and returns
+		*/
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -28,7 +27,7 @@ public class EditLoader : MonoBehaviour {
 		*/
 	}
 
-	// supplies the tileMap with gameObjects and supplies a level representation, then returns a lookup mapping
+	// supplies a levelData from file
 	public LevelData supplyLevel ()
 	{
 		bool file_exists = File.Exists("Levels/" + path); // <1>

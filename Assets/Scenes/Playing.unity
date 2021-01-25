@@ -286,6 +286,8 @@ MonoBehaviour:
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
   player: {fileID: 2116145627}
   warpRef: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
+  TileCreator: {fileID: 1427315914901626, guid: 9acfcf5961fa1a348817d1f5311f8000,
+    type: 3}
   tileMap: {fileID: 112465030}
 --- !u!4 &932601441
 Transform:
