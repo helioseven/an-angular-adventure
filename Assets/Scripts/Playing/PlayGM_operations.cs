@@ -21,15 +21,19 @@ public partial class PlayGM {
 	}
 
 	// updates last-touched checkpoint
-	public void SetCheckpoint (GameObject checkpoint)
+	public void SetCheckpoint (ChkpntData inCheckpoint)
 	{
-		currentCheckpoint = checkpoint;
+		currentCheckpoint = inCheckpoint;
 	}
 
 	// resets the player to last checkpoint
 	public void ResetToCheckpoint ()
 	{
-		player.transform.position = currentCheckpoint.transform.position;
+		Vector3 v3 = currentCheckpoint.locus.ToUnitySpace();
+		int l = currentCheckpoint.layer;
+		v3.z = 2f * l;
+		activateLayer(l);
+		player.transform.position = v3;
 		player.SetActive(true);
 	}
 

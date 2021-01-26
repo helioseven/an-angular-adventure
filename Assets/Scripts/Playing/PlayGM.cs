@@ -26,13 +26,13 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject warpMap;
 
 	// public read-accessibility state variables
-	public GameObject currentCheckpoint { get; private set; }
+	public ChkpntData currentCheckpoint { get; private set; }
 	public int currentLayer { get; private set; }
 	public LevelData levelData { get; private set; }
 
 	// private variables
 	private PlayLoader lvl_load = null;
-	private HexOrient playerStart;
+	private HexOrient player_start;
 
 	void Awake ()
 	{
@@ -58,10 +58,11 @@ public partial class PlayGM : MonoBehaviour {
 
 		// set boundaries
 
-		player.transform.position = playerStart.locus.ToUnitySpace(); // <3>
+		player.transform.position = player_start.locus.ToUnitySpace(); // <3>
 
 		// set checkpoint
-		SetCheckpoint(chkpntMap.transform.GetChild(0).gameObject);
+		GameObject chkpnt = chkpntMap.transform.GetChild(0).gameObject;
+		SetCheckpoint(chkpnt.GetComponent<Checkpoint>().data);
 
 		/*
 		<1> load the level

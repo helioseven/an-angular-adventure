@@ -25,7 +25,7 @@ public partial class PlayGM {
 		*/
 	}
 
-	// uses given levelData to build tileMap and place playerStart
+	// uses given levelData to build tileMap and place player_start
 	private void buildLevel (LevelData inLevel)
 	{
 		GameObject[,] prefab_refs = new GameObject[6, 8]; // <1>
@@ -65,7 +65,7 @@ public partial class PlayGM {
 
 		ChkpntData start = inLevel.chkpntSet[0];
 		HexLocus hl = start.locus;
-		playerStart = new HexOrient(hl, 0, start.layer); // <6>
+		player_start = new HexOrient(hl, 0, start.layer); // <6>
 
 		/*
 		<1> prefab references to tiles are arrayed for easy access
