@@ -44,13 +44,10 @@ public partial class PlayGM {
 
 		foreach (TileData td in inLevel.tileSet) { // <3>
 			GameObject pfRef = prefab_refs[td.type, td.color];
-			Quaternion q = Quaternion.Euler(0, 0, 30 * td.orient.rotation);
-			Vector3 v3 = td.orient.locus.ToUnitySpace();
-			// next two steps should be obsolete w/ HexOrient.ToUnitySpace()
-			int tdLayer = td.orient.layer;
-			v3.z = 2f * tdLayer;
+			Quaternion q;
+			Vector3 v3 = td.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
-			go.transform.SetParent(tileMap.transform.GetChild(tdLayer));
+			go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
 		}
 
 		foreach (ChkpntData cd in inLevel.chkpntSet) { // <4>
@@ -61,9 +58,8 @@ public partial class PlayGM {
 		}
 
 		foreach (WarpData wd in inLevel.warpSet) { // <5>
-			Vector3 v3 = wd.orient.locus.ToUnitySpace();
-			v3.z = tileMap.transform.GetChild(wd.orient.layer).position.z;
-			Quaternion q = Quaternion.Euler(0, 0, 30 * wd.orient.rotation);
+			Quaternion q;
+			Vector3 v3 = wd.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(warpRef, v3, q) as GameObject;
 			go.transform.SetParent(warpMap.transform);
 		}
