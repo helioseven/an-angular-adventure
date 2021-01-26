@@ -1,6 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &7877069056288140119
+--- !u!114 &-5945232996855253916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8506601070187228460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &8506799362991301672
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -9,7 +21,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
       propertyPath: m_Name
-      value: Warp_Play
+      value: Warp_Edit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4772592430258234, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
       propertyPath: m_LocalPosition.x
@@ -55,10 +71,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 61027163091661682, guid: 77e692e4486ce3d4eab41ab908affd92,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
+--- !u!1 &8506601070187228460 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92,
+    type: 3}
+  m_PrefabInstance: {fileID: 8506799362991301672}
+  m_PrefabAsset: {fileID: 0}

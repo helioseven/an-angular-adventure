@@ -1,6 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &6239851035011697165
+--- !u!114 &-5456787021317239375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7663971732325061466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1001 &7664796398220725802
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -9,7 +21,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1466859081506160, guid: b7deed4aa479b1f4abe6bb5f15da3865, type: 3}
       propertyPath: m_Name
-      value: Checkpoint_Play
+      value: Checkpoint_Edit
+      objectReference: {fileID: 0}
+    - target: {fileID: 1466859081506160, guid: b7deed4aa479b1f4abe6bb5f15da3865, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4086340162820796, guid: b7deed4aa479b1f4abe6bb5f15da3865, type: 3}
       propertyPath: m_LocalPosition.x
@@ -55,10 +71,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 58681734622788494, guid: b7deed4aa479b1f4abe6bb5f15da3865,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b7deed4aa479b1f4abe6bb5f15da3865, type: 3}
+--- !u!1 &7663971732325061466 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1466859081506160, guid: b7deed4aa479b1f4abe6bb5f15da3865,
+    type: 3}
+  m_PrefabInstance: {fileID: 7664796398220725802}
+  m_PrefabAsset: {fileID: 0}
