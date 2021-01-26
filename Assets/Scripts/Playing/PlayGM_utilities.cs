@@ -28,8 +28,6 @@ public partial class PlayGM {
 	// uses given levelData to build tileMap and place playerStart
 	private void buildLevel (LevelData inLevel)
 	{
-		playerStart = new HexOrient(new HexLocus(0, 0, 0, 0, 0, -8), 0, 0); // <1>
-
 		GameObject[,] prefab_refs = new GameObject[6, 8]; // <1>
 		foreach (Transform tileType in tileCreator.transform)
 			foreach (Transform tile in tileType)
@@ -64,13 +62,17 @@ public partial class PlayGM {
 			go.transform.SetParent(warpMap.transform);
 		}
 
+		ChkpntData start = inLevel.chkpntSet[0];
+		HexLocus hl = start.locus;
+		playerStart = new HexOrient(hl, 0, start.layer); // <6>
+
 		/*
-		<1> hard-coded player start for now (!!) needs to change
 		<1> prefab references to tiles are arrayed for easy access
 		<2> create level layers (hard-coded amount for now)
 		<3> populate tile hierarchy
 		<4> populate checkpoint map
 		<5> populate warp map
+		<6> player starts at the first checkpoint
 		*/
 	}
 
