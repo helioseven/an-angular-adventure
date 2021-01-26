@@ -35,8 +35,8 @@ public struct HexLocus
 		return (bA && bB && bC && bD && bE && bF);
 	}
 	public static bool operator !=(HexLocus h1, HexLocus h2) { return !(h1 == h2); }
-	// operators allow HexLocus to be added and subtracted like vectors
-	// since they are static, coordinate simplification is ensured by the constructor
+	// additional operators allow HexLocus to be used like vectors
+	// coordinate simplification is ensured by constructor
 	public static HexLocus operator +(HexLocus h1, HexLocus h2)
 	{
 		int rA, rB, rC, rD, rE, rF;
@@ -146,7 +146,7 @@ public struct HexLocus
 		return hash;
 	}
 
-	// translates a discrete HexLocus into a Unity world space location
+	// translates a discrete HexLocus into a Vector2
 	public Vector2 ToUnitySpace ()
 	{
 		float x, y; // <1>
@@ -311,6 +311,14 @@ public struct HexOrient
 		s += " " + rotation.ToString();
 		s += " " + layer.ToString();
 		return s;
+	}
+
+	// translates a discrete HexOrient into a Vector3 and outputs rotation
+	public Vector3 ToUnitySpace(out Quaternion outRotation)
+	{
+		Vector2 v2 = locus.ToUnitySpace();
+		outRotation = Quaternion.Euler(0, 0, 30 * rotation);
+		return new Vector3(v2.x, v2.y, 2f * layer);
 	}
 
 	public static bool operator ==(HexOrient ho1, HexOrient ho2)
