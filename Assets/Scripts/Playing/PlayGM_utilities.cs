@@ -19,6 +19,8 @@ public partial class PlayGM {
 			setLayerOpacity(tileLayer, d);
 		}
 
+		activeLayer = layerIndex;
+
 		/*
 		<1> cycle through all layers and calls setLayerOpacity appropriately
 		<2> delta is simply absolute distance between layers
@@ -60,6 +62,14 @@ public partial class PlayGM {
 			Quaternion q;
 			Vector3 v3 = wd.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(warpRef, v3, q) as GameObject;
+			int lBase = wd.orient.layer;
+			int lTarget = wd.targetLayer;
+			bool isBase = lBase == 0;
+			bool isTarget = lTarget == 0;
+			Warp w = go.GetComponent<Warp>();
+			w.baseLayer = lBase;
+			w.targetLayer = lTarget;
+			go.layer = isBase || isTarget ? 10 : 9;
 			go.transform.SetParent(warpMap.transform);
 		}
 

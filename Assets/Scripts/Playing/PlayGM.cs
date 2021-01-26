@@ -26,8 +26,8 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject warpMap;
 
 	// public read-accessibility state variables
-	public ChkpntData currentCheckpoint { get; private set; }
-	public int currentLayer { get; private set; }
+	public ChkpntData activeChkpnt { get; private set; }
+	public int activeLayer { get; private set; }
 	public LevelData levelData { get; private set; }
 
 	// private variables
@@ -53,7 +53,7 @@ public partial class PlayGM : MonoBehaviour {
 		levelData = lvl_load.supplyLevel(); // <1>
 		buildLevel(levelData);
 
-		currentLayer = 0; // <2>
+		activeLayer = 0; // <2>
 		activateLayer(0);
 
 		// set boundaries

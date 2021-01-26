@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class Warp : MonoBehaviour {
 
+	public PlayGM play_gm;
+
 	public int baseLayer;
 	public int targetLayer;
 
-	void OnTriggerEnter2D(Collider2D other) {
-		if (other.gameObject.CompareTag("Player")) PlayGM.instance.WarpPlayer(this);
+	void Awake ()
+	{
+		play_gm = PlayGM.instance;
+	}
+
+	void OnTriggerEnter2D (Collider2D other)
+	{
+		play_gm.WarpPlayer(baseLayer, targetLayer);
 	}
 }

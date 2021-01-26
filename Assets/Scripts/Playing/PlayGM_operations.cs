@@ -23,14 +23,14 @@ public partial class PlayGM {
 	// updates last-touched checkpoint
 	public void SetCheckpoint (ChkpntData inCheckpoint)
 	{
-		currentCheckpoint = inCheckpoint;
+		activeChkpnt = inCheckpoint;
 	}
 
 	// resets the player to last checkpoint
 	public void ResetToCheckpoint ()
 	{
-		Vector3 v3 = currentCheckpoint.locus.ToUnitySpace();
-		int l = currentCheckpoint.layer;
+		Vector3 v3 = activeChkpnt.locus.ToUnitySpace();
+		int l = activeChkpnt.layer;
 		v3.z = 2f * l;
 		activateLayer(l);
 		player.transform.position = v3;
@@ -38,15 +38,15 @@ public partial class PlayGM {
 	}
 
 	// warps player from base to target layer
-	public void WarpPlayer (Warp warp)
+	public void WarpPlayer (int baseLayer, int targetLayer)
 	{
 		int next_layer;
-		if (currentLayer == warp.baseLayer) // <1>
-			next_layer = warp.targetLayer;
-		else if (currentLayer == warp.targetLayer)
-			next_layer = warp.baseLayer;
+		if (activeLayer == baseLayer) // <1>
+			next_layer = targetLayer;
+		else if (activeLayer == targetLayer)
+			next_layer = baseLayer;
 		else {
-			next_layer = currentLayer; // <2>
+			next_layer = activeLayer; // <2>
 			return;
 		}
 
@@ -56,14 +56,14 @@ public partial class PlayGM {
 		p.z = tileMap.transform.GetChild(next_layer).position.z;
 		player.transform.position = p; // <4>
 
-		currentLayer = next_layer; // <5>
+		activeLayer = next_layer; // <5>
 
 		/*
-		<1> if currentLayer matches either base or target, select the other
+		<1> if activeLayer matches either base or target, select the other
 		<2> if neither, stay at current level and break
 		<3> update physics & transparency for all layers
 		<4> change player's position
-		<5> lastly, update currentLayer
+		<5> lastly, update activeLayer
 		*/
 	}
 }

@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6910e79739c64a04384722088500bd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  play_gm: {fileID: 0}
   baseLayer: 0
-  targetLayer: 0
+  targetLayer: 1
 --- !u!1001 &7877069056288140119
 PrefabInstance:
   m_ObjectHideFlags: 0
