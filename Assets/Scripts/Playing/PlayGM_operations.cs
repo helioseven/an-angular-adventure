@@ -37,7 +37,7 @@ public partial class PlayGM {
 		player.SetActive(true);
 	}
 
-	// warps player from base to target layer
+	// warps player from either base or target layer
 	public void WarpPlayer (int baseLayer, int targetLayer)
 	{
 		int next_layer;
