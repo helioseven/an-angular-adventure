@@ -277,18 +277,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ffd07a9edad409479ba6aa2c5d27058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boundary_down: {fileID: 1985882125}
-  boundary_left: {fileID: 1936284895}
-  boundary_right: {fileID: 1324976624}
-  boundary_up: {fileID: 2129861604}
+  boundaryDown: {fileID: 1985882125}
+  boundaryLeft: {fileID: 1936284895}
+  boundaryRight: {fileID: 1936284895}
+  boundaryUp: {fileID: 2129861604}
   checkpointRef: {fileID: 1466859081506160, guid: b7deed4aa479b1f4abe6bb5f15da3865,
     type: 3}
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
-  player: {fileID: 2116145627}
-  warpRef: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
-  TileCreator: {fileID: 1427315914901626, guid: 9acfcf5961fa1a348817d1f5311f8000,
+  tileCreator: {fileID: 1427315914901626, guid: 9acfcf5961fa1a348817d1f5311f8000,
     type: 3}
   tileMap: {fileID: 112465030}
+  player: {fileID: 2116145627}
+  warpRef: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
 --- !u!4 &932601441
 Transform:
   m_ObjectHideFlags: 0
