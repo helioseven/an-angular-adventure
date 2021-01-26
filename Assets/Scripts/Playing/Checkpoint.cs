@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour {
@@ -9,6 +10,7 @@ public class Checkpoint : MonoBehaviour {
 	void Awake ()
 	{
 		// assign layer
+		layer = 0;
 	}
 
 	// becomes the current checkpoint when it detects a collision with the player
