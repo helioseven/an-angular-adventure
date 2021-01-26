@@ -16,12 +16,14 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject boundaryLeft;
 	public GameObject boundaryRight;
 	public GameObject boundaryUp;
-	public GameObject checkpointRef;
+	public GameObject chkpntRef;
+	public GameObject chkpntMap;
 	public GameObject deathParticles;
 	public GameObject tileCreator;
 	public GameObject tileMap;
 	public GameObject player;
 	public GameObject warpRef;
+	public GameObject warpMap;
 
 	// public read-accessibility state variables
 	public GameObject currentCheckpoint { get; private set; }
@@ -59,7 +61,7 @@ public partial class PlayGM : MonoBehaviour {
 		player.transform.position = playerStart.locus.ToUnitySpace(); // <3>
 
 		// set checkpoint
-		// SetCheckpoint(Instantiate(checkpointRef, v2, Quaternion.identity) as GameObject);
+		SetCheckpoint(chkpntMap.transform.GetChild(0).gameObject);
 
 		/*
 		<1> load the level

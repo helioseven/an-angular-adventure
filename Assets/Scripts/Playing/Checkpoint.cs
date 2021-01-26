@@ -10,6 +10,7 @@ public class Checkpoint : MonoBehaviour {
 	void Awake ()
 	{
 		// assign layer
+		layer = 0;
 	}
 
 	// becomes the current checkpoint when it detects a collision with the player

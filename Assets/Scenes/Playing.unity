@@ -151,6 +151,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &485554455
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 485554456}
+  m_Layer: 0
+  m_Name: Warp Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &485554456
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485554455}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &685532278
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,14 +311,16 @@ MonoBehaviour:
   boundaryLeft: {fileID: 1936284895}
   boundaryRight: {fileID: 1936284895}
   boundaryUp: {fileID: 2129861604}
-  checkpointRef: {fileID: 1466859081506160, guid: b7deed4aa479b1f4abe6bb5f15da3865,
+  chkpntRef: {fileID: 2306064507363140815, guid: fe2c6fd356737e594a4c04ed56cf071c,
     type: 3}
+  chkpntMap: {fileID: 943682854}
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
   tileCreator: {fileID: 1427315914901626, guid: 9acfcf5961fa1a348817d1f5311f8000,
     type: 3}
   tileMap: {fileID: 112465030}
   player: {fileID: 2116145627}
-  warpRef: {fileID: 1051585780779268, guid: 77e692e4486ce3d4eab41ab908affd92, type: 3}
+  warpRef: {fileID: 5812710657826010489, guid: 0ccd1486460622f76aba27bcf55d151e, type: 3}
+  warpMap: {fileID: 485554455}
 --- !u!4 &932601441
 Transform:
   m_ObjectHideFlags: 0
@@ -302,6 +334,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &943682854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 943682855}
+  m_Layer: 0
+  m_Name: Checkpoint Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &943682855
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943682854}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1063085986
 GameObject:
