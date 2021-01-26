@@ -4,18 +4,16 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour {
 
-	//
-	public int layer { get; private set; }
+	PlayGM play_gm;
 
 	void Awake ()
 	{
-		// assign layer
-		layer = 0;
+		play_gm = PlayGM.instance;
 	}
 
 	// becomes the current checkpoint when it detects a collision with the player
 	void OnTriggerEnter2D (Collider2D other)
 	{
-		PlayGM.instance.SetCheckpoint(gameObject);
+		play_gm.SetCheckpoint(gameObject);
 	}
 }

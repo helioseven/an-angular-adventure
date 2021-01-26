@@ -52,6 +52,7 @@ public partial class PlayGM {
 			Vector3 v3 = cd.locus.ToUnitySpace();
 			v3.z = tileMap.transform.GetChild(cd.layer).position.z;
 			GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
+			go.layer = cd.layer == 0 ? 10 : 9;
 			go.transform.SetParent(chkpntMap.transform);
 		}
 
