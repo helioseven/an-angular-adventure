@@ -311,7 +311,7 @@ MonoBehaviour:
   boundaryLeft: {fileID: 1936284895}
   boundaryRight: {fileID: 1936284895}
   boundaryUp: {fileID: 2129861604}
-  chkpntRef: {fileID: 2306064507363140815, guid: fe2c6fd356737e594a4c04ed56cf071c,
+  chkpntRef: {fileID: 6241234189199660925, guid: f40f9c7da1644d613a4f7fec0de20996,
     type: 3}
   chkpntMap: {fileID: 943682854}
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
@@ -319,7 +319,7 @@ MonoBehaviour:
     type: 3}
   tileMap: {fileID: 112465030}
   player: {fileID: 2116145627}
-  warpRef: {fileID: 5812710657826010489, guid: 0ccd1486460622f76aba27bcf55d151e, type: 3}
+  warpRef: {fileID: 7877716018560016979, guid: 1ed878280b29c0e249aecd4284a29fc4, type: 3}
   warpMap: {fileID: 485554455}
 --- !u!4 &932601441
 Transform:
