@@ -105,15 +105,15 @@ public partial class EditGM {
 	private void addSelectedItem ()
 	{
 		if (selected_item == new SelectedItem()) return; // <1>
-		if (selected_item.tileData.HasValue) {  // <2>
+		if (selected_item.tileData.HasValue) {
 			TileData td = selected_item.tileData.Value;
-			selected_item.instance = addTile(td);
+			selected_item.instance = addTile(td); // <2>
 		} else if (selected_item.chkpntData.HasValue) {
 			ChkpntData cd = selected_item.chkpntData.Value;
-			selected_item.instance = addSpecial(cd);
+			selected_item.instance = addSpecial(cd); // <2>
 		} else if (selected_item.warpData.HasValue) {
 			WarpData wd = selected_item.warpData.Value;
-			selected_item.instance = addSpecial(wd);
+			selected_item.instance = addSpecial(wd); // <2>
 		}
 
 		/*
@@ -138,8 +138,8 @@ public partial class EditGM {
 
 		/*
 		<1> first, the given ChkpntData is added to levelData
-		<2> second, a corresponding new checkpoint is added to chkpntMap
-		<3> lastly, the checkpoint's gameObject is added to the lookup dictionary and returned
+		<2> corresponding checkpoint object is added to chkpntMap
+		<3> resulting gameObject is added to lookup dictionary and returned
 		*/
 	}
 
@@ -159,19 +159,19 @@ public partial class EditGM {
 
 		/*
 		<1> first, the given ChkpntData is added to levelData
-		<2> second, a corresponding new checkpoint is added to chkpntMap
-		<3> lastly, the checkpoint's gameObject is added to the lookup dictionary and returned
+		<2> corresponding checkpoint object is added to chkpntMap
+		<3> resulting gameObject is added to lookup dictionary and returned
 		*/
 	}
 
-	// adds a passed tileData to the level and returns a reference
+	// adds a default tile to the level and returns a reference
 	private GameObject addTile ()
 	{
 		TileData td = tileCreator.GetTileData(); // <1>
 		return addTile(td);
 
 		/*
-		<1> uses tileCreator state as default tile addition
+		<1> uses tileCreator state for parameterless tile addition
 		*/
 	}
 
@@ -189,8 +189,8 @@ public partial class EditGM {
 
 		/*
 		<1> first, the given TileData is added to levelData
-		<2> second, a new tile is created and added to tileMap
-		<3> lastly, return tile's gameObject after adding to lookup
+		<2> then new tile object is created and added to tileMap
+		<3> add tile's gameObject to the tile lookup and return it
 		*/
 	}
 
@@ -261,15 +261,20 @@ public partial class EditGM {
 	{
 		if (selected_item.tileData.HasValue) {
 			removeTile(selected_item.instance);
-			tileCreator.SetProperties(selected_item.tileData.Value);
-			setTool(EditTools.Tile);
+			tileCreator.SetProperties(selected_item.tileData.Value); // <1>
+			setTool(EditTools.Tile); // <2>
 		} else if (selected_item.chkpntData.HasValue) {
 			removeSpecial(selected_item.instance);
-			setTool(EditTools.Chkpnt);
+			setTool(EditTools.Chkpnt); // <2>
 		} else if (selected_item.warpData.HasValue) {
 			removeSpecial(selected_item.instance);
-			setTool(EditTools.Warp);
+			setTool(EditTools.Warp); // <2>
 		}
+
+		/*
+		<1> if selected_item is a tile, use tileData to set tileCreator
+		<2> in all cases, remove selected_item from level and set tool
+		*/
 	}
 
 	// removes a given special from the level
@@ -282,19 +287,23 @@ public partial class EditGM {
 			setTool(EditTools.Chkpnt);
 
 			levelData.chkpntSet.Remove(cData);
-			chkpnt_lookup.Remove(inSpecial);
+			chkpnt_lookup.Remove(inSpecial); // <3>
 		} else if (IsMappedWarp(inSpecial, out wData)) { // <2>
 			selected_item = new SelectedItem(inSpecial, wData);
 			setTool(EditTools.Warp);
 
 			levelData.warpSet.Remove(wData);
-			warp_lookup.Remove(inSpecial);
-		} else return; // <3>
+			warp_lookup.Remove(inSpecial); // <3>
+		} else return; // <4>
+
+		Destroy(inSpecial); // <5>
 
 		/*
-		<1> first, check to see whether the given item is a checkpoint
-		<2> then check to see whether the given item is a warp
-		<3> if neither simply return, otherwise destroy the object
+		<1> check to see whether the given item is a checkpoint
+		<2> check to see whether the given item is a warp
+		<3> set selected_item and tool then remove item from level and lookup
+		<4> if neither, simply return
+		<5> if either, destroy the passed object
 		*/
 	}
 
@@ -310,8 +319,8 @@ public partial class EditGM {
 
 		/*
 		<1> lookup the item's TileData
-		<2> if the specified item is not part of tileMap, we escape
-		<3> remove tile from the level and tile_lookup
+		<2> if the passed GameObject is not part of tileMap, we escape
+		<3> otherwise remove tile from the level and tile_lookup
 		*/
 	}
 

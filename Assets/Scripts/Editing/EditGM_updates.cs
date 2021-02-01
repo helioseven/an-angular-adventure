@@ -142,7 +142,7 @@ public partial class EditGM {
 		current_tool.SetActive(true); // <5>
 
 		/*
-		<1> break if eraser is active, because it shouldn't be
+		<1> break if eraser is active, because it shouldn't be (for now)
 		<2> update active tool according to input
 		<3> C and V activate the checkpoint and warp tools, respectively
 		<4> if numeric key was pressed, set tileCreator as tool
@@ -153,24 +153,24 @@ public partial class EditGM {
 	// makes changes associated with being in editMode
 	private void updateEdit ()
 	{
-		if (selected_item != new SelectedItem()) {
-			if (tool_mode == EditTools.Eraser) return; // <1>
+		if (selected_item != new SelectedItem()) { // <1>
+			if (tool_mode == EditTools.Eraser) return; // <2>
 
-			updateTool(); // <2>
+			updateTool(); // <3>
 
 			if (CheckInputDown(InputKeys.ClickMain)) {
-				current_tool.SetActive(false); // <3>
+				current_tool.SetActive(false); // <4>
 				selected_item = new SelectedItem();
 				return;
 			}
 
-			if (CheckInputDown(InputKeys.Delete)) { // <4>
+			if (CheckInputDown(InputKeys.Delete)) { // <5>
 				current_tool.SetActive(false);
 				Destroy(selected_item.instance);
 				selected_item = new SelectedItem();
 			}
-		} else if (CheckInputDown(InputKeys.ClickMain)) { // <5>
-			Collider2D c2d = GetObjectClicked(); // <6>
+		} else if (CheckInputDown(InputKeys.ClickMain)) { // <6>
+			Collider2D c2d = GetObjectClicked(); // <7>
 			if (!c2d) {
 				selected_item = new SelectedItem();
 				return;
@@ -178,14 +178,14 @@ public partial class EditGM {
 
 			GameObject go = c2d.gameObject;
 			TileData td;
-			if (IsMappedTile(go, out td)) { // <7>
-				if (td.orient.layer != activeLayer) return;
+			if (IsMappedTile(go, out td)) { // <8>
+				if (td.orient.layer != activeLayer) return; // <9>
 				selected_item = new SelectedItem(null, td);
-				tileCreator.SetProperties(td);
+				tileCreator.SetProperties(td); // <10>
 				setTool(EditTools.Tile);
 
-				removeTile(go); // <8>
-				Destroy(go);
+				removeTile(go);
+				Destroy(go); // <11>
 			} else {
 				ChkpntData cd;
 				WarpData wd;
@@ -197,22 +197,25 @@ public partial class EditGM {
 					selected_item = new SelectedItem(null, wd);
 					setTool(EditTools.Warp);
 				}
-				removeSpecial(go); // <9>
-				Destroy(go);
+				removeSpecial(go);
+				Destroy(go); // <12>
 			}
 			current_tool.SetActive(true);
 		}
 
 		/*
-		<1> in edit mode, a selected tile will follow the focus
-		<2> update active tool according to input
-		<3> if any tool used, turn off current_tool, deselect selected_item, and return
-		<4> if there is a selected tile, Delete will destroy instance and forget
-		<5> if there is no selected tile, left-click selects a tile
-		<6> check click, if miss null out selected_item and return
-		<7> if tile is clicked, make it into new SelectedItem and remove
-		<8> once SelectedItem emulates the tile, destroy it
-		<9> if special is clicked, same as tile more or less
+		<1> first, handle the case where an item is currently selected
+		<2> break if eraser is active, because it shouldn't be (for now)
+		<3> update active tool according to input
+		<4> if tool used, turn off current_tool, deselect selected_item, and return
+		<5> Delete will destroy instance and forget selected_item
+		<6> next handle the case where there is no selected tile
+		<7> left-click selects a tile, if miss null out selected_item and return
+		<8> check if clicked object is a mapped tile
+		<9> if clicked tile isn't a part of activeLayer, ignore it
+		<10> use tileData to populate selected item and tool properties
+		<11> when done using data, destroy GameObject
+		<12> if special is clicked, same as tile but with checks for which special
 		*/
 	}
 
@@ -227,8 +230,9 @@ public partial class EditGM {
 	{
 		if (CheckInputDown(InputKeys.ClickMain)) { // <1>
 			Collider2D c2d = GetObjectClicked(); // <2>
-			if (!c2d || (selected_item.instance && (selected_item.instance == c2d.gameObject))) { // <3>
-				selected_item = new SelectedItem();
+			GameObject si = selected_item.instance;
+			if (!c2d || (si && (si == c2d.gameObject))) {
+				selected_item = new SelectedItem(); // <3>
 				return;
 			} else { // <4>
 				GameObject go = c2d.gameObject;
@@ -244,8 +248,8 @@ public partial class EditGM {
 		/*
 		<1> in select mode, clicking is the only function
 		<2> first find out what (if anything) was clicked on
-		<3> if nothing was clicked on, or if the currently selected tile was clicked on, deselect and return
-		<4> otherwise we select according to what was clicked on
+		<3> if nothing or selected tile is clicked on, deselect and return
+		<4> otherwise select according to what was clicked on
 		*/
 	}
 
@@ -279,7 +283,7 @@ public partial class EditGM {
 		}
 
 		/*
-		<1> update tile creator properties first, regardless
+		<1> when using tile tool, always update tile creator properties first
 		<2> if main click, add relevant tool item to the level
 		*/
 	}
