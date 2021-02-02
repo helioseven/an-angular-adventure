@@ -53,6 +53,7 @@ public partial class EditGM : MonoBehaviour {
 	private EditTools tool_mode;
 	private SelectedItem selected_item;
 	private GameObject current_tool;
+	private SpecialCreator warp_tool;
 	private Dictionary<GameObject, TileData> tile_lookup;
 	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
 	private Dictionary<GameObject, WarpData> warp_lookup;
@@ -66,6 +67,7 @@ public partial class EditGM : MonoBehaviour {
 			tool_mode = EditTools.Tile;
 			current_tool = tileCreator.gameObject;
 			selected_item = new SelectedItem();
+			warp_tool = warpTool.GetComponent<SpecialCreator>();
 			tile_lookup = new Dictionary<GameObject, TileData>();
 			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
 			warp_lookup = new Dictionary<GameObject, WarpData>();

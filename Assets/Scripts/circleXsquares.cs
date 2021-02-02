@@ -299,7 +299,7 @@ public struct HexOrient
 	public HexOrient (HexLocus inLocus, int inRotation, int inLayer)
 	{
 		locus = inLocus;
-		rotation = inRotation;
+		rotation = (inRotation + 12) % 12;
 		layer = inLayer;
 		if (layer < 0) layer = 0;
 	}

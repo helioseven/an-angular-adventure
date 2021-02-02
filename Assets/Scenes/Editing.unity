@@ -7406,6 +7406,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -5945232996855253916, guid: 0b74a042a6aefde6aadc4b9c08777916,
+        type: 3}
+      propertyPath: isWarp
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8506601070187228460, guid: 0b74a042a6aefde6aadc4b9c08777916,
         type: 3}
       propertyPath: m_Name

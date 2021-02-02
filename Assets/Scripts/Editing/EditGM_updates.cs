@@ -136,6 +136,7 @@ public partial class EditGM {
 		nums &= getInputDowns;
 		if (nums != InputKeys.None) {
 			current_tool.SetActive(false);
+			updateTileProperties();
 			setTool(EditTools.Tile); // <4>
 		}
 
@@ -195,6 +196,7 @@ public partial class EditGM {
 				}
 				if (IsMappedWarp(go, out wd)) {
 					selected_item = new SelectedItem(null, wd);
+					warp_tool.SetOrientation(wd.orient);
 					setTool(EditTools.Warp);
 				}
 				removeSpecial(go);
@@ -253,6 +255,32 @@ public partial class EditGM {
 		*/
 	}
 
+	// handles input that modifies the tile creator tool
+	private void updateTileProperties ()
+	{
+		int rot = tileCreator.tileOrient.rotation;
+		int oldRot = rot;
+		if (CheckInputDown(InputKeys.CCW)) rot++;
+		if (CheckInputDown(InputKeys.CW)) rot--;
+		if (rot != oldRot) tileCreator.SetRotation(rot); // <1>
+
+		if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
+		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true); // <2>
+
+		if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
+		if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
+		if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
+		if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
+		if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
+		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5); // <3>
+
+		/*
+		<1> update tile rotation
+		<2> update tile color
+		<3> update tile type
+		*/
+	}
+
 	// handles input relating to the current tool
 	private void updateTool ()
 	{
@@ -269,9 +297,14 @@ public partial class EditGM {
 				}
 				break;
 			case EditTools.Warp:
-				// currently cannot rotate the warp tool
+				int rot = warp_tool.specOrient.rotation;
+				int oldRot = rot;
+				if (CheckInputDown(InputKeys.CCW)) rot++;
+				if (CheckInputDown(InputKeys.CW)) rot--;
+				if (rot != oldRot) warp_tool.SetRotation(rot); // <3>
+
 				if (chkclck) {
-					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
+					HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
 					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
 					addSpecial(wd); // <2>
 				}
@@ -283,30 +316,7 @@ public partial class EditGM {
 		/*
 		<1> when using tile tool, always update tile creator properties first
 		<2> if main click, add relevant tool item to the level
-		*/
-	}
-
-	// handles input that modifies the tile creator tool
-	private void updateTileProperties ()
-	{
-		int rot = tileCreator.tileOrient.rotation;
-		if (CheckInputDown(InputKeys.CCW)) tileCreator.SetRotation(rot + 1);
-		if (CheckInputDown(InputKeys.CW)) tileCreator.SetRotation(rot - 1); // <1>
-
-		if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
-		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true); // <2>
-
-		if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
-		if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
-		if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
-		if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
-		if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
-		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5); // <3>
-
-		/*
-		<1> update tile rotation
-		<2> update tile color
-		<3> update tile type
+		<3> set rotation of the warp tool, if necessary
 		*/
 	}
 }
