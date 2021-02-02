@@ -352,24 +352,21 @@ public partial class EditGM {
 	private void setTool (EditTools inTool)
 	{
 		switch (inTool) {
-			case EditTools.Tile: {
+			case EditTools.Tile:
 				current_tool = tileCreator.gameObject;
 				break;
-			}
-			case EditTools.Chkpnt: {
+			case EditTools.Chkpnt:
 				current_tool = chkpntTool;
 				break;
-			}
-			case EditTools.Warp: {
+			case EditTools.Warp:
 				current_tool = warpTool;
 				break;
-			}
-			case EditTools.Eraser: {
+			case EditTools.Eraser:
 				// missing implementation
 				current_tool = null;
 				break;
-			}
-			default: break;
+			default:
+				break;
 		}
 
 		tool_mode = inTool;

@@ -258,19 +258,17 @@ public partial class EditGM {
 	{
 		bool chkclck = CheckInputDown(InputKeys.ClickMain);
 		switch (tool_mode) {
-			case EditTools.Tile: {
+			case EditTools.Tile:
 				updateTileProperties(); // <1>
 				if (chkclck) addTile(); // <2>
 				break;
-			}
-			case EditTools.Chkpnt: {
+			case EditTools.Chkpnt:
 				if (chkclck) {
 					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
 					addSpecial(cd); // <2>
 				}
 				break;
-			}
-			case EditTools.Warp: {
+			case EditTools.Warp:
 				// currently cannot rotate the warp tool
 				if (chkclck) {
 					HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
@@ -278,8 +276,8 @@ public partial class EditGM {
 					addSpecial(wd); // <2>
 				}
 				break;
-			}
-			default: break;
+			default:
+				break;
 		}
 
 		/*
