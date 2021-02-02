@@ -25,6 +25,7 @@ public class TileCreator : MonoBehaviour {
 	public int tileColor { get; private set; }
 	public HexOrient tileOrient { get; private set; }
 
+	// private variables
 	private EditGM gm_ref;
 	private SnapCursor anchor_ref;
 	// tile_renderers manages the sprite renderers of the different tile colors
@@ -60,15 +61,17 @@ public class TileCreator : MonoBehaviour {
 
 	void Update ()
 	{
-		tileOrient = new HexOrient(anchor_ref.focus, tileOrient.rotation, gm_ref.activeLayer);
+		HexLocus f = anchor_ref.focus; // <1>
+		int r = tileOrient.rotation;
+		int l = gm_ref.activeLayer;
+		tileOrient = new HexOrient(f, r, l);
 
-		Vector3 v3 = tileOrient.locus.ToUnitySpace(); // <1>
-		v3.z = gm_ref.GetLayerDepth(tileOrient.layer); // <2>
-		transform.position = v3;
+		Quaternion q;
+		transform.position = tileOrient.ToUnitySpace(out q);
+		transform.rotation = q;
 
 		/*
-		<1> when active, the genesis_tile will follow the focus
-		<2> get our Z-depth from the SnapCursor
+		<1> when active, the TileCreator will follow the focus
 		*/
 	}
 
@@ -97,19 +100,15 @@ public class TileCreator : MonoBehaviour {
 	// turns the transform in 30 degree increments
 	public void SetRotation (int inRotation)
 	{
-		tileOrient = new HexOrient(tileOrient.locus, (inRotation + 12) % 12, tileOrient.layer);
-		transform.eulerAngles = new Vector3(0, 0, 30 * tileOrient.rotation);
+		tileOrient = new HexOrient(tileOrient.locus, inRotation, tileOrient.layer);
+		Update();
 	}
 
 	// translates and rotates the transform according to given orientation
 	public void SetOrientation (HexOrient inOrient)
 	{
 		tileOrient = inOrient;
-
-		Vector3 v3 = tileOrient.locus.ToUnitySpace();
-		v3.z = gm_ref.GetLayerDepth(tileOrient.layer);
-		transform.position = v3;
-		SetRotation(tileOrient.rotation);
+		Update();
 	}
 
 	// sets type, color, and rotation by passed struct
@@ -119,8 +118,6 @@ public class TileCreator : MonoBehaviour {
 		tileType = inData.type;
 		tileColor = inData.color;
 		tile_renderers[tileType, tileColor].enabled = true;
-
-		SetOrientation(inData.orient);
 	}
 
 	// returns a TileData representation of the genesisTile's current state
