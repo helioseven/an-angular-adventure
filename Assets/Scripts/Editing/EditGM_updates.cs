@@ -136,6 +136,7 @@ public partial class EditGM {
 		nums &= getInputDowns;
 		if (nums != InputKeys.None) {
 			current_tool.SetActive(false);
+			updateTileProperties();
 			setTool(EditTools.Tile); // <4>
 		}
 
