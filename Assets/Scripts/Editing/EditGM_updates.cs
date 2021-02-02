@@ -195,6 +195,7 @@ public partial class EditGM {
 				}
 				if (IsMappedWarp(go, out wd)) {
 					selected_item = new SelectedItem(null, wd);
+					warp_tool.SetOrientation(wd.orient);
 					setTool(EditTools.Warp);
 				}
 				removeSpecial(go);

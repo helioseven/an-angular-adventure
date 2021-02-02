@@ -118,6 +118,7 @@ public class TileCreator : MonoBehaviour {
 		tileType = inData.type;
 		tileColor = inData.color;
 		tile_renderers[tileType, tileColor].enabled = true;
+		SetRotation(inData.orient.rotation);
 	}
 
 	// returns a TileData representation of the genesisTile's current state
