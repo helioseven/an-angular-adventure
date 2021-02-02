@@ -3,19 +3,13 @@ using System;
 using System.Collections;
 using circleXsquares;
 
-/* The TileCreator is how new tiles are added to the level in the editor. *
- * (*) all comments here are out of date
+/* The TileCreator is how new tiles are added to the level in the editor.
+ * It behaves differently depending on which editor mode is active.
  *
- * The editor has two modes, "creation mode" and "editing mode";
- * when the editor is in creation mode, the genesis tile is used as a placeholder
- * for the new tile that is about to be created.
- * This works by having every possible shape/color combination of tile instantiated
- * in the same location, as children of the parent object owning this script,
- * and then turning off the renderers for all children except the working tile.
- *
- * In editing mode, the genesis tile is hijacked by whatever tile occupies the
- * buffer in EditGM.selectedTile (a private variable). EditGM handles the logic of
- * when to do this, TileCreator handles the logic of how to do it.
+ * At its root, the TileCreator works by having every possible
+ * shape/color combination of tile instantiated in the same location,
+ * as children of the parent object (which owns this script),
+ * and turning on/off the renderers for those children.
  */
 
 public class TileCreator : MonoBehaviour {
