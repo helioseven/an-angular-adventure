@@ -29,6 +29,10 @@ public partial class EditGM : MonoBehaviour {
 	public string levelName { get; private set; }
 	public LevelData levelData { get; private set; }
 	public int activeLayer { get; private set; }
+	public SelectedItem selectedItem {
+		get { return selected_item; }
+		set {}
+	}
 	public bool paletteMode { get; private set; }
 	public bool selectMode {
 		get { return current_mode == EditorMode.Select; }
@@ -66,13 +70,16 @@ public partial class EditGM : MonoBehaviour {
 			current_mode = EditorMode.Create; // <2>
 			tool_mode = EditTools.Tile;
 			current_tool = tileCreator.gameObject;
-			selected_item = new SelectedItem();
+			TileData td = new TileData(0, 0, 0, new HexOrient());
+			selected_item = new SelectedItem(td);
 			warp_tool = warpTool.GetComponent<SpecialCreator>();
 			tile_lookup = new Dictionary<GameObject, TileData>();
 			chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
 			warp_lookup = new Dictionary<GameObject, WarpData>();
 
 			hudPanel.SetActive(false); // <3>
+			palettePanel.gameObject.SetActive(false);
+			tileCreator.gameObject.SetActive(true);
 			chkpntTool.SetActive(false);
 			warpTool.SetActive(false);
 
