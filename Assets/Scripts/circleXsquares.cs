@@ -351,16 +351,18 @@ public struct HexOrient
 public struct TileData
 {
 
-	// TileData consists of a type, color, position, and rotation
+	// TileData consists of a type, color, and orientation
 	public int type;
 	public int color;
+	public int special;
 	public HexOrient orient;
 
 	// simple constructor
-	public TileData (int inType, int inColor, HexOrient inOrient)
+	public TileData (int inType, int inColor, int inSpec, HexOrient inOrient)
 	{
 		type = inType;
 		color = inColor;
+		special = inSpec;
 		orient = inOrient;
 	}
 
@@ -369,6 +371,7 @@ public struct TileData
 	{
 		string s = type.ToString();
 		s += " " + color.ToString();
+		s += " " + special.ToString();
 		s += " " + orient.Serialize();
 		return s;
 	}
@@ -378,6 +381,7 @@ public struct TileData
 		bool b = true;
 		if (td1.type != td2.type) b = false;
 		if (td1.color != td2.color) b = false;
+		if (td1.special != td2.special) b = false;
 		if (td1.orient != td2.orient) b = false;
 		return b;
 	}
@@ -623,19 +627,20 @@ public static class FileParsing
 		}
 
 		// proceeds to read the line items
-		int i = Int32.Parse(s[0]);
-		int j = Int32.Parse(s[1]);
+		int t = Int32.Parse(s[0]);
+		int c = Int32.Parse(s[1]);
+		int x = Int32.Parse(s[2]);
 		HexLocus hl = new HexLocus(
-		    Int32.Parse(s[2]),
 		    Int32.Parse(s[3]),
 		    Int32.Parse(s[4]),
 		    Int32.Parse(s[5]),
 		    Int32.Parse(s[6]),
-		    Int32.Parse(s[7]));
-		int r = Int32.Parse(s[8]);
-		int y = Int32.Parse(s[9]);
+		    Int32.Parse(s[7]),
+		    Int32.Parse(s[8]));
+		int r = Int32.Parse(s[9]);
+		int y = Int32.Parse(s[10]);
 
-		return new TileData(i, j, new HexOrient(hl, r, y));
+		return new TileData(t, c, x, new HexOrient(hl, r, y));
 	}
 
 	// parses a string to construct a ChkpntData
