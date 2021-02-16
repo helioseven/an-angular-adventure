@@ -76,18 +76,10 @@ public class LevelInfoControl : MonoBehaviour {
 		if (b) updateUI();
 	}
 
-	/* Private Functions */
-
-	// gets a count of all tiles currently in the level
-	private int getTileCount ()
-	{
-		int count = 0;
-		foreach (Transform layer in tm_ref) count += layer.childCount;
-		return count;
-	}
+	/* Public Functions */
 
 	// updates the text variables inside the relevant UI sub-elements
-	private void updateUI ()
+	public void updateUI ()
 	{
 		name_display.text = level_name;
 
@@ -98,5 +90,15 @@ public class LevelInfoControl : MonoBehaviour {
 		tiles_display.text = s;
 
 		anchor_display.text = anchor_locus.PrettyPrint();
+	}
+
+	/* Private Functions */
+
+	// gets a count of all tiles currently in the level
+	private int getTileCount ()
+	{
+		int count = 0;
+		foreach (Transform layer in tm_ref) count += layer.childCount;
+		return count;
 	}
 }

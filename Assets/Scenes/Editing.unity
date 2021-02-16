@@ -9078,7 +9078,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Anchor:'
+  m_Text: 'Locus:'
 --- !u!222 &1918235339
 CanvasRenderer:
   m_ObjectHideFlags: 0

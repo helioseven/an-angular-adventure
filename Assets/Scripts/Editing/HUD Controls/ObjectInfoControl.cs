@@ -80,41 +80,42 @@ public class ObjectInfoControl : MonoBehaviour {
 
 	void Update ()
 	{
-		bool bType = tile_type != tc_ref.tileType;
-		bool bColor = tile_color != tc_ref.tileColor;
-		bool bRotation = tile_rotation != tc_ref.tileOrient.rotation;
-		bool bPosition = tile_position != gm_ref.anchorIcon.anchor;
+		bool b = false;
 
-		setValues();
+		if (tile_type != tc_ref.tileType) {
+			tile_type = tc_ref.tileType;
+			b = true;
+		}
+		if (tile_color != tc_ref.tileColor) {
+			tile_color = tc_ref.tileColor;
+			b = true;
+		}
+		if (tile_rotation != tc_ref.tileOrient.rotation) {
+			tile_rotation = tc_ref.tileOrient.rotation;
+			b = true;
+		}
+		if (tile_position != gm_ref.anchorIcon.anchor) {
+			tile_position = gm_ref.anchorIcon.focus;
+			b = true;
+		}
 
-		if (bType || bColor) UpdateDisplay();
-		if (bType || bColor || bRotation || bPosition) UpdateInfo();
+		if (b) UpdateUI();
 	}
 
 	/* Public Functions */
 
 	// updates the display image
-	public void UpdateDisplay ()
+	public void UpdateUI ()
 	{
 		Transform t = tc_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
 		object_display.sprite = t.GetComponent<SpriteRenderer>().sprite;
 		object_display_ARF.aspectRatio = aspect_ratios[tile_type];
-	}
 
-	// updates the attributes panels
-	public void UpdateInfo ()
-	{
 		type_display.text = type_strings[tile_type];
 		color_display.text = color_strings[tile_color];
 		rotation_display.text = tile_rotation.ToString();
 		locus_display.text = tile_position.PrettyPrint();
 
-		UpdateSpecialPanel();
-	}
-
-	// updates the special panel
-	public void UpdateSpecialPanel ()
-	{
 		bool b = false;
 		special_display.text = tile_special.ToString();
 		if (tile_color == 3) {
@@ -130,16 +131,5 @@ public class ObjectInfoControl : MonoBehaviour {
 
 		special_label.text = "Special Value:";
 		transform.GetChild(2).gameObject.SetActive(b);
-	}
-
-	/* Private Functions */
-
-	// updates private variables from world references
-	private void setValues ()
-	{
-		tile_type = tc_ref.tileType;
-		tile_color = tc_ref.tileColor;
-		tile_rotation = tc_ref.tileOrient.rotation;
-		tile_position = gm_ref.anchorIcon.anchor;
 	}
 }
