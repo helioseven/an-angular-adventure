@@ -17,6 +17,7 @@ public class TileCreator : MonoBehaviour {
 	// public read-accessibility state variables
 	public int tileType { get; private set; }
 	public int tileColor { get; private set; }
+	public int tileSpecial { get; private set; }
 	public HexOrient tileOrient { get; private set; }
 
 	// private variables
@@ -31,6 +32,7 @@ public class TileCreator : MonoBehaviour {
 		anchor_ref = gm_ref.anchorIcon;
 		tileType = 0;
 		tileColor = 0;
+		tileSpecial = 0;
 		tileOrient = new HexOrient(new HexLocus(), 0, 0);
 
 		int nTypes = transform.childCount;
@@ -91,6 +93,13 @@ public class TileCreator : MonoBehaviour {
 		*/
 	}
 
+	// sets tile's special value if valid color is in use
+	public void SetSpecial (int inSpecial)
+	{
+		if (tileColor == 3) tileSpecial = inSpecial;
+		if (tileColor == 4) tileSpecial = (inSpecial + 4) % 4;
+	}
+
 	// turns the transform in 30 degree increments
 	public void SetRotation (int inRotation)
 	{
@@ -111,6 +120,7 @@ public class TileCreator : MonoBehaviour {
 		tile_renderers[tileType, tileColor].enabled = false;
 		tileType = inData.type;
 		tileColor = inData.color;
+		tileSpecial = inData.special;
 		tile_renderers[tileType, tileColor].enabled = true;
 		SetRotation(inData.orient.rotation);
 	}
@@ -118,7 +128,7 @@ public class TileCreator : MonoBehaviour {
 	// returns a TileData representation of the genesisTile's current state
 	public TileData GetTileData ()
 	{
-		return new TileData(tileType, tileColor, tileOrient);
+		return new TileData(tileType, tileColor, tileSpecial, tileOrient);
 	}
 
 	// returns a new tile copied from the tile in active use
