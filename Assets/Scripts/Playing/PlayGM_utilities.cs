@@ -8,6 +8,16 @@ using circleXsquares;
 
 public partial class PlayGM {
 
+	/* Enums */
+
+	public enum GravityDirection
+	{
+		Down = 0,
+		Left,
+		Up,
+		Right
+	}
+
 	/* Private Utilities */
 
 	// calculates delta between each layer and desired active, sets accordingly
@@ -47,6 +57,8 @@ public partial class PlayGM {
 			Quaternion q;
 			Vector3 v3 = td.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			Tile t = go.GetComponent<Tile>();
+			if (t) t.data = td;
 			go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
 		}
 

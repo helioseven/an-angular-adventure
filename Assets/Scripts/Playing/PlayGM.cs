@@ -21,25 +21,30 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject deathParticles;
 	public GameObject tileCreator;
 	public GameObject tileMap;
-	public GameObject player;
+	public Player_Controller player;
 	public GameObject warpRef;
 	public GameObject warpMap;
 
 	// public read-accessibility state variables
+	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
 	public int activeLayer { get; private set; }
-	public LevelData levelData { get; private set; }
+	public GravityDirection gravDirection {
+		get { return grav_dir; }
+		set {}
+	}
 
 	// private variables
 	private PlayLoader lvl_load = null;
 	private HexOrient player_start;
+	private GravityDirection grav_dir;
 
 	void Awake ()
 	{
 		if (!instance) {
 			instance = this; // <1>
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
-			player = GameObject.FindWithTag("Player");
+			player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
 		} else Destroy(gameObject); // <2>
 
 		/*
@@ -59,6 +64,8 @@ public partial class PlayGM : MonoBehaviour {
 		// set boundaries
 
 		player.transform.position = player_start.locus.ToUnitySpace(); // <3>
+
+		grav_dir = GravityDirection.Down;
 
 		// set checkpoint
 		GameObject chkpnt = chkpntMap.transform.GetChild(0).gameObject;

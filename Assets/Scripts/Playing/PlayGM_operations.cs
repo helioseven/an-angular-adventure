@@ -10,10 +10,35 @@ public partial class PlayGM {
 
 	/* Public Operations */
 
+	//
+	public void DirectGravity (GravityDirection inDirect)
+	{
+		//
+		switch (inDirect) {
+			case GravityDirection.Down:
+				Physics2D.gravity = new Vector2(0.0f, -9.81f);
+				break;
+			case GravityDirection.Left:
+				Physics2D.gravity = new Vector2(-9.81f, 0.0f);
+				break;
+			case GravityDirection.Up:
+				Physics2D.gravity = new Vector2(0.0f, 9.81f);
+				break;
+			case GravityDirection.Right:
+				Physics2D.gravity = new Vector2(9.81f, 0.0f);
+				break;
+			default:
+				return;
+		}
+
+		grav_dir = inDirect;
+		player.ResetJumpForce();
+	}
+
 	// kills the player
 	public void KillPlayer ()
 	{
-		player.SetActive(false);
+		player.gameObject.SetActive(false);
 		Vector3 p = player.transform.position;
 		UnityEngine.Object dp = Instantiate(deathParticles, p, Quaternion.identity);
 		Invoke("ResetToCheckpoint", 1f);
@@ -34,7 +59,7 @@ public partial class PlayGM {
 		v3.z = 2f * l;
 		activateLayer(l);
 		player.transform.position = v3;
-		player.SetActive(true);
+		player.gameObject.SetActive(true);
 	}
 
 	// warps player from either base or target layer
