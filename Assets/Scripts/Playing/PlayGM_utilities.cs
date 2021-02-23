@@ -18,6 +18,16 @@ public partial class PlayGM {
 		Right
 	}
 
+	/* Public Utilities */
+
+	// simply returns the z value of the current layer's transform
+	public float GetLayerDepth ()
+	{ return GetLayerDepth(activeLayer); }
+
+	// simply returns the z value of the given layer's transform
+	public float GetLayerDepth (int inLayer)
+	{ return tileMap.transform.GetChild(inLayer).position.z; }
+
 	/* Private Utilities */
 
 	// calculates delta between each layer and desired active, sets accordingly

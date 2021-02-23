@@ -12,10 +12,10 @@ public partial class PlayGM : MonoBehaviour {
 	[HideInInspector] public static PlayGM instance = null;
 
 	// public GameObject or component script references
-	public GameObject boundaryDown;
-	public GameObject boundaryLeft;
-	public GameObject boundaryRight;
-	public GameObject boundaryUp;
+	public Boundary boundaryDown;
+	public Boundary boundaryLeft;
+	public Boundary boundaryRight;
+	public Boundary boundaryUp;
 	public GameObject chkpntRef;
 	public GameObject chkpntMap;
 	public GameObject deathParticles;
@@ -61,7 +61,8 @@ public partial class PlayGM : MonoBehaviour {
 		activeLayer = 0; // <2>
 		activateLayer(0);
 
-		// set boundaries
+		Boundary[] bs = {boundaryDown, boundaryLeft, boundaryRight, boundaryUp};
+		foreach (Boundary b in bs) b.SetBoundary();
 
 		player.transform.position = player_start.locus.ToUnitySpace(); // <3>
 

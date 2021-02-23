@@ -307,10 +307,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ffd07a9edad409479ba6aa2c5d27058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boundaryDown: {fileID: 1985882125}
-  boundaryLeft: {fileID: 1936284895}
-  boundaryRight: {fileID: 1936284895}
-  boundaryUp: {fileID: 2129861604}
+  boundaryDown: {fileID: 1985882131}
+  boundaryLeft: {fileID: 1936284901}
+  boundaryRight: {fileID: 1324976630}
+  boundaryUp: {fileID: 2129861610}
   chkpntRef: {fileID: 6241234189199660925, guid: f40f9c7da1644d613a4f7fec0de20996,
     type: 3}
   chkpntMap: {fileID: 943682854}
@@ -506,6 +506,7 @@ GameObject:
   - component: {fileID: 1324976626}
   - component: {fileID: 1324976625}
   - component: {fileID: 1324976629}
+  - component: {fileID: 1324976630}
   m_Layer: 0
   m_Name: Boundary Right
   m_TagString: Untagged
@@ -513,19 +514,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &1324976625
-BoxCollider:
+--- !u!61 &1324976625
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1324976624}
+  m_Enabled: 1
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!23 &1324976626
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -599,6 +613,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1324976630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324976624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1351c689094d68d46a72634bccc7ac31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPositive: 1
+  isVertical: 0
 --- !u!1 &1936284895
 GameObject:
   m_ObjectHideFlags: 0
@@ -612,6 +640,7 @@ GameObject:
   - component: {fileID: 1936284897}
   - component: {fileID: 1936284896}
   - component: {fileID: 1936284900}
+  - component: {fileID: 1936284901}
   m_Layer: 0
   m_Name: Boundary Left
   m_TagString: Untagged
@@ -619,19 +648,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &1936284896
-BoxCollider:
+--- !u!61 &1936284896
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1936284895}
+  m_Enabled: 1
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!23 &1936284897
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -705,6 +747,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1936284901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1936284895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1351c689094d68d46a72634bccc7ac31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPositive: 0
+  isVertical: 0
 --- !u!1 &1985882125
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,6 +774,7 @@ GameObject:
   - component: {fileID: 1985882127}
   - component: {fileID: 1985882126}
   - component: {fileID: 1985882130}
+  - component: {fileID: 1985882131}
   m_Layer: 0
   m_Name: Boundary Down
   m_TagString: Untagged
@@ -725,19 +782,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &1985882126
-BoxCollider:
+--- !u!61 &1985882126
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1985882125}
+  m_Enabled: 1
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!23 &1985882127
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -797,7 +867,7 @@ Transform:
   m_LocalScale: {x: 1000, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1985882130
 MonoBehaviour:
@@ -811,6 +881,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1985882131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1985882125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1351c689094d68d46a72634bccc7ac31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPositive: 0
+  isVertical: 1
 --- !u!1001 &2116145626
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -895,6 +979,7 @@ GameObject:
   - component: {fileID: 2129861606}
   - component: {fileID: 2129861605}
   - component: {fileID: 2129861609}
+  - component: {fileID: 2129861610}
   m_Layer: 0
   m_Name: Boundary Up
   m_TagString: Untagged
@@ -902,19 +987,32 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &2129861605
-BoxCollider:
+--- !u!61 &2129861605
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2129861604}
+  m_Enabled: 1
+  m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!23 &2129861606
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -974,7 +1072,7 @@ Transform:
   m_LocalScale: {x: 1000, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2129861609
 MonoBehaviour:
@@ -988,3 +1086,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2129861610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2129861604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1351c689094d68d46a72634bccc7ac31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPositive: 1
+  isVertical: 1
