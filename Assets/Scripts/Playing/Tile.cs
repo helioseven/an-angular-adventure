@@ -8,7 +8,7 @@ public class Tile : MonoBehaviour
 
   public TileData data;
 
-  private PlayGM gm_ref;
+  protected PlayGM gm_ref;
 
   void Awake ()
   {
