@@ -141,7 +141,7 @@ public struct HexLocus
 	public override int GetHashCode()
 	{
 		int hash = 0;
-		int[] coordinates = new int[] {this.a, this.b, this.c, this.d, this.e, this.f};
+		int[] coordinates = {this.a, this.b, this.c, this.d, this.e, this.f};
 		for (int i = 0; i < 6; i++) hash += coordinates[i] << i;
 		return hash;
 	}
@@ -190,10 +190,10 @@ public struct HexLocus
 	{
 		int inA = a, inB = b, inC = c, inD = d, inE = e, inF = f; // <1>
 		int dS = 0, i = 0; // <2> <3>
-		bool[] p1 = new bool[] {inA > 0, inC > 0, inE > 0};
-		bool[] n1 = new bool[] {inA < 0, inC < 0, inE < 0};
-		bool[] p2 = new bool[] {inB > 0, inD > 0, inF > 0};
-		bool[] n2 = new bool[] {inB < 0, inD < 0, inF < 0}; // <4>
+		bool[] p1 = {inA > 0, inC > 0, inE > 0};
+		bool[] n1 = {inA < 0, inC < 0, inE < 0};
+		bool[] p2 = {inB > 0, inD > 0, inF > 0};
+		bool[] n2 = {inB < 0, inD < 0, inF < 0}; // <4>
 
 		foreach (bool bN in p1) if (bN) i++; // <5>
 		if (i > 1) {
@@ -550,7 +550,7 @@ public static class FileParsing
 {
 
 	// splitChar is just a useful delimiter for general parsing behavior
-	public static Char[] splitChar = new Char[] {' '};
+	public static Char[] splitChar = {' '};
 
 	// reads an array of strings to parse out level data
 	public static LevelData ReadLevel (string[] lines)
