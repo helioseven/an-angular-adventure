@@ -9,9 +9,16 @@ public class Boundary : MonoBehaviour {
 
   private PlayGM gm_ref;
 
-  void Awake()
+  void Awake ()
   {
     gm_ref = PlayGM.instance;
+  }
+
+  void Update ()
+  {
+    Vector3 v3 = transform.position;
+    v3.z = gm_ref.GetLayerDepth();
+    transform.position = v3;
   }
 
   // after level is built, find appropriate boundary positions
