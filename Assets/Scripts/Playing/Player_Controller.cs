@@ -18,20 +18,23 @@ public class Player_Controller : MonoBehaviour {
 	private Rigidbody2D rb2d;
 	private Vector2 jump_force_vec;
 
-	// Use this for initialization
-	void Awake () {
-		gm_ref = PlayGM.instance;
-
+	void Awake ()
+	{
 		rb2d = gameObject.GetComponent<Rigidbody2D> ();
 		jump_force_vec = new Vector2(0.0f , jumpForce);
 		ground_check_collider = gameObject.GetComponent<Collider2D>();
 	}
 
-	// Update is called once per frame
-	void Update () {
-		UpdateJumping();
+	void Start ()
+	{
+		gm_ref = PlayGM.instance;
 	}
 
+	// Update is called once per frame
+	void Update ()
+	{
+		UpdateJumping();
+	}
 
 	void FixedUpdate ()
 	{

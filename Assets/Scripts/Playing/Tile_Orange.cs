@@ -19,6 +19,7 @@ public class Tile_Orange : Tile
   //
   private void redirectGravity ()
   {
+		Debug.Log("Orange tile touched.");
     //
     int newDir = data.special % 4;
     PlayGM.GravityDirection gd = PlayGM.GravityDirection.Down;
