@@ -31,7 +31,7 @@ public partial class PlayGM {
 		}
 
 		grav_dir = inDirect;
-		player.ResetJumpForce(); // <2>
+		player.UpdateJumpForce(inDirect); // <2>
 
 	  /*
 	  <1> set gravity vector according to direction
