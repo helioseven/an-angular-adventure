@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -84,30 +85,31 @@ public partial class EditGM {
 		bool isHUD = CheckInputDown(InputKeys.HUD);
 		bool isPal = CheckInput(InputKeys.Palette);
 
-		if (isHUD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
-
 		if (paletteMode != isPal) {
 			paletteMode = isPal;
-			palettePanel.TogglePalette(); // <2>
+			palettePanel.TogglePalette(); // <1>
 
 			if (paletteMode) {
-				current_tool.SetActive(false); // <3>
+				current_tool.SetActive(false); // <2>
 			} else {
-				bool b = false; // <4>
+				bool b = false; // <3>
 				if (createMode) b = true;
 				if (editMode && selected_item != new SelectedItem()) b = true;
 				if (paintMode) b = true;
 
-				if (b) current_tool.SetActive(true); // <5>
+				if (b) current_tool.SetActive(true); // <4>
 			}
 		}
 
+		if (isHUD) hudPanel.SetActive(!hudPanel.activeSelf); // <5>
+		hoveringHUD = checkHUDHover();
+
 		/*
-		<1> UI is toggled whenever spacebar is pressed
-		<2> palette is toggled on whenever tab key is held down
-		<3> whenever palette activates, current_tool is turned off
-		<4> determine if current_tool should be active when palette deactivates
-		<5> turn current_tool back on if so
+		<1> palette is toggled on whenever tab key is held down
+		<2> whenever palette activates, current_tool is turned off
+		<3> determine if current_tool should be active when palette deactivates
+		<4> turn current_tool back on if so
+		<5> UI is toggled whenever spacebar is pressed
 		*/
 	}
 

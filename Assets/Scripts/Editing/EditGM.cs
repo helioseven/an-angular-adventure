@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -13,6 +14,8 @@ public partial class EditGM : MonoBehaviour {
 	[HideInInspector] public static EditGM instance = null;
 
 	// references to UI elements, snap cursor, creation tool, checkpoint tool, warp tool, and tile hierarchy
+	public EventSystem eventSystem;
+	public GraphicRaycaster uiRaycaster;
 	public GameObject hudPanel;
 	public PaletteControl palettePanel;
 	public TileCreator tileCreator;
@@ -33,6 +36,7 @@ public partial class EditGM : MonoBehaviour {
 		get { return selected_item; }
 		set {}
 	}
+	public bool hoveringHUD { get; private set; }
 	public bool paletteMode { get; private set; }
 	public bool selectMode {
 		get { return current_mode == EditorMode.Select; }
@@ -86,25 +90,33 @@ public partial class EditGM : MonoBehaviour {
 			getInputs = InputKeys.None; // <4>
 			getInputDowns = InputKeys.None;
 			activeLayer = 0;
+			hoveringHUD = false;
 			paletteMode = false;
 
-			lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-			levelName = lvl_load.levelName;
-			levelData = lvl_load.supplyLevel(); // <5>
-			buildLevel(levelData);
-
-			activateLayer(activeLayer); // <6>
+			activateLayer(activeLayer); // <5>
 		} else
-			Destroy(gameObject); // <7>
+			Destroy(gameObject); // <6>
 
 		/*
 		<1> set singleton instance
 		<2> initializations for private state variables
 		<3> initializations for connected state variables
 		<4> initializations for public state variables
-		<5> file is loaded and parsed
-		<6> first layer is activated
-		<7> only one singleton can exist
+		<5> first layer is activated
+		<6> only one singleton can exist
+		*/
+	}
+
+	void Start ()
+	{
+		lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>(); // <1>
+		levelName = lvl_load.levelName;
+		levelData = lvl_load.supplyLevel(); // <2>
+		buildLevel(levelData);
+
+		/*
+		<1> EditLoader is found by tag
+		<2> file is loaded and parsed
 		*/
 	}
 
@@ -112,21 +124,19 @@ public partial class EditGM : MonoBehaviour {
 	{
 		updateInputs(); // <1>
 		updateUI(); // <2>
-		if (paletteMode) return; // <3>
+		if (hoveringHUD || paletteMode) return; // <3>
 		updateLevel(); // <4>
-		if (selectMode) updateSelect(); // <7>
-		if (editMode) updateEdit(); // <6>
+		if (selectMode) updateSelect(); // <5>
+		if (editMode) updateEdit(); // <5>
 		if (createMode) updateCreate(); // <5>
-		if (paintMode) updatePaint();
+		if (paintMode) updatePaint(); // <5>
 
 		/*
 		<1> getInputs and getInputDowns are updated
 		<2> hudPanel and palettePanel are updated
 		<3> if the palette is active, skip the rest
 		<4> anchorIcon and layer changes are updated
-		<5> current tool is updated for createMode
-		<6> current tool is updated for editMode
-		<7> current tool is updated for selectMode
+		<5> call update function for respective mode
 		*/
 	}
 }

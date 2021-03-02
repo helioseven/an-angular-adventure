@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -195,5 +196,24 @@ public partial class EditGM {
 
 		string[] lines = levelData.Serialize();
 		File.WriteAllLines(fpath, lines);
+	}
+
+	/* Private Operations */
+
+	// returns true if the mouse is hovering over any HUD element
+	private bool checkHUDHover ()
+	{
+		PointerEventData ped = new PointerEventData(eventSystem);
+		ped.position = Input.mousePosition;
+
+		List<RaycastResult> results = new List<RaycastResult>();
+		uiRaycaster.Raycast(ped, results);
+
+		bool b = false;
+		foreach(RaycastResult result in results) {
+			Debug.Log("Hit UI element: " + result.gameObject.name);
+			b = true;
+		}
+		return b;
 	}
 }

@@ -7309,6 +7309,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a90c8b464fcf2d4b8cd99ecdcff93b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  eventSystem: {fileID: 355242748}
+  uiRaycaster: {fileID: 313801217}
   hudPanel: {fileID: 1249965603}
   palettePanel: {fileID: 765649599}
   tileCreator: {fileID: 1136852627}
