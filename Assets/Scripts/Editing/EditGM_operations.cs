@@ -19,6 +19,10 @@ public partial class EditGM {
 		public ChkpntData? chkpntData;
 		public WarpData? warpData;
 
+		// there are a bunch of places where we currently use
+		// "new SelectedItem()" where we probably want to be
+		// using "SelectedItem.identity" or some such instead
+
 		public SelectedItem (TileData inTile) : this (null, inTile) {}
 
 		public SelectedItem (ChkpntData inChkpnt) : this (null, inChkpnt) {}

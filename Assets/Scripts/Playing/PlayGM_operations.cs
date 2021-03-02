@@ -10,29 +10,33 @@ public partial class PlayGM {
 
 	/* Public Operations */
 
-	//
+	// redirects gravity in the specified direction
 	public void DirectGravity (GravityDirection inDirect)
 	{
-		//
 		switch (inDirect) {
 			case GravityDirection.Down:
-				Physics2D.gravity = new Vector2(0.0f, -9.81f);
+				Physics2D.gravity = new Vector2(0.0f, -9.81f); // <1>
 				break;
 			case GravityDirection.Left:
-				Physics2D.gravity = new Vector2(-9.81f, 0.0f);
+				Physics2D.gravity = new Vector2(-9.81f, 0.0f); // <1>
 				break;
 			case GravityDirection.Up:
-				Physics2D.gravity = new Vector2(0.0f, 9.81f);
+				Physics2D.gravity = new Vector2(0.0f, 9.81f); // <1>
 				break;
 			case GravityDirection.Right:
-				Physics2D.gravity = new Vector2(9.81f, 0.0f);
+				Physics2D.gravity = new Vector2(9.81f, 0.0f); // <1>
 				break;
 			default:
 				return;
 		}
 
 		grav_dir = inDirect;
-		player.ResetJumpForce();
+		player.ResetJumpForce(); // <2>
+
+	  /*
+	  <1> set gravity vector according to direction
+	  <2> reset player's jump force
+	  */
 	}
 
 	// kills the player
