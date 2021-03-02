@@ -12,21 +12,19 @@ public partial class EditGM {
 	/* Enums */
 
 	// EditorMode establishes the different modes the editor can be in
-	[Flags]
 	public enum EditorMode {
-		Select = 0x0,
-		Edit = 0x1,
-		Create = 0x2,
-		Paint = 0x4
+		Select,
+		Edit,
+		Create,
+		Paint
 	}
 
 	// EditTools establishes the different tools usable in the editor
-	[Flags]
 	public enum EditTools {
-		Tile = 0x0,
-		Chkpnt = 0x1,
-		Warp = 0x2,
-		Eraser = 0x4
+		Tile,
+		Chkpnt,
+		Warp,
+		Eraser
 	}
 
 	// InputKeys wraps keyboard input into a bit-flag enum

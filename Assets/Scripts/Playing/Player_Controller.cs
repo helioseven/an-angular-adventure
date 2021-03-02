@@ -18,6 +18,8 @@ public class Player_Controller : MonoBehaviour {
 	private Rigidbody2D rb2d;
 	private Vector2 jump_force_vec;
 
+	private bool godMode = false;
+
 	void Awake ()
 	{
 		rb2d = gameObject.GetComponent<Rigidbody2D> ();
@@ -34,6 +36,8 @@ public class Player_Controller : MonoBehaviour {
 	void Update ()
 	{
 		UpdateJumping();
+		UpdateGravity();
+		UpdateGodMode();
 	}
 
 	void FixedUpdate ()
@@ -73,7 +77,50 @@ public class Player_Controller : MonoBehaviour {
 		}
 	}
 
-	public void Move()
+	void UpdateGravity()
+	{
+		// God Mode Gravity Control
+		if (!godMode) return;
+
+		// Gravity Down
+		if (Input.GetKeyDown(KeyCode.S)) {
+			grav_dir = Gravity_Direction.down;
+			Physics2D.gravity = new Vector2(0.0f, -9.81f);
+			jump_force_vec = new Vector2(0.0f, jumpForce);
+		}
+
+		// Gravity left
+		if (Input.GetKeyDown(KeyCode.A)) {
+			grav_dir = Gravity_Direction.left;
+			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
+			jump_force_vec = new Vector2(jumpForce, 0.0f);
+		}
+
+		// Gravity Up
+		if (Input.GetKeyDown(KeyCode.W)) {
+			grav_dir = Gravity_Direction.up;
+			Physics2D.gravity = new Vector2(0.0f, 9.81f);
+			jump_force_vec = new Vector2(0.0f, -jumpForce);
+		}
+
+		if (Input.GetKeyDown(KeyCode.D)) {
+			grav_dir = Gravity_Direction.right;
+			Physics2D.gravity = new Vector2(9.81f, 0.0f);
+			jump_force_vec = new Vector2(-jumpForce, 0.0f);
+		}
+	}
+
+	
+	void UpdateGodMode()
+	{
+		// Toggle God Mode on G key press
+		if (Input.GetKeyDown(KeyCode.G)) {
+			godMode = !godMode;
+		}
+
+	}
+
+	void Move()
 	{
 		float moveHorizontal = Input.GetAxis("Horizontal");
 		float moveVertical = Input.GetAxis("Vertical");
