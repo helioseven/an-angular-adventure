@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Collections;
 
+
 public class Player_Controller : MonoBehaviour {
 
-	public int speed = 150;
-	public float jumpForce = 1000f;
-	public float verticalMovementFactor = 0.25f;
+	public int speed;
+	public float jumpForce;
 
 	private PlayGM gm_ref;
 
@@ -51,15 +51,24 @@ public class Player_Controller : MonoBehaviour {
 		num_jumps = 0;
 	}
 
-	public void ResetJumpForce()
+	public void UpdateJumpForce(PlayGM.GravityDirection gd)
 	{
-		jump_force_vec = new Vector2(0f, 0f);
-		/*
-		jump_force_vec = new Vector2(0.0f, jumpForce);
-		jump_force_vec = new Vector2(jumpForce, 0.0f);
-		jump_force_vec = new Vector2(0.0f, -jumpForce);
-		jump_force_vec = new Vector2(-jumpForce, 0.0f);
-		*/
+		switch (gd) {
+			case PlayGM.GravityDirection.Down:
+				jump_force_vec = new Vector2(0.0f, jumpForce);
+				break;
+			case PlayGM.GravityDirection.Left:
+				jump_force_vec = new Vector2(jumpForce, 0.0f);
+				break;
+			case PlayGM.GravityDirection.Up:
+				jump_force_vec = new Vector2(0.0f, -jumpForce);
+				break;
+			case PlayGM.GravityDirection.Right:
+				jump_force_vec = new Vector2(-jumpForce, 0.0f);
+				break;
+			default:
+				return;
+		}
 	}
 
 	public void UpdateJumping()
@@ -85,24 +94,24 @@ public class Player_Controller : MonoBehaviour {
 		// Gravity Down
 		if (Input.GetKeyDown(KeyCode.K)) {
 			Physics2D.gravity = new Vector2(0.0f, -9.81f);
-			jump_force_vec = new Vector2(0.0f, jumpForce);
+			this.UpdateJumpForce(PlayGM.GravityDirection.Down); 
 		}
 
 		// Gravity left
 		if (Input.GetKeyDown(KeyCode.J)) {
 			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
-			jump_force_vec = new Vector2(jumpForce, 0.0f);
+			this.UpdateJumpForce(PlayGM.GravityDirection.Left);
 		}
 
 		// Gravity Up
 		if (Input.GetKeyDown(KeyCode.I)) {
 			Physics2D.gravity = new Vector2(0.0f, 9.81f);
-			jump_force_vec = new Vector2(0.0f, -jumpForce);
+			this.UpdateJumpForce(PlayGM.GravityDirection.Up);
 		}
 
 		if (Input.GetKeyDown(KeyCode.L)) {
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
-			jump_force_vec = new Vector2(-jumpForce, 0.0f);
+			this.UpdateJumpForce(PlayGM.GravityDirection.Right);
 		}
 	}
 
@@ -120,13 +129,6 @@ public class Player_Controller : MonoBehaviour {
 	{
 		float moveHorizontal = Input.GetAxis("Horizontal");
 		float moveVertical = Input.GetAxis("Vertical");
-
-		PlayGM.GravityDirection gd = gm_ref.gravDirection;
-		// apply vertical movement factor to slow down toward and against gravity movement
-		if (gd == PlayGM.GravityDirection.Down || gd == PlayGM.GravityDirection.Up)
-			moveVertical = moveVertical * verticalMovementFactor;
-		if (gd == PlayGM.GravityDirection.Left || gd == PlayGM.GravityDirection.Right)
-			moveHorizontal = moveHorizontal * verticalMovementFactor;
 
 		Vector2 movement = new Vector2(moveHorizontal, moveVertical);
 		rb2d.AddForce(movement * speed * Time.deltaTime);
