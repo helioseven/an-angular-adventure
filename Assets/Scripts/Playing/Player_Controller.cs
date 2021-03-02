@@ -83,34 +83,30 @@ public class Player_Controller : MonoBehaviour {
 		if (!godMode) return;
 
 		// Gravity Down
-		if (Input.GetKeyDown(KeyCode.S)) {
-			grav_dir = Gravity_Direction.down;
+		if (Input.GetKeyDown(KeyCode.K)) {
 			Physics2D.gravity = new Vector2(0.0f, -9.81f);
 			jump_force_vec = new Vector2(0.0f, jumpForce);
 		}
 
 		// Gravity left
-		if (Input.GetKeyDown(KeyCode.A)) {
-			grav_dir = Gravity_Direction.left;
+		if (Input.GetKeyDown(KeyCode.J)) {
 			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
 			jump_force_vec = new Vector2(jumpForce, 0.0f);
 		}
 
 		// Gravity Up
-		if (Input.GetKeyDown(KeyCode.W)) {
-			grav_dir = Gravity_Direction.up;
+		if (Input.GetKeyDown(KeyCode.I)) {
 			Physics2D.gravity = new Vector2(0.0f, 9.81f);
 			jump_force_vec = new Vector2(0.0f, -jumpForce);
 		}
 
-		if (Input.GetKeyDown(KeyCode.D)) {
-			grav_dir = Gravity_Direction.right;
+		if (Input.GetKeyDown(KeyCode.L)) {
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
 			jump_force_vec = new Vector2(-jumpForce, 0.0f);
 		}
 	}
 
-	
+
 	void UpdateGodMode()
 	{
 		// Toggle God Mode on G key press
