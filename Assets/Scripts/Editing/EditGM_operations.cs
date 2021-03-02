@@ -19,6 +19,16 @@ public partial class EditGM {
 		public ChkpntData? chkpntData;
 		public WarpData? warpData;
 
+		// there are a bunch of places where we currently use
+		// "new SelectedItem()" where we probably want to be
+		// using "SelectedItem.identity" or some such instead
+
+		public SelectedItem (TileData inTile) : this (null, inTile) {}
+
+		public SelectedItem (ChkpntData inChkpnt) : this (null, inChkpnt) {}
+
+		public SelectedItem (WarpData inWarp) : this (null, inWarp) {}
+
 		public SelectedItem (GameObject inInstance, TileData inTile)
 		{
 			instance = inInstance;
@@ -84,9 +94,10 @@ public partial class EditGM {
 				setTool(EditTools.Tile); // <3>
 			}
 			if (selected_item.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-			if (selected_item.warpData.HasValue) setTool(EditTools.Warp);
-			else selected_item = new SelectedItem(); // <4>
+			if (selected_item.warpData.HasValue) setTool(EditTools.Warp);// <4>
 		} else {
+			TileData td = tileCreator.GetTileData();
+			selected_item = new SelectedItem(td);
 			setTool(EditTools.Tile); // <5>
 		}
 
@@ -96,7 +107,7 @@ public partial class EditGM {
 		<1> if already in createMode, simply escape
 		<2> if exiting editMode, add selected_item back to the level
 		<3> if selected_item is a tile, use its tileData to set tile tool
-		<4> if not exiting editMode, simply unselect selected_item
+		<4> set tool to chkpnt or warp tool as appropriate
 		<5> if no selected_item, default to tile tool
 		*/
 	}
@@ -160,6 +171,7 @@ public partial class EditGM {
 		if (selectMode) return; // <1>
 
 		if (editMode && selected_item != new SelectedItem()) addSelectedItem(); // <2>
+		if (selected_item.instance == null) selected_item = new SelectedItem();
 
 		current_tool.SetActive(false); // <3>
 		current_mode = EditorMode.Select;

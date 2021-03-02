@@ -12,34 +12,39 @@ public partial class PlayGM : MonoBehaviour {
 	[HideInInspector] public static PlayGM instance = null;
 
 	// public GameObject or component script references
-	public GameObject boundaryDown;
-	public GameObject boundaryLeft;
-	public GameObject boundaryRight;
-	public GameObject boundaryUp;
+	public Boundary boundaryDown;
+	public Boundary boundaryLeft;
+	public Boundary boundaryRight;
+	public Boundary boundaryUp;
 	public GameObject chkpntRef;
 	public GameObject chkpntMap;
 	public GameObject deathParticles;
 	public GameObject tileCreator;
 	public GameObject tileMap;
-	public GameObject player;
+	public Player_Controller player;
 	public GameObject warpRef;
 	public GameObject warpMap;
 
 	// public read-accessibility state variables
+	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
 	public int activeLayer { get; private set; }
-	public LevelData levelData { get; private set; }
+	public GravityDirection gravDirection {
+		get { return grav_dir; }
+		set {}
+	}
 
 	// private variables
 	private PlayLoader lvl_load = null;
 	private HexOrient player_start;
+	private GravityDirection grav_dir;
 
 	void Awake ()
 	{
 		if (!instance) {
 			instance = this; // <1>
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
-			player = GameObject.FindWithTag("Player");
+			player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
 		} else Destroy(gameObject); // <2>
 
 		/*
@@ -56,9 +61,12 @@ public partial class PlayGM : MonoBehaviour {
 		activeLayer = 0; // <2>
 		activateLayer(0);
 
-		// set boundaries
+		Boundary[] bs = {boundaryDown, boundaryLeft, boundaryRight, boundaryUp};
+		foreach (Boundary b in bs) b.SetBoundary();
 
 		player.transform.position = player_start.locus.ToUnitySpace(); // <3>
+
+		grav_dir = GravityDirection.Down;
 
 		// set checkpoint
 		GameObject chkpnt = chkpntMap.transform.GetChild(0).gameObject;

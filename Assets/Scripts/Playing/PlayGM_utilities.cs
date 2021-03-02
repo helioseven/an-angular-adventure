@@ -8,6 +8,26 @@ using circleXsquares;
 
 public partial class PlayGM {
 
+	/* Enums */
+
+	public enum GravityDirection
+	{
+		Down = 0,
+		Left,
+		Up,
+		Right
+	}
+
+	/* Public Utilities */
+
+	// simply returns the z value of the current layer's transform
+	public float GetLayerDepth ()
+	{ return GetLayerDepth(activeLayer); }
+
+	// simply returns the z value of the given layer's transform
+	public float GetLayerDepth (int inLayer)
+	{ return tileMap.transform.GetChild(inLayer).position.z; }
+
 	/* Private Utilities */
 
 	// calculates delta between each layer and desired active, sets accordingly
@@ -47,6 +67,8 @@ public partial class PlayGM {
 			Quaternion q;
 			Vector3 v3 = td.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(pfRef, v3, q) as GameObject;
+			Tile t = go.GetComponent<Tile>();
+			if (t) t.data = td;
 			go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
 		}
 

@@ -537,7 +537,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4862370241194866}
   - component: {fileID: 60449222619570648}
-  - component: {fileID: 114289240717918714}
   m_Layer: 0
   m_Name: TriRed
   m_TagString: Untagged
@@ -588,18 +587,6 @@ PolygonCollider2D:
     - - {x: 0, y: 0}
       - {x: 1, y: 1.7320508}
       - {x: 2, y: 0}
---- !u!114 &114289240717918714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1083079667250174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1086594363231546
 GameObject:
   m_ObjectHideFlags: 0
@@ -610,7 +597,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4339208211772084}
   - component: {fileID: 60158935640087512}
-  - component: {fileID: 114307753328711012}
   m_Layer: 0
   m_Name: TrapRed
   m_TagString: Untagged
@@ -663,18 +649,6 @@ PolygonCollider2D:
       - {x: 3, y: 1.7320508}
       - {x: 4, y: 0}
       - {x: 2, y: 0}
---- !u!114 &114307753328711012
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1086594363231546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1106338144842326
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,7 +883,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4661326434101352}
   - component: {fileID: 60086244623951764}
-  - component: {fileID: 114964082114931714}
   m_Layer: 0
   m_Name: SqrRed
   m_TagString: Untagged
@@ -961,18 +934,6 @@ PolygonCollider2D:
       - {x: 0, y: 2}
       - {x: 2, y: 2}
       - {x: 2, y: 0}
---- !u!114 &114964082114931714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1125753118581162}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1153795604308792
 GameObject:
   m_ObjectHideFlags: 0
@@ -3505,7 +3466,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4988034839890032}
   - component: {fileID: 60112057362523196}
-  - component: {fileID: 114666573325459594}
   m_Layer: 0
   m_Name: DiaRed
   m_TagString: Untagged
@@ -3557,18 +3517,6 @@ PolygonCollider2D:
       - {x: 1, y: 1.7320508}
       - {x: 3, y: 1.7320508}
       - {x: 2, y: 0}
---- !u!114 &114666573325459594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1469691133035798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1482992296814352
 GameObject:
   m_ObjectHideFlags: 0
@@ -3986,7 +3934,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4175775976824600}
   - component: {fileID: 60806125717988686}
-  - component: {fileID: 114810221212723364}
   m_Layer: 0
   m_Name: WedRed
   m_TagString: Untagged
@@ -4038,18 +3985,6 @@ PolygonCollider2D:
       - {x: 1.7320508, y: 1}
       - {x: 3.732051, y: 1}
       - {x: 2, y: 0}
---- !u!114 &114810221212723364
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1526289299413198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1529845900012770
 GameObject:
   m_ObjectHideFlags: 0
@@ -6903,7 +6838,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4863058327062988}
   - component: {fileID: 60963656255075746}
-  - component: {fileID: 114515008638905892}
   m_Layer: 0
   m_Name: HexRed
   m_TagString: Untagged
@@ -6957,18 +6891,6 @@ PolygonCollider2D:
       - {x: 2, y: 3.4641016}
       - {x: 3, y: 1.7320508}
       - {x: 2, y: 0}
---- !u!114 &114515008638905892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1911360133270888}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fd03256ed0598b4da28da9e2de94562, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1938372992677526
 GameObject:
   m_ObjectHideFlags: 0

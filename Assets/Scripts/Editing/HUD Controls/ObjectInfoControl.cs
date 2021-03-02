@@ -7,25 +7,43 @@ using circleXsquares;
 
 public class ObjectInfoControl : MonoBehaviour {
 
+	// public references
+	public EditGM gm_ref;
+	public TileCreator tc_ref;
+	public SpecialCreator ct_ref;
+	public SpecialCreator wt_ref;
+
 	// private variables
-	private EditGM gm_ref;
-	private TileCreator tc_ref;
+	private Image object_display;
+	private AspectRatioFitter object_display_ARF;
+	private Text type_display;
+	private Text color_display;
+	private Text rotation_display;
+	private Text locus_display;
+	private Text special_label;
+	private Text special_display;
+
+	private bool is_any_selected;
 	private int tile_type;
 	private int tile_color;
-	private int tile_rotation;
-	private HexLocus tile_position;
+	private int tile_special;
+	private int obj_rotation;
+	private HexLocus obj_position;
+
 	private float[] aspect_ratios;
-	private string[] types_display;
-	private string[] colors_display;
+	private string[] type_strings;
+	private string[] color_strings;
 
 	void Awake ()
 	{
+		is_any_selected = false;
 		tile_type = 0;
 		tile_color = 0;
-		tile_rotation = 0;
-		tile_position = new HexLocus();
+		tile_special = 0;
+		obj_rotation = 0;
+		obj_position = new HexLocus();
 		aspect_ratios = new float[] {1f, 2f, 2f, 1f, 1f, 2f};
-		types_display = new string[] {
+		type_strings = new string[] {
 			"Triangle",
 			"Diamond",
 			"Trapezoid",
@@ -33,7 +51,7 @@ public class ObjectInfoControl : MonoBehaviour {
 			"Square",
 			"Wedge"
 		};
-		colors_display = new string[] {
+		color_strings = new string[] {
 			"Black",
 			"Blue",
 			"Brown",
@@ -49,73 +67,167 @@ public class ObjectInfoControl : MonoBehaviour {
 
 	void Start ()
 	{
-		gm_ref = EditGM.instance;
-		tc_ref = gm_ref.tileCreator;
+		object_display = transform.GetChild(0).GetChild(0).GetComponent<Image>();
+		object_display_ARF = object_display.GetComponent<AspectRatioFitter>();
+
+		Transform t = transform.GetChild(1);
+		type_display = t.GetChild(1).GetComponent<Text>();
+		color_display = t.GetChild(3).GetComponent<Text>();
+		rotation_display = t.GetChild(5).GetComponent<Text>();
+		locus_display = t.GetChild(7).GetComponent<Text>();
+
+		t = transform.GetChild(2);
+		special_label = t.GetChild(0).GetComponent<Text>();
+		special_display = t.GetChild(1).GetComponent<Text>();
 	}
 
 	void Update ()
 	{
-		bool bType = tile_type != tc_ref.tileType;
-		bool bColor = tile_color != tc_ref.tileColor;
-		bool bRotation = tile_rotation != tc_ref.tileOrient.rotation;
-		bool bPosition = tile_position != gm_ref.anchorIcon.anchor;
+		bool b = false;
+		InfoPack ip = getUpdatedInfo();
 
-		setValues();
+		if (tile_type != ip.type) {
+			tile_type = ip.type;
+			b = true;
+		}
+		if (tile_color != ip.color) {
+			tile_color = ip.color;
+			b = true;
+		}
+		if (obj_rotation != ip.rot) {
+			obj_rotation = ip.rot;
+			b = true;
+		}
+		if (obj_position != ip.locus) {
+			obj_position = ip.locus;
+			b = true;
+		}
 
-		if (bType || bColor) updateDisplay();
-		if (bType || bColor || bRotation || bPosition) updateInfo();
+		if (b) UpdateUI();
+	}
+
+	/* Public Functions */
+
+	// updates the display image
+	public void UpdateUI ()
+	{
+		Transform t = tc_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
+		object_display.sprite = t.GetComponent<SpriteRenderer>().sprite;
+		object_display_ARF.aspectRatio = aspect_ratios[tile_type];
+		object_display.gameObject.SetActive(is_any_selected); // <1>
+
+		bool b = !is_any_selected || tile_type == -1;
+		string s = b ? "[N/A]" : type_strings[tile_type];
+		type_display.text = s;
+		b = !is_any_selected || tile_color == -1;
+		s = b ? "[N/A]" : color_strings[tile_color];
+		color_display.text = s;
+		b = !is_any_selected || obj_rotation == -1;
+		s = b ? "[N/A]" : obj_rotation.ToString();
+		rotation_display.text = s;
+		s = !is_any_selected ? "[N/A]" : obj_position.PrettyPrint();
+		locus_display.text = s; // <2>
+
+		string sp = "Special Value:";
+		b = false;
+		if (tile_color == 3) {
+			sp = "Switch Target:";
+			b = true;
+		}
+		if (tile_color == 4) {
+			sp = "Gravity Target:";
+			b = true;
+		}
+		special_label.text = sp;
+		special_display.text = tile_special.ToString();
+		transform.GetChild(2).gameObject.SetActive(b); // <3>
+
+		/*
+		<1> set sprite and aspect ratio for object image, activate if appropriate
+		<2> set text strings as appropriate
+		<3> set special dropdown values, activate if appropriate
+		*/
+	}
+
+	/* Private Structs */
+
+	// a struct for reporting what current information should be
+	private struct InfoPack {
+		public int type;
+		public int color;
+		public int rot;
+		public HexLocus locus;
+
+		public InfoPack (int inType, int inColor, int inRot, HexLocus inLocus) {
+			type = inType;
+			color = inColor;
+			rot = inRot;
+			locus = inLocus;
+		}
 	}
 
 	/* Private Functions */
 
-	// updates the display image
-	private void updateDisplay ()
+	// gets information from appropriate sources to fill InfoPack
+	private InfoPack getUpdatedInfo()
 	{
-		Transform t = tc_ref.transform.GetChild(tile_type).GetChild(tile_color).GetChild(0);
-		Image i = transform.GetChild(0).GetChild(0).GetComponent<Image>();
-		i.sprite = t.GetComponent<SpriteRenderer>().sprite;
-		i.GetComponent<AspectRatioFitter>().aspectRatio = aspect_ratios[tile_type];
-	}
+		EditGM.SelectedItem si = gm_ref.selectedItem;
+		is_any_selected = si != new EditGM.SelectedItem();
+		bool instance_null = si.instance == null;
+		int updt_type = 0;
+		int updt_color = 0;
+		int updt_rot = 0;
+		HexLocus updt_locus = new HexLocus();
 
-	// updates the standard attributes panel
-	private void updateInfo ()
-	{
-		Transform t = transform.GetChild(1);
+		if (is_any_selected) {
+			if (instance_null) { // <1>
+				if (si.tileData.HasValue) {
+					updt_type = tc_ref.tileType;
+					updt_color = tc_ref.tileColor;
+					updt_rot = tc_ref.tileOrient.rotation;
+					updt_locus = tc_ref.tileOrient.locus;
+				}
+				if (si.chkpntData.HasValue) {
+					updt_type = -1;
+					updt_color = -1;
+					updt_rot = -1;
+					updt_locus = ct_ref.specOrient.locus;
+				}
+				if (si.warpData.HasValue) {
+					updt_type = -1;
+					updt_color = -1;
+					updt_rot = wt_ref.specOrient.rotation;
+					updt_locus = wt_ref.specOrient.locus;
+				}
+			} else { // <2>
+				if (si.tileData.HasValue) {
+					TileData td = si.tileData.Value;
+					updt_type = td.type;
+					updt_color = td.color;
+					updt_rot = td.orient.rotation;
+					updt_locus = td.orient.locus;
+				}
+				if (si.chkpntData.HasValue) {
+					updt_type = -1;
+					updt_color = -1;
+					updt_rot = -1;
+					updt_locus = si.chkpntData.Value.locus;
+				}
+				if (si.warpData.HasValue) {
+					WarpData wd = si.warpData.Value;
+					updt_type = -1;
+					updt_color = -1;
+					updt_rot = wd.orient.rotation;
+					updt_locus = wd.orient.locus;
+				}
+			}
+		}
 
-		t.GetChild(1).GetComponent<Text>().text = types_display[tile_type];
-		t.GetChild(3).GetComponent<Text>().text = colors_display[tile_color];
-		t.GetChild(5).GetComponent<Text>().text = tile_rotation.ToString();
-		t.GetChild(7).GetComponent<Text>().text = printHexLocus(tile_position);
-	}
-
-	// updates private variables from world references
-	private void setValues ()
-	{
-		tile_type = tc_ref.tileType;
-		tile_color = tc_ref.tileColor;
-		tile_rotation = tc_ref.tileOrient.rotation;
-		tile_position = gm_ref.anchorIcon.anchor;
-	}
-
-	// pretty-printing of HexLocus coordinates for display
-	private string printHexLocus (HexLocus inLocus)
-	{
-		string s = "(";
-		int[] vals = new int[] {inLocus.a, inLocus.c, inLocus.e, inLocus.b, inLocus.d, inLocus.f}; // <1>
-		string[] s_vals = new string[vals.Length * 2]; // <2>
-		for (int i = 0; i < 6; i++) s_vals[i * 2] = vals[i].ToString(); // <3>
-		foreach (int i in new int[] {1, 3, 7, 9}) s_vals[i] = ", "; // <4>
-		s_vals[5] = "),\n";
-		s_vals[11] = ")";
-		s += String.Join("", s_vals); // <5>
-		return s;
+		return new InfoPack(updt_type, updt_color, updt_rot, updt_locus);
 
 		/*
-		<1> coordinates are arranged into ACE & BDF triples for human-readability
-		<2> s_vals is twice the size of s to hold interspersing strings as well
-		<3> every even s_vals index is filled with the corresponding int string
-		<4> selective odd s_vals indices are filled with interspersing filler
-		<5> the concatenation of s_vals is appended to s and returned
+		<1> if instance is null, gather info from currently active tool
+		<2> if instance is non-null, gather info directly from object data
 		*/
 	}
 }
