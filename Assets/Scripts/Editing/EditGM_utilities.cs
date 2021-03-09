@@ -74,7 +74,7 @@ public partial class EditGM {
 
 		// update opacity for all checkpoints
 		foreach (Transform checkpoint in chkpntMap.transform) {
-			ChkpntData cd = new ChkpntData();
+			ChkpntData cd;
 			bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
 			int layerNumber = 0;
 			if (ok) layerNumber = cd.layer;
@@ -458,8 +458,8 @@ public partial class EditGM {
 	// if passed object is a checkpoint, supplies corresponding ChkpntData
 	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
 	{
+		outData = new ChkpntData();
 		if (!inChkpnt || !chkpnt_lookup.ContainsKey(inChkpnt)) { // <1>
-			outData = new ChkpntData();
 			return false;
 		} else {
 			outData = chkpnt_lookup[inChkpnt]; // <2>
