@@ -42,6 +42,13 @@ public partial class PlayGM {
 			setLayerOpacity(layer, distance);
 		}
 
+		foreach (Transform checkpoint in chkpntMap.transform) {
+			int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
+			int distance = Math.Abs(layerNumber - activeLayer);
+			if (activeLayer > layerNumber) distance += 2;
+			setCheckpointOpacity(checkpoint, distance);
+		}
+
 		/*
 		<1> cycle through all layers and calls setLayerOpacity appropriately
 		<2> delta is absolute distance between layers
@@ -78,6 +85,8 @@ public partial class PlayGM {
 			Vector3 v3 = cd.locus.ToUnitySpace();
 			v3.z = tileMap.transform.GetChild(cd.layer).position.z;
 			GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
+			Checkpoint c = go.GetComponent<Checkpoint>();
+			if (c) c.data = cd;
 			go.layer = cd.layer == 0 ? 10 : 9;
 			go.transform.SetParent(chkpntMap.transform);
 		}
@@ -126,6 +135,26 @@ public partial class PlayGM {
 			tile.gameObject.layer = layer;
 			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 		}
+
+		/*
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
+	// set opacity and physics by given distance for given checkpoint
+	private void setCheckpointOpacity (Transform checkpoint, int distance)
+	{
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
+		}
+		Color color = new Color(1f, 1f, 1f, alpha);
+
+		checkpoint.gameObject.layer = layer;
+		checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 
 		/*
 		<1> active layer gets default values, otherwise opacity and layer are calculated

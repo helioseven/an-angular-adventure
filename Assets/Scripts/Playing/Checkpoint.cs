@@ -7,7 +7,7 @@ public class Checkpoint : MonoBehaviour {
 
 	public PlayGM play_gm;
 
-	public ChkpntData data { get; private set; }
+	public ChkpntData data;
 
 	void Awake ()
 	{
