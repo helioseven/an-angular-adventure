@@ -76,7 +76,7 @@ public partial class EditGM {
 		foreach (Transform checkpoint in chkpntMap.transform) {
 			ChkpntData cd;
 			bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
-			int layerNumber = 0;
+			int layerNumber = INACTIVE_LAYER;
 			if (ok) layerNumber = cd.layer;
 			int distance = Math.Abs(layerNumber - activeLayer);
 			if (activeLayer > layerNumber) distance += 2;
