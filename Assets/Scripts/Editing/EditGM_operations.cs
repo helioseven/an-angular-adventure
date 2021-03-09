@@ -210,10 +210,7 @@ public partial class EditGM {
 		uiRaycaster.Raycast(ped, results);
 
 		bool b = false;
-		foreach(RaycastResult result in results) {
-			Debug.Log("Hit UI element: " + result.gameObject.name);
-			b = true;
-		}
+		foreach(RaycastResult result in results) b = true;
 		return b;
 	}
 }
