@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using circleXsquares;
 
 public class Warp : MonoBehaviour {
 
@@ -8,6 +9,7 @@ public class Warp : MonoBehaviour {
 
 	public int baseLayer;
 	public int targetLayer;
+	public WarpData data;
 
 	void Awake ()
 	{

@@ -35,20 +35,28 @@ public partial class PlayGM {
 	{
 		activeLayer = layerIndex;
 
-		// update opacity for all tile layers
+		// update opacity and physics for all tile layers
 		foreach (Transform layer in tileMap.transform) { // <1>
 			int layerNumber = layer.GetSiblingIndex();
 			int distance = Math.Abs(layerNumber - activeLayer); // <2>
 			if (activeLayer > layerNumber) distance += 2; // <3>
-			setLayerOpacity(layer, distance);
+			setLayerOpacityAndPhysics(layer, distance);
 		}
 
-		// update opacity for all checkpoints
+		// update opacity and physics for all checkpoints
 		foreach (Transform checkpoint in chkpntMap.transform) {
 			int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
 			int distance = Math.Abs(layerNumber - activeLayer);
 			if (activeLayer > layerNumber) distance += 2;
-			setCheckpointOpacity(checkpoint, distance);
+			setCheckpointOpacityAndPhysics(checkpoint, distance);
+		}
+
+		// update physics for warps
+		foreach (Transform warp in warpMap.transform) {
+			int baseLayer = warp.gameObject.GetComponent<Warp>().baseLayer;
+			int targetLayer = warp.gameObject.GetComponent<Warp>().targetLayer;
+			bool isActive = activeLayer == baseLayer || activeLayer == targetLayer;
+			setWarpOpacityAndPhysics(warp, isActive);
 		}
 
 		/*
@@ -97,13 +105,14 @@ public partial class PlayGM {
 			Quaternion q;
 			Vector3 v3 = wd.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(warpRef, v3, q) as GameObject;
-			int lBase = wd.orient.layer;
-			int lTarget = wd.targetLayer;
-			bool isBase = lBase == 0;
-			bool isTarget = lTarget == 0;
+			int baseLayer = wd.orient.layer;
+			int targetLayer = wd.targetLayer;
+			bool isBase = baseLayer == 0;
+			bool isTarget = targetLayer == 0;
 			Warp w = go.GetComponent<Warp>();
-			w.baseLayer = lBase;
-			w.targetLayer = lTarget;
+			w.baseLayer = baseLayer;
+			w.targetLayer = targetLayer;
+			w.data = wd;
 			go.layer = isBase || isTarget ? 10 : 9;
 			go.transform.SetParent(warpMap.transform);
 		}
@@ -123,7 +132,7 @@ public partial class PlayGM {
 	}
 
 	// set opacity and physics by given distance for each tile in given layer
-	private void setLayerOpacity (Transform tileLayer, int distance)
+	private void setLayerOpacityAndPhysics (Transform tileLayer, int distance)
 	{
 		float alpha = 1f;
 		int layer = DEFAULT_LAYER;
@@ -145,7 +154,7 @@ public partial class PlayGM {
 	}
 
 	// set opacity and physics by given distance for given checkpoint
-	private void setCheckpointOpacity (Transform checkpoint, int distance)
+	private void setCheckpointOpacityAndPhysics (Transform checkpoint, int distance)
 	{
 		float alpha = 1f;
 		int layer = DEFAULT_LAYER;
@@ -161,6 +170,21 @@ public partial class PlayGM {
 		/*
 		<1> active layer gets default values, otherwise opacity and layer are calculated
 		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
+	// set physics collisions for warps
+	private void setWarpOpacityAndPhysics (Transform warp, bool isActive) {
+		int layer = DEFAULT_LAYER;
+		if (!isActive) { // <1>
+			layer = INACTIVE_LAYER;
+		}
+
+		warp.gameObject.layer = layer; // <2>
+
+		/*
+		<1> active layer gets default (active) values, otherwise disable
+		<2> set physics layer
 		*/
 	}
 }
