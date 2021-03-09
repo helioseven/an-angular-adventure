@@ -35,6 +35,7 @@ public partial class PlayGM {
 	{
 		activeLayer = layerIndex;
 
+		// update opacity for all tile layers
 		foreach (Transform layer in tileMap.transform) { // <1>
 			int layerNumber = layer.GetSiblingIndex();
 			int distance = Math.Abs(layerNumber - activeLayer); // <2>
@@ -42,6 +43,7 @@ public partial class PlayGM {
 			setLayerOpacity(layer, distance);
 		}
 
+		// update opacity for all checkpoints
 		foreach (Transform checkpoint in chkpntMap.transform) {
 			int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
 			int distance = Math.Abs(layerNumber - activeLayer);

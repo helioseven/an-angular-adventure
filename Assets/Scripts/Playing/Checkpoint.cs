@@ -14,12 +14,6 @@ public class Checkpoint : MonoBehaviour {
 		play_gm = PlayGM.instance;
 	}
 
-	void Start ()
-	{
-		int i = transform.GetSiblingIndex();
-		data = play_gm.levelData.chkpntSet[i];
-	}
-
 	// becomes the current checkpoint when it detects a collision with the player
 	void OnTriggerEnter2D (Collider2D other)
 	{
