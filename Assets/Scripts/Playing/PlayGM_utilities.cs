@@ -33,17 +33,19 @@ public partial class PlayGM {
 	// calculates delta between each layer and desired active, sets accordingly
 	private void activateLayer (int layerIndex)
 	{
-		foreach (Transform tileLayer in tileMap.transform) { // <1>
-			int d = tileLayer.GetSiblingIndex();
-			d = Math.Abs(d - layerIndex); // <2>
-			setLayerOpacity(tileLayer, d);
-		}
-
 		activeLayer = layerIndex;
+
+		foreach (Transform layer in tileMap.transform) { // <1>
+			int layerNumber = layer.GetSiblingIndex();
+			int distance = Math.Abs(layerNumber - activeLayer); // <2>
+			if (activeLayer > layerNumber) distance += 2; // <3>
+			setLayerOpacity(layer, distance);
+		}
 
 		/*
 		<1> cycle through all layers and calls setLayerOpacity appropriately
-		<2> delta is simply absolute distance between layers
+		<2> delta is absolute distance between layers
+		<3> foreground layers are faded more
 		*/
 	}
 
@@ -55,7 +57,7 @@ public partial class PlayGM {
 			foreach (Transform tile in tileType)
 				prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
 
-		for (int i = 0; i < 2; i++) { // <2>
+		for (int i = 0; i < DEFAULT_NUM_LAYERS; i++) { // <2>
 			GameObject tileLayer = new GameObject();
 			tileLayer.name = "Layer #" + i;
 			tileLayer.transform.position = new Vector3(0f, 0f, 2f * i);
@@ -112,25 +114,22 @@ public partial class PlayGM {
 	// set opacity and physics by given distance for each tile in given layer
 	private void setLayerOpacity (Transform tileLayer, int distance)
 	{
-		float a = 1f; // <1>
-		int l = 0; // <2>
-		if (distance != 0) {
-			a = 1f / (distance + 1f); // <3>
-			l = 9;
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
 		}
-		Color c = new Color(1f, 1f, 1f, a); // <4>
+		Color color = new Color(1f, 1f, 1f, alpha);
 
-		foreach (Transform tile in tileLayer) { // <5>
-			tile.gameObject.layer = l;
-			tile.GetChild(0).GetComponent<SpriteRenderer>().color = c;
+		foreach (Transform tile in tileLayer) {
+			tile.gameObject.layer = layer;
+			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 		}
 
 		/*
-		<1> a represents an alpha value
-		<2> the physics layer we will be setting, 0 if active or 9 otherwise
-		<3> opacity is calculated by 1/(x+1), falling off with distance
-		<4> color is generated from opacity calculation
-		<5> each tile in the layer is assigned new physics layer and opacity
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
 		*/
 	}
 }
