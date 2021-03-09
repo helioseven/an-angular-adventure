@@ -8,15 +8,6 @@ using circleXsquares;
 
 public partial class PlayGM {
 
-	/* CONSTANTS */
-
-	// layer names
-	private const int INACTIVE_LAYER = 9;
-	private const int DEFAULT_LAYER = 0;
-
-	// default number of layers to load from file
-	private const int DEFAULT_NUM_LAYERS = 5;
-
 	/* Enums */
 
 	public enum GravityDirection

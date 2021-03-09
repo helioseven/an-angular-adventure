@@ -9,12 +9,6 @@ using circleXsquares;
 
 public partial class EditGM {
 
-	/* CONSTANTS */
-
-	// layer names
-	private const int INACTIVE_LAYER = 9;
-	private const int DEFAULT_LAYER = 0;
-
 	/* Enums */
 
 	// EditorMode establishes the different modes the editor can be in

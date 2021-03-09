@@ -62,6 +62,10 @@ public partial class EditGM : MonoBehaviour {
 	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
 	private Dictionary<GameObject, WarpData> warp_lookup;
 
+	// constants
+	private const int INACTIVE_LAYER = 9;
+	private const int DEFAULT_LAYER = 0;
+
 	void Awake ()
 	{
 		if (!instance) {
