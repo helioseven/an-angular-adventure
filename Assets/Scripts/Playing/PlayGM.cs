@@ -37,7 +37,7 @@ public partial class PlayGM : MonoBehaviour {
 	// private variables
 	private PlayLoader lvl_load = null;
 	private HexOrient player_start;
-	private GravityDirection grav_dir;/* CONSTANTS */
+	private GravityDirection grav_dir;
 
 	// default number of layers to load from file
 	private const int DEFAULT_NUM_LAYERS = 5;
