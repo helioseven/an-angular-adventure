@@ -72,6 +72,17 @@ public partial class EditGM {
 			setLayerOpacity(layer, distance); // <4>
 		}
 
+		// update opacity for all checkpoints
+		foreach (Transform checkpoint in chkpntMap.transform) {
+			ChkpntData cd;
+			bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
+			int layerNumber = INACTIVE_LAYER;
+			if (ok) layerNumber = cd.layer;
+			int distance = Math.Abs(layerNumber - activeLayer);
+			if (activeLayer > layerNumber) distance += 2;
+			setCheckpointOpacity(checkpoint, distance);
+		}
+
 		Vector3 v3 = anchorIcon.transform.position;
 		v3.z = GetLayerDepth();
 		anchorIcon.transform.position = v3; // <5>
@@ -346,6 +357,26 @@ public partial class EditGM {
 		*/
 	}
 
+	// set opacity and physics by given distance for given checkpoint
+	private void setCheckpointOpacity (Transform checkpoint, int distance)
+	{
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
+		}
+		Color color = new Color(1f, 1f, 1f, alpha);
+
+		checkpoint.gameObject.layer = layer;
+		checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+
+		/*
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
 	// sets the currently active tool
 	private void setTool (EditTools inTool)
 	{
@@ -427,8 +458,8 @@ public partial class EditGM {
 	// if passed object is a checkpoint, supplies corresponding ChkpntData
 	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
 	{
+		outData = new ChkpntData();
 		if (!inChkpnt || !chkpnt_lookup.ContainsKey(inChkpnt)) { // <1>
-			outData = new ChkpntData();
 			return false;
 		} else {
 			outData = chkpnt_lookup[inChkpnt]; // <2>

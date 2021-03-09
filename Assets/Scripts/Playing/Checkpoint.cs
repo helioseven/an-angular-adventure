@@ -7,17 +7,11 @@ public class Checkpoint : MonoBehaviour {
 
 	public PlayGM play_gm;
 
-	public ChkpntData data { get; private set; }
+	public ChkpntData data;
 
 	void Awake ()
 	{
 		play_gm = PlayGM.instance;
-	}
-
-	void Start ()
-	{
-		int i = transform.GetSiblingIndex();
-		data = play_gm.levelData.chkpntSet[i];
 	}
 
 	// becomes the current checkpoint when it detects a collision with the player
