@@ -36,7 +36,7 @@ public class EditLoader : MonoBehaviour {
 			string[] lines = File.ReadAllLines("Levels/" + path);
 			ld = FileParsing.ReadLevel(lines); // <2>
 		} else {
-			Debug.Log("File not found, loading new level.");
+			Debug.LogError("File not found, loading new level.");
 			ld = new LevelData(); // <3>
 		}
 

@@ -1,13 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using circleXsquares;
 
 public class Warp : MonoBehaviour {
 
-	public PlayGM play_gm;
+	public WarpData data;
+	public int baseLayer {
+		get { return data.orient.layer; }
+		set {}
+	}
+	public int targetLayer {
+		get { return data.targetLayer; }
+		set {}
+	}
 
-	public int baseLayer;
-	public int targetLayer;
+	private  PlayGM play_gm;
 
 	void Awake ()
 	{
