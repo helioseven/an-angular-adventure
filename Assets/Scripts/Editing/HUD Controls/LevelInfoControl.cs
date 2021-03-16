@@ -47,10 +47,12 @@ public class LevelInfoControl : MonoBehaviour {
 	{
 		bool b = false;
 
+		/*
 		if (level_name != gm_ref.levelName) {
 			level_name = gm_ref.levelName;
 			b = true;
 		}
+		*/
 		int al = gm_ref.activeLayer;
 		if (active_layer != al) {
 			active_layer = al;

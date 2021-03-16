@@ -989,7 +989,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 111309707}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88d5a8b6732ab8fe4b0b3e55d323e780, type: 3}
+  m_Script: {fileID: 11500000, guid: e689e37119b8d6fe3bc0868919c8f9d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &141440326
@@ -3752,7 +3752,18 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 111309711}
+        m_MethodName: UpdateLevelName
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -7541,8 +7552,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a90c8b464fcf2d4b8cd99ecdcff93b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventSystem: {fileID: 0}
-  uiRaycaster: {fileID: 0}
+  eventSystem: {fileID: 355242748}
+  uiRaycaster: {fileID: 313801217}
   hudPanel: {fileID: 1249965603}
   palettePanel: {fileID: 765649599}
   tileCreator: {fileID: 1136852627}
