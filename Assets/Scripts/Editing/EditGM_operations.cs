@@ -200,8 +200,8 @@ public partial class EditGM {
 
 	/* Private Operations */
 
-	// returns true if the mouse is hovering over any HUD element
-	private bool checkHUDHover ()
+	// returns a list of all HUD elements currently under the mouse
+	private List<RaycastResult> raycastAllHUD ()
 	{
 		PointerEventData ped = new PointerEventData(eventSystem);
 		ped.position = Input.mousePosition;
@@ -209,8 +209,6 @@ public partial class EditGM {
 		List<RaycastResult> results = new List<RaycastResult>();
 		uiRaycaster.Raycast(ped, results);
 
-		bool b = false;
-		foreach(RaycastResult result in results) b = true;
-		return b;
+		return results;
 	}
 }

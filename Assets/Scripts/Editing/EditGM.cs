@@ -65,6 +65,7 @@ public partial class EditGM : MonoBehaviour {
 	private Dictionary<GameObject, TileData> tile_lookup;
 	private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
 	private Dictionary<GameObject, WarpData> warp_lookup;
+	private List<RaycastResult> currentHUDhover;
 
 	void Awake ()
 	{

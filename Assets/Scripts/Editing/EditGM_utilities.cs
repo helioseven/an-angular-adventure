@@ -255,6 +255,12 @@ public partial class EditGM {
 		*/
 	}
 
+	// returns true if the mouse is hovering over any HUD element
+	private bool checkHUDHover ()
+	{
+		return currentHUDhover.Count > 0;
+	}
+
 	// used when entering editMode with an item selected, which removes it
 	private void removeSelectedItem ()
 	{
@@ -406,6 +412,15 @@ public partial class EditGM {
 		<2> get point of intersection with active layer plane
 		<3> cast a forward-facing ray through layer at intersection point
 		*/
+	}
+
+	// returns true if the given element is mouse hovered
+	public bool IsHUDElementHovered (EditableField element)
+	{
+		bool b = false;
+		foreach (RaycastResult result in currentHUDhover)
+			if (result.gameObject == element.gameObject) b = true;
+		return b;
 	}
 
 	// if passed object is a tile, supplies corresponding TileData

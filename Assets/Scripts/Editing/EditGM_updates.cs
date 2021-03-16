@@ -56,6 +56,8 @@ public partial class EditGM {
 		}
 		getInputs = now;
 
+		currentHUDhover = raycastAllHUD();
+
 		/*
 		<1> get inputs from InputManager
 		<2> enum bit flags are assigned by powers of 2
