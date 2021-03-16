@@ -53,9 +53,8 @@ public partial class PlayGM {
 
 		// update physics for warps
 		foreach (Transform warp in warpMap.transform) {
-			int baseLayer = warp.gameObject.GetComponent<Warp>().baseLayer;
-			int targetLayer = warp.gameObject.GetComponent<Warp>().targetLayer;
-			bool isActive = activeLayer == baseLayer || activeLayer == targetLayer;
+			Warp w = warp.gameObject.GetComponent<Warp>();
+			bool isActive = activeLayer == w.baseLayer || activeLayer == w.targetLayer;
 			setWarpOpacityAndPhysics(warp, isActive);
 		}
 
@@ -110,9 +109,7 @@ public partial class PlayGM {
 			bool isBase = baseLayer == 0;
 			bool isTarget = targetLayer == 0;
 			Warp w = go.GetComponent<Warp>();
-			w.baseLayer = baseLayer;
-			w.targetLayer = targetLayer;
-			w.data = wd;
+			if (w) w.data = wd;
 			go.layer = isBase || isTarget ? 10 : 9;
 			go.transform.SetParent(warpMap.transform);
 		}

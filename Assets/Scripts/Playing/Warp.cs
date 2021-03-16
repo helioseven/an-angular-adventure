@@ -5,11 +5,17 @@ using circleXsquares;
 
 public class Warp : MonoBehaviour {
 
-	public PlayGM play_gm;
-
-	public int baseLayer;
-	public int targetLayer;
 	public WarpData data;
+	public int baseLayer {
+		get { return data.orient.layer; }
+		set {}
+	}
+	public int targetLayer {
+		get { return data.targetLayer; }
+		set {}
+	}
+
+	private  PlayGM play_gm;
 
 	void Awake ()
 	{
