@@ -5,9 +5,10 @@ using UnityEngine.UI;
 
 public class LevelNameField : EditableField {
 
+  // simply updates level name info from input
   public void UpdateLevelName(string fieldData)
   {
-    text.text = fieldData;
+    SetText(fieldData);
     DeactivateField();
   }
 }

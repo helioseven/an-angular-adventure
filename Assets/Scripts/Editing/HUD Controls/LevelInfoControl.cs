@@ -14,7 +14,7 @@ public class LevelInfoControl : MonoBehaviour {
 	private Text tiles_display;
 	private Text anchor_display;
 
-	private string level_name;
+	// private string level_name;
 	private int active_layer;
 	private int layer_count;
 	private int layer_tiles;
@@ -23,7 +23,7 @@ public class LevelInfoControl : MonoBehaviour {
 
 	void Awake ()
 	{
-		level_name = "";
+		// level_name = "";
 		active_layer = 0;
 		layer_count = 1;
 		layer_tiles = 0;
@@ -83,7 +83,7 @@ public class LevelInfoControl : MonoBehaviour {
 	// updates the text variables inside the relevant UI sub-elements
 	public void updateUI ()
 	{
-		name_display.text = level_name;
+		// name_display.text = level_name;
 
 		string s = (active_layer + 1).ToString() + " / " + layer_count.ToString();
 		layers_display.text = s;
