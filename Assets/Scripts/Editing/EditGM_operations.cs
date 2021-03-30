@@ -200,6 +200,16 @@ public partial class EditGM {
 
 	/* Private Operations */
 
+	// sets level name property with passed string
+	public void setLevelName (string inName)
+	{
+		if (inName.Length <= 100) level_name = inName; // <1>
+
+		/*
+		<1> level names are capped at 100 characters for now
+		*/
+	}
+
 	// returns a list of all HUD elements currently under the mouse
 	private List<RaycastResult> raycastAllHUD ()
 	{

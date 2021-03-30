@@ -6,15 +6,24 @@ using circleXsquares;
 
 public class LevelInfoControl : MonoBehaviour {
 
-	// private variables
+	// private constants
+	private const int NAME_CID = 0;
+	private const int ATTR_CID = 1;
+	private const int LAYER_CID = 1;
+	private const int TILES_CID = 3;
+	private const int ANCHR_CID = 5;
+
+	// private references
 	private EditGM gm_ref;
 	private Transform tm_ref;
 	private Text name_display;
+	private EditableField name_field;
 	private Text layers_display;
 	private Text tiles_display;
 	private Text anchor_display;
 
-	// private string level_name;
+	// private variables
+	private string level_name;
 	private int active_layer;
 	private int layer_count;
 	private int layer_tiles;
@@ -23,7 +32,7 @@ public class LevelInfoControl : MonoBehaviour {
 
 	void Awake ()
 	{
-		// level_name = "";
+		level_name = "";
 		active_layer = 0;
 		layer_count = 1;
 		layer_tiles = 0;
@@ -36,23 +45,48 @@ public class LevelInfoControl : MonoBehaviour {
 		gm_ref = EditGM.instance;
 		tm_ref = gm_ref.tileMap.transform;
 
-		name_display = transform.GetChild(0).GetComponent<Text>();
-		Transform t = transform.GetChild(1);
-		layers_display = t.GetChild(1).GetComponent<Text>();
-		tiles_display = t.GetChild(3).GetComponent<Text>();
-		anchor_display = t.GetChild(5).GetComponent<Text>();
+		Transform t = transform.GetChild(NAME_CID);
+		name_display = t.GetComponent<Text>();
+		name_field = t.GetComponent<EditableField>();
+		t = transform.GetChild(ATTR_CID);
+		layers_display = t.GetChild(LAYER_CID).GetComponent<Text>();
+		tiles_display = t.GetChild(TILES_CID).GetComponent<Text>();
+		anchor_display = t.GetChild(ANCHR_CID).GetComponent<Text>();
 	}
 
 	void Update ()
 	{
+		if (checkAllFields()) updateUI();
+	}
+
+	/* Public Functions */
+
+	// updates the text variables inside the relevant UI sub-elements
+	public void updateUI ()
+	{
+		name_display.text = level_name;
+
+		string s = (active_layer + 1).ToString() + " / " + layer_count.ToString();
+		layers_display.text = s;
+
+		s = layer_tiles.ToString() + " (" + level_tiles.ToString() + ")";
+		tiles_display.text = s;
+
+		anchor_display.text = anchor_locus.PrettyPrint();
+	}
+
+	/* Private Functions */
+
+	// checks all panel fields for any changes and returns true if found
+	private bool checkAllFields ()
+	{
 		bool b = false;
 
-		/*
-		if (level_name != gm_ref.levelName) {
-			level_name = gm_ref.levelName;
+		string s = name_field.isActive ? "" : gm_ref.levelName; // <1>
+		if (level_name != s) {
+			level_name = s;
 			b = true;
 		}
-		*/
 		int al = gm_ref.activeLayer;
 		if (active_layer != al) {
 			active_layer = al;
@@ -75,26 +109,12 @@ public class LevelInfoControl : MonoBehaviour {
 			b = true;
 		}
 
-		if (b) updateUI();
+		return b;
+
+		/*
+		<1> text is hidden while input prompt is active by replacement with ""
+		*/
 	}
-
-	/* Public Functions */
-
-	// updates the text variables inside the relevant UI sub-elements
-	public void updateUI ()
-	{
-		// name_display.text = level_name;
-
-		string s = (active_layer + 1).ToString() + " / " + layer_count.ToString();
-		layers_display.text = s;
-
-		s = layer_tiles.ToString() + " (" + level_tiles.ToString() + ")";
-		tiles_display.text = s;
-
-		anchor_display.text = anchor_locus.PrettyPrint();
-	}
-
-	/* Private Functions */
 
 	// gets a count of all tiles currently in the level
 	private int getTileCount ()

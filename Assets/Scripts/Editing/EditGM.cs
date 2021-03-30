@@ -29,7 +29,10 @@ public partial class EditGM : MonoBehaviour {
 	// public read-accessibility state variables
 	public InputKeys getInputs { get; private set; }
 	public InputKeys getInputDowns { get; private set; }
-	public string levelName { get; private set; }
+	public string levelName {
+		get { return level_name; }
+		set { setLevelName(value); }
+	}
 	public LevelData levelData { get; private set; }
 	public int activeLayer { get; private set; }
 	public SelectedItem selectedItem {
@@ -56,6 +59,7 @@ public partial class EditGM : MonoBehaviour {
 	}
 
 	// private variables
+	private string level_name;
 	private EditLoader lvl_load;
 	private EditorMode current_mode;
 	private EditTools tool_mode;
@@ -111,7 +115,7 @@ public partial class EditGM : MonoBehaviour {
 	void Start ()
 	{
 		lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>(); // <1>
-		levelName = lvl_load.levelName;
+		level_name = lvl_load.levelName;
 		levelData = lvl_load.supplyLevel(); // <2>
 		buildLevel(levelData);
 

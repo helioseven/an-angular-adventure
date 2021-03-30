@@ -15,18 +15,16 @@ public class EditableField : MonoBehaviour {
 
   /* Protected References */
 
-  protected Text text;
+  protected EditGM gm_ref;
   protected GameObject inputField;
 
   /* Private Variables */
 
-  private EditGM gm_ref;
   private bool is_active;
   private string stored_text;
 
   void Awake ()
   {
-    text = gameObject.GetComponent<Text>();
     inputField = transform.GetChild(0).gameObject;
   }
 
@@ -47,36 +45,20 @@ public class EditableField : MonoBehaviour {
   public void ActivateField()
   {
     is_active = true;
-    stored_text = text.text; // <1>
-    text.text = "";
 
     inputField.SetActive(true);
     BaseEventData bed = new BaseEventData(gm_ref.eventSystem);
-    gm_ref.eventSystem.SetSelectedGameObject(inputField, bed); // <2>
+    gm_ref.eventSystem.SetSelectedGameObject(inputField, bed); // <1>
 
     /*
-    <1> text is hidden while input prompt is active by replacement with ""
-    <2> inputField is set as event system's selected object
+    <1> inputField is set as event system's selected object
     */
   }
 
   // deactivates the child input field and restores self
-  public void DeactivateField()
+  public void DeactivateField ()
   {
-    isActive = false;
+    is_active = false;
     inputField.SetActive(false);
-    text.text = stored_text; // <1>
-
-    /*
-    <1> restore whatever text should appear from buffer
-    */
-  }
-
-  // allows child classes to set desired display text
-  protected void SetText(string inText)
-  {
-    if (is_active) stored_text = inText;
-    else text.text = inText;
-    // gm_ref.SetLevelName(inText);
   }
 }
