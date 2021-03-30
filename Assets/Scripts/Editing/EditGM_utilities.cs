@@ -57,6 +57,103 @@ public partial class EditGM {
 		ColorCW = 0x400000
 	}
 
+	/* Public Utilities */
+
+	// simply returns whether the given keys were being held during this frame
+	public bool CheckInput (InputKeys inKeys)
+	{ return (getInputs & inKeys) == inKeys; }
+
+	// simply returns whether the given keys were pressed on this frame
+	public bool CheckInputDown (InputKeys inKeys)
+	{ return (getInputDowns & inKeys) == inKeys; }
+
+	// simply returns the z value of the current layer's transform
+	public float GetLayerDepth ()
+	{ return GetLayerDepth(activeLayer); }
+
+	// simply returns the z value of the given layer's transform
+	public float GetLayerDepth (int inLayer)
+	{ return tileMap.transform.GetChild(inLayer).position.z; }
+
+	// returns first collider hit on active layer under click
+	public Collider2D GetObjectClicked ()
+	{
+		Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
+		Plane p = new Plane(Vector3.forward, -2f * activeLayer); // <1>
+		float f;
+		p.Raycast(r, out f);
+		Vector3 v3 = r.GetPoint(f); // <2>
+		v3.z -= 1f;
+		r = new Ray(v3, Vector3.forward);
+		return Physics2D.GetRayIntersection(r, 2f).collider; // <3>
+
+		/*
+		<1> use plane at active layer depth
+		<2> get point of intersection with active layer plane
+		<3> cast a forward-facing ray through layer at intersection point
+		*/
+	}
+
+	// returns true if the given element is mouse hovered
+	public bool IsHUDElementHovered (EditableField element)
+	{
+		bool b = false;
+		foreach (RaycastResult result in currentHUDhover)
+			if (result.gameObject == element.gameObject) b = true;
+		return b;
+	}
+
+	// if passed object is a tile, supplies corresponding TileData
+	public bool IsMappedTile (GameObject inTile, out TileData outData)
+	{
+		if (!inTile || !tile_lookup.ContainsKey(inTile)) { // <1>
+			outData = new TileData();
+			return false;
+		} else {
+			outData = tile_lookup[inTile]; // <2>
+			return true;
+		}
+
+		/*
+		<1> If the passed tile isn't part of the map, output default values and return false
+		<2> If it is, then output the TileData itself via tile_lookup and return true
+		*/
+	}
+
+	// if passed object is a checkpoint, supplies corresponding ChkpntData
+	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
+	{
+		if (!inChkpnt || !chkpnt_lookup.ContainsKey(inChkpnt)) { // <1>
+			outData = new ChkpntData();
+			return false;
+		} else {
+			outData = chkpnt_lookup[inChkpnt]; // <2>
+			return true;
+		}
+
+		/*
+		<1> If the passed checkpoint isn't part of the map, output default values and return false
+		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
+		*/
+	}
+
+	// if passed object is a checkpoint, supplies corresponding WarpData
+	public bool IsMappedWarp (GameObject inWarp, out WarpData outData)
+	{
+		if (!inWarp || !warp_lookup.ContainsKey(inWarp)) { // <1>
+			outData = new WarpData();
+			return false;
+		} else {
+			outData = warp_lookup[inWarp]; // <2>
+			return true;
+		}
+
+		/*
+		<1> If the passed checkpoint isn't part of the map, output default values and return false
+		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
+		*/
+	}
+
 	/* Private Utilities */
 
 	// cycles through all layers, calculates distance, and sets opacity accordingly
@@ -375,102 +472,5 @@ public partial class EditGM {
 		}
 
 		tool_mode = inTool;
-	}
-
-	/* Public Utilities */
-
-	// simply returns whether the given keys were being held during this frame
-	public bool CheckInput (InputKeys inKeys)
-	{ return (getInputs & inKeys) == inKeys; }
-
-	// simply returns whether the given keys were pressed on this frame
-	public bool CheckInputDown (InputKeys inKeys)
-	{ return (getInputDowns & inKeys) == inKeys; }
-
-	// simply returns the z value of the current layer's transform
-	public float GetLayerDepth ()
-	{ return GetLayerDepth(activeLayer); }
-
-	// simply returns the z value of the given layer's transform
-	public float GetLayerDepth (int inLayer)
-	{ return tileMap.transform.GetChild(inLayer).position.z; }
-
-	// returns first collider hit on active layer under click
-	public Collider2D GetObjectClicked ()
-	{
-		Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-		Plane p = new Plane(Vector3.forward, -2f * activeLayer); // <1>
-		float f;
-		p.Raycast(r, out f);
-		Vector3 v3 = r.GetPoint(f); // <2>
-		v3.z -= 1f;
-		r = new Ray(v3, Vector3.forward);
-		return Physics2D.GetRayIntersection(r, 2f).collider; // <3>
-
-		/*
-		<1> use plane at active layer depth
-		<2> get point of intersection with active layer plane
-		<3> cast a forward-facing ray through layer at intersection point
-		*/
-	}
-
-	// returns true if the given element is mouse hovered
-	public bool IsHUDElementHovered (EditableField element)
-	{
-		bool b = false;
-		foreach (RaycastResult result in currentHUDhover)
-			if (result.gameObject == element.gameObject) b = true;
-		return b;
-	}
-
-	// if passed object is a tile, supplies corresponding TileData
-	public bool IsMappedTile (GameObject inTile, out TileData outData)
-	{
-		if (!inTile || !tile_lookup.ContainsKey(inTile)) { // <1>
-			outData = new TileData();
-			return false;
-		} else {
-			outData = tile_lookup[inTile]; // <2>
-			return true;
-		}
-
-		/*
-		<1> If the passed tile isn't part of the map, output default values and return false
-		<2> If it is, then output the TileData itself via tile_lookup and return true
-		*/
-	}
-
-	// if passed object is a checkpoint, supplies corresponding ChkpntData
-	public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
-	{
-		if (!inChkpnt || !chkpnt_lookup.ContainsKey(inChkpnt)) { // <1>
-			outData = new ChkpntData();
-			return false;
-		} else {
-			outData = chkpnt_lookup[inChkpnt]; // <2>
-			return true;
-		}
-
-		/*
-		<1> If the passed checkpoint isn't part of the map, output default values and return false
-		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
-		*/
-	}
-
-	// if passed object is a checkpoint, supplies corresponding WarpData
-	public bool IsMappedWarp (GameObject inWarp, out WarpData outData)
-	{
-		if (!inWarp || !warp_lookup.ContainsKey(inWarp)) { // <1>
-			outData = new WarpData();
-			return false;
-		} else {
-			outData = warp_lookup[inWarp]; // <2>
-			return true;
-		}
-
-		/*
-		<1> If the passed checkpoint isn't part of the map, output default values and return false
-		<2> If it is, then output the ChkpntData itself via chkpnt_lookup and return true
-		*/
 	}
 }
