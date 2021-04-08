@@ -349,9 +349,33 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1106338144842326, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
+      objectReference: {fileID: 0}
+    - target: {fileID: 1200127560674294, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
+      objectReference: {fileID: 0}
+    - target: {fileID: 1358442210644146, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
+      objectReference: {fileID: 0}
     - target: {fileID: 1427315914901626, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
       propertyPath: m_Name
       value: TileCreator_Play
+      objectReference: {fileID: 0}
+    - target: {fileID: 1491956087150378, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
+      objectReference: {fileID: 0}
+    - target: {fileID: 1753382438597414, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
+      objectReference: {fileID: 0}
+    - target: {fileID: 1863539731079148, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
+      propertyPath: m_TagString
+      value: Purple
       objectReference: {fileID: 0}
     - target: {fileID: 4644371282648470, guid: 9acfcf5961fa1a348817d1f5311f8000, type: 3}
       propertyPath: m_LocalPosition.x

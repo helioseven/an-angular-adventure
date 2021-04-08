@@ -49,6 +49,11 @@ public class Player_Controller : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D other)
 	{
 		num_jumps = 0;
+
+		if (other.gameObject.tag.Equals ("Purple"))
+		{
+			SoundManagerScript.PlayOneShotSound ("bounce");
+		}
 	}
 
 	public void UpdateJumpForce(PlayGM.GravityDirection gd)
@@ -83,6 +88,8 @@ public class Player_Controller : MonoBehaviour {
 			num_jumps++;
 			// jump now!
 			jump_now = true;
+			// play sound
+			SoundManagerScript.PlayOneShotSound("jump");
 		}
 	}
 
