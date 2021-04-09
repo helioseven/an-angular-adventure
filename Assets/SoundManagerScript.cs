@@ -22,11 +22,11 @@ public class SoundManagerScript : MonoBehaviour
         
     }
 
-    public static void PlayOneShotSound (string clip)
+    public static void PlayOneShotSound (string clip, float intensity = 0.5f)
     {
         switch (clip) {
             case "bounce":
-                audioSource.PlayOneShot (bounceSound);
+                audioSource.PlayOneShot (bounceSound, intensity);
                 break;
             case "jump":
                 audioSource.PlayOneShot (jumpSound);

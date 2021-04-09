@@ -20,6 +20,9 @@ public class Player_Controller : MonoBehaviour {
 
 	private bool godMode = false;
 
+	private float maxVolume = 0.3f;
+	private float volumeMultiplier = 0.07f;
+
 	void Awake ()
 	{
 		rb2d = gameObject.GetComponent<Rigidbody2D> ();
@@ -52,7 +55,16 @@ public class Player_Controller : MonoBehaviour {
 
 		if (other.gameObject.tag.Equals ("Purple"))
 		{
-			SoundManagerScript.PlayOneShotSound ("bounce");
+			float force = other.relativeVelocity.magnitude;
+			Vector2 vel = other.relativeVelocity;
+			Vector2 grav = Physics2D.gravity;
+
+			float bounceForce = grav.x * vel.x + grav.y * vel.y;
+			bounceForce = Mathf.Abs(bounceForce) / 10.0f;
+
+			float intensity = Mathf.Clamp(bounceForce * volumeMultiplier, 0f, maxVolume);
+			Debug.Log ("intensity: " + intensity + "      \t force: " + force + "     \t bounceForce: " + bounceForce);
+			SoundManagerScript.PlayOneShotSound ("bounce", intensity);
 		}
 	}
 
