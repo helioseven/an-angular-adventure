@@ -23,11 +23,14 @@ public class Player_Controller : MonoBehaviour {
 	private float maxVolume = 0.3f;
 	private float volumeMultiplier = 0.07f;
 
+	private AudioSource audioSource;
+
 	void Awake ()
 	{
 		rb2d = gameObject.GetComponent<Rigidbody2D> ();
 		jump_force_vec = new Vector2(0.0f , jumpForce);
 		ground_check_collider = gameObject.GetComponent<Collider2D>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	void Start ()
@@ -41,6 +44,7 @@ public class Player_Controller : MonoBehaviour {
 		UpdateJumping();
 		UpdateGravity();
 		UpdateGodMode();
+		UpdateRollingSound();
 	}
 
 	void FixedUpdate ()
@@ -55,15 +59,15 @@ public class Player_Controller : MonoBehaviour {
 
 		if (other.gameObject.tag.Equals ("Purple"))
 		{
-			float force = other.relativeVelocity.magnitude;
 			Vector2 vel = other.relativeVelocity;
 			Vector2 grav = Physics2D.gravity;
 
+			// dot product calculates projection of velocity vector onto gravity vector
 			float bounceForce = grav.x * vel.x + grav.y * vel.y;
 			bounceForce = Mathf.Abs(bounceForce) / 10.0f;
 
 			float intensity = Mathf.Clamp(bounceForce * volumeMultiplier, 0f, maxVolume);
-			Debug.Log ("intensity: " + intensity + "      \t force: " + force + "     \t bounceForce: " + bounceForce);
+			// Debug.Log ("intensity: " + intensity + "     \t bounceForce: " + bounceForce);
 			SoundManagerScript.PlayOneShotSound ("bounce", intensity);
 		}
 	}
@@ -109,26 +113,30 @@ public class Player_Controller : MonoBehaviour {
 	{
 		// God Mode Gravity Control
 		if (!godMode) return;
-
+		
 		// Gravity Down
 		if (Input.GetKeyDown(KeyCode.K)) {
+			SoundManagerScript.PlayOneShotSound("gravity");
 			Physics2D.gravity = new Vector2(0.0f, -9.81f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Down); 
 		}
 
 		// Gravity left
 		if (Input.GetKeyDown(KeyCode.J)) {
+			SoundManagerScript.PlayOneShotSound("gravity");
 			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Left);
 		}
 
 		// Gravity Up
 		if (Input.GetKeyDown(KeyCode.I)) {
+			SoundManagerScript.PlayOneShotSound("gravity");
 			Physics2D.gravity = new Vector2(0.0f, 9.81f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Up);
 		}
 
 		if (Input.GetKeyDown(KeyCode.L)) {
+			SoundManagerScript.PlayOneShotSound("gravity");
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Right);
 		}
@@ -139,9 +147,25 @@ public class Player_Controller : MonoBehaviour {
 	{
 		// Toggle God Mode on G key press
 		if (Input.GetKeyDown(KeyCode.G)) {
+			SoundManagerScript.PlayOneShotSound("gravity");
 			godMode = !godMode;
 		}
 
+	}
+
+	void UpdateRollingSound()
+	{
+		Vector2 vel = rb2d.velocity;
+		Vector2 grav = Physics2D.gravity;
+
+		// dot product calculates projection of velocity vector onto vector perpendicular gravity vector
+		float slideForce = grav.x * vel.y + grav.y * vel.x;
+		slideForce = Mathf.Abs(slideForce) / 10.0f;
+		float intensity = Mathf.Clamp(slideForce * volumeMultiplier, 0f, maxVolume);
+
+		// Debug.Log ("Player RollingSound intensity: " + intensity + "\t slideForce: " + slideForce);
+		if (!ground_check_collider.IsTouchingLayers()) intensity = 0.0f;
+		audioSource.volume = intensity;
 	}
 
 	void Move()
