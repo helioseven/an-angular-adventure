@@ -24,6 +24,6 @@ public class Warp : MonoBehaviour {
 
 	void OnTriggerEnter2D (Collider2D other)
 	{
-		play_gm.WarpPlayer(baseLayer, targetLayer);
+		if (other.gameObject.CompareTag("Player")) play_gm.WarpPlayer(baseLayer, targetLayer);
 	}
 }
