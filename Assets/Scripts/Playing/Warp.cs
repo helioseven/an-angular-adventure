@@ -25,7 +25,7 @@ public class Warp : MonoBehaviour {
 	void OnTriggerEnter2D (Collider2D other)
 	{
 		if (other.gameObject.CompareTag("Player")) {
-			SoundManagerScript.PlayOneShotSound("warp");
+			FindObjectOfType<SoundManager>().Play("warp");
 			play_gm.WarpPlayer(baseLayer, targetLayer);
 		}
 	}

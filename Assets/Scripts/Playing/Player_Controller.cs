@@ -57,6 +57,7 @@ public class Player_Controller : MonoBehaviour {
 	{
 		num_jumps = 0;
 
+		// Play bounce sound when colliding with purple tiles
 		if (other.gameObject.tag.Equals ("Purple"))
 		{
 			Vector2 vel = other.relativeVelocity;
@@ -68,7 +69,8 @@ public class Player_Controller : MonoBehaviour {
 
 			float intensity = Mathf.Clamp(bounceForce * volumeMultiplier, 0f, maxVolume);
 			// Debug.Log ("intensity: " + intensity + "     \t bounceForce: " + bounceForce);
-			SoundManagerScript.PlayOneShotSound ("bounce", intensity);
+
+			FindObjectOfType<SoundManager>().Play("bounce", intensity);
 		}
 	}
 
@@ -105,7 +107,7 @@ public class Player_Controller : MonoBehaviour {
 			// jump now!
 			jump_now = true;
 			// play sound
-			SoundManagerScript.PlayOneShotSound("jump");
+			FindObjectOfType<SoundManager>().Play("jump");
 		}
 	}
 
@@ -116,27 +118,27 @@ public class Player_Controller : MonoBehaviour {
 		
 		// Gravity Down
 		if (Input.GetKeyDown(KeyCode.K)) {
-			SoundManagerScript.PlayOneShotSound("gravity");
+			FindObjectOfType<SoundManager>().Play("gravity");
 			Physics2D.gravity = new Vector2(0.0f, -9.81f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Down); 
 		}
 
 		// Gravity left
 		if (Input.GetKeyDown(KeyCode.J)) {
-			SoundManagerScript.PlayOneShotSound("gravity");
+			FindObjectOfType<SoundManager>().Play("gravity");
 			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Left);
 		}
 
 		// Gravity Up
 		if (Input.GetKeyDown(KeyCode.I)) {
-			SoundManagerScript.PlayOneShotSound("gravity");
+			FindObjectOfType<SoundManager>().Play("gravity");
 			Physics2D.gravity = new Vector2(0.0f, 9.81f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Up);
 		}
 
 		if (Input.GetKeyDown(KeyCode.L)) {
-			SoundManagerScript.PlayOneShotSound("gravity");
+			FindObjectOfType<SoundManager>().Play("gravity");
 			Physics2D.gravity = new Vector2(9.81f, 0.0f);
 			this.UpdateJumpForce(PlayGM.GravityDirection.Right);
 		}
@@ -147,7 +149,7 @@ public class Player_Controller : MonoBehaviour {
 	{
 		// Toggle God Mode on G key press
 		if (Input.GetKeyDown(KeyCode.G)) {
-			SoundManagerScript.PlayOneShotSound("gravity");
+			FindObjectOfType<SoundManager>().Play("gravity");
 			godMode = !godMode;
 		}
 
@@ -165,6 +167,7 @@ public class Player_Controller : MonoBehaviour {
 
 		// Debug.Log ("Player RollingSound intensity: " + intensity + "\t slideForce: " + slideForce);
 		if (!ground_check_collider.IsTouchingLayers()) intensity = 0.0f;
+
 		audioSource.volume = intensity;
 	}
 

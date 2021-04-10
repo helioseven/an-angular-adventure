@@ -18,7 +18,7 @@ public class Tile_Blue : Tile
 
 			float intensity = Mathf.Clamp(slideForce * volumeMultiplier, 0f, maxVolume);
 			// Debug.Log ("Blue Tile Ice Slide intensity: " + intensity + "\t slideForce: " + slideForce);
-			SoundManagerScript.PlayOneShotSound ("ice", intensity);
+			FindObjectOfType<SoundManager>().Play ("ice", intensity);
         }
 	}
 }

@@ -18,7 +18,7 @@ public class Checkpoint : MonoBehaviour {
 	void OnTriggerEnter2D (Collider2D other)
 	{
 		if (other.gameObject.CompareTag("Player")) {
-			SoundManagerScript.PlayOneShotSound("checkpoint");
+			FindObjectOfType<SoundManager>().Play("checkpoint");
 			play_gm.SetCheckpoint(data);
 		}
 	}

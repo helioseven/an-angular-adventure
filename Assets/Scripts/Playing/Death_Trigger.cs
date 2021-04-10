@@ -9,7 +9,7 @@ public class Death_Trigger : MonoBehaviour {
 	{
 		// identifies the player by tag
 		if (other.gameObject.CompareTag("Player")) {
-			SoundManagerScript.PlayOneShotSound("death");
+			FindObjectOfType<SoundManager>().Play("death");
 			PlayGM.instance.KillPlayer();
 		}
 	}
