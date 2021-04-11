@@ -17,10 +17,10 @@ public class PlayCam_Controller : MonoBehaviour {
 	void Update ()
 	{
 		Vector3 target = player.transform.position;
+		target.z = target.z - 8f;
 		Vector3 v3 = transform.position;
 
 		v3 = Vector3.SmoothDamp(v3, target, ref velocity, 0.3f);
-		v3.z = target.z - 8.0f;
 		transform.position = v3;
 	}
 }
