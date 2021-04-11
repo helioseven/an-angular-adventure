@@ -93,4 +93,30 @@ public partial class PlayGM : MonoBehaviour {
 		<1> escape key bails to MainMenu, for now
 		*/
 	}
+
+	// ImpactIntensityToVolume - Downward impact calculation helper
+	public float ImpactIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto gravity vector
+		float bounceForce = gravity.x * velocity.x + gravity.y * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
+
+	// SlideIntensityToVolume - Downward impact calculation helper
+	public float SlideIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto slide vector (perpendicular to gravity vector)
+		float bounceForce = gravity.y * velocity.x + gravity.x * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
 }

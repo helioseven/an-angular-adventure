@@ -20,9 +20,6 @@ public class Player_Controller : MonoBehaviour {
 
 	private bool godMode = false;
 
-	private float maxVolume = 0.3f;
-	private float volumeMultiplier = 0.07f;
-
 	private AudioSource audioSource;
 
 	void Awake ()
@@ -60,17 +57,8 @@ public class Player_Controller : MonoBehaviour {
 		// Play bounce sound when colliding with purple tiles
 		if (other.gameObject.tag.Equals ("Purple"))
 		{
-			Vector2 vel = other.relativeVelocity;
-			Vector2 grav = Physics2D.gravity;
-
-			// dot product calculates projection of velocity vector onto gravity vector
-			float bounceForce = grav.x * vel.x + grav.y * vel.y;
-			bounceForce = Mathf.Abs(bounceForce) / 10.0f;
-
-			float intensity = Mathf.Clamp(bounceForce * volumeMultiplier, 0f, maxVolume);
-			// Debug.Log ("intensity: " + intensity + "     \t bounceForce: " + bounceForce);
-
-			FindObjectOfType<SoundManager>().Play("bounce", intensity);
+			float volume = gm_ref.ImpactIntensityToVolume(other.relativeVelocity, Physics2D.gravity);
+			FindObjectOfType<SoundManager>().Play("bounce", volume);
 		}
 	}
 
@@ -157,18 +145,9 @@ public class Player_Controller : MonoBehaviour {
 
 	void UpdateRollingSound()
 	{
-		Vector2 vel = rb2d.velocity;
-		Vector2 grav = Physics2D.gravity;
-
-		// dot product calculates projection of velocity vector onto vector perpendicular gravity vector
-		float slideForce = grav.x * vel.y + grav.y * vel.x;
-		slideForce = Mathf.Abs(slideForce) / 10.0f;
-		float intensity = Mathf.Clamp(slideForce * volumeMultiplier, 0f, maxVolume);
-
-		// Debug.Log ("Player RollingSound intensity: " + intensity + "\t slideForce: " + slideForce);
-		if (!ground_check_collider.IsTouchingLayers()) intensity = 0.0f;
-
-		audioSource.volume = intensity;
+		float volume = gm_ref.SlideIntensityToVolume (rb2d.velocity, Physics2D.gravity);
+		if (!ground_check_collider.IsTouchingLayers()) volume = 0.0f;
+		audioSource.volume = volume;
 	}
 
 	void Move()
