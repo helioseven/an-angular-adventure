@@ -349,9 +349,10 @@ public partial class EditGM {
 		foreach (Transform tile in tileLayer) {
 			tile.gameObject.layer = layer;
 			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
-			if (tile.GetChild(0).GetChild(0)) {
-				Debug.Log("yea");
-				tile.GetChild(0).GetChild(0).GetComponent<SpriteRenderer>().color = color;
+			
+			// if there are grandchildren, dim them too
+			if (tile.GetChild(0).childCount > 0) {
+				tile.GetChild(0).GetChild(0).gameObject.GetComponent<SpriteRenderer>().color = color;
 			}
 		}
 
