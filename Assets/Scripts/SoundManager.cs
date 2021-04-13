@@ -47,6 +47,10 @@ public class SoundManager : MonoBehaviour
             Debug.LogWarning ("Sound name not recognized: " + name);
             return;
         }
+        else if (s.source == null) {
+            Debug.LogWarning ("Load me better: " + name);
+            return;
+        }
 
         // set the volume
         s.volume = volume;
