@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-
+using circleXsquares;
 
 public class Player_Controller : MonoBehaviour {
 
@@ -53,13 +53,6 @@ public class Player_Controller : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D other)
 	{
 		num_jumps = 0;
-
-		// Play bounce sound when colliding with purple tiles
-		if (other.gameObject.tag.Equals ("Purple"))
-		{
-			float volume = gm_ref.ImpactIntensityToVolume(other.relativeVelocity, Physics2D.gravity);
-			FindObjectOfType<SoundManager>().Play("bounce", volume);
-		}
 	}
 
 	public void UpdateJumpForce(PlayGM.GravityDirection gd)
