@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using circleXsquares;
 
-public class Tile_Green : Tile
-{
+public class Tile_Green : Tile {
 
 	// triggers switch toggle when it detects player collision
 	void OnCollisionEnter2D (Collision2D other)
@@ -19,6 +18,6 @@ public class Tile_Green : Tile
   //
   private void toggleSwitch ()
   {
-    //
+    Debug.Log("Green");
   }
 }

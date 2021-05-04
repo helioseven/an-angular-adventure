@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using circleXsquares;
 
-public class Tile_Orange : Tile
-{
+public class Tile_Orange : Tile {
 
   public Transform arrow;
 
@@ -21,9 +20,9 @@ public class Tile_Orange : Tile
   // triggers gravity redirection when it detects player collision
 	void OnCollisionEnter2D (Collision2D other)
 	{
-		if (other.gameObject.CompareTag("Player")) {// <1>
+		if (other.gameObject.CompareTag("Player")) { // <1>
       FindObjectOfType<SoundManager>().Play("gravity");
-      redirectGravity(); 
+      redirectGravity();
     }
 
     /*

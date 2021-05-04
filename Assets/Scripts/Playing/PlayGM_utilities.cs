@@ -28,6 +28,32 @@ public partial class PlayGM {
 	public float GetLayerDepth (int inLayer)
 	{ return tileMap.transform.GetChild(inLayer).position.z; }
 
+	// ImpactIntensityToVolume - Downward impact calculation helper
+	public float ImpactIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto gravity vector
+		float bounceForce = gravity.x * velocity.x + gravity.y * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
+
+	// SlideIntensityToVolume - Downward impact calculation helper
+	public float SlideIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto slide vector (perpendicular to gravity vector)
+		float bounceForce = gravity.y * velocity.x + gravity.x * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
+
 	/* Private Utilities */
 
 	// calculates delta between each layer and desired active, sets accordingly
@@ -142,7 +168,7 @@ public partial class PlayGM {
 		foreach (Transform tile in tileLayer) {
 			tile.gameObject.layer = layer;
 			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
-			
+
 			// if there are grandchildren, dim them too
 			if (tile.GetChild(0).childCount > 0) {
 				tile.GetChild(0).GetChild(0).gameObject.GetComponent<SpriteRenderer>().color = color;
