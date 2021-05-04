@@ -3,23 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using circleXsquares;
 
-public class Checkpoint : MonoBehaviour {
+public class Checkpoint : MonoBehaviour
+{
 
-	public PlayGM play_gm;
+    private PlayGM play_gm;
 
-	public ChkpntData data;
+    public ChkpntData data;
 
-	void Awake ()
-	{
-		play_gm = PlayGM.instance;
-	}
+    void Awake()
+    {
+        play_gm = PlayGM.instance;
+    }
 
-	// becomes the current checkpoint when it detects a collision with the player
-	void OnTriggerEnter2D (Collider2D other)
-	{
-		if (other.gameObject.CompareTag("Player")) {
-			FindObjectOfType<SoundManager>().Play("checkpoint");
-			play_gm.SetCheckpoint(data);
-		}
-	}
+    // becomes the current checkpoint when it detects a collision with the player
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            play_gm.soundManager.Play("checkpoint");
+            play_gm.SetCheckpoint(data);
+        }
+    }
 }
