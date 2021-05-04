@@ -369,18 +369,6 @@ public struct HexOrient
 	}
 }
 
-	public enum TileColor {
-		Black = 0,
-		Blue,
-		Brown,
-		Green,
-		Orange,
-		Purple,
-		Red,
-		White
-	}
-
-
 // TileData describes a tile by attributes
 public struct TileData
 {
