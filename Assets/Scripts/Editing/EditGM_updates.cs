@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -55,6 +56,8 @@ public partial class EditGM {
 		}
 		getInputs = now;
 
+		currentHUDhover = raycastAllHUD();
+
 		/*
 		<1> get inputs from InputManager
 		<2> enum bit flags are assigned by powers of 2
@@ -85,21 +88,22 @@ public partial class EditGM {
 		bool isPal = CheckInput(InputKeys.Palette);
 
 		if (isHUD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
+		hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
 		if (paletteMode != isPal) {
 			paletteMode = isPal;
 			palettePanel.TogglePalette(); // <2>
+		}
 
-			if (paletteMode) {
-				current_tool.SetActive(false); // <3>
-			} else {
-				bool b = false; // <4>
-				if (createMode) b = true;
-				if (editMode && selected_item != new SelectedItem()) b = true;
-				if (paintMode) b = true;
+		if (hoveringHUD || paletteMode) {
+			current_tool.SetActive(false); // <3>
+		} else {
+			bool b = false; // <4>
+			if (createMode) b = true;
+			if (editMode && selected_item != new SelectedItem()) b = true;
+			if (paintMode) b = true;
 
-				if (b) current_tool.SetActive(true); // <5>
-			}
+			if (b) current_tool.SetActive(true); // <5>
 		}
 
 		/*

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -196,5 +197,29 @@ public partial class EditGM {
 
 		string[] lines = levelData.Serialize();
 		File.WriteAllLines(fpath, lines);
+	}
+
+	/* Private Operations */
+
+	// sets level name property with passed string
+	public void setLevelName (string inName)
+	{
+		if (inName.Length <= 100) level_name = inName; // <1>
+
+		/*
+		<1> level names are capped at 100 characters for now
+		*/
+	}
+
+	// returns a list of all HUD elements currently under the mouse
+	private List<RaycastResult> raycastAllHUD ()
+	{
+		PointerEventData ped = new PointerEventData(eventSystem);
+		ped.position = Input.mousePosition;
+
+		List<RaycastResult> results = new List<RaycastResult>();
+		uiRaycaster.Raycast(ped, results);
+
+		return results;
 	}
 }
