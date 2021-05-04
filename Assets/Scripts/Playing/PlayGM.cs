@@ -25,6 +25,9 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject warpRef;
 	public GameObject warpMap;
 
+	// public sound manager
+	public SoundManager soundManager;
+
 	// public read-accessibility state variables
 	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
@@ -51,6 +54,7 @@ public partial class PlayGM : MonoBehaviour {
 			instance = this; // <1>
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
 			player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
+			soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
 		} else Destroy(gameObject); // <2>
 
 		/*
