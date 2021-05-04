@@ -71,6 +71,10 @@ public partial class EditGM : MonoBehaviour {
 	private Dictionary<GameObject, WarpData> warp_lookup;
 	private List<RaycastResult> currentHUDhover;
 
+	// constants
+	private const int INACTIVE_LAYER = 9;
+	private const int DEFAULT_LAYER = 0;
+
 	void Awake ()
 	{
 		if (!instance) {

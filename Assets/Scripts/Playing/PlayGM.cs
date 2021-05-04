@@ -25,6 +25,9 @@ public partial class PlayGM : MonoBehaviour {
 	public GameObject warpRef;
 	public GameObject warpMap;
 
+	// public sound manager
+	public SoundManager soundManager;
+
 	// public read-accessibility state variables
 	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
@@ -39,12 +42,19 @@ public partial class PlayGM : MonoBehaviour {
 	private HexOrient player_start;
 	private GravityDirection grav_dir;
 
+	// default number of layers to load from file
+	private const int DEFAULT_NUM_LAYERS = 5;
+	// constants
+	private const int INACTIVE_LAYER = 9;
+	private const int DEFAULT_LAYER = 0;
+
 	void Awake ()
 	{
 		if (!instance) {
 			instance = this; // <1>
 			lvl_load = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
 			player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
+			soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
 		} else Destroy(gameObject); // <2>
 
 		/*

@@ -5,7 +5,29 @@ using UnityEngine;
 
 namespace circleXsquares {
 
-/* Primary Definitions */
+/* Public Utility Enums */
+
+public enum TileType {
+	Tri = 0,
+	Dia,
+	Trap,
+	Hex,
+	Sqr,
+	Wed
+}
+
+public enum TileColor {
+	Black = 0,
+	Blue,
+	Brown,
+	Green,
+	Orange,
+	Purple,
+	Red,
+	White
+}
+
+/* Primary Struct Definitions */
 
 // HexLocus describes a location in a hexagonal coodinate system
 public struct HexLocus

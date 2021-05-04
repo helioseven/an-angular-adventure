@@ -164,20 +164,33 @@ public partial class EditGM {
 		else activeLayer = inLayer; // <2>
 
 		foreach (Transform layer in tileMap.transform) {
-			int d = layer.GetSiblingIndex();
-			d = Math.Abs(d - activeLayer);
-			setLayerOpacity(layer, d); // <3>
+			int layerNumber = layer.GetSiblingIndex();
+			int distance = Math.Abs(layerNumber - activeLayer);
+			if (activeLayer > layerNumber) distance += 2; // <3>
+			setLayerOpacity(layer, distance); // <4>
+		}
+
+		// update opacity for all checkpoints
+		foreach (Transform checkpoint in chkpntMap.transform) {
+			ChkpntData cd;
+			bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
+			int layerNumber = INACTIVE_LAYER;
+			if (ok) layerNumber = cd.layer;
+			int distance = Math.Abs(layerNumber - activeLayer);
+			if (activeLayer > layerNumber) distance += 2;
+			setCheckpointOpacity(checkpoint, distance);
 		}
 
 		Vector3 v3 = anchorIcon.transform.position;
 		v3.z = GetLayerDepth();
-		anchorIcon.transform.position = v3; // <4>
+		anchorIcon.transform.position = v3; // <5>
 
 		/*
 		<1> if invalid layer index is given, fail quietly
 		<2> otherwise update activeLayer and continue
-		<3> ordinal distance from activeLayer is calculated, and opacity set accordingly
-		<4> add active layer depth and move the snap cursor to the new location
+		<3> dim layers in front of active layer extra
+		<4> ordinal distance from activeLayer is calculated, and opacity set accordingly
+		<5> add active layer depth and move the snap cursor to the new location
 		*/
 	}
 
@@ -429,24 +442,42 @@ public partial class EditGM {
 	// sets the opacity of all tiles within a layer using ordinal distance from activeLayer
 	private void setLayerOpacity (Transform tileLayer, int distance)
 	{
-		float a = 1f; // <1>
-		int l = 0; // <2>
-		if (distance != 0) { // <3>
-			a = 1f / (distance + 1f);
-			l = 9;
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
 		}
-		Color c = new Color(1f, 1f, 1f, a);
+		Color color = new Color(1f, 1f, 1f, alpha);
 
-		foreach (Transform tile in tileLayer) { // <4>
-			tile.gameObject.layer = l;
-			tile.GetChild(0).GetComponent<SpriteRenderer>().color = c;
+		foreach (Transform tile in tileLayer) {
+			tile.gameObject.layer = layer;
+			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 		}
 
 		/*
-		<1> a represents an alpha value
-		<2> l represents the physics layer we will be setting
-		<3> if this isn't the active layer, opacity and layer are set accordingly
-		<4> the calculated opacity and layer are applied to all tiles within the layer
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
+	// set opacity and physics by given distance for given checkpoint
+	private void setCheckpointOpacity (Transform checkpoint, int distance)
+	{
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
+		}
+		Color color = new Color(1f, 1f, 1f, alpha);
+
+		checkpoint.gameObject.layer = layer;
+		checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+
+		/*
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
 		*/
 	}
 

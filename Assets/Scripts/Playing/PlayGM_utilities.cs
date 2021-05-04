@@ -28,22 +28,66 @@ public partial class PlayGM {
 	public float GetLayerDepth (int inLayer)
 	{ return tileMap.transform.GetChild(inLayer).position.z; }
 
+	// ImpactIntensityToVolume - Downward impact calculation helper
+	public float ImpactIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto gravity vector
+		float bounceForce = gravity.x * velocity.x + gravity.y * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
+
+	// SlideIntensityToVolume - Downward impact calculation helper
+	public float SlideIntensityToVolume (Vector2 velocity, Vector2 gravity)
+	{
+		float volumeMultiplier = 0.007f;
+		float minVolume = 0.001f;
+		float maxVolume = 0.3f;
+		// dot product calculates projection of velocity vector onto slide vector (perpendicular to gravity vector)
+		float bounceForce = gravity.y * velocity.x + gravity.x * velocity.y;
+		float intensity = Mathf.Abs(bounceForce * volumeMultiplier);
+		float volume = Mathf.Clamp(intensity, minVolume, maxVolume);
+		return volume;
+	}
+
 	/* Private Utilities */
 
 	// calculates delta between each layer and desired active, sets accordingly
 	private void activateLayer (int layerIndex)
 	{
-		foreach (Transform tileLayer in tileMap.transform) { // <1>
-			int d = tileLayer.GetSiblingIndex();
-			d = Math.Abs(d - layerIndex); // <2>
-			setLayerOpacity(tileLayer, d);
+		activeLayer = layerIndex;
+
+		// update opacity and physics for all tile layers
+		foreach (Transform layer in tileMap.transform) { // <1>
+			int layerNumber = layer.GetSiblingIndex();
+			int distance = Math.Abs(layerNumber - activeLayer); // <2>
+			if (activeLayer > layerNumber) distance += 2; // <3>
+			setLayerOpacityAndPhysics(layer, distance);
 		}
 
-		activeLayer = layerIndex;
+		// update opacity and physics for all checkpoints
+		foreach (Transform checkpoint in chkpntMap.transform) {
+			int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
+			int distance = Math.Abs(layerNumber - activeLayer);
+			if (activeLayer > layerNumber) distance += 2;
+			setCheckpointOpacityAndPhysics(checkpoint, distance);
+		}
+
+		// update physics for warps
+		foreach (Transform warp in warpMap.transform) {
+			Warp w = warp.gameObject.GetComponent<Warp>();
+			bool isActive = activeLayer == w.baseLayer || activeLayer == w.targetLayer;
+			setWarpOpacityAndPhysics(warp, isActive);
+		}
 
 		/*
 		<1> cycle through all layers and calls setLayerOpacity appropriately
-		<2> delta is simply absolute distance between layers
+		<2> delta is absolute distance between layers
+		<3> foreground layers are faded more
 		*/
 	}
 
@@ -55,7 +99,7 @@ public partial class PlayGM {
 			foreach (Transform tile in tileType)
 				prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
 
-		for (int i = 0; i < 2; i++) { // <2>
+		for (int i = 0; i < DEFAULT_NUM_LAYERS; i++) { // <2>
 			GameObject tileLayer = new GameObject();
 			tileLayer.name = "Layer #" + i;
 			tileLayer.transform.position = new Vector3(0f, 0f, 2f * i);
@@ -76,6 +120,8 @@ public partial class PlayGM {
 			Vector3 v3 = cd.locus.ToUnitySpace();
 			v3.z = tileMap.transform.GetChild(cd.layer).position.z;
 			GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
+			Checkpoint c = go.GetComponent<Checkpoint>();
+			if (c) c.data = cd;
 			go.layer = cd.layer == 0 ? 10 : 9;
 			go.transform.SetParent(chkpntMap.transform);
 		}
@@ -84,13 +130,12 @@ public partial class PlayGM {
 			Quaternion q;
 			Vector3 v3 = wd.orient.ToUnitySpace(out q);
 			GameObject go = Instantiate(warpRef, v3, q) as GameObject;
-			int lBase = wd.orient.layer;
-			int lTarget = wd.targetLayer;
-			bool isBase = lBase == 0;
-			bool isTarget = lTarget == 0;
+			int baseLayer = wd.orient.layer;
+			int targetLayer = wd.targetLayer;
+			bool isBase = baseLayer == 0;
+			bool isTarget = targetLayer == 0;
 			Warp w = go.GetComponent<Warp>();
-			w.baseLayer = lBase;
-			w.targetLayer = lTarget;
+			if (w) w.data = wd;
 			go.layer = isBase || isTarget ? 10 : 9;
 			go.transform.SetParent(warpMap.transform);
 		}
@@ -110,27 +155,64 @@ public partial class PlayGM {
 	}
 
 	// set opacity and physics by given distance for each tile in given layer
-	private void setLayerOpacity (Transform tileLayer, int distance)
+	private void setLayerOpacityAndPhysics (Transform tileLayer, int distance)
 	{
-		float a = 1f; // <1>
-		int l = 0; // <2>
-		if (distance != 0) {
-			a = 1f / (distance + 1f); // <3>
-			l = 9;
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
 		}
-		Color c = new Color(1f, 1f, 1f, a); // <4>
+		Color color = new Color(1f, 1f, 1f, alpha);
 
-		foreach (Transform tile in tileLayer) { // <5>
-			tile.gameObject.layer = l;
-			tile.GetChild(0).GetComponent<SpriteRenderer>().color = c;
+		foreach (Transform tile in tileLayer) {
+			tile.gameObject.layer = layer;
+			tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+
+			// if there are grandchildren, dim them too
+			if (tile.GetChild(0).childCount > 0) {
+				tile.GetChild(0).GetChild(0).gameObject.GetComponent<SpriteRenderer>().color = color;
+			}
 		}
 
 		/*
-		<1> a represents an alpha value
-		<2> the physics layer we will be setting, 0 if active or 9 otherwise
-		<3> opacity is calculated by 1/(x+1), falling off with distance
-		<4> color is generated from opacity calculation
-		<5> each tile in the layer is assigned new physics layer and opacity
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
+	// set opacity and physics by given distance for given checkpoint
+	private void setCheckpointOpacityAndPhysics (Transform checkpoint, int distance)
+	{
+		float alpha = 1f;
+		int layer = DEFAULT_LAYER;
+		if (distance != 0) { // <1>
+			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+			layer = INACTIVE_LAYER;
+		}
+		Color color = new Color(1f, 1f, 1f, alpha);
+
+		checkpoint.gameObject.layer = layer;
+		checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+
+		/*
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+	}
+
+	// set physics collisions for warps
+	private void setWarpOpacityAndPhysics (Transform warp, bool isActive) {
+		int layer = DEFAULT_LAYER;
+		if (!isActive) { // <1>
+			layer = INACTIVE_LAYER;
+		}
+
+		warp.gameObject.layer = layer; // <2>
+
+		/*
+		<1> active layer gets default (active) values, otherwise disable
+		<2> set physics layer
 		*/
 	}
 }

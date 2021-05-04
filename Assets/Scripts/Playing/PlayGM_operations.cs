@@ -31,7 +31,7 @@ public partial class PlayGM {
 		}
 
 		grav_dir = inDirect;
-		player.ResetJumpForce(); // <2>
+		player.UpdateJumpForce(inDirect); // <2>
 
 	  /*
 	  <1> set gravity vector according to direction
@@ -81,18 +81,15 @@ public partial class PlayGM {
 
 		activateLayer(next_layer); // <3>
 
+
 		Vector3 p = player.transform.position;
 		p.z = tileMap.transform.GetChild(next_layer).position.z;
 		player.transform.position = p; // <4>
-
-		activeLayer = next_layer; // <5>
-
 		/*
 		<1> if activeLayer matches either base or target, select the other
 		<2> if neither, stay at current level and break
 		<3> update physics & transparency for all layers
 		<4> change player's position
-		<5> lastly, update activeLayer
 		*/
 	}
 }

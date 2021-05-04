@@ -189,10 +189,11 @@ public partial class EditGM {
 	{ SceneManager.LoadScene(0); } // (!!) should prompt if unsaved
 
 	// (!!)(incomplete) save level to a file in plain text format
-	public void SaveFile (string filename)
+	public void SaveFile (string levelName)
 	{
 		// (!!) should prompt for string instead
-		string fpath = "Levels\\" + filename + ".txt";
+		string fname = levelName + ".txt";
+		string fpath = Path.Combine(new string[]{"Levels", fname});
 
 		string[] lines = levelData.Serialize();
 		File.WriteAllLines(fpath, lines);

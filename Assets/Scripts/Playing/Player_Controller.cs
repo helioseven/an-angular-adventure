@@ -1,146 +1,175 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using circleXsquares;
 
-public class Player_Controller : MonoBehaviour {
+public class Player_Controller : MonoBehaviour
+{
 
-	public int speed = 150;
-	public float jumpForce = 1000f;
-	public float verticalMovementFactor = 0.25f;
+    public int speed;
+    public float jumpForce;
 
-	private PlayGM gm_ref;
+    private PlayGM gm_ref;
 
-	private int max_jumps = 1;
-	private int num_jumps;
-	private bool jump_now = false;
-	private Collider2D ground_check_collider;
+    private int max_jumps = 1;
+    private int num_jumps;
+    private bool jump_now = false;
+    private Collider2D ground_check_collider;
 
-	private Rigidbody2D rb2d;
-	private Vector2 jump_force_vec;
+    private Rigidbody2D rb2d;
+    private Vector2 jump_force_vec;
 
-	private bool godMode = false;
+    private bool godMode = false;
 
-	void Awake ()
-	{
-		rb2d = gameObject.GetComponent<Rigidbody2D> ();
-		jump_force_vec = new Vector2(0.0f , jumpForce);
-		ground_check_collider = gameObject.GetComponent<Collider2D>();
-	}
+    private AudioSource audioSource;
 
-	void Start ()
-	{
-		gm_ref = PlayGM.instance;
-	}
+    void Awake()
+    {
+        rb2d = gameObject.GetComponent<Rigidbody2D>();
+        jump_force_vec = new Vector2(0.0f, jumpForce);
+        ground_check_collider = gameObject.GetComponent<Collider2D>();
+        audioSource = GetComponent<AudioSource>();
+    }
 
-	// Update is called once per frame
-	void Update ()
-	{
-		UpdateJumping();
-		UpdateGravity();
-		UpdateGodMode();
-	}
+    void Start()
+    {
+        gm_ref = PlayGM.instance;
+    }
 
-	void FixedUpdate ()
-	{
-		Move();
-		Jump();
-	}
+    // Update is called once per frame
+    void Update()
+    {
+        UpdateJumping();
+        UpdateGravity();
+        UpdateGodMode();
+        UpdateRollingSound();
+    }
 
-	void OnCollisionEnter2D(Collision2D other)
-	{
-		num_jumps = 0;
-	}
+    void FixedUpdate()
+    {
+        Move();
+        Jump();
+    }
 
-	public void ResetJumpForce()
-	{
-		jump_force_vec = new Vector2(0f, 0f);
-		/*
-		jump_force_vec = new Vector2(0.0f, jumpForce);
-		jump_force_vec = new Vector2(jumpForce, 0.0f);
-		jump_force_vec = new Vector2(0.0f, -jumpForce);
-		jump_force_vec = new Vector2(-jumpForce, 0.0f);
-		*/
-	}
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        num_jumps = 0;
+    }
 
-	public void UpdateJumping()
-	{
-		bool canJump = (num_jumps < max_jumps);
-		if (num_jumps == 0 ) {
-			canJump = canJump && ground_check_collider.IsTouchingLayers();
-		}
+    public void UpdateJumpForce(PlayGM.GravityDirection gd)
+    {
+        switch (gd)
+        {
+            case PlayGM.GravityDirection.Down:
+                jump_force_vec = new Vector2(0.0f, jumpForce);
+                break;
+            case PlayGM.GravityDirection.Left:
+                jump_force_vec = new Vector2(jumpForce, 0.0f);
+                break;
+            case PlayGM.GravityDirection.Up:
+                jump_force_vec = new Vector2(0.0f, -jumpForce);
+                break;
+            case PlayGM.GravityDirection.Right:
+                jump_force_vec = new Vector2(-jumpForce, 0.0f);
+                break;
+            default:
+                return;
+        }
+    }
 
-		if (canJump && Input.GetKeyDown(KeyCode.Space)) {
-			// increment numJumps
-			num_jumps++;
-			// jump now!
-			jump_now = true;
-		}
-	}
+    public void UpdateJumping()
+    {
+        bool canJump = (num_jumps < max_jumps);
+        if (num_jumps == 0)
+        {
+            canJump = canJump && ground_check_collider.IsTouchingLayers();
+        }
 
-	void UpdateGravity()
-	{
-		// God Mode Gravity Control
-		if (!godMode) return;
+        if (canJump && Input.GetKeyDown(KeyCode.Space))
+        {
+            // increment numJumps
+            num_jumps++;
+            // jump now!
+            jump_now = true;
+            // play sound
+            gm_ref.soundManager.Play("jump");
+        }
+    }
 
-		// Gravity Down
-		if (Input.GetKeyDown(KeyCode.K)) {
-			Physics2D.gravity = new Vector2(0.0f, -9.81f);
-			jump_force_vec = new Vector2(0.0f, jumpForce);
-		}
+    void UpdateGravity()
+    {
+        // God Mode Gravity Control
+        if (!godMode) return;
 
-		// Gravity left
-		if (Input.GetKeyDown(KeyCode.J)) {
-			Physics2D.gravity = new Vector2(-9.81f, 0.0f);
-			jump_force_vec = new Vector2(jumpForce, 0.0f);
-		}
+        // Gravity Down
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            gm_ref.soundManager.Play("gravity");
+            Physics2D.gravity = new Vector2(0.0f, -9.81f);
+            this.UpdateJumpForce(PlayGM.GravityDirection.Down);
+        }
 
-		// Gravity Up
-		if (Input.GetKeyDown(KeyCode.I)) {
-			Physics2D.gravity = new Vector2(0.0f, 9.81f);
-			jump_force_vec = new Vector2(0.0f, -jumpForce);
-		}
+        // Gravity left
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            gm_ref.soundManager.Play("gravity");
+            Physics2D.gravity = new Vector2(-9.81f, 0.0f);
+            this.UpdateJumpForce(PlayGM.GravityDirection.Left);
+        }
 
-		if (Input.GetKeyDown(KeyCode.L)) {
-			Physics2D.gravity = new Vector2(9.81f, 0.0f);
-			jump_force_vec = new Vector2(-jumpForce, 0.0f);
-		}
-	}
+        // Gravity Up
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            gm_ref.soundManager.Play("gravity");
+            Physics2D.gravity = new Vector2(0.0f, 9.81f);
+            this.UpdateJumpForce(PlayGM.GravityDirection.Up);
+        }
+
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            gm_ref.soundManager.Play("gravity");
+            Physics2D.gravity = new Vector2(9.81f, 0.0f);
+            this.UpdateJumpForce(PlayGM.GravityDirection.Right);
+        }
+    }
 
 
-	void UpdateGodMode()
-	{
-		// Toggle God Mode on G key press
-		if (Input.GetKeyDown(KeyCode.G)) {
-			godMode = !godMode;
-		}
+    void UpdateGodMode()
+    {
+        // Toggle God Mode on G key press
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            gm_ref.soundManager.Play("gravity");
+            godMode = !godMode;
+        }
 
-	}
+    }
 
-	void Move()
-	{
-		float moveHorizontal = Input.GetAxis("Horizontal");
-		float moveVertical = Input.GetAxis("Vertical");
+    void UpdateRollingSound()
+    {
+        float volume = gm_ref.SlideIntensityToVolume(rb2d.velocity, Physics2D.gravity);
+        if (!ground_check_collider.IsTouchingLayers()) volume = 0.0f;
+        audioSource.volume = volume;
+    }
 
-		PlayGM.GravityDirection gd = gm_ref.gravDirection;
-		// apply vertical movement factor to slow down toward and against gravity movement
-		if (gd == PlayGM.GravityDirection.Down || gd == PlayGM.GravityDirection.Up)
-			moveVertical = moveVertical * verticalMovementFactor;
-		if (gd == PlayGM.GravityDirection.Left || gd == PlayGM.GravityDirection.Right)
-			moveHorizontal = moveHorizontal * verticalMovementFactor;
+    void Move()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
 
-		Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-		rb2d.AddForce(movement * speed * Time.deltaTime);
-	}
+        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
+        rb2d.AddForce(movement * speed * Time.deltaTime);
+    }
 
-	public void Jump()
-	{
-		if (jump_now)
-		{
-			// jump by force (acceleration)
-			rb2d.AddForce ( jump_force_vec );
+    public void Jump()
+    {
+        if (jump_now)
+        {
+            // jump by force (acceleration)
+            rb2d.AddForce(jump_force_vec);
 
-			// jump logic
-			jump_now = false;
-		}
-	}
+            // jump logic
+            jump_now = false;
+        }
+    }
 }
