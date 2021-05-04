@@ -16,7 +16,8 @@ public class PlayLoader : MonoBehaviour {
 	void Awake ()
 	{
 		levelName = "testLevel"; // <1>
-		path = levelName + ".txt";
+		string filename = levelName + ".txt";
+		path = Path.Combine(new string[]{"Levels", filename});
 		DontDestroyOnLoad(gameObject); // <2>
 		SceneManager.LoadScene(1); // <3>
 
@@ -29,11 +30,11 @@ public class PlayLoader : MonoBehaviour {
 
 	// supplies a levelData from file
 	public LevelData supplyLevel ()
-	{		
-		bool file_exists = File.Exists("Levels/" + path); // <1>
+	{
+		bool file_exists = File.Exists(path); // <1>
 		LevelData ld;
 		if (file_exists) {
-			string[] lines = File.ReadAllLines("Levels/" + path);
+			string[] lines = File.ReadAllLines(path);
 			ld = FileParsing.ReadLevel(lines); // <2>
 		} else {
 			Debug.LogError("File not found, loading new level.");
