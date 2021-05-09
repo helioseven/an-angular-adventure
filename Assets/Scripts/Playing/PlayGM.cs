@@ -42,9 +42,10 @@ public partial class PlayGM : MonoBehaviour {
 	private HexOrient player_start;
 	private GravityDirection grav_dir;
 
+	// constants
 	// default number of layers to load from file
 	private const int DEFAULT_NUM_LAYERS = 5;
-	// constants
+	public static readonly string[] INT_TO_NAME = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine" };
 	private const int INACTIVE_LAYER = 9;
 	private const int DEFAULT_LAYER = 0;
 

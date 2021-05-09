@@ -69,25 +69,15 @@ public partial class PlayGM {
 	// warps player from either base or target layer
 	public void WarpPlayer (int baseLayer, int targetLayer)
 	{
-		int next_layer;
-		if (activeLayer == baseLayer) // <1>
-			next_layer = targetLayer;
-		else if (activeLayer == targetLayer)
-			next_layer = baseLayer;
-		else {
-			next_layer = activeLayer; // <2>
-			return;
-		}
+		int next_layer = activeLayer == baseLayer ? targetLayer : baseLayer;
 
 		activateLayer(next_layer); // <3>
-
 
 		Vector3 p = player.transform.position;
 		p.z = tileMap.transform.GetChild(next_layer).position.z;
 		player.transform.position = p; // <4>
 		/*
 		<1> if activeLayer matches either base or target, select the other
-		<2> if neither, stay at current level and break
 		<3> update physics & transparency for all layers
 		<4> change player's position
 		*/
