@@ -69,7 +69,7 @@ public partial class PlayGM {
 			int layerNumber = layer.GetSiblingIndex();
 			int distance = Math.Abs(layerNumber - activeLayer); // <2>
 			if (activeLayer > layerNumber) distance += 2; // <3>
-			setLayerOpacityAndPhysics(layer, distance);
+			setLayerOpacity(layer, distance);
 		}
 
 		// update opacity and physics for all checkpoints
@@ -77,7 +77,7 @@ public partial class PlayGM {
 			int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
 			int distance = Math.Abs(layerNumber - activeLayer);
 			if (activeLayer > layerNumber) distance += 2;
-			setCheckpointOpacityAndPhysics(checkpoint, distance);
+			setCheckpointOpacity(checkpoint, distance);
 		}
 
 		// update physics for warps
@@ -167,13 +167,11 @@ public partial class PlayGM {
 	}
 
 	// set opacity and physics by given distance for each tile in given layer
-	private void setLayerOpacityAndPhysics (Transform tileLayer, int distance)
+	private void setLayerOpacity (Transform tileLayer, int distance)
 	{
 		float alpha = 1f;
 		if (distance != 0) { // <1>
 			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
-		} else {
-			// player.gameObject.layer = activeLayer;
 		}
 		Color color = new Color(1f, 1f, 1f, alpha);
 
@@ -192,18 +190,15 @@ public partial class PlayGM {
 		*/
 	}
 
-	// set opacity and physics by given distance for given checkpoint
-	private void setCheckpointOpacityAndPhysics (Transform checkpoint, int distance)
+	// set opacity  by given distance for given checkpoint
+	private void setCheckpointOpacity (Transform checkpoint, int distance)
 	{
 		float alpha = 1f;
-		// int layer = DEFAULT_LAYER;
 		if (distance != 0) { // <1>
 			alpha = (float)Math.Pow(0.5, (double)distance); // <2>
-			// layer = INACTIVE_LAYER;
 		}
 		Color color = new Color(1f, 1f, 1f, alpha);
 
-		// checkpoint.gameObject.layer = layer;
 		checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 
 		/*
@@ -217,5 +212,7 @@ public partial class PlayGM {
 		if (isActive) {
 			warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
 		}
+
+		// TODO: set opacity of warp by any means necessary (material swap?)
 	}
 }
