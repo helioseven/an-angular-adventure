@@ -21,7 +21,6 @@ public class Tile_Blue : Tile
             slideForce = Mathf.Abs(slideForce) / 10.0f;
 
             float intensity = Mathf.Clamp(slideForce * volumeMultiplier, 0f, maxVolume);
-            // Debug.Log ("Blue Tile Ice Slide intensity: " + intensity + "\t slideForce: " + slideForce);
             gm_ref.soundManager.Play("ice", intensity);
         }
     }
