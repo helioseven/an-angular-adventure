@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using circleXsquares;
 
 public class Boundary : MonoBehaviour {
 
@@ -20,6 +21,16 @@ public class Boundary : MonoBehaviour {
     v3.z = gm_ref.GetLayerDepth();
     transform.position = v3;
   }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        // delete white tiles by color
+        Tile tile = other.gameObject.GetComponent<Tile>();
+        if (tile != null && tile.data.color == (int)TileColor.White)
+        {
+            Destroy(tile.gameObject);
+        }
+    }
 
   // after level is built, find appropriate boundary positions
   public void SetBoundary()
