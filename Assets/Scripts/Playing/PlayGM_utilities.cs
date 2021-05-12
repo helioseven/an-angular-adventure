@@ -132,7 +132,7 @@ public partial class PlayGM
             if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
                 continue;
 
-			// Lose door icon if non special (non door) tile
+            // Lose door icon if non special (non door) tile
             Transform icon = go.transform.GetChild(0).GetChild(0);
             if (td.special == 0)
                 icon.gameObject.SetActive(false);
@@ -237,14 +237,17 @@ public partial class PlayGM
 		*/
     }
 
-    // set physics collisions for warps
+    // set opacity and layer based physics collisions for warps
     private void setWarpOpacityAndPhysics(Transform warp, bool isActive)
     {
         if (isActive)
         {
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
+            warp.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.15f, 0.45f, 1.0f, 0.5f);
         }
-
-        // TODO: set opacity of warp by any means necessary (material swap?)
+        else
+        {
+            warp.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.15f, 0.45f, 1.0f, 0.0125f);
+        }
     }
 }
