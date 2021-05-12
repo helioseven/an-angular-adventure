@@ -5,12 +5,11 @@ using circleXsquares;
 
 public class Tile_Green : Tile
 {
-    public Transform arrow;
     void Start()
     {
-        arrow = transform.GetChild(0).GetChild(0);
+        Transform key = transform.GetChild(0).GetChild(0);
         Vector3 rotation = Vector3.forward;
-        arrow.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+        key.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
     }
 
     // triggers door open on player collision
@@ -21,10 +20,6 @@ public class Tile_Green : Tile
 
     private void openDoor()
     {
-        // Debug.Log("green trigger special");
-        // Debug.Log(gameObject.GetComponent<Tile>().data.special);
-
-
         foreach (Tile t in gameObject.transform.parent.GetComponentsInChildren<Tile>())
         {
             if (t.data.color != (int)TileColor.Green && t.data.special == gameObject.GetComponent<Tile>().data.special)
