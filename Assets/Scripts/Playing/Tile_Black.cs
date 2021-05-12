@@ -17,6 +17,5 @@ public class Tile_Black : Tile {
   //
   private void playerAction()
   {
-    Debug.Log("Black");
   }
 }

@@ -17,6 +17,5 @@ public class Tile_White : Tile {
   //
   private void playerAction()
   {
-    Debug.Log("White");
   }
 }
