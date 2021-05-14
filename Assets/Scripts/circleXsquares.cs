@@ -496,6 +496,48 @@ public struct ChkpntData
 	}
 }
 
+// VictoryData - win condition
+public struct VictoryData
+{
+	public HexLocus locus;
+	public int layer;
+	public VictoryData (HexLocus inLocus, int inLayer)
+	{
+		locus = inLocus;
+		layer = inLayer;
+		if (layer < 0) layer = 0;
+	}
+
+	// Serialize turns this VictoryData into strings separated by spaces
+	public string Serialize ()
+	{
+		string s = locus.Serialize();
+		s += " " + layer.ToString();
+		return s;
+	}
+
+	public static bool operator ==(VictoryData a, VictoryData b)
+	{
+		return  (a.locus != b.locus) && (a.layer != b.layer);
+	}
+
+	public static bool operator !=(VictoryData a, VictoryData b) { return !(a == b); }
+
+	// .NET expects this behavior to be overridden when overriding ==/!= operators
+	public override bool Equals(System.Object obj)
+	{
+		VictoryData? inVD = obj as VictoryData?;
+		if (!inVD.HasValue) return false;
+		else return this == inVD.Value;
+	}
+
+	// .NET expects this behavior to be overridden when overriding ==/!= operators
+	public override int GetHashCode()
+	{
+		return base.GetHashCode();
+	}
+}
+
 // WarpData describes the mechanism by which players win and move between level layers
 public struct WarpData
 {
@@ -560,13 +602,15 @@ public struct LevelData
 	// a level consists of a set of tiles, checkpoints, and warps
 	public List<TileData> tileSet;
 	public List<ChkpntData> chkpntSet;
+	public List<VictoryData> victorySet;
 	public List<WarpData> warpSet;
 
 	// simple constructor
-	public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<WarpData> inWarps)
+	public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<VictoryData> inVictorys, List<WarpData> inWarps)
 	{
 		tileSet = inTiles;
 		chkpntSet = inChkpnts;
+		victorySet = inVictorys;
 		warpSet = inWarps;
 	}
 
@@ -583,7 +627,10 @@ public struct LevelData
 		returnStrings.AddRange(new string[] {"-- End Tiles --", " ", "-- Checkpoints --"});
 		foreach (ChkpntData cd in chkpntSet) returnStrings.Add(cd.Serialize());
 
-		returnStrings.AddRange(new string[] {"-- End Checkpoints --", " ", "-- Warps --"});
+		returnStrings.AddRange(new string[] {"-- End Checkpoints --", " ", "-- Victories --"});
+		foreach (VictoryData vd in victorySet) returnStrings.Add(vd.Serialize());
+
+		returnStrings.AddRange(new string[] {"-- End Victories --", " ", "-- Warps --"});
 		foreach (WarpData wd in warpSet) returnStrings.Add(wd.Serialize());
 		returnStrings.Add("-- End Warps --");
 
@@ -611,8 +658,9 @@ public static class FileParsing
 
 		List<TileData> tileList = new List<TileData>();
 		List<ChkpntData> chkpntList = new List<ChkpntData>();
+		List<VictoryData> victoryList = new List<VictoryData>();
 		List<WarpData> warpList = new List<WarpData>();
-		bool canReadTile = false, canReadChkpnt = false, canReadWarp = false;
+		bool canReadTile = false, canReadChkpnt = false, canReadVictory = false, canReadWarp = false;
 
 		for (int i = 3; i < lines.Length; i++) {
 			// skip over empty lines
@@ -626,6 +674,11 @@ public static class FileParsing
 			// a checkpoints comment precedes a list of checkpoints
 			if (lines[i] == "-- Checkpoints --") {
 				canReadChkpnt = true;
+				continue;
+			}
+			// a victories comment precedes a list of victories
+			if (lines[i] == "-- Victories --") {
+				canReadVictory = true;
 				continue;
 			}
 			// a warps comment precedes a list of warps
@@ -643,6 +696,11 @@ public static class FileParsing
 				canReadChkpnt = false;
 				continue;
 			}
+			// an end victories comment follows a list of victories
+			if (lines[i] == "-- End Victories --") {
+				canReadVictory = false;
+				continue;
+			}
 			// and warps comment follows a list of warps
 			if (lines[i] == "-- End Warps --") {
 				canReadWarp = false;
@@ -652,10 +710,11 @@ public static class FileParsing
 			// if no comment has been triggered, we should be reading one (and only one) of these three
 			if (canReadTile) tileList.Add(ReadTile(lines[i]));
 			if (canReadChkpnt) chkpntList.Add(ReadChkpnt(lines[i]));
+			if (canReadVictory) victoryList.Add(ReadVictory(lines[i]));
 			if (canReadWarp) warpList.Add(ReadWarp(lines[i]));
 		}
 
-		return new LevelData(tileList, chkpntList, warpList);
+		return new LevelData(tileList, chkpntList, victoryList, warpList);
 	}
 
 	// parses a string to construct a TileData
@@ -710,6 +769,32 @@ public static class FileParsing
 		int y = Int32.Parse(s[6]);
 
 		return new ChkpntData(hl, y);
+	}
+
+
+	// parses a string to construct a VictoryData
+	public static VictoryData ReadVictory (string lineIn)
+	{
+		// split the line into individual items first
+		string[] s = lineIn.Split(splitChar);
+
+		// checks to see if there's enough items to be read
+		if (s.Length < 7) {
+			Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+			return new VictoryData();
+		}
+
+		// proceeds to read the line items
+		HexLocus hl = new HexLocus(
+		    Int32.Parse(s[0]),
+		    Int32.Parse(s[1]),
+		    Int32.Parse(s[2]),
+		    Int32.Parse(s[3]),
+		    Int32.Parse(s[4]),
+		    Int32.Parse(s[5]));
+		int y = Int32.Parse(s[6]);
+
+		return new VictoryData(hl, y);
 	}
 
 	// parses a string to construct a WarpData

@@ -179,7 +179,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &685532278
 GameObject:
@@ -278,6 +278,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b6320dfcfdc85c4d9db2dba571df431, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &783210878
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 783210879}
+  m_Layer: 0
+  m_Name: Victory Map
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &783210879
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 783210878}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &932601439
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,6 +344,9 @@ MonoBehaviour:
   chkpntRef: {fileID: 6241234189199660925, guid: f40f9c7da1644d613a4f7fec0de20996,
     type: 3}
   chkpntMap: {fileID: 943682854}
+  victoryRef: {fileID: 4182274300101568089, guid: 7b794672fe15a9d43b0ee5ceddf54a3b,
+    type: 3}
+  victoryMap: {fileID: 783210878}
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
   tileCreator: {fileID: 8784740274246360473, guid: cf09975b7ea66812eb859c91a71e47f0,
     type: 3}
@@ -1148,7 +1181,7 @@ PrefabInstance:
     - target: {fileID: 9003061505592303761, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
       propertyPath: m_RootOrder
-      value: 10
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 9003061505592303761, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}

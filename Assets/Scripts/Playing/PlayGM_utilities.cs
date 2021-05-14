@@ -83,6 +83,15 @@ public partial class PlayGM
             setCheckpointOpacity(checkpoint, distance);
         }
 
+        // update opacity for all victories
+        foreach (Transform victory in victoryMap.transform)
+        {
+            int layerNumber = victory.gameObject.GetComponent<Victory>().data.layer;
+            int distance = Math.Abs(layerNumber - activeLayer);
+            if (activeLayer > layerNumber) distance += 2;
+            setVictoryOpacity(victory, distance);
+        }
+
         // update physics for warps
         foreach (Transform warp in warpMap.transform)
         {
@@ -150,6 +159,18 @@ public partial class PlayGM
             if (c) c.data = cd;
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[cd.layer]);
             go.transform.SetParent(chkpntMap.transform);
+        }
+
+        foreach (VictoryData vd in inLevel.victorySet)
+        {
+            Vector3 v3 = vd.locus.ToUnitySpace();
+            v3.z = tileMap.transform.GetChild(vd.layer).position.z;
+            GameObject go = Instantiate(victoryRef, v3, Quaternion.identity) as GameObject;
+
+            Victory v = go.GetComponent<Victory>();
+            if (v) v.data = vd;
+            go.layer = LayerMask.NameToLayer(INT_TO_NAME[vd.layer]);
+            go.transform.SetParent(victoryMap.transform);
         }
 
         // get starting checkpoing to set warp data physics layer
@@ -230,6 +251,24 @@ public partial class PlayGM
         Color color = new Color(1f, 1f, 1f, alpha);
 
         checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+
+        /*
+		<1> active layer gets default values, otherwise opacity and layer are calculated
+		<2> alpha is calculated as (1/2)^distance
+		*/
+    }
+
+        // set opacity  by given distance for given victory
+    private void setVictoryOpacity(Transform victory, int distance)
+    {
+        float alpha = 1f;
+        if (distance != 0)
+        { // <1>
+            alpha = (float)Math.Pow(0.5, (double)distance); // <2>
+        }
+        Color color = new Color(1f, 1f, 1f, alpha);
+
+        victory.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 
         /*
 		<1> active layer gets default values, otherwise opacity and layer are calculated
