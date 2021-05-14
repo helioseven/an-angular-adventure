@@ -16,11 +16,12 @@ public class Clock : MonoBehaviour
     {
         //set timer UI
         secondsCount += Time.deltaTime;
-        clockText.text = minuteCount + ":" + secondsCount.ToString("00");
-        if (secondsCount >= 60)
+        if (secondsCount >= 60f)
         {
             minuteCount++;
-            secondsCount %= 60;
+            secondsCount %= 60f;
         }
+
+        clockText.text = minuteCount + ":" + Mathf.FloorToInt(secondsCount).ToString("00");
     }
 }
