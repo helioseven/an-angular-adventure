@@ -11,6 +11,8 @@ public class Victory : MonoBehaviour
 
     public VictoryData data;
 
+    private readonly string[] INT_TO_NAME = { "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine" };
+
     void Awake()
     {
         play_gm = PlayGM.instance;
@@ -31,7 +33,7 @@ public class Victory : MonoBehaviour
 
     public void FixedUpdate()
     {
-        foreach (Collider2D c in Physics2D.OverlapCircleAll(transform.position, pullRadius))
+        foreach (Collider2D c in Physics2D.OverlapCircleAll(transform.position, pullRadius, 1 << LayerMask.NameToLayer(INT_TO_NAME[data.layer])))
         {
             if (c.gameObject.CompareTag("Player"))
             {
