@@ -18,6 +18,8 @@ public partial class PlayGM : MonoBehaviour {
 	public Boundary boundaryUp;
 	public GameObject chkpntRef;
 	public GameObject chkpntMap;
+	public GameObject victoryRef;
+	public GameObject victoryMap;
 	public GameObject deathParticles;
 	public GameObject tileCreator;
 	public GameObject tileMap;
@@ -31,11 +33,12 @@ public partial class PlayGM : MonoBehaviour {
 	// public read-accessibility state variables
 	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
-	public int activeLayer { get; private set; }
 	public GravityDirection gravDirection {
 		get { return grav_dir; }
 		set {}
 	}
+	public int activeLayer { get; private set; }
+	public bool VictoryAchieved {get; private set;}
 
 	// private variables
 	private PlayLoader lvl_load = null;
@@ -68,6 +71,8 @@ public partial class PlayGM : MonoBehaviour {
 	{
 		levelData = lvl_load.supplyLevel(); // <1>
 		buildLevel(levelData);
+
+		VictoryAchieved = false;
 
 		activeLayer = 0; // <2>
 		activateLayer(0);

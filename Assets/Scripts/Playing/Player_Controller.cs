@@ -147,6 +147,10 @@ public class Player_Controller : MonoBehaviour
 
     void UpdateRollingSound()
     {
+        if (gm_ref.VictoryAchieved) {
+            audioSource.volume = 0f;
+            return;
+        }
         float volume = gm_ref.SlideIntensityToVolume(rb2d.velocity, Physics2D.gravity);
         if (!ground_check_collider.IsTouchingLayers()) volume = 0.0f;
         audioSource.volume = volume;
