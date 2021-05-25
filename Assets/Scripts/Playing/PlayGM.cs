@@ -33,13 +33,12 @@ public partial class PlayGM : MonoBehaviour {
 	// public read-accessibility state variables
 	public LevelData levelData { get; private set; }
 	public ChkpntData activeChkpnt { get; private set; }
-	public int activeLayer { get; private set; }
 	public GravityDirection gravDirection {
 		get { return grav_dir; }
 		set {}
 	}
-
-	public bool VictoryAchieved {get; set;}
+	public int activeLayer { get; private set; }
+	public bool VictoryAchieved {get; private set;}
 
 	// private variables
 	private PlayLoader lvl_load = null;

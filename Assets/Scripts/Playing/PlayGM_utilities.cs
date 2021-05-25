@@ -89,7 +89,7 @@ public partial class PlayGM
             int layerNumber = victory.gameObject.GetComponent<Victory>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);
             if (activeLayer > layerNumber) distance += 2;
-            setVictoryOpacity(victory, distance);
+            setCheckpointOpacity(victory, distance);
         }
 
         // update physics for warps
@@ -101,10 +101,10 @@ public partial class PlayGM
         }
 
         /*
-		<1> cycle through all layers and calls setLayerOpacity appropriately
-		<2> delta is absolute distance between layers
-		<3> foreground layers are faded more
-		*/
+        <1> cycle through all layers and calls setLayerOpacity appropriately
+        <2> delta is absolute distance between layers
+        <3> foreground layers are faded more
+        */
     }
 
     // uses given levelData to build tileMap and place player_start
@@ -155,6 +155,7 @@ public partial class PlayGM
             Vector3 v3 = cd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(cd.layer).position.z;
             GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
+
             Checkpoint c = go.GetComponent<Checkpoint>();
             if (c) c.data = cd;
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[cd.layer]);
@@ -162,7 +163,7 @@ public partial class PlayGM
         }
 
         foreach (VictoryData vd in inLevel.victorySet)
-        {
+        { // <4>
             Vector3 v3 = vd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(vd.layer).position.z;
             GameObject go = Instantiate(victoryRef, v3, Quaternion.identity) as GameObject;
@@ -204,13 +205,13 @@ public partial class PlayGM
         player_start = new HexOrient(hl, 0, start.layer); // <6>
 
         /*
-		<1> prefab references to tiles are arrayed for easy access
-		<2> create level layers (hard-coded amount for now)
-		<3> populate tile hierarchy
-		<4> populate checkpoint map
-		<5> populate warp map
-		<6> player starts at the first checkpoint
-		*/
+        <1> prefab references to tiles are arrayed for easy access
+        <2> create level layers (hard-coded amount for now)
+        <3> populate tile hierarchy
+        <4> populate checkpoint/victory maps
+        <5> populate warp map
+        <6> player starts at the first checkpoint
+        */
     }
 
     // set opacity by given distance for each tile in given layer
@@ -235,9 +236,9 @@ public partial class PlayGM
         }
 
         /*
-		<1> active layer gets default values, otherwise opacity and layer are calculated
-		<2> alpha is calculated as (1/2)^distance
-		*/
+        <1> active layer gets default values, otherwise opacity and layer are calculated
+        <2> alpha is calculated as (1/2)^distance
+        */
     }
 
     // set opacity  by given distance for given checkpoint
@@ -253,27 +254,9 @@ public partial class PlayGM
         checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 
         /*
-		<1> active layer gets default values, otherwise opacity and layer are calculated
-		<2> alpha is calculated as (1/2)^distance
-		*/
-    }
-
-        // set opacity  by given distance for given victory
-    private void setVictoryOpacity(Transform victory, int distance)
-    {
-        float alpha = 1f;
-        if (distance != 0)
-        { // <1>
-            alpha = (float)Math.Pow(0.5, (double)distance); // <2>
-        }
-        Color color = new Color(1f, 1f, 1f, alpha);
-
-        victory.GetChild(0).GetComponent<SpriteRenderer>().color = color;
-
-        /*
-		<1> active layer gets default values, otherwise opacity and layer are calculated
-		<2> alpha is calculated as (1/2)^distance
-		*/
+        <1> active layer gets default values, otherwise opacity and layer are calculated
+        <2> alpha is calculated as (1/2)^distance
+        */
     }
 
     // set opacity and layer based physics collisions for warps

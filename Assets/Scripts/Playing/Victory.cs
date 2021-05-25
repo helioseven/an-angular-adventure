@@ -27,6 +27,8 @@ public class Victory : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
+            play_gm.RegisterVictory(this);
+
             play_gm.soundManager.Play("victory");
         }
     }
@@ -37,12 +39,12 @@ public class Victory : MonoBehaviour
         {
             if (c.gameObject.CompareTag("Player"))
             {
-                play_gm.VictoryAchieved = true;
+                play_gm.RegisterVictory(this);
 
-                // calculate direction from target to me
+                // calculate direction from target to victory center
                 Vector2 forceDirection = transform.position - c.transform.position;
 
-                // apply force on target towards me
+                // apply force on target towards victory center
                 Rigidbody2D rb2d = c.GetComponent<Rigidbody2D>();
                 rb2d.AddForce(forceDirection.normalized * pullForce * Time.fixedDeltaTime);
             }

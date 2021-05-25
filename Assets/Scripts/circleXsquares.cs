@@ -447,7 +447,7 @@ public struct TileData
 	}
 }
 
-// ChkpntData describes the mechanism by which we track player progress
+// ChkpntData describes the player progression tracking for a level
 public struct ChkpntData
 {
 
@@ -471,15 +471,12 @@ public struct ChkpntData
 		return s;
 	}
 
-	public static bool operator ==(ChkpntData cd1, ChkpntData cd2)
+	public static bool operator ==(ChkpntData a, ChkpntData b)
 	{
-		bool b = true;
-		if (cd1.locus != cd2.locus) b = false;
-		if (cd1.layer != cd2.layer) b = false;
-		return b;
+		return (a.locus != b.locus) && (a.layer != b.layer);
 	}
 
-	public static bool operator !=(ChkpntData cd1, ChkpntData cd2) { return !(cd1 == cd2); }
+	public static bool operator !=(ChkpntData a, ChkpntData b) { return !(a == b); }
 
 	// .NET expects this behavior to be overridden when overriding ==/!= operators
 	public override bool Equals(System.Object obj)
@@ -496,11 +493,13 @@ public struct ChkpntData
 	}
 }
 
-// VictoryData - win condition
+// VictoryData describes the win condition(s) of a level
 public struct VictoryData
 {
 	public HexLocus locus;
 	public int layer;
+
+	// simple constructor
 	public VictoryData (HexLocus inLocus, int inLayer)
 	{
 		locus = inLocus;
@@ -518,7 +517,7 @@ public struct VictoryData
 
 	public static bool operator ==(VictoryData a, VictoryData b)
 	{
-		return  (a.locus != b.locus) && (a.layer != b.layer);
+		return (a.locus != b.locus) && (a.layer != b.layer);
 	}
 
 	public static bool operator !=(VictoryData a, VictoryData b) { return !(a == b); }
@@ -538,7 +537,7 @@ public struct VictoryData
 	}
 }
 
-// WarpData describes the mechanism by which players win and move between level layers
+// WarpData describes the mechanism by which players move between level layers
 public struct WarpData
 {
 
@@ -606,11 +605,11 @@ public struct LevelData
 	public List<WarpData> warpSet;
 
 	// simple constructor
-	public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<VictoryData> inVictorys, List<WarpData> inWarps)
+	public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<VictoryData> inVictories, List<WarpData> inWarps)
 	{
 		tileSet = inTiles;
 		chkpntSet = inChkpnts;
-		victorySet = inVictorys;
+		victorySet = inVictories;
 		warpSet = inWarps;
 	}
 
@@ -771,7 +770,6 @@ public static class FileParsing
 		return new ChkpntData(hl, y);
 	}
 
-
 	// parses a string to construct a VictoryData
 	public static VictoryData ReadVictory (string lineIn)
 	{
@@ -780,7 +778,7 @@ public static class FileParsing
 
 		// checks to see if there's enough items to be read
 		if (s.Length < 7) {
-			Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+			Debug.LogError("Line for victory data is formatted incorrectly.");
 			return new VictoryData();
 		}
 
