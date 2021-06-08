@@ -4,17 +4,18 @@ using System;
 
 public class SoundManager : MonoBehaviour
 {
+    // public static variables
     public static SoundManager instance;
 
+    // public references
     public Sound[] sounds;
 
     void Awake ()
     {
         // Solo Dolo
-        if (instance == null) {
+        if (instance == null)
             instance = this;
-        } else 
-        {
+        else {
             Destroy(gameObject);
             return;
         }
@@ -22,8 +23,7 @@ public class SoundManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // Load our sounds :)
-        foreach(Sound s in sounds)
-        {
+        foreach(Sound s in sounds) {
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
 
@@ -38,7 +38,9 @@ public class SoundManager : MonoBehaviour
         Play("main-theme");
     }
 
-    // Play - Play our sound. Option to set volume too
+    /* Public Functions */
+
+    // play our sounds; option to set volume too
     public void Play(string name, float volume = .5f)
     {
         // get the sound
@@ -46,8 +48,7 @@ public class SoundManager : MonoBehaviour
         if (s == null) {
             Debug.LogWarning ("Sound name not recognized: " + name);
             return;
-        }
-        else if (s.source == null) {
+        } else if (s.source == null) {
             Debug.LogWarning ("Load me better: " + name);
             return;
         }

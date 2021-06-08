@@ -13,30 +13,27 @@ public partial class PlayGM {
     // redirects gravity in the specified direction
     public void DirectGravity (GravityDirection inDirect)
     {
+        // set gravity vector according to direction
         switch (inDirect) {
             case GravityDirection.Down:
-                Physics2D.gravity = new Vector2(0.0f, -9.81f); // <1>
+                Physics2D.gravity = new Vector2(0.0f, -9.81f);
                 break;
             case GravityDirection.Left:
-                Physics2D.gravity = new Vector2(-9.81f, 0.0f); // <1>
+                Physics2D.gravity = new Vector2(-9.81f, 0.0f);
                 break;
             case GravityDirection.Up:
-                Physics2D.gravity = new Vector2(0.0f, 9.81f); // <1>
+                Physics2D.gravity = new Vector2(0.0f, 9.81f);
                 break;
             case GravityDirection.Right:
-                Physics2D.gravity = new Vector2(9.81f, 0.0f); // <1>
+                Physics2D.gravity = new Vector2(9.81f, 0.0f);
                 break;
             default:
                 return;
         }
 
-        grav_dir = inDirect;
-        player.UpdateJumpForce(inDirect); // <2>
-
-      /*
-      <1> set gravity vector according to direction
-      <2> reset player's jump force
-      */
+        // reset player's jump force
+        _gravDir = inDirect;
+        player.UpdateJumpForce(inDirect);
     }
 
     // kills the player
@@ -58,7 +55,7 @@ public partial class PlayGM {
     // allows Victory prefabs to register victory with PlayGM
     public void RegisterVictory (Victory inVictory)
     {
-        VictoryAchieved = true;
+        victoryAchieved = true;
     }
 
     // resets the player to last checkpoint
@@ -75,17 +72,15 @@ public partial class PlayGM {
     // warps player from either base or target layer
     public void WarpPlayer (int baseLayer, int targetLayer)
     {
+        // if activeLayer matches either base or target, select the other
         int next_layer = activeLayer == baseLayer ? targetLayer : baseLayer;
 
-        activateLayer(next_layer); // <3>
+        // update physics & transparency for all layers
+        activateLayer(next_layer);
 
+        // change player's position as appropriate
         Vector3 p = player.transform.position;
         p.z = tileMap.transform.GetChild(next_layer).position.z;
-        player.transform.position = p; // <4>
-        /*
-        <1> if activeLayer matches either base or target, select the other
-        <3> update physics & transparency for all layers
-        <4> change player's position
-        */
+        player.transform.position = p;
     }
 }

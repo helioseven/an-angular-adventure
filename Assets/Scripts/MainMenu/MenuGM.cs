@@ -4,28 +4,30 @@ using UnityEngine.UI;
 
 public class MenuGM : MonoBehaviour {
 
-	// Play button ref
-	public Button playButton;
-	// Edit button ref
-	public Button editButton;
-	// PlayLoader ref
-	public GameObject playLoader;
-	// EditLoader ref
-	public GameObject editLoader;
+    // Edit button ref
+    public Button editButton;
+    // EditLoader ref
+    public GameObject editLoader;
+    // Play button ref
+    public Button playButton;
+    // PlayLoader ref
+    public GameObject playLoader;
 
-	void Awake ()
-	{
-		playButton.onClick.AddListener(StartPlay);
-		editButton.onClick.AddListener(StartEdit);
-	}
+    void Awake ()
+    {
+        playButton.onClick.AddListener(StartPlay);
+        editButton.onClick.AddListener(StartEdit);
+    }
 
-	private void StartPlay ()
-	{
-		Instantiate(playLoader);
-	}
+    /* Private Functions */
 
-	private void StartEdit ()
-	{
-		Instantiate(editLoader);
-	}
+    private void StartPlay ()
+    {
+        Instantiate(playLoader);
+    }
+
+    private void StartEdit ()
+    {
+        Instantiate(editLoader);
+    }
 }

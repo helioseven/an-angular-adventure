@@ -7,48 +7,44 @@ using circleXsquares;
 
 public class EditLoader : MonoBehaviour {
 
-	// public read-accessibility state variables
-	public string levelName { get; private set; }
+    // public read-accessibility state variables
+    public string levelName { get; private set; }
 
-	// private variables
-	private string path;
+    // private variables
+    private string path;
 
-	void Awake ()
-	{
-		levelName = "testLevel"; // <1>
-		string filename = levelName + ".txt";
-		path = Path.Combine(new string[]{"Levels", filename});
-		DontDestroyOnLoad(gameObject); // <2>
-		SceneManager.LoadScene(2); // <3>
+    void Awake ()
+    {
+        // levelName is hard coded (!!), should be prompted
+        levelName = "testLevel";
+        string filename = levelName + ".txt";
+        path = Path.Combine(new string[]{"Levels", filename});
+        // this loader stays awake when next scene is loaded
+        DontDestroyOnLoad(gameObject);
+        // load Editing scene (EditGM will call supplyLevel)
+        SceneManager.LoadScene(2);
+    }
 
-		/*
-		<1> levelName is hard coded (!!), should be prompted
-		<2> this loader stays awake when next scene is loaded
-		<3> load Editing scene (EditGM will call supplyLevel)
-		*/
-	}
+    /* Public Functions */
 
-	// supplies a levelData from file
-	public LevelData supplyLevel ()
-	{
-		bool file_exists = File.Exists(path); // <1>
-		LevelData ld;
-		if (file_exists) {
-			string[] lines = File.ReadAllLines(path);
-			ld = FileParsing.ReadLevel(lines); // <2>
-		} else {
-			Debug.LogError("File not found, loading new level.");
-			ld = new LevelData(); // <3>
-		}
+    // supplies a levelData from file
+    public LevelData supplyLevel ()
+    {
+        // first, check to see whether the file exists
+        bool file_exists = File.Exists(path);
+        LevelData ld;
+        if (file_exists) {
+            // if file exists, it is loaded and parsed
+            string[] lines = File.ReadAllLines(path);
+            ld = FileParsing.ReadLevel(lines);
+        } else {
+            // if file doesn't exist, empty level is created
+            Debug.LogError("File not found, loading new level.");
+            ld = new LevelData();
+        }
 
-		Destroy(gameObject); // <4>
-		return ld;
-
-		/*
-		<1> first, check to see whether the file exists
-		<2> if file exists, it is loaded and parsed
-		<3> if file doesn't exist, empty level is created
-		<4> when script is done, it schedules self-termination and returns
-		*/
-	}
+        // when script is done, it schedules self-termination and returns
+        Destroy(gameObject);
+        return ld;
+    }
 }

@@ -5,38 +5,36 @@ using circleXsquares;
 
 public class Player_Controller : MonoBehaviour
 {
-
+    // public variables
     public int speed;
     public float jumpForce;
 
-    private PlayGM gm_ref;
+    // private references
+    private AudioSource _audioSource;
+    private PlayGM _gmRef;
+    private Collider2D _groundCheckCollider;
+    private Rigidbody2D _rb2d;
 
-    private int max_jumps = 1;
-    private int num_jumps;
-    private bool jump_now = false;
-    private Collider2D ground_check_collider;
-
-    private Rigidbody2D rb2d;
-    private Vector2 jump_force_vec;
-
-    private bool godMode = false;
-
-    private AudioSource audioSource;
+    // private variables
+    private bool _godMode = false;
+    private Vector2 _jumpForceVec;
+    private bool _jumpNow = false;
+    private int _maxJumps = 1;
+    private int _numJumps;
 
     void Awake()
     {
-        rb2d = gameObject.GetComponent<Rigidbody2D>();
-        jump_force_vec = new Vector2(0.0f, jumpForce);
-        ground_check_collider = gameObject.GetComponent<Collider2D>();
-        audioSource = GetComponent<AudioSource>();
+        _rb2d = gameObject.GetComponent<Rigidbody2D>();
+        _jumpForceVec = new Vector2(0.0f, jumpForce);
+        _groundCheckCollider = gameObject.GetComponent<Collider2D>();
+        _audioSource = GetComponent<AudioSource>();
     }
 
     void Start()
     {
-        gm_ref = PlayGM.instance;
+        _gmRef = PlayGM.instance;
     }
 
-    // Update is called once per frame
     void Update()
     {
         UpdateJumping();
@@ -51,129 +49,130 @@ public class Player_Controller : MonoBehaviour
         Jump();
     }
 
+    /* Override Functions */
+
     void OnCollisionEnter2D(Collision2D other)
     {
-        num_jumps = 0;
+        _numJumps = 0;
     }
 
+    /* Public Functions */
+
+    public void Jump()
+    {
+        if (_jumpNow) {
+            // jump by force (acceleration)
+            _rb2d.AddForce(_jumpForceVec);
+
+            // jump logic
+            _jumpNow = false;
+        }
+    }
+
+    public void Move()
+    {
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        float moveVertical = Input.GetAxis("Vertical");
+
+        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
+        _rb2d.AddForce(movement * speed * Time.deltaTime);
+    }
+
+    // update jump force based on current gravity direction
     public void UpdateJumpForce(PlayGM.GravityDirection gd)
     {
-        switch (gd)
-        {
+        switch (gd) {
             case PlayGM.GravityDirection.Down:
-                jump_force_vec = new Vector2(0.0f, jumpForce);
+                _jumpForceVec = new Vector2(0.0f, jumpForce);
                 break;
             case PlayGM.GravityDirection.Left:
-                jump_force_vec = new Vector2(jumpForce, 0.0f);
+                _jumpForceVec = new Vector2(jumpForce, 0.0f);
                 break;
             case PlayGM.GravityDirection.Up:
-                jump_force_vec = new Vector2(0.0f, -jumpForce);
+                _jumpForceVec = new Vector2(0.0f, -jumpForce);
                 break;
             case PlayGM.GravityDirection.Right:
-                jump_force_vec = new Vector2(-jumpForce, 0.0f);
+                _jumpForceVec = new Vector2(-jumpForce, 0.0f);
                 break;
             default:
                 return;
         }
     }
 
+    // update jumping state and number of jumps
     public void UpdateJumping()
     {
-        bool canJump = (num_jumps < max_jumps);
-        if (num_jumps == 0)
-        {
-            canJump = canJump && ground_check_collider.IsTouchingLayers();
-        }
+        bool canJump = (_numJumps < _maxJumps);
+        if (_numJumps == 0)
+            canJump = canJump && _groundCheckCollider.IsTouchingLayers();
 
-        if (canJump && Input.GetKeyDown(KeyCode.Space))
-        {
+        if (canJump && Input.GetKeyDown(KeyCode.Space)) {
             // increment numJumps
-            num_jumps++;
+            _numJumps++;
             // jump now!
-            jump_now = true;
+            _jumpNow = true;
             // play sound
-            gm_ref.soundManager.Play("jump");
+            _gmRef.soundManager.Play("jump");
         }
     }
 
-    void UpdateGravity()
+    // activates/deactivates God Mode itself
+    public void UpdateGodMode()
     {
-        // God Mode Gravity Control
-        if (!godMode) return;
+        // toggle God Mode on G key press
+        if (Input.GetKeyDown(KeyCode.G)) {
+            _gmRef.soundManager.Play("gravity");
+            _godMode = !_godMode;
+        }
+    }
 
-        // Gravity Down
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            gm_ref.soundManager.Play("gravity");
+    // update gravity force with God Mode if activated
+    public void UpdateGravity()
+    {
+        // God Mode gravity control
+        if (!_godMode) return;
+
+        // K sets gravity down
+        if (Input.GetKeyDown(KeyCode.K)) {
+            _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(0.0f, -9.81f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Down);
         }
 
-        // Gravity left
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            gm_ref.soundManager.Play("gravity");
+        // J sets gravity left
+        if (Input.GetKeyDown(KeyCode.J)) {
+            _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(-9.81f, 0.0f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Left);
         }
 
-        // Gravity Up
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            gm_ref.soundManager.Play("gravity");
+        // I sets gravity up
+        if (Input.GetKeyDown(KeyCode.I)) {
+            _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(0.0f, 9.81f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Up);
         }
 
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            gm_ref.soundManager.Play("gravity");
+        // L sets gravity right
+        if (Input.GetKeyDown(KeyCode.L)) {
+            _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(9.81f, 0.0f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Right);
         }
     }
 
-
-    void UpdateGodMode()
+    // update sound affects for player rolling on surfaces
+    public void UpdateRollingSound()
     {
-        // Toggle God Mode on G key press
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            gm_ref.soundManager.Play("gravity");
-            godMode = !godMode;
-        }
-
-    }
-
-    void UpdateRollingSound()
-    {
-        if (gm_ref.VictoryAchieved) {
-            audioSource.volume = 0f;
+        // disable rolling sounds once victory is achieved
+        if (_gmRef.victoryAchieved) {
+            _audioSource.volume = 0f;
             return;
         }
-        float volume = gm_ref.SlideIntensityToVolume(rb2d.velocity, Physics2D.gravity);
-        if (!ground_check_collider.IsTouchingLayers()) volume = 0.0f;
-        audioSource.volume = volume;
-    }
-
-    void Move()
-    {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
-
-        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
-        rb2d.AddForce(movement * speed * Time.deltaTime);
-    }
-
-    public void Jump()
-    {
-        if (jump_now)
-        {
-            // jump by force (acceleration)
-            rb2d.AddForce(jump_force_vec);
-
-            // jump logic
-            jump_now = false;
-        }
+        // use player velocity to set sound intensity
+        float volume = _gmRef.SlideIntensityToVolume(_rb2d.velocity, Physics2D.gravity);
+        if (!_groundCheckCollider.IsTouchingLayers())
+            volume = 0.0f;
+        _audioSource.volume = volume;
     }
 }
