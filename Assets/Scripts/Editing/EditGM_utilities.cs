@@ -116,7 +116,7 @@ public partial class EditGM {
     private void addSelectedItem ()
     {
         // if nothing is selected, escape
-        if (_selectedItem == new SelectedItem())
+        if (_selectedItem == SelectedItem.noSelection)
             return;
         // for each item type, use item data to restore item
         if (_selectedItem.tileData.HasValue) {

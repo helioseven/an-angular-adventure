@@ -20,10 +20,6 @@ public partial class EditGM {
         public TileData? tileData;
         public WarpData? warpData;
 
-        // there are a bunch of places where we currently use
-        // "new SelectedItem()" where we probably want to be
-        // using "SelectedItem.identity" or some such instead
-
         public SelectedItem (TileData inTile) : this (null, inTile) {}
 
         public SelectedItem (ChkpntData inChkpnt) : this (null, inChkpnt) {}
@@ -63,6 +59,8 @@ public partial class EditGM {
             return true;
         }
 
+        public static SelectedItem noSelection = new SelectedItem();
+
         public static bool operator !=(SelectedItem si1, SelectedItem si2) { return !(si1 == si2); }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
@@ -88,7 +86,7 @@ public partial class EditGM {
         // if already in createMode, simply escape
         if (createMode) return;
 
-        if (_selectedItem != new SelectedItem()) {
+        if (_selectedItem != SelectedItem.noSelection) {
             // if exiting editMode, add _selectedItem back to the level
             if (editMode) addSelectedItem();
 
@@ -116,7 +114,7 @@ public partial class EditGM {
         // if already in editMode, simply escape
         if (editMode) return;
 
-        if (_selectedItem != new SelectedItem()) {
+        if (_selectedItem != SelectedItem.noSelection) {
             if (_selectedItem.tileData.HasValue) {
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
@@ -143,7 +141,7 @@ public partial class EditGM {
         // if already in paintMode, simply escape
         if (paintMode) return;
 
-        if (_selectedItem != new SelectedItem()) {
+        if (_selectedItem != SelectedItem.noSelection) {
             // if _selectedItem is a tile, use its tileData to set tile tool
             if (_selectedItem.tileData.HasValue)
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
@@ -152,7 +150,7 @@ public partial class EditGM {
                 addSelectedItem();
             // if not in editMode, simply unselect _selectedItem
             else
-                _selectedItem = new SelectedItem();
+                _selectedItem = SelectedItem.noSelection;
         }
 
         // always enter paintMode with tile tool enabled
@@ -167,11 +165,11 @@ public partial class EditGM {
             // only do anyting if currently in creationMode or editMode
             return;
 
-        if (editMode && _selectedItem != new SelectedItem())
+        if (editMode && _selectedItem != SelectedItem.noSelection)
             // conditional to switch out of editMode while an object is selected
             addSelectedItem();
         if (_selectedItem.instance == null)
-            _selectedItem = new SelectedItem();
+            _selectedItem = SelectedItem.noSelection;
 
         // _currentTool should always be disabled in selectMode
         _currentTool.SetActive(false);
