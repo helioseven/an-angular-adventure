@@ -171,7 +171,7 @@ public class ObjectInfoControl : MonoBehaviour {
     private InfoPack getUpdatedInfo()
     {
         EditGM.SelectedItem si = gmRef.selectedItem;
-        _isAnySelected = si != new EditGM.SelectedItem();
+        _isAnySelected = si != EditGM.SelectedItem.noSelection;
         bool instance_null = si.instance == null;
         int updt_type = 0;
         int updt_color = 0;
