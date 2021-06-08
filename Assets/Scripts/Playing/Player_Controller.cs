@@ -41,7 +41,7 @@ public class Player_Controller : MonoBehaviour
     {
         UpdateJumping();
         UpdateGravity();
-        UpdateGodMode();
+        // UpdateGodMode();
         UpdateRollingSound();
     }
 

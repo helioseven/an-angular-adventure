@@ -15,7 +15,7 @@ public class EditLoader : MonoBehaviour {
 
 	void Awake ()
 	{
-		levelName = "testLevel"; // <1>
+		levelName = "jip"; // <1>
 		string filename = levelName + ".txt";
 		path = Path.Combine(new string[]{"Levels", filename});
 		DontDestroyOnLoad(gameObject); // <2>

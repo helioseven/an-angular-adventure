@@ -15,7 +15,7 @@ public class PlayLoader : MonoBehaviour {
 
 	void Awake ()
 	{
-		levelName = "testLevel"; // <1>
+		levelName = "DemoCheckpoint3"; // <1>
 		string filename = levelName + ".txt";
 		path = Path.Combine(new string[]{"Levels", filename});
 		DontDestroyOnLoad(gameObject); // <2>
