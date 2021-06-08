@@ -4,48 +4,45 @@ using UnityEngine;
 
 public class PaletteControl : MonoBehaviour {
 
-	// private variables
-	private Camera main_cam;
-	private Vector2 local_position;
-	private RectTransform canvas_rt;
-	private RectTransform local_rt;
+    // private variables
+    private RectTransform _canvasRT;
+    private Vector2 _localPosition;
+    private RectTransform _localRT;
+    private Camera _mainCam;
 
-	public void Awake () {
-		main_cam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
-		local_position = Vector2.zero;
+    public void Awake () {
+        _mainCam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+        _localPosition = Vector2.zero;
 
-		Canvas c = GetComponentInParent<Canvas>();
-		if (c) {
-			canvas_rt = c.transform as RectTransform;
-			local_rt = transform as RectTransform;
-		} else { // <1>
-			Debug.LogError("Failed to find the canvas.");
-			canvas_rt = new RectTransform();
-			local_rt = new RectTransform();
-		}
+        Canvas c = GetComponentInParent<Canvas>();
+        if (c) {
+            _canvasRT = c.transform as RectTransform;
+            _localRT = transform as RectTransform;
+        } else {
+            // this panel will not initialize properly if not the child of a canvas
+            Debug.LogError("Failed to find the canvas.");
+            _canvasRT = new RectTransform();
+            _localRT = new RectTransform();
+        }
 
-		gameObject.SetActive(false);
+        gameObject.SetActive(false);
+    }
 
-		/*
-		<1> this panel will not initialize properly if not the child of a canvas
-		*/
-	}
+    /* Public Functions */
 
-	// activates the panel and places it at the given location
-	public void TogglePalette () {
-		if (gameObject.activeSelf) gameObject.SetActive(false); // <1>
-		else {
-			Vector2 lp, mP = Input.mousePosition;
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas_rt, mP, main_cam, out lp);
-			local_position = lp;
-			local_rt.localPosition = local_position; // <2>
-
-			gameObject.SetActive(true);
-		}
-
-		/*
-		<1> if the panel is already active, deactivate it
-		<2> otherwise, the mouse position is translated into local rect space and the panel is moved there
-		*/
-	}
+    // activates the panel and places it at the given location
+    public void TogglePalette () {
+        if (gameObject.activeSelf)
+            // if the panel is already active, deactivate it
+            gameObject.SetActive(false);
+        else {
+            // otherwise mouse input is translated to local rect space
+            Vector2 lp, mP = Input.mousePosition;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRT, mP, _mainCam, out lp);
+            _localPosition = lp;
+            // panel is then moved to the translated position and activated
+            _localRT.localPosition = _localPosition;
+            gameObject.SetActive(true);
+        }
+    }
 }

@@ -5,8 +5,7 @@ using circleXsquares;
 
 public class Warp : MonoBehaviour
 {
-
-    public WarpData data;
+    // public read-accessibility state variables
     public int baseLayer
     {
         get { return data.orient.layer; }
@@ -18,19 +17,24 @@ public class Warp : MonoBehaviour
         set { }
     }
 
-    private PlayGM play_gm;
+    // public variables
+    public WarpData data;
+
+    // private references
+    private PlayGM _gmRef;
 
     void Awake()
     {
-        play_gm = PlayGM.instance;
+        _gmRef = PlayGM.instance;
     }
+
+    /* Override Functions */
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            play_gm.soundManager.Play("warp");
-            play_gm.WarpPlayer(baseLayer, targetLayer);
+        if (other.gameObject.CompareTag("Player")) {
+            _gmRef.soundManager.Play("warp");
+            _gmRef.WarpPlayer(baseLayer, targetLayer);
         }
     }
 }

@@ -5,23 +5,25 @@ using circleXsquares;
 
 public class Checkpoint : MonoBehaviour
 {
-
-    private PlayGM play_gm;
-
+    // public variables
     public ChkpntData data;
+
+    // private references
+    private PlayGM _playGM;
 
     void Awake()
     {
-        play_gm = PlayGM.instance;
+        _playGM = PlayGM.instance;
     }
+
+    /* Override Functions */
 
     // becomes the current checkpoint when it detects a collision with the player
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            play_gm.soundManager.Play("checkpoint");
-            play_gm.SetCheckpoint(data);
+        if (other.gameObject.CompareTag("Player")) {
+            _playGM.soundManager.Play("checkpoint");
+            _playGM.SetCheckpoint(data);
         }
     }
 }

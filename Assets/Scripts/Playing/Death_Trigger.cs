@@ -4,13 +4,15 @@ using UnityEngine;
 
 public class Death_Trigger : MonoBehaviour
 {
-
-    public PlayGM play_gm;
+    // private references
+    private PlayGM _playGM;
 
     void Awake()
     {
-        play_gm = PlayGM.instance;
+        _playGM = PlayGM.instance;
     }
+
+    /* Override Functions */
 
     // triggers player's death when it detects player collision
     void OnCollisionEnter2D(Collision2D other)
@@ -18,8 +20,8 @@ public class Death_Trigger : MonoBehaviour
         // identifies the player by tag
         if (other.gameObject.CompareTag("Player"))
         {
-            play_gm.soundManager.Play("death");
-            PlayGM.instance.KillPlayer();
+            _playGM.soundManager.Play("death");
+            _playGM.KillPlayer();
         }
     }
 }

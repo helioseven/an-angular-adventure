@@ -5,9 +5,11 @@ using circleXsquares;
 
 public class Tile_Blue : Tile
 {
+    // private variables
+    private float _maxVolume = 0.5f;
+    private float _volumeMultiplier = 0.25f;
 
-    private float maxVolume = 0.5f;
-    private float volumeMultiplier = 0.25f;
+    /* Override Functions */
 
     void OnCollisionEnter2D(Collision2D other)
     {
@@ -20,8 +22,16 @@ public class Tile_Blue : Tile
             float slideForce = grav.x * vel.y + grav.y * vel.x;
             slideForce = Mathf.Abs(slideForce) / 10.0f;
 
-            float intensity = Mathf.Clamp(slideForce * volumeMultiplier, 0f, maxVolume);
-            gm_ref.soundManager.Play("ice", intensity);
+            float intensity = Mathf.Clamp(slideForce * _volumeMultiplier, 0f, _maxVolume);
+            _gmRef.soundManager.Play("ice", intensity);
         }
+    }
+
+    /* Private Functions */
+
+    // blue tiles have no player action
+    private void playerAction()
+    {
+        return;
     }
 }
