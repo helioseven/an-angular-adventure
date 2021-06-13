@@ -20,3 +20,21 @@ NonRepo/
 # Sublime-related ignores (AAA.sublime-project is kept)
 *.sublime-workspace
 obj/Debug/.NETFramework,Version=v4.7.1.AssemblyAttributes.cs
+WebBuild/Build/UnityLoader.js
+WebBuild/Build/WebBuild.data.unityweb
+WebBuild/Build/WebBuild.jpg
+WebBuild/Build/WebBuild.json
+WebBuild/Build/WebBuild.wasm.code.unityweb
+WebBuild/Build/WebBuild.wasm.framework.unityweb
+WebBuild/index.html
+WebBuild/TemplateData/favicon.ico
+WebBuild/TemplateData/fullscreen.png
+WebBuild/TemplateData/progressEmpty.Dark.png
+WebBuild/TemplateData/progressEmpty.Light.png
+WebBuild/TemplateData/progressFull.Dark.png
+WebBuild/TemplateData/progressFull.Light.png
+WebBuild/TemplateData/progressLogo.Dark.png
+WebBuild/TemplateData/progressLogo.Light.png
+WebBuild/TemplateData/style.css
+WebBuild/TemplateData/UnityProgress.js
+WebBuild/TemplateData/webgl-logo.png
