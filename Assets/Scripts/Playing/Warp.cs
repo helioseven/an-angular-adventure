@@ -3,30 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using circleXsquares;
 
-public class Warp : MonoBehaviour {
+public class Warp : MonoBehaviour
+{
+    // public read-accessibility state variables
+    public int baseLayer
+    {
+        get { return data.orient.layer; }
+        set { }
+    }
+    public int targetLayer
+    {
+        get { return data.targetLayer; }
+        set { }
+    }
 
-	public WarpData data;
-	public int baseLayer {
-		get { return data.orient.layer; }
-		set {}
-	}
-	public int targetLayer {
-		get { return data.targetLayer; }
-		set {}
-	}
+    // public variables
+    public WarpData data;
 
-	private  PlayGM play_gm;
+    // private references
+    private PlayGM _gmRef;
 
-	void Awake ()
-	{
-		play_gm = PlayGM.instance;
-	}
+    void Awake()
+    {
+        _gmRef = PlayGM.instance;
+    }
 
-	void OnTriggerEnter2D (Collider2D other)
-	{
-		if (other.gameObject.CompareTag("Player")) {
-			play_gm.soundManager.Play("warp");
-			play_gm.WarpPlayer(baseLayer, targetLayer);
-		}
-	}
+    /* Override Functions */
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player")) {
+            _gmRef.soundManager.Play("warp");
+            _gmRef.WarpPlayer(baseLayer, targetLayer);
+        }
+    }
 }

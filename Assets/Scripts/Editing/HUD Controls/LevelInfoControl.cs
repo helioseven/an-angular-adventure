@@ -7,51 +7,50 @@ using circleXsquares;
 public class LevelInfoControl : MonoBehaviour {
 
     // private constants
-    private const int NAME_CID = 0;
+    private const int ANCHR_CID = 5;
     private const int ATTR_CID = 1;
     private const int LAYER_CID = 1;
+    private const int NAME_CID = 0;
     private const int TILES_CID = 3;
-    private const int ANCHR_CID = 5;
-
-    // private references
-    private EditGM gm_ref;
-    private Transform tm_ref;
-    private Text name_display;
-    private EditableField name_field;
-    private Text layers_display;
-    private Text tiles_display;
-    private Text anchor_display;
 
     // private variables
-    private string level_name;
-    private int active_layer;
-    private int layer_count;
-    private int layer_tiles;
-    private int level_tiles;
-    private HexLocus anchor_locus;
+    private Text _anchorDisplay;
+    private Text _layersDisplay;
+    private EditGM _gmRef;
+    private Text _nameDisplay;
+    private EditableField _nameField;
+    private Text _tilesDisplay;
+    private Transform _tmRef;
+
+    private int _activeLayer;
+    private HexLocus _anchorLocus;
+    private int _layerCount;
+    private int _layerTiles;
+    private string _levelName;
+    private int _levelTiles;
 
     void Awake ()
     {
-        level_name = "";
-        active_layer = 0;
-        layer_count = 1;
-        layer_tiles = 0;
-        level_tiles = 0;
-        anchor_locus = new HexLocus();
+        _levelName = "";
+        _activeLayer = 0;
+        _layerCount = 1;
+        _layerTiles = 0;
+        _levelTiles = 0;
+        _anchorLocus = new HexLocus();
     }
 
     void Start ()
     {
-        gm_ref = EditGM.instance;
-        tm_ref = gm_ref.tileMap.transform;
+        _gmRef = EditGM.instance;
+        _tmRef = _gmRef.tileMap.transform;
 
         Transform t = transform.GetChild(NAME_CID);
-        name_display = t.GetComponent<Text>();
-        name_field = t.GetComponent<EditableField>();
+        _nameDisplay = t.GetComponent<Text>();
+        _nameField = t.GetComponent<EditableField>();
         t = transform.GetChild(ATTR_CID);
-        layers_display = t.GetChild(LAYER_CID).GetComponent<Text>();
-        tiles_display = t.GetChild(TILES_CID).GetComponent<Text>();
-        anchor_display = t.GetChild(ANCHR_CID).GetComponent<Text>();
+        _layersDisplay = t.GetChild(LAYER_CID).GetComponent<Text>();
+        _tilesDisplay = t.GetChild(TILES_CID).GetComponent<Text>();
+        _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<Text>();
     }
 
     void Update ()
@@ -64,15 +63,15 @@ public class LevelInfoControl : MonoBehaviour {
     // updates the text variables inside the relevant UI sub-elements
     public void updateUI ()
     {
-        name_display.text = level_name;
+        _nameDisplay.text = _levelName;
 
-        string s = (active_layer + 1).ToString() + " / " + layer_count.ToString();
-        layers_display.text = s;
+        string s = (_activeLayer + 1).ToString() + " / " + _layerCount.ToString();
+        _layersDisplay.text = s;
 
-        s = layer_tiles.ToString() + " (" + level_tiles.ToString() + ")";
-        tiles_display.text = s;
+        s = _layerTiles.ToString() + " (" + _levelTiles.ToString() + ")";
+        _tilesDisplay.text = s;
 
-        anchor_display.text = anchor_locus.PrettyPrint();
+        _anchorDisplay.text = _anchorLocus.PrettyPrint();
     }
 
     /* Private Functions */
@@ -82,45 +81,43 @@ public class LevelInfoControl : MonoBehaviour {
     {
         bool b = false;
 
-        string s = name_field.isActive ? "" : gm_ref.levelName; // <1>
-        if (level_name != s) {
-            level_name = s;
+        // text is hidden while input prompt is active by replacement with ""
+        string s = _nameField.isActive ? "" : _gmRef.levelName;
+        if (_levelName != s) {
+            _levelName = s;
             b = true;
         }
-        int al = gm_ref.activeLayer;
-        if (active_layer != al) {
-            active_layer = al;
+        int al = _gmRef.activeLayer;
+        if (_activeLayer != al) {
+            _activeLayer = al;
             b = true;
         }
-        if (layer_count != tm_ref.childCount) {
-            layer_count = tm_ref.childCount;
+        if (_layerCount != _tmRef.childCount) {
+            _layerCount = _tmRef.childCount;
             b = true;
         }
-        if (layer_tiles != tm_ref.GetChild(al).childCount) {
-            layer_tiles = tm_ref.GetChild(al).childCount;
+        if (_layerTiles != _tmRef.GetChild(al).childCount) {
+            _layerTiles = _tmRef.GetChild(al).childCount;
             b = true;
         }
-        if (level_tiles != getTileCount()) {
-            level_tiles = getTileCount();
+        if (_levelTiles != getTileCount()) {
+            _levelTiles = getTileCount();
             b = true;
         }
-        if (anchor_locus != gm_ref.anchorIcon.anchor) {
-            anchor_locus = gm_ref.anchorIcon.anchor;
+        if (_anchorLocus != _gmRef.anchorIcon.anchor) {
+            _anchorLocus = _gmRef.anchorIcon.anchor;
             b = true;
         }
 
         return b;
-
-        /*
-        <1> text is hidden while input prompt is active by replacement with ""
-        */
     }
 
     // gets a count of all tiles currently in the level
     private int getTileCount ()
     {
         int count = 0;
-        foreach (Transform layer in tm_ref) count += layer.childCount;
+        foreach (Transform layer in _tmRef)
+            count += layer.childCount;
         return count;
     }
 }

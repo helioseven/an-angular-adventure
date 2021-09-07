@@ -6,59 +6,56 @@ using UnityEngine.UI;
 
 public class EditableField : MonoBehaviour {
 
-  /* Public Accessors */
+    /* Public Accessors */
 
-  public bool isActive {
-    get { return is_active; }
-    set {}
-  }
+    public bool isActive {
+        get { return is_active; }
+        set {}
+    }
 
-  /* Protected References */
+    /* Protected References */
 
-  protected EditGM gm_ref;
-  protected GameObject inputField;
+    protected EditGM gm_ref;
+    protected GameObject inputField;
 
-  /* Private Variables */
+    /* Private Variables */
 
-  private bool is_active;
-  private string stored_text;
+    private bool is_active;
+    private string stored_text;
 
-  void Awake ()
-  {
-    inputField = transform.GetChild(0).gameObject;
-  }
+    void Awake ()
+    {
+        inputField = transform.GetChild(0).gameObject;
+    }
 
-  void Start ()
-  {
-    gm_ref = EditGM.instance;
-    stored_text = gm_ref.levelName;
-    DeactivateField();
-  }
+    void Start ()
+    {
+        gm_ref = EditGM.instance;
+        stored_text = gm_ref.levelName;
+        DeactivateField();
+    }
 
-  void Update ()
-  {
-    bool click = gm_ref.CheckInputDown(EditGM.InputKeys.ClickMain);
-    if (gm_ref.IsHUDElementHovered(this) && click) ActivateField();
-  }
+    void Update ()
+    {
+        bool click = gm_ref.CheckInputDown(EditGM.InputKeys.ClickMain);
+        if (gm_ref.IsHUDElementHovered(this) && click) ActivateField();
+    }
 
-  // activates the child input field and disables self
-  public void ActivateField()
-  {
-    is_active = true;
+    // activates the child input field and disables self
+    public void ActivateField()
+    {
+        is_active = true;
 
-    inputField.SetActive(true);
-    BaseEventData bed = new BaseEventData(gm_ref.eventSystem);
-    gm_ref.eventSystem.SetSelectedGameObject(inputField, bed); // <1>
+        inputField.SetActive(true);
+        BaseEventData bed = new BaseEventData(gm_ref.eventSystem);
+        // inputField is set as event system's selected object
+        gm_ref.eventSystem.SetSelectedGameObject(inputField, bed);
+    }
 
-    /*
-    <1> inputField is set as event system's selected object
-    */
-  }
-
-  // deactivates the child input field and restores self
-  public void DeactivateField ()
-  {
-    is_active = false;
-    inputField.SetActive(false);
-  }
+    // deactivates the child input field and restores self
+    public void DeactivateField ()
+    {
+        is_active = false;
+        inputField.SetActive(false);
+    }
 }

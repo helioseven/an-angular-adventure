@@ -12,17 +12,14 @@ public partial class EditGM {
 
     /* Public Structs */
 
-    // a struct that keeps track of what the hell is going on (what is active/inactive) when switching modes and/or tools
+    // a struct that manages "selection" (what is active/inactive),
+    // particularly when switching modes and/or tools
     public struct SelectedItem {
 
+        public ChkpntData? chkpntData;
         public GameObject instance;
         public TileData? tileData;
-        public ChkpntData? chkpntData;
         public WarpData? warpData;
-
-        // there are a bunch of places where we currently use
-        // "new SelectedItem()" where we probably want to be
-        // using "SelectedItem.identity" or some such instead
 
         public SelectedItem (TileData inTile) : this (null, inTile) {}
 
@@ -63,6 +60,8 @@ public partial class EditGM {
             return true;
         }
 
+        public static SelectedItem noSelection = new SelectedItem();
+
         public static bool operator !=(SelectedItem si1, SelectedItem si2) { return !(si1 == si2); }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
@@ -85,108 +84,109 @@ public partial class EditGM {
     // switches into createMode
     public void EnterCreate ()
     {
-        if (createMode) return; // <1>
+        // if already in createMode, simply escape
+        if (createMode) return;
 
-        if (selected_item != new SelectedItem()) {
-            if (editMode) addSelectedItem(); // <2>
+        if (_selectedItem != SelectedItem.noSelection) {
+            // if exiting editMode, add _selectedItem back to the level
+            if (editMode) addSelectedItem();
 
-            if (selected_item.tileData.HasValue) {
-                tileCreator.SetProperties(selected_item.tileData.Value);
-                setTool(EditTools.Tile); // <3>
+            if (_selectedItem.tileData.HasValue) {
+                // if _selectedItem is a tile, use its tileData to set tile tool
+                tileCreator.SetProperties(_selectedItem.tileData.Value);
+                setTool(EditTools.Tile);
             }
-            if (selected_item.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-            if (selected_item.warpData.HasValue) setTool(EditTools.Warp);// <4>
+            // set tool to chkpnt or warp tool as appropriate
+            if (_selectedItem.chkpntData.HasValue)
+                setTool(EditTools.Chkpnt);
+            if (_selectedItem.warpData.HasValue)
+                setTool(EditTools.Warp);
         } else {
+            // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
-            selected_item = new SelectedItem(td);
-            setTool(EditTools.Tile); // <5>
+            _selectedItem = new SelectedItem(td);
+            setTool(EditTools.Tile);
         }
 
-        current_mode = EditorMode.Create;
-
-        /*
-        <1> if already in createMode, simply escape
-        <2> if exiting editMode, add selected_item back to the level
-        <3> if selected_item is a tile, use its tileData to set tile tool
-        <4> set tool to chkpnt or warp tool as appropriate
-        <5> if no selected_item, default to tile tool
-        */
+        _currentMode = EditorMode.Create;
     }
 
     // switches into editMode
     public void EnterEdit ()
     {
-        if (editMode) return; // <1>
+        // if already in editMode, simply escape
+        if (editMode) return;
 
-        if (selected_item != new SelectedItem()) {
-            if (selected_item.tileData.HasValue) {
-                tileCreator.SetProperties(selected_item.tileData.Value);
-                setTool(EditTools.Tile); // <2>
+        if (_selectedItem != SelectedItem.noSelection) {
+            if (_selectedItem.tileData.HasValue) {
+                // if _selectedItem is a tile, use its tileData to set tile tool
+                tileCreator.SetProperties(_selectedItem.tileData.Value);
+                setTool(EditTools.Tile);
             }
-            if (selected_item.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-            if (selected_item.warpData.HasValue) setTool(EditTools.Warp);
-            removeSelectedItem(); // <3>
-            Destroy(selected_item.instance);
-            selected_item.instance = null;
+            if (_selectedItem.chkpntData.HasValue)
+                setTool(EditTools.Chkpnt);
+            if (_selectedItem.warpData.HasValue)
+                setTool(EditTools.Warp);
 
+            // regardless of item selected, unselect it
+            removeSelectedItem();
+            Destroy(_selectedItem.instance);
+            _selectedItem.instance = null;
         } else {
-            setTool(EditTools.Tile); // <4>
+            // if no _selectedItem, default to tile tool
+            setTool(EditTools.Tile);
         }
 
-        current_mode = EditorMode.Edit;
-
-        /*
-        <1> if already in editMode, simply escape
-        <2> if selected_item is a tile, use its tileData to set tile tool
-        <3> regardless of item selected, unselect it
-        <4> if no selected_item, default to tile tool
-        */
+        _currentMode = EditorMode.Edit;
     }
 
     // switches into paintMode
     public void EnterPaint ()
     {
-        if (paintMode) return; // <1>
+        // if already in paintMode, simply escape
+        if (paintMode) return;
 
-        if (selected_item != new SelectedItem()) {
-            if (selected_item.tileData.HasValue) tileCreator.SetProperties(selected_item.tileData.Value); // <2>
-            if (editMode) addSelectedItem(); // <3>
-            else selected_item = new SelectedItem(); // <4>
+        if (_selectedItem != SelectedItem.noSelection) {
+            // if _selectedItem is a tile, use its tileData to set tile tool
+            if (_selectedItem.tileData.HasValue)
+                tileCreator.SetProperties(_selectedItem.tileData.Value);
+            // if in editMode, add _selectedItem back to the level
+            if (editMode)
+                addSelectedItem();
+            // if not in editMode, simply unselect _selectedItem
+            else
+                _selectedItem = SelectedItem.noSelection;
         }
 
-        setTool(EditTools.Tile); // <5>
-        current_mode = EditorMode.Paint;
-
-        /*
-        <1> if already in paintMode, simply escape
-        <2> if selected_item is a tile, use its tileData to set tile tool
-        <3> if in editMode, add selected_item back to the level
-        <4> if not in editMode, simply unselect selected_item
-        <5> always enter paintMode with tile tool enabled
-        */
+        // always enter paintMode with tile tool enabled
+        setTool(EditTools.Tile);
+        _currentMode = EditorMode.Paint;
     }
 
     // switches into selectMode
     public void EnterSelect ()
     {
-        if (selectMode) return; // <1>
+        if (selectMode)
+            // only do anyting if currently in creationMode or editMode
+            return;
 
-        if (editMode && selected_item != new SelectedItem()) addSelectedItem(); // <2>
-        if (selected_item.instance == null) selected_item = new SelectedItem();
+        if (editMode && _selectedItem != SelectedItem.noSelection)
+            // conditional to switch out of editMode while an object is selected
+            addSelectedItem();
+        if (_selectedItem.instance == null)
+            _selectedItem = SelectedItem.noSelection;
 
-        current_tool.SetActive(false); // <3>
-        current_mode = EditorMode.Select;
-
-        /*
-        <1> only do anyting if currently in creationMode or editMode
-        <2> conditional logic for switching out of editMode while an object is selected
-        <3> current_tool should always be disabled in selectMode
-        */
+        // _currentTool should always be disabled in selectMode
+        _currentTool.SetActive(false);
+        _currentMode = EditorMode.Select;
     }
 
     // (!!)(incomplete) deletes the current scene and loads the MainMenu scene
     public void ReturnToMainMenu ()
-    { SceneManager.LoadScene(0); } // (!!) should prompt if unsaved
+    {
+        // (!!) should prompt if unsaved
+        SceneManager.LoadScene(0);
+    }
 
     // (!!)(incomplete) save level to a file in plain text format
     public void SaveFile (string levelName)
@@ -204,7 +204,7 @@ public partial class EditGM {
     // sets level name property with passed string
     public void setLevelName (string inName)
     {
-        if (inName.Length <= 100) level_name = inName; // <1>
+        if (inName.Length <= 100) _levelName = inName; // <1>
 
         /*
         <1> level names are capped at 100 characters for now

@@ -5,8 +5,9 @@ using circleXsquares;
 
 public class Tile_Orange : Tile
 {
-
+    // public references
     public Transform arrow;
+
     void Start()
     {
         arrow = transform.GetChild(0).GetChild(0);
@@ -18,26 +19,26 @@ public class Tile_Orange : Tile
         arrow.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
     }
 
+    /* Override Functions */
+
     // triggers gravity redirection when it detects player collision
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Player"))
-        { // <1>
-            gm_ref.soundManager.Play("gravity");
+        // identifies the player by tag
+        if (other.gameObject.CompareTag("Player")) {
+            _gmRef.soundManager.Play("gravity");
             redirectGravity();
         }
-
-        /*
-        <1> identifies the player by tag
-        */
     }
 
+    /* Private Functions */
+
+    // redirect gravity according to special value
     private void redirectGravity()
     {
         int newDir = data.special % 4;
         PlayGM.GravityDirection gd = PlayGM.GravityDirection.Down;
-        switch (newDir)
-        {
+        switch (newDir) {
             case 0:
                 gd = PlayGM.GravityDirection.Down;
                 break;
@@ -54,6 +55,6 @@ public class Tile_Orange : Tile
                 return;
         }
 
-        gm_ref.DirectGravity(gd);
+        _gmRef.DirectGravity(gd);
     }
 }

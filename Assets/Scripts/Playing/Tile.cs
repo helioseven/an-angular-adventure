@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using circleXsquares;
 
-public class Tile : MonoBehaviour {
+public class Tile : MonoBehaviour
+{
+    // public variables
+    public TileData data;
 
-  public TileData data;
+    // protected references
+    protected PlayGM _gmRef;
 
-  protected PlayGM gm_ref;
-
-  void Awake ()
-  {
-    gm_ref = PlayGM.instance;
-  }
+    void Awake ()
+    {
+        _gmRef = PlayGM.instance;
+    }
 }

@@ -6,35 +6,36 @@ using InputKeys = EditGM.InputKeys;
 
 public class EditCamControl : MonoBehaviour {
 
-	// private variables
-	private EditGM gm_ref;
-	private InputKeys key_mask;
-	private InputKeys cam_inputs;
+    // private variables
+    private InputKeys _camInputs;
+    private InputKeys _keyMask;
+    private EditGM _gmRef;
 
-	void Start ()
-	{
-		gm_ref = EditGM.instance;
-		key_mask = (InputKeys.Up | InputKeys.Left | InputKeys.Down | InputKeys.Right);
-	}
+    void Start ()
+    {
+        _gmRef = EditGM.instance;
+        _keyMask = (InputKeys.Up | InputKeys.Left | InputKeys.Down | InputKeys.Right);
+    }
 
-	void Update ()
-	{
-		cam_inputs = gm_ref.getInputs;
-		cam_inputs &= key_mask; // <1>
+    void Update ()
+    {
+        // mask identifying the keys relevant to the camera control (WASD)
+        _camInputs = _gmRef.getInputs;
+        _camInputs &= _keyMask;
 
-		Vector3 v3 = transform.position; // <3>
-		if ((cam_inputs & InputKeys.Up) == InputKeys.Up) v3.y += (5.0f * Time.deltaTime);
-		if ((cam_inputs & InputKeys.Left) == InputKeys.Left) v3.x -= (5.0f * Time.deltaTime);
-		if ((cam_inputs & InputKeys.Down) == InputKeys.Down) v3.y -= (5.0f * Time.deltaTime);
-		if ((cam_inputs & InputKeys.Right) == InputKeys.Right) v3.x += (5.0f * Time.deltaTime);
+        // uses the isolated _camInputs to modify a temporary position variable
+        Vector3 v3 = transform.position;
+        if ((_camInputs & InputKeys.Up) == InputKeys.Up)
+            v3.y += (5.0f * Time.deltaTime);
+        if ((_camInputs & InputKeys.Left) == InputKeys.Left)
+            v3.x -= (5.0f * Time.deltaTime);
+        if ((_camInputs & InputKeys.Down) == InputKeys.Down)
+            v3.y -= (5.0f * Time.deltaTime);
+        if ((_camInputs & InputKeys.Right) == InputKeys.Right)
+            v3.x += (5.0f * Time.deltaTime);
 
-		v3.z = gm_ref.GetLayerDepth() - 8f; // <4>
-		transform.position = v3;
-	}
-
-	/*
-	<1> mask identifying the relevant keys (WASD) to the camera control
-	<2> uses the isolated cam_inputs to modify a temporary position variable
-	<3> get layer depth from the GM, set it back 8 units, and use to set position
-	*/
+        //  get active layer depth and set temp position back 8 units from it
+        v3.z = _gmRef.GetLayerDepth() - 8f;
+        transform.position = v3;
+    }
 }

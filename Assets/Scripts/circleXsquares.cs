@@ -3,28 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace circleXsquares {
+namespace circleXsquares
+{
 
 /* Public Utility Enums */
 
 public enum TileType {
-	Tri = 0,
-	Dia,
-	Trap,
-	Hex,
-	Sqr,
-	Wed
+    Tri = 0,
+    Dia,
+    Trap,
+    Hex,
+    Sqr,
+    Wed
 }
 
 public enum TileColor {
-	Black = 0,
-	Blue,
-	Brown,
-	Green,
-	Orange,
-	Purple,
-	Red,
-	White
+    Black = 0,
+    Blue,
+    Brown,
+    Green,
+    Orange,
+    Purple,
+    Red,
+    White
 }
 
 /* Primary Struct Definitions */
@@ -33,562 +34,608 @@ public enum TileColor {
 public struct HexLocus
 {
 
-	//turns out this bugger is pretty dang useful
-	private static readonly float sqrt3 = (float)Math.Sqrt(3f);
+    // turns out this bugger is pretty dang useful
+    private static readonly float _sqrt3 = (float)Math.Sqrt(3f);
 
-	// primary components are coordinates on overlayed ACE & DEF trigonal axes
-	public int a { get; private set; }
-	public int b { get; private set; }
-	public int c { get; private set; }
-	public int d { get; private set; }
-	public int e { get; private set; }
-	public int f { get; private set; }
+    // primary components are coordinates on overlayed ACE & DEF trigonal axes
+    public int a { get; private set; }
+    public int b { get; private set; }
+    public int c { get; private set; }
+    public int d { get; private set; }
+    public int e { get; private set; }
+    public int f { get; private set; }
 
-	// comparison operators just compares internal coordinates
-	public static bool operator ==(HexLocus h1, HexLocus h2)
-	{
-		bool bA, bB, bC, bD, bE, bF;
-		bA = h1.a == h2.a;
-		bB = h1.b == h2.b;
-		bC = h1.c == h2.c;
-		bD = h1.d == h2.d;
-		bE = h1.e == h2.e;
-		bF = h1.f == h2.f;
-		return (bA && bB && bC && bD && bE && bF);
-	}
-	public static bool operator !=(HexLocus h1, HexLocus h2) { return !(h1 == h2); }
-	// additional operators allow HexLocus to be used like vectors
-	// coordinate simplification is ensured by constructor
-	public static HexLocus operator +(HexLocus h1, HexLocus h2)
-	{
-		int rA, rB, rC, rD, rE, rF;
-		rA = h1.a + h2.a;
-		rB = h1.b + h2.b;
-		rC = h1.c + h2.c;
-		rD = h1.d + h2.d;
-		rE = h1.e + h2.e;
-		rF = h1.f + h2.f;
-		return new HexLocus(rA, rB, rC, rD, rE, rF);
-	}
-	public static HexLocus operator -(HexLocus h1, HexLocus h2)
-	{
-		int rA, rB, rC, rD, rE, rF;
-		rA = h1.a - h2.a;
-		rB = h1.b - h2.b;
-		rC = h1.c - h2.c;
-		rD = h1.d - h2.d;
-		rE = h1.e - h2.e;
-		rF = h1.f - h2.f;
-		return new HexLocus(rA, rB, rC, rD, rE, rF);
-	}
-	public static HexLocus operator *(HexLocus h1, HexLocus h2)
-	{
-		int rA, rB, rC, rD, rE, rF;
-		rA = h1.a * h2.a;
-		rB = h1.b * h2.b;
-		rC = h1.c * h2.c;
-		rD = h1.d * h2.d;
-		rE = h1.e * h2.e;
-		rF = h1.f * h2.f;
-		return new HexLocus(rA, rB, rC, rD, rE, rF);
-	}
-	public static HexLocus operator /(HexLocus h1, HexLocus h2)
-	{
-		int rA, rB, rC, rD, rE, rF;
-		rA = h1.a / h2.a;
-		rB = h1.b / h2.b;
-		rC = h1.c / h2.c;
-		rD = h1.d / h2.d;
-		rE = h1.e / h2.e;
-		rF = h1.f / h2.f;
-		return new HexLocus(rA, rB, rC, rD, rE, rF);
-	}
+    // comparison operators just compares internal coordinates
+    public static bool operator ==(HexLocus h1, HexLocus h2)
+    {
+        bool bA, bB, bC, bD, bE, bF;
+        bA = h1.a == h2.a;
+        bB = h1.b == h2.b;
+        bC = h1.c == h2.c;
+        bD = h1.d == h2.d;
+        bE = h1.e == h2.e;
+        bF = h1.f == h2.f;
+        return (bA && bB && bC && bD && bE && bF);
+    }
+    public static bool operator !=(HexLocus h1, HexLocus h2) { return !(h1 == h2); }
+    // additional operators allow HexLocus to be used like vectors
+    // coordinate simplification is ensured by constructor
+    public static HexLocus operator +(HexLocus h1, HexLocus h2)
+    {
+        int rA, rB, rC, rD, rE, rF;
+        rA = h1.a + h2.a;
+        rB = h1.b + h2.b;
+        rC = h1.c + h2.c;
+        rD = h1.d + h2.d;
+        rE = h1.e + h2.e;
+        rF = h1.f + h2.f;
+        return new HexLocus(rA, rB, rC, rD, rE, rF);
+    }
+    public static HexLocus operator -(HexLocus h1, HexLocus h2)
+    {
+        int rA, rB, rC, rD, rE, rF;
+        rA = h1.a - h2.a;
+        rB = h1.b - h2.b;
+        rC = h1.c - h2.c;
+        rD = h1.d - h2.d;
+        rE = h1.e - h2.e;
+        rF = h1.f - h2.f;
+        return new HexLocus(rA, rB, rC, rD, rE, rF);
+    }
+    public static HexLocus operator *(HexLocus h1, HexLocus h2)
+    {
+        int rA, rB, rC, rD, rE, rF;
+        rA = h1.a * h2.a;
+        rB = h1.b * h2.b;
+        rC = h1.c * h2.c;
+        rD = h1.d * h2.d;
+        rE = h1.e * h2.e;
+        rF = h1.f * h2.f;
+        return new HexLocus(rA, rB, rC, rD, rE, rF);
+    }
+    public static HexLocus operator /(HexLocus h1, HexLocus h2)
+    {
+        int rA, rB, rC, rD, rE, rF;
+        rA = h1.a / h2.a;
+        rB = h1.b / h2.b;
+        rC = h1.c / h2.c;
+        rD = h1.d / h2.d;
+        rE = h1.e / h2.e;
+        rF = h1.f / h2.f;
+        return new HexLocus(rA, rB, rC, rD, rE, rF);
+    }
 
-	// constructor generates a set of coordinates from a Vector2
-	public HexLocus (Vector2 inV2)
-	{
-		HexLocus h1, h2, h3, h4;
+    // constructor generates a set of coordinates from a Vector2
+    public HexLocus (Vector2 inV2)
+    {
+        HexLocus h1, h2, h3, h4;
 
-		float delta = inV2.y / sqrt3;
-		h1 = new HexLocus((int)Math.Round(inV2.x + delta), 0, (int)Math.Round(delta * 2.0f), 0, 0, 0); // <1>
-		h2 = new HexLocus((int)Math.Round(inV2.x - delta), 0, 0, 0, (int)Math.Round(delta * -2.0f), 0); // <2>
+        float delta = inV2.y / _sqrt3;
+        h1 = new HexLocus((int)Math.Round(inV2.x + delta), 0, (int)Math.Round(delta * 2.0f), 0, 0, 0); // <1>
+        h2 = new HexLocus((int)Math.Round(inV2.x - delta), 0, 0, 0, (int)Math.Round(delta * -2.0f), 0); // <2>
 
-		delta = inV2.x / sqrt3;
-		h3 = new HexLocus(0, (int)Math.Round(delta * 2.0f), 0, 0, 0, (int)Math.Round(delta - inV2.y)); // <3>
-		h4 = new HexLocus(0, 0, 0, (int)Math.Round(delta * -2.0f), 0, (int)Math.Round(-(delta + inV2.y))); // <4>
+        delta = inV2.x / _sqrt3;
+        h3 = new HexLocus(0, (int)Math.Round(delta * 2.0f), 0, 0, 0, (int)Math.Round(delta - inV2.y)); // <3>
+        h4 = new HexLocus(0, 0, 0, (int)Math.Round(delta * -2.0f), 0, (int)Math.Round(-(delta + inV2.y))); // <4>
 
-		float m1, m2, m3, m4; // <5>
-		m1 = (h1.ToUnitySpace() - inV2).magnitude;
-		m2 = (h2.ToUnitySpace() - inV2).magnitude;
-		m3 = (h3.ToUnitySpace() - inV2).magnitude;
-		m4 = (h4.ToUnitySpace() - inV2).magnitude;
+        float m1, m2, m3, m4; // <5>
+        m1 = (h1.ToUnitySpace() - inV2).magnitude;
+        m2 = (h2.ToUnitySpace() - inV2).magnitude;
+        m3 = (h3.ToUnitySpace() - inV2).magnitude;
+        m4 = (h4.ToUnitySpace() - inV2).magnitude;
 
-		if ((m1 < m2) && (m1 < m3) && (m1 < m4)) this = h1;
-		else if ((m2 < m3) && (m2 < m4)) this = h2;
-		else if (m3 < 4) this = h3;
-		else this = h4; // <6>
+        if ((m1 < m2) && (m1 < m3) && (m1 < m4)) this = h1;
+        else if ((m2 < m3) && (m2 < m4)) this = h2;
+        else if (m3 < 4) this = h3;
+        else this = h4; // <6>
 
-		/*
-		<1> h1 finds an (a, c) point
-		<2> h2 finds an (a, e) point
-		<3> h3 finds a (b, f) point
-		<4> h4 finds a (d, f) point
-		<5> magnitude of each is computed
-		<6> the HexLocus of least magnitude is chosen
-		*/
-	}
+        /*
+        <1> h1 finds an (a, c) point
+        <2> h2 finds an (a, e) point
+        <3> h3 finds a (b, f) point
+        <4> h4 finds a (d, f) point
+        <5> magnitude of each is computed
+        <6> the HexLocus of least magnitude is chosen
+        */
+    }
 
-	// simple constructor using Simplify
-	public HexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
-	{
-		a = inA;
-		b = inB;
-		c = inC;
-		d = inD;
-		e = inE;
-		f = inF;
+    // simple constructor using Simplify
+    public HexLocus (int inA, int inB, int inC, int inD, int inE, int inF)
+    {
+        a = inA;
+        b = inB;
+        c = inC;
+        d = inD;
+        e = inE;
+        f = inF;
 
-		Simplify();
-	}
+        Simplify();
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override bool Equals(System.Object obj)
-	{
-		HexLocus? inHL = obj as HexLocus?;
-		if (!inHL.HasValue) return false;
-		else return this == inHL.Value;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        HexLocus? inHL = obj as HexLocus?;
+        if (!inHL.HasValue) return false;
+        else return this == inHL.Value;
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override int GetHashCode()
-	{
-		int hash = 0;
-		int[] coordinates = {this.a, this.b, this.c, this.d, this.e, this.f};
-		for (int i = 0; i < 6; i++) hash += coordinates[i] << i;
-		return hash;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        int hash = 0;
+        int[] coordinates = {this.a, this.b, this.c, this.d, this.e, this.f};
+        for (int i = 0; i < 6; i++) hash += coordinates[i] << i;
+        return hash;
+    }
 
-	// translates a discrete HexLocus into a Vector2
-	public Vector2 ToUnitySpace ()
-	{
-		float x, y; // <1>
+    // translates a discrete HexLocus into a Vector2
+    public Vector2 ToUnitySpace ()
+    {
+        float x, y; // <1>
 
-		x = a;
-		x += ((sqrt3 / 2f) * b);
-		x -= (0.5f * c);
-		x -= ((sqrt3 / 2f) * d);
-		x -= (0.5f * e); // <2>
+        x = a;
+        x += ((_sqrt3 / 2f) * b);
+        x -= (0.5f * c);
+        x -= ((_sqrt3 / 2f) * d);
+        x -= (0.5f * e); // <2>
 
-		y = (-1f * f);
-		y += (0.5f * b);
-		y += ((sqrt3 / 2f) * c);
-		y += (0.5f * d);
-		y -= ((sqrt3 / 2f) * e); // <3>
+        y = (-1f * f);
+        y += (0.5f * b);
+        y += ((_sqrt3 / 2f) * c);
+        y += (0.5f * d);
+        y -= ((_sqrt3 / 2f) * e); // <3>
 
-		return new Vector3(x, y);
+        return new Vector3(x, y);
 
-		/*
-		<1> ye olde 30-60-90 triangle trigonometry
-		<2> x-axis aligns with a; increases with b; and decreases with c, d, and e
-		<3> y-axis aligns with f; increases with b, c, and d; and decreases with e
-		*/
-	}
+        /*
+        <1> ye olde 30-60-90 triangle trigonometry
+        <2> x-axis aligns with a; increases with b; and decreases with c, d, and e
+        <3> y-axis aligns with f; increases with b, c, and d; and decreases with e
+        */
+    }
 
-	// Serialize merely string-separates each component value on a single line
-	public string Serialize ()
-	{
-		string s = a.ToString();
-		s += " " + b.ToString();
-		s += " " + c.ToString();
-		s += " " + d.ToString();
-		s += " " + e.ToString();
-		s += " " + f.ToString();
-		return s;
-	}
+    // Serialize merely string-separates each component value on a single line
+    public string Serialize ()
+    {
+        string s = a.ToString();
+        s += " " + b.ToString();
+        s += " " + c.ToString();
+        s += " " + d.ToString();
+        s += " " + e.ToString();
+        s += " " + f.ToString();
+        return s;
+    }
 
-	// pretty-printing of HexLocus coordinates for display
-	public string PrettyPrint ()
-	{
-		string s = "(";
-		int[] vals = new int[] {a, c, e, b, d, f}; // <1>
-		string[] s_vals = new string[vals.Length * 2]; // <2>
-		for (int i = 0; i < 6; i++) s_vals[i * 2] = vals[i].ToString(); // <3>
-		foreach (int i in new int[] {1, 3, 7, 9}) s_vals[i] = ", "; // <4>
-		s_vals[5] = "),\n";
-		s_vals[11] = ")";
-		s += String.Join("", s_vals); // <5>
-		return s;
+    // pretty-printing of HexLocus coordinates for display
+    public string PrettyPrint ()
+    {
+        string s = "(";
+        int[] vals = new int[] {a, c, e, b, d, f}; // <1>
+        string[] s_vals = new string[vals.Length * 2]; // <2>
+        for (int i = 0; i < 6; i++) s_vals[i * 2] = vals[i].ToString(); // <3>
+        foreach (int i in new int[] {1, 3, 7, 9}) s_vals[i] = ", "; // <4>
+        s_vals[5] = "),\n";
+        s_vals[11] = ")";
+        s += String.Join("", s_vals); // <5>
+        return s;
 
-		/*
-		<1> coordinates are arranged into ACE & BDF triples for human-readability
-		<2> s_vals is twice the size of s to hold interspersing strings as well
-		<3> every even s_vals index is filled with the corresponding int string
-		<4> selective odd s_vals indices are filled with interspersing filler
-		<5> the concatenation of s_vals is appended to s and returned
-		*/
-	}
+        /*
+        <1> coordinates are arranged into ACE & BDF triples for human-readability
+        <2> s_vals is twice the size of s to hold interspersing strings as well
+        <3> every even s_vals index is filled with the corresponding int string
+        <4> selective odd s_vals indices are filled with interspersing filler
+        <5> the concatenation of s_vals is appended to s and returned
+        */
+    }
 
-	// Simplify simplifies current coordinates to simplest possible terms
-	// this method should be called every time internal values are changed
-	private void Simplify ()
-	{
-		int inA = a, inB = b, inC = c, inD = d, inE = e, inF = f; // <1>
-		int dS = 0, i = 0; // <2> <3>
-		bool[] p1 = {inA > 0, inC > 0, inE > 0};
-		bool[] n1 = {inA < 0, inC < 0, inE < 0};
-		bool[] p2 = {inB > 0, inD > 0, inF > 0};
-		bool[] n2 = {inB < 0, inD < 0, inF < 0}; // <4>
+    // Simplify simplifies current coordinates to simplest possible terms
+    // this method should be called every time internal values are changed
+    private void Simplify ()
+    {
+        int inA = a, inB = b, inC = c, inD = d, inE = e, inF = f; // <1>
+        int dS = 0, i = 0; // <2> <3>
+        bool[] p1 = {inA > 0, inC > 0, inE > 0};
+        bool[] n1 = {inA < 0, inC < 0, inE < 0};
+        bool[] p2 = {inB > 0, inD > 0, inF > 0};
+        bool[] n2 = {inB < 0, inD < 0, inF < 0}; // <4>
 
-		foreach (bool bN in p1) if (bN) i++; // <5>
-		if (i > 1) {
-			if (p1[0] && p1[1] && p1[2]) { // <6>
-				dS = inA;
-				dS = ((dS >= inC) ^ (dS >= inE)) ? dS : inC;
-				dS = ((dS >= inA) ^ (dS >= inE)) ? dS : inE;
-			} else { // <7>
-				int t1, t2;
-				t1 = p1[0] ? inA : inC;
-				t2 = p1[2] ? inE : inC;
-				dS = (t1 < t2) ? t1 : t2;
-			}
-		}
+        foreach (bool bN in p1) if (bN) i++; // <5>
+        if (i > 1) {
+            if (p1[0] && p1[1] && p1[2]) { // <6>
+                dS = inA;
+                dS = ((dS >= inC) ^ (dS >= inE)) ? dS : inC;
+                dS = ((dS >= inA) ^ (dS >= inE)) ? dS : inE;
+            } else { // <7>
+                int t1, t2;
+                t1 = p1[0] ? inA : inC;
+                t2 = p1[2] ? inE : inC;
+                dS = (t1 < t2) ? t1 : t2;
+            }
+        }
 
-		i = 0;
-		foreach (bool bN in n1) if (bN) i++; // <8>
-		if (i > 1) {
-			if (n1[0] && n1[1] && n1[2]) { // <9>
-				dS = inA;
-				dS = ((dS <= inC) ^ (dS <= inE)) ? dS : inC;
-				dS = ((dS <= inA) ^ (dS <= inE)) ? dS : inE;
-			} else { // <10>
-				int t1, t2;
-				t1 = n1[0] ? inA : inC;
-				t2 = n1[2] ? inE : inC;
-				dS = (t1 > t2) ? t1 : t2;
-			}
-		}
+        i = 0;
+        foreach (bool bN in n1) if (bN) i++; // <8>
+        if (i > 1) {
+            if (n1[0] && n1[1] && n1[2]) { // <9>
+                dS = inA;
+                dS = ((dS <= inC) ^ (dS <= inE)) ? dS : inC;
+                dS = ((dS <= inA) ^ (dS <= inE)) ? dS : inE;
+            } else { // <10>
+                int t1, t2;
+                t1 = n1[0] ? inA : inC;
+                t2 = n1[2] ? inE : inC;
+                dS = (t1 > t2) ? t1 : t2;
+            }
+        }
 
-		a = inA - dS;
-		c = inC - dS;
-		e = inE - dS; // <11>
+        a = inA - dS;
+        c = inC - dS;
+        e = inE - dS; // <11>
 
-		dS = 0;
-		i = 0;
-		foreach (bool bN in p2) if (bN) i++; // <12>
-		if (i > 1) {
-			if (p2[0] && p2[1] && p2[2]) { // <13>
-				dS = inB;
-				dS = ((dS >= inD) ^ (dS >= inF)) ? dS : inD;
-				dS = ((dS >= inB) ^ (dS >= inF)) ? dS : inF;
-			} else { // <14>
-				int t1, t2;
-				t1 = p2[0] ? inB : inD;
-				t2 = p2[2] ? inF : inD;
-				dS = (t1 < t2) ? t1 : t2;
-			}
-		}
+        dS = 0;
+        i = 0;
+        foreach (bool bN in p2) if (bN) i++; // <12>
+        if (i > 1) {
+            if (p2[0] && p2[1] && p2[2]) { // <13>
+                dS = inB;
+                dS = ((dS >= inD) ^ (dS >= inF)) ? dS : inD;
+                dS = ((dS >= inB) ^ (dS >= inF)) ? dS : inF;
+            } else { // <14>
+                int t1, t2;
+                t1 = p2[0] ? inB : inD;
+                t2 = p2[2] ? inF : inD;
+                dS = (t1 < t2) ? t1 : t2;
+            }
+        }
 
-		i = 0;
-		foreach (bool bN in n2) if (bN) i++; // <15>
-		if (i > 1) {
-			if (n2[0] && n2[1] && n2[2]) { // <16>
-				dS = inB;
-				dS = ((dS <= inD) ^ (dS <= inF)) ? dS : inD;
-				dS = ((dS <= inB) ^ (dS <= inF)) ? dS : inF;
-			} else { // <17>
-				int t1, t2;
-				t1 = n2[0] ? inB : inD;
-				t2 = n2[2] ? inF : inD;
-				dS = (t1 > t2) ? t1 : t2;
-			}
-		}
+        i = 0;
+        foreach (bool bN in n2) if (bN) i++; // <15>
+        if (i > 1) {
+            if (n2[0] && n2[1] && n2[2]) { // <16>
+                dS = inB;
+                dS = ((dS <= inD) ^ (dS <= inF)) ? dS : inD;
+                dS = ((dS <= inB) ^ (dS <= inF)) ? dS : inF;
+            } else { // <17>
+                int t1, t2;
+                t1 = n2[0] ? inB : inD;
+                t2 = n2[2] ? inF : inD;
+                dS = (t1 > t2) ? t1 : t2;
+            }
+        }
 
-		b = inB - dS;
-		d = inD - dS;
-		f = inF - dS; // <18>
+        b = inB - dS;
+        d = inD - dS;
+        f = inF - dS; // <18>
 
-		/*
-		<1> first, copy the input variables
-		<2> dS is the total delta shift to be added or subtracted from each coordinate within a triad
-		<3> i is a temporary value used to store the number of positive/negative coordinates within each triad
-		<4> p and n arrays articulate which values are positive and negative for each triad
-		<5> the first case addresses multiple positive values in the first triad
-		<6> if all values are positive, dS is set to the middle value
-		<7> if only two values are positive, dS is set to the smaller positive value
-		<8> the second case addresses multiple negative values in the first triad
-		<9> if all values are negative, dS is set to the middle value
-		<10> if only two values are negative, dS is set to the smaller negative value
-		<11> dS is applied to the first triad
-		<12> the third case addresses multiple positive values in the second triad
-		<13> if all values are positive, dS is set to the middle value
-		<14> if only two values are positive, dS is set to the smaller positive value
-		<15> the fourth case addresses multiple negative values in the second triad
-		<16> if all values are negative, dS is set to the middle value
-		<17> if only two values are negative, dS is set to the smaller negative value
-		<18> dS is applied to the second triad
-		*/
-	}
+        /*
+        <1> first, copy the input variables
+        <2> dS is the total delta shift to be added or subtracted from each coordinate within a triad
+        <3> i is a temporary value used to store the number of positive/negative coordinates within each triad
+        <4> p and n arrays articulate which values are positive and negative for each triad
+        <5> the first case addresses multiple positive values in the first triad
+        <6> if all values are positive, dS is set to the middle value
+        <7> if only two values are positive, dS is set to the smaller positive value
+        <8> the second case addresses multiple negative values in the first triad
+        <9> if all values are negative, dS is set to the middle value
+        <10> if only two values are negative, dS is set to the smaller negative value
+        <11> dS is applied to the first triad
+        <12> the third case addresses multiple positive values in the second triad
+        <13> if all values are positive, dS is set to the middle value
+        <14> if only two values are positive, dS is set to the smaller positive value
+        <15> the fourth case addresses multiple negative values in the second triad
+        <16> if all values are negative, dS is set to the middle value
+        <17> if only two values are negative, dS is set to the smaller negative value
+        <18> dS is applied to the second triad
+        */
+    }
 }
 
 // HexOrient describes an orientation within the game space
 public struct HexOrient
 {
 
-	// HexOrient consists of a locus, rotation, and layer
-	public HexLocus locus;
-	public int rotation;
-	public int layer;
+    // HexOrient consists of a locus, rotation, and layer
+    public HexLocus locus;
+    public int rotation;
+    public int layer;
 
-	// simple constructor
-	public HexOrient (HexLocus inLocus, int inRotation, int inLayer)
-	{
-		locus = inLocus;
-		rotation = (inRotation + 12) % 12;
-		layer = inLayer;
-		if (layer < 0) layer = 0;
-	}
+    // simple constructor
+    public HexOrient (HexLocus inLocus, int inRotation, int inLayer)
+    {
+        locus = inLocus;
+        rotation = (inRotation + 12) % 12;
+        layer = inLayer;
+        if (layer < 0) layer = 0;
+    }
 
-	// Serialize turns this HexOrient into strings separated by spaces
-	public string Serialize ()
-	{
-		string s = locus.Serialize();
-		s += " " + rotation.ToString();
-		s += " " + layer.ToString();
-		return s;
-	}
+    // Serialize turns this HexOrient into strings separated by spaces
+    public string Serialize ()
+    {
+        string s = locus.Serialize();
+        s += " " + rotation.ToString();
+        s += " " + layer.ToString();
+        return s;
+    }
 
-	// translates a discrete HexOrient into a Vector3 and outputs rotation
-	public Vector3 ToUnitySpace(out Quaternion outRotation)
-	{
-		Vector2 v2 = locus.ToUnitySpace();
-		outRotation = Quaternion.Euler(0, 0, 30 * rotation);
-		return new Vector3(v2.x, v2.y, 2f * layer);
-	}
+    // translates a discrete HexOrient into a Vector3 and outputs rotation
+    public Vector3 ToUnitySpace(out Quaternion outRotation)
+    {
+        Vector2 v2 = locus.ToUnitySpace();
+        outRotation = Quaternion.Euler(0, 0, 30 * rotation);
+        return new Vector3(v2.x, v2.y, 2f * layer);
+    }
 
-	public static bool operator ==(HexOrient ho1, HexOrient ho2)
-	{
-		bool b = true;
-		if (ho1.locus != ho2.locus) b = false;
-		if (ho1.rotation != ho2.rotation) b = false;
-		if (ho1.layer != ho2.layer) b = false;
-		return b;
-	}
+    public static bool operator ==(HexOrient ho1, HexOrient ho2)
+    {
+        bool b = true;
+        if (ho1.locus != ho2.locus) b = false;
+        if (ho1.rotation != ho2.rotation) b = false;
+        if (ho1.layer != ho2.layer) b = false;
+        return b;
+    }
 
-	public static bool operator !=(HexOrient ho1, HexOrient ho2) { return !(ho1 == ho2); }
+    public static bool operator !=(HexOrient ho1, HexOrient ho2) { return !(ho1 == ho2); }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override bool Equals(System.Object obj)
-	{
-		HexOrient? inHO = obj as HexOrient?;
-		if (!inHO.HasValue) return false;
-		else return this == inHO.Value;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        HexOrient? inHO = obj as HexOrient?;
+        if (!inHO.HasValue) return false;
+        else return this == inHO.Value;
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }
 
 // TileData describes a tile by attributes
 public struct TileData
 {
 
-	// TileData consists of a type, color, and orientation
-	public int type;
-	public int color;
-	public int special;
-	public HexOrient orient;
+    // TileData consists of a type, color, and orientation
+    public int type;
+    public int color;
+    public int special;
+    public HexOrient orient;
 
-	// simple constructor
-	public TileData (int inType, int inColor, int inSpec, HexOrient inOrient)
-	{
-		type = inType;
-		color = inColor;
-		special = inSpec;
-		orient = inOrient;
-	}
+    // simple constructor
+    public TileData (int inType, int inColor, int inSpec, HexOrient inOrient)
+    {
+        type = inType;
+        color = inColor;
+        special = inSpec;
+        orient = inOrient;
+    }
 
-	// Serialize turns this TileData into strings separated by spaces
-	public string Serialize ()
-	{
-		string s = type.ToString();
-		s += " " + color.ToString();
-		s += " " + special.ToString();
-		s += " " + orient.Serialize();
-		return s;
-	}
+    // Serialize turns this TileData into strings separated by spaces
+    public string Serialize ()
+    {
+        string s = type.ToString();
+        s += " " + color.ToString();
+        s += " " + special.ToString();
+        s += " " + orient.Serialize();
+        return s;
+    }
 
-	public static bool operator ==(TileData td1, TileData td2)
-	{
-		bool b = true;
-		if (td1.type != td2.type) b = false;
-		if (td1.color != td2.color) b = false;
-		if (td1.special != td2.special) b = false;
-		if (td1.orient != td2.orient) b = false;
-		return b;
-	}
+    public static bool operator ==(TileData td1, TileData td2)
+    {
+        bool b = true;
+        if (td1.type != td2.type) b = false;
+        if (td1.color != td2.color) b = false;
+        if (td1.special != td2.special) b = false;
+        if (td1.orient != td2.orient) b = false;
+        return b;
+    }
 
-	public static bool operator !=(TileData td1, TileData td2) { return !(td1 == td2); }
+    public static bool operator !=(TileData td1, TileData td2) { return !(td1 == td2); }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override bool Equals(System.Object obj)
-	{
-		TileData? inTD = obj as TileData?;
-		if (!inTD.HasValue) return false;
-		else return this == inTD.Value;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        TileData? inTD = obj as TileData?;
+        if (!inTD.HasValue) return false;
+        else return this == inTD.Value;
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }
 
-// ChkpntData describes the mechanism by which we track player progress
+// ChkpntData describes the player progression tracking for a level
 public struct ChkpntData
 {
 
-	// a checkpoint simply consists of a location and layer (no rotation)
-	public HexLocus locus;
-	public int layer;
+    // a checkpoint simply consists of a location and layer (no rotation)
+    public HexLocus locus;
+    public int layer;
 
-	// simple constructor
-	public ChkpntData (HexLocus inLocus, int inLayer)
-	{
-		locus = inLocus;
-		layer = inLayer;
-		if (layer < 0) layer = 0;
-	}
+    // simple constructor
+    public ChkpntData (HexLocus inLocus, int inLayer)
+    {
+        locus = inLocus;
+        layer = inLayer;
+        if (layer < 0) layer = 0;
+    }
 
-	// Serialize turns this ChkpntData into strings separated by spaces
-	public string Serialize ()
-	{
-		string s = locus.Serialize();
-		s += " " + layer.ToString();
-		return s;
-	}
+    // Serialize turns this ChkpntData into strings separated by spaces
+    public string Serialize ()
+    {
+        string s = locus.Serialize();
+        s += " " + layer.ToString();
+        return s;
+    }
 
-	public static bool operator ==(ChkpntData cd1, ChkpntData cd2)
-	{
-		bool b = true;
-		if (cd1.locus != cd2.locus) b = false;
-		if (cd1.layer != cd2.layer) b = false;
-		return b;
-	}
+    public static bool operator ==(ChkpntData a, ChkpntData b)
+    {
+        return (a.locus != b.locus) && (a.layer != b.layer);
+    }
 
-	public static bool operator !=(ChkpntData cd1, ChkpntData cd2) { return !(cd1 == cd2); }
+    public static bool operator !=(ChkpntData a, ChkpntData b) { return !(a == b); }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override bool Equals(System.Object obj)
-	{
-		ChkpntData? inCD = obj as ChkpntData?;
-		if (!inCD.HasValue) return false;
-		else return this == inCD.Value;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        ChkpntData? inCD = obj as ChkpntData?;
+        if (!inCD.HasValue) return false;
+        else return this == inCD.Value;
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }
 
-// WarpData describes the mechanism by which players win and move between level layers
+// VictoryData describes the win condition(s) of a level
+public struct VictoryData
+{
+    public HexLocus locus;
+    public int layer;
+
+    // simple constructor
+    public VictoryData (HexLocus inLocus, int inLayer)
+    {
+        locus = inLocus;
+        layer = inLayer;
+        if (layer < 0) layer = 0;
+    }
+
+    // Serialize turns this VictoryData into strings separated by spaces
+    public string Serialize ()
+    {
+        string s = locus.Serialize();
+        s += " " + layer.ToString();
+        return s;
+    }
+
+    public static bool operator ==(VictoryData a, VictoryData b)
+    {
+        return (a.locus != b.locus) && (a.layer != b.layer);
+    }
+
+    public static bool operator !=(VictoryData a, VictoryData b) { return !(a == b); }
+
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        VictoryData? inVD = obj as VictoryData?;
+        if (!inVD.HasValue) return false;
+        else return this == inVD.Value;
+    }
+
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
+}
+
+// WarpData describes the mechanism by which players move between level layers
 public struct WarpData
 {
 
-	// warps are used as win triggers, of which there may be multiple
-	public bool isVictory;
-	// otherwise, warps consist of a two-way flag, orientation, and target layer
-	public bool isTwoWay;
-	public HexOrient orient;
-	public int targetLayer;
+    // warps are used as win triggers, of which there may be multiple
+    public bool isVictory;
+    // otherwise, warps consist of a two-way flag, orientation, and target layer
+    public bool isTwoWay;
+    public HexOrient orient;
+    public int targetLayer;
 
-	// simple constructor
-	public WarpData (bool inVictory, bool inTW, HexOrient inOrient, int inTarget)
-	{
-		isVictory = inVictory;
-		isTwoWay = inTW;
-		orient = inOrient;
-		targetLayer = inTarget;
-	}
+    // simple constructor
+    public WarpData (bool inVictory, bool inTW, HexOrient inOrient, int inTarget)
+    {
+        isVictory = inVictory;
+        isTwoWay = inTW;
+        orient = inOrient;
+        targetLayer = inTarget;
+    }
 
-	// Serialize turns this WarpData into strings separated by spaces
-	public string Serialize ()
-	{
-		string s = (isVictory ? 1 : 0).ToString();
-		s += " " + (isTwoWay ? 1 : 0).ToString();
-		s += " " + orient.Serialize();
-		s += " " + targetLayer.ToString();
-		return s;
-	}
+    // Serialize turns this WarpData into strings separated by spaces
+    public string Serialize ()
+    {
+        string s = (isVictory ? 1 : 0).ToString();
+        s += " " + (isTwoWay ? 1 : 0).ToString();
+        s += " " + orient.Serialize();
+        s += " " + targetLayer.ToString();
+        return s;
+    }
 
-	public static bool operator ==(WarpData wd1, WarpData wd2)
-	{
-		bool b = true;
-		if (wd1.isVictory != wd2.isVictory) b = false;
-		if (wd1.isTwoWay != wd2.isTwoWay) b = false;
-		if (wd1.orient != wd2.orient) b = false;
-		if (wd1.targetLayer != wd2.targetLayer) b = false;
-		return b;
-	}
+    public static bool operator ==(WarpData wd1, WarpData wd2)
+    {
+        bool b = true;
+        if (wd1.isVictory != wd2.isVictory) b = false;
+        if (wd1.isTwoWay != wd2.isTwoWay) b = false;
+        if (wd1.orient != wd2.orient) b = false;
+        if (wd1.targetLayer != wd2.targetLayer) b = false;
+        return b;
+    }
 
-	public static bool operator !=(WarpData wd1, WarpData wd2) { return !(wd1 == wd2); }
+    public static bool operator !=(WarpData wd1, WarpData wd2) { return !(wd1 == wd2); }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override bool Equals(System.Object obj)
-	{
-		WarpData? inWD = obj as WarpData?;
-		if (!inWD.HasValue) return false;
-		else return this == inWD.Value;
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override bool Equals(System.Object obj)
+    {
+        WarpData? inWD = obj as WarpData?;
+        if (!inWD.HasValue) return false;
+        else return this == inWD.Value;
+    }
 
-	// .NET expects this behavior to be overridden when overriding ==/!= operators
-	public override int GetHashCode()
-	{
-		return base.GetHashCode();
-	}
+    // .NET expects this behavior to be overridden when overriding ==/!= operators
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
+    }
 }
 
 // LevelData is the main aggregate unit
 public struct LevelData
 {
 
-	// a level consists of a set of tiles, checkpoints, and warps
-	public List<TileData> tileSet;
-	public List<ChkpntData> chkpntSet;
-	public List<WarpData> warpSet;
+    // a level consists of a set of tiles, checkpoints, and warps
+    public List<TileData> tileSet;
+    public List<ChkpntData> chkpntSet;
+    public List<VictoryData> victorySet;
+    public List<WarpData> warpSet;
 
-	// simple constructor
-	public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<WarpData> inWarps)
-	{
-		tileSet = inTiles;
-		chkpntSet = inChkpnts;
-		warpSet = inWarps;
-	}
+    // simple constructor
+    public LevelData (List<TileData> inTiles, List<ChkpntData> inChkpnts, List<VictoryData> inVictories, List<WarpData> inWarps)
+    {
+        tileSet = inTiles;
+        chkpntSet = inChkpnts;
+        victorySet = inVictories;
+        warpSet = inWarps;
+    }
 
-	// Serialize turns this LevelData into a list of layer chunks
-	public string[] Serialize ()
-	{
-		List<string> returnStrings = new List<string>();
-		// first line of the file is reserved for human-readable comments
-		returnStrings.Add("-- level comments goes here --");
-		// second line will get used for player start information
-		returnStrings.AddRange(new string[] {"-- player start info goes here --", " ", "-- Tiles --"});
-		foreach (TileData td in tileSet) returnStrings.Add(td.Serialize());
+    // Serialize turns this LevelData into a list of layer chunks
+    public string[] Serialize ()
+    {
+        List<string> returnStrings = new List<string>();
+        // first line of the file is reserved for human-readable comments
+        returnStrings.Add("-- level comments goes here --");
+        // second line will get used for player start information
+        returnStrings.AddRange(new string[] {"-- player start info goes here --", " ", "-- Tiles --"});
+        foreach (TileData td in tileSet) returnStrings.Add(td.Serialize());
 
-		returnStrings.AddRange(new string[] {"-- End Tiles --", " ", "-- Checkpoints --"});
-		foreach (ChkpntData cd in chkpntSet) returnStrings.Add(cd.Serialize());
+        returnStrings.AddRange(new string[] {"-- End Tiles --", " ", "-- Checkpoints --"});
+        foreach (ChkpntData cd in chkpntSet) returnStrings.Add(cd.Serialize());
 
-		returnStrings.AddRange(new string[] {"-- End Checkpoints --", " ", "-- Warps --"});
-		foreach (WarpData wd in warpSet) returnStrings.Add(wd.Serialize());
-		returnStrings.Add("-- End Warps --");
+        returnStrings.AddRange(new string[] {"-- End Checkpoints --", " ", "-- Victories --"});
+        foreach (VictoryData vd in victorySet) returnStrings.Add(vd.Serialize());
 
-		return returnStrings.ToArray();
-	}
+        returnStrings.AddRange(new string[] {"-- End Victories --", " ", "-- Warps --"});
+        foreach (WarpData wd in warpSet) returnStrings.Add(wd.Serialize());
+        returnStrings.Add("-- End Warps --");
+
+        return returnStrings.ToArray();
+    }
 }
 
 /* Utility Definitions */
@@ -597,148 +644,185 @@ public struct LevelData
 public static class FileParsing
 {
 
-	// splitChar is just a useful delimiter for general parsing behavior
-	public static Char[] splitChar = {' '};
+    // splitChar is just a useful delimiter for general parsing behavior
+    public static Char[] splitChar = {' '};
 
-	// reads an array of strings to parse out level data
-	public static LevelData ReadLevel (string[] lines)
-	{
-		// check to see that we have enough data to work with
-		if (lines.Length < 10) {
-			Debug.LogError("File could not be read correctly.");
-			return new LevelData();
-		}
+    // reads an array of strings to parse out level data
+    public static LevelData ReadLevel (string[] lines)
+    {
+        // check to see that we have enough data to work with
+        if (lines.Length < 10) {
+            Debug.LogError("File could not be read correctly.");
+            return new LevelData();
+        }
 
-		List<TileData> tileList = new List<TileData>();
-		List<ChkpntData> chkpntList = new List<ChkpntData>();
-		List<WarpData> warpList = new List<WarpData>();
-		bool canReadTile = false, canReadChkpnt = false, canReadWarp = false;
+        List<TileData> tileList = new List<TileData>();
+        List<ChkpntData> chkpntList = new List<ChkpntData>();
+        List<VictoryData> victoryList = new List<VictoryData>();
+        List<WarpData> warpList = new List<WarpData>();
+        bool canReadTile = false, canReadChkpnt = false, canReadVictory = false, canReadWarp = false;
 
-		for (int i = 3; i < lines.Length; i++) {
-			// skip over empty lines
-			if (lines[i] == "" || lines[i] == " ") continue;
+        for (int i = 3; i < lines.Length; i++) {
+            // skip over empty lines
+            if (lines[i] == "" || lines[i] == " ") continue;
 
-			// a tiles comment precedes a list of tiles
-			if (lines[i] == ("-- Tiles --")) {
-				canReadTile = true;
-				continue;
-			}
-			// a checkpoints comment precedes a list of checkpoints
-			if (lines[i] == "-- Checkpoints --") {
-				canReadChkpnt = true;
-				continue;
-			}
-			// a warps comment precedes a list of warps
-			if (lines[i] == "-- Warps --") {
-				canReadWarp = true;
-				continue;
-			}
-			// an end tiles comment follows a list of tiles
-			if (lines[i] == ("-- End Tiles --")) {
-				canReadTile = false;
-				continue;
-			}
-			// an end checkpoints comment follows a list of checkpoints
-			if (lines[i] == "-- End Checkpoints --") {
-				canReadChkpnt = false;
-				continue;
-			}
-			// and warps comment follows a list of warps
-			if (lines[i] == "-- End Warps --") {
-				canReadWarp = false;
-				continue;
-			}
+            // a tiles comment precedes a list of tiles
+            if (lines[i] == ("-- Tiles --")) {
+                canReadTile = true;
+                continue;
+            }
+            // a checkpoints comment precedes a list of checkpoints
+            if (lines[i] == "-- Checkpoints --") {
+                canReadChkpnt = true;
+                continue;
+            }
+            // a victories comment precedes a list of victories
+            if (lines[i] == "-- Victories --") {
+                canReadVictory = true;
+                continue;
+            }
+            // a warps comment precedes a list of warps
+            if (lines[i] == "-- Warps --") {
+                canReadWarp = true;
+                continue;
+            }
+            // an end tiles comment follows a list of tiles
+            if (lines[i] == ("-- End Tiles --")) {
+                canReadTile = false;
+                continue;
+            }
+            // an end checkpoints comment follows a list of checkpoints
+            if (lines[i] == "-- End Checkpoints --") {
+                canReadChkpnt = false;
+                continue;
+            }
+            // an end victories comment follows a list of victories
+            if (lines[i] == "-- End Victories --") {
+                canReadVictory = false;
+                continue;
+            }
+            // and warps comment follows a list of warps
+            if (lines[i] == "-- End Warps --") {
+                canReadWarp = false;
+                continue;
+            }
 
-			// if no comment has been triggered, we should be reading one (and only one) of these three
-			if (canReadTile) tileList.Add(ReadTile(lines[i]));
-			if (canReadChkpnt) chkpntList.Add(ReadChkpnt(lines[i]));
-			if (canReadWarp) warpList.Add(ReadWarp(lines[i]));
-		}
+            // if no comment has been triggered, we should be reading one (and only one) of these three
+            if (canReadTile) tileList.Add(ReadTile(lines[i]));
+            if (canReadChkpnt) chkpntList.Add(ReadChkpnt(lines[i]));
+            if (canReadVictory) victoryList.Add(ReadVictory(lines[i]));
+            if (canReadWarp) warpList.Add(ReadWarp(lines[i]));
+        }
 
-		return new LevelData(tileList, chkpntList, warpList);
-	}
+        return new LevelData(tileList, chkpntList, victoryList, warpList);
+    }
 
-	// parses a string to construct a TileData
-	public static TileData ReadTile (string lineIn)
-	{
-		// split the line into individual items first
-		string[] s = lineIn.Split(splitChar);
+    // parses a string to construct a TileData
+    public static TileData ReadTile (string lineIn)
+    {
+        // split the line into individual items first
+        string[] s = lineIn.Split(splitChar);
 
-		// checks to see if there's enough items to be read
-		if (s.Length < 10) {
-			Debug.LogError("Line for tile data is formatted incorrectly.");
-			return new TileData();
-		}
+        // checks to see if there's enough items to be read
+        if (s.Length < 10) {
+            Debug.LogError("Line for tile data is formatted incorrectly.");
+            return new TileData();
+        }
 
-		// proceeds to read the line items
-		int t = Int32.Parse(s[0]);
-		int c = Int32.Parse(s[1]);
-		int x = Int32.Parse(s[2]);
-		HexLocus hl = new HexLocus(
-		    Int32.Parse(s[3]),
-		    Int32.Parse(s[4]),
-		    Int32.Parse(s[5]),
-		    Int32.Parse(s[6]),
-		    Int32.Parse(s[7]),
-		    Int32.Parse(s[8]));
-		int r = Int32.Parse(s[9]);
-		int y = Int32.Parse(s[10]);
+        // proceeds to read the line items
+        int t = Int32.Parse(s[0]);
+        int c = Int32.Parse(s[1]);
+        int x = Int32.Parse(s[2]);
+        HexLocus hl = new HexLocus(
+            Int32.Parse(s[3]),
+            Int32.Parse(s[4]),
+            Int32.Parse(s[5]),
+            Int32.Parse(s[6]),
+            Int32.Parse(s[7]),
+            Int32.Parse(s[8]));
+        int r = Int32.Parse(s[9]);
+        int y = Int32.Parse(s[10]);
 
-		return new TileData(t, c, x, new HexOrient(hl, r, y));
-	}
+        return new TileData(t, c, x, new HexOrient(hl, r, y));
+    }
 
-	// parses a string to construct a ChkpntData
-	public static ChkpntData ReadChkpnt (string lineIn)
-	{
-		// split the line into individual items first
-		string[] s = lineIn.Split(splitChar);
+    // parses a string to construct a ChkpntData
+    public static ChkpntData ReadChkpnt (string lineIn)
+    {
+        // split the line into individual items first
+        string[] s = lineIn.Split(splitChar);
 
-		// checks to see if there's enough items to be read
-		if (s.Length < 7) {
-			Debug.LogError("Line for checkpoint data is formatted incorrectly.");
-			return new ChkpntData();
-		}
+        // checks to see if there's enough items to be read
+        if (s.Length < 7) {
+            Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+            return new ChkpntData();
+        }
 
-		// proceeds to read the line items
-		HexLocus hl = new HexLocus(
-		    Int32.Parse(s[0]),
-		    Int32.Parse(s[1]),
-		    Int32.Parse(s[2]),
-		    Int32.Parse(s[3]),
-		    Int32.Parse(s[4]),
-		    Int32.Parse(s[5]));
-		int y = Int32.Parse(s[6]);
+        // proceeds to read the line items
+        HexLocus hl = new HexLocus(
+            Int32.Parse(s[0]),
+            Int32.Parse(s[1]),
+            Int32.Parse(s[2]),
+            Int32.Parse(s[3]),
+            Int32.Parse(s[4]),
+            Int32.Parse(s[5]));
+        int y = Int32.Parse(s[6]);
 
-		return new ChkpntData(hl, y);
-	}
+        return new ChkpntData(hl, y);
+    }
 
-	// parses a string to construct a WarpData
-	public static WarpData ReadWarp (string lineIn)
-	{
-		// split the line into individual items first
-		string[] s = lineIn.Split(splitChar);
+    // parses a string to construct a VictoryData
+    public static VictoryData ReadVictory (string lineIn)
+    {
+        // split the line into individual items first
+        string[] s = lineIn.Split(splitChar);
 
-		// checks to see if there's enough items to be read
-		if (s.Length < 10) {
-			Debug.LogError("Line for checkpoint data is formatted incorrectly.");
-			return new WarpData();
-		}
+        // checks to see if there's enough items to be read
+        if (s.Length < 7) {
+            Debug.LogError("Line for victory data is formatted incorrectly.");
+            return new VictoryData();
+        }
 
-		// proceeds to read the line items
-		bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
-		bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
-		HexLocus hl = new HexLocus(
-		    Int32.Parse(s[2]),
-		    Int32.Parse(s[3]),
-		    Int32.Parse(s[4]),
-		    Int32.Parse(s[5]),
-		    Int32.Parse(s[6]),
-		    Int32.Parse(s[7]));
-		int r = Int32.Parse(s[8]);
-		int y = Int32.Parse(s[9]);
-		int d = Int32.Parse(s[10]);
+        // proceeds to read the line items
+        HexLocus hl = new HexLocus(
+            Int32.Parse(s[0]),
+            Int32.Parse(s[1]),
+            Int32.Parse(s[2]),
+            Int32.Parse(s[3]),
+            Int32.Parse(s[4]),
+            Int32.Parse(s[5]));
+        int y = Int32.Parse(s[6]);
 
-		return new WarpData(b1, b2, new HexOrient(hl, r, y), d);
-	}
+        return new VictoryData(hl, y);
+    }
+
+    // parses a string to construct a WarpData
+    public static WarpData ReadWarp (string lineIn)
+    {
+        // split the line into individual items first
+        string[] s = lineIn.Split(splitChar);
+
+        // checks to see if there's enough items to be read
+        if (s.Length < 10) {
+            Debug.LogError("Line for checkpoint data is formatted incorrectly.");
+            return new WarpData();
+        }
+
+        // proceeds to read the line items
+        bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
+        bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
+        HexLocus hl = new HexLocus(
+            Int32.Parse(s[2]),
+            Int32.Parse(s[3]),
+            Int32.Parse(s[4]),
+            Int32.Parse(s[5]),
+            Int32.Parse(s[6]),
+            Int32.Parse(s[7]));
+        int r = Int32.Parse(s[8]);
+        int y = Int32.Parse(s[9]);
+        int d = Int32.Parse(s[10]);
+
+        return new WarpData(b1, b2, new HexOrient(hl, r, y), d);
+    }
 }
 }

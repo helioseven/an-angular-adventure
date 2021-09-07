@@ -13,139 +13,136 @@ public partial class EditGM : MonoBehaviour {
     // singleton instance
     [HideInInspector] public static EditGM instance = null;
 
-    // references to UI elements, snap cursor, creation tool, checkpoint tool, warp tool, and tile hierarchy
-    public EventSystem eventSystem;
-    public GraphicRaycaster uiRaycaster;
+    // references to UI elements, snap cursor, creation tool,
+    // checkpoint tool, warp tool, and tile hierarchy
+    public SnapCursor anchorIcon;
+    public GameObject chkpntMap;
+    public GameObject chkpntTool;
+	public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
     public TileCreator tileCreator;
-    public GameObject chkpntTool;
-    public GameObject warpTool;
-    public SnapCursor anchorIcon;
     public GameObject tileMap;
-    public GameObject chkpntMap;
+	public GraphicRaycaster uiRaycaster;
     public GameObject warpMap;
+    public GameObject warpTool;
 
     // public read-accessibility state variables
+    public int activeLayer { get; private set; }
     public InputKeys getInputs { get; private set; }
     public InputKeys getInputDowns { get; private set; }
+    public bool hoveringHUD { get; private set; }
+    public LevelData levelData { get; private set; }
     public string levelName {
-        get { return level_name; }
+        get { return _levelName; }
         set { setLevelName(value); }
     }
-    public LevelData levelData { get; private set; }
-    public int activeLayer { get; private set; }
     public SelectedItem selectedItem {
-        get { return selected_item; }
+        get { return _selectedItem; }
         set {}
     }
-    public bool hoveringHUD { get; private set; }
-    public bool paletteMode { get; private set; }
-    public bool selectMode {
-        get { return current_mode == EditorMode.Select; }
+    // public boolean flags
+    public bool createMode {
+        get { return _currentMode == EditorMode.Create; }
         set {}
     }
     public bool editMode {
-        get { return current_mode == EditorMode.Edit; }
-        set {}
-    }
-    public bool createMode {
-        get { return current_mode == EditorMode.Create; }
+        get { return _currentMode == EditorMode.Edit; }
         set {}
     }
     public bool paintMode {
-        get { return current_mode == EditorMode.Paint; }
+        get { return _currentMode == EditorMode.Paint; }
+        set {}
+    }
+    public bool paletteMode { get; private set; }
+    public bool selectMode {
+        get { return _currentMode == EditorMode.Select; }
         set {}
     }
 
-    // private variables
-    private string level_name;
-    private EditLoader lvl_load;
-    private EditorMode current_mode;
-    private EditTools tool_mode;
-    private SelectedItem selected_item;
-    private GameObject current_tool;
-    private SpecialCreator warp_tool;
-    private Dictionary<GameObject, TileData> tile_lookup;
-    private Dictionary<GameObject, ChkpntData> chkpnt_lookup;
-    private Dictionary<GameObject, WarpData> warp_lookup;
-    private List<RaycastResult> currentHUDhover;
-
-    // constants
-    private const int INACTIVE_LAYER = 9;
+    // private constants
     private const int DEFAULT_LAYER = 0;
+    private const int INACTIVE_LAYER = 9;
+
+    // private variables
+    private Dictionary<GameObject, ChkpntData> _chkpntLookup;
+    private List<RaycastResult> _currentHUDhover;
+    private EditorMode _currentMode;
+    private GameObject _currentTool;
+    private EditLoader _lvlLoad;
+    private string _levelName;
+    private SelectedItem _selectedItem;
+    private Dictionary<GameObject, TileData> _tileLookup;
+    private EditTools _toolMode;
+    private Dictionary<GameObject, WarpData> _warpLookup;
+    private SpecialCreator _warpTool;
 
     void Awake ()
     {
         if (!instance) {
-            instance = this; // <1>
+            // set singleton instance
+            instance = this;
 
-            current_mode = EditorMode.Create; // <2>
-            tool_mode = EditTools.Tile;
-            current_tool = tileCreator.gameObject;
+            // initializations for private state variables
+            _currentMode = EditorMode.Create;
+            _toolMode = EditTools.Tile;
+            _currentTool = tileCreator.gameObject;
             TileData td = new TileData(0, 0, 0, new HexOrient());
-            selected_item = new SelectedItem(td);
-            warp_tool = warpTool.GetComponent<SpecialCreator>();
-            tile_lookup = new Dictionary<GameObject, TileData>();
-            chkpnt_lookup = new Dictionary<GameObject, ChkpntData>();
-            warp_lookup = new Dictionary<GameObject, WarpData>();
+            _selectedItem = new SelectedItem(td);
+            _warpTool = warpTool.GetComponent<SpecialCreator>();
+            _tileLookup = new Dictionary<GameObject, TileData>();
+            _chkpntLookup = new Dictionary<GameObject, ChkpntData>();
+            _warpLookup = new Dictionary<GameObject, WarpData>();
 
-            hudPanel.SetActive(false); // <3>
+            // initializations for connected state variables
+            hudPanel.SetActive(false);
             palettePanel.gameObject.SetActive(false);
             tileCreator.gameObject.SetActive(true);
             chkpntTool.SetActive(false);
             warpTool.SetActive(false);
 
-            getInputs = InputKeys.None; // <4>
+            // initializations for public state variables
+            getInputs = InputKeys.None;
             getInputDowns = InputKeys.None;
             activeLayer = 0;
             hoveringHUD = false;
             paletteMode = false;
 
-            activateLayer(activeLayer); // <5>
+            // file is loaded and parsed
+            _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
+            levelName = _lvlLoad.levelName;
+            levelData = _lvlLoad.supplyLevel();
+            buildLevel(levelData);
+
+            // first layer is activated
+            activateLayer(activeLayer);
         } else
-            Destroy(gameObject); // <6>
-
-        /*
-        <1> set singleton instance
-        <2> initializations for private state variables
-        <3> initializations for connected state variables
-        <4> initializations for public state variables
-        <5> first layer is activated
-        <6> only one singleton can exist
-        */
-    }
-
-    void Start ()
-    {
-        lvl_load = GameObject.FindWithTag("Loader").GetComponent<EditLoader>(); // <1>
-        level_name = lvl_load.levelName;
-        levelData = lvl_load.supplyLevel(); // <2>
-        buildLevel(levelData);
-
-        /*
-        <1> EditLoader is found by tag
-        <2> file is loaded and parsed
-        */
+            // only one singleton can exist
+            Destroy(gameObject);
     }
 
     void Update ()
     {
-        updateInputs(); // <1>
-        updateUI(); // <2>
-        if (hoveringHUD || paletteMode) return; // <3>
-        updateLevel(); // <4>
-        if (selectMode) updateSelect(); // <5>
-        if (editMode) updateEdit(); // <5>
-        if (createMode) updateCreate(); // <5>
-        if (paintMode) updatePaint(); // <5>
-
-        /*
-        <1> getInputs and getInputDowns are updated
-        <2> hudPanel and palettePanel are updated
-        <3> if the palette is active, skip the rest
-        <4> anchorIcon and layer changes are updated
-        <5> call update function for respective mode
-        */
+        // getInputs and getInputDowns are updated
+        updateInputs();
+        // hudPanel and palettePanel are updated
+        updateUI();
+        // if the palette is active, skip the rest
+        if (hoveringHUD || paletteMode)
+            return;
+        // anchorIcon and layer changes are updated
+        updateLevel();
+        // current tool is updated for selectMode
+        if (selectMode)
+            updateSelect();
+        // current tool is updated for editMode
+        if (editMode)
+            updateEdit();
+        // current tool is updated for createMode
+        if (createMode)
+            updateCreate();
+        // current tool is updated for paintMode
+        if (paintMode)
+            updatePaint();
     }
 }
