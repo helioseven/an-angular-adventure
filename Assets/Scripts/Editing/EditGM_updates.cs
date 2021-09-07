@@ -10,317 +10,317 @@ using circleXsquares;
 
 public partial class EditGM {
 
-	/* Update Mechanisms */
+    /* Update Mechanisms */
 
-	// updates getInputs and getInputDowns with appropriate InputKeys
-	private void updateInputs ()
-	{
-		bool[] b = { // <1>
-			Input.GetButton("Jump"),
-			Input.GetButton("Palette"),
-			Input.GetButton("Delete"),
-			Input.GetButton("Mouse ButtonLeft"),
-			Input.GetButton("Mouse ButtonRight"),
-			Input.GetButton("ChkpntTool"),
-			Input.GetButton("WarpTool"),
-			Input.GetButton("Tile1"),
-			Input.GetButton("Tile2"),
-			Input.GetButton("Tile3"),
-			Input.GetButton("Tile4"),
-			Input.GetButton("Tile5"),
-			Input.GetButton("Tile6"),
-			Input.GetAxis("Rotate") < 0,
-			Input.GetAxis("Vertical") > 0,
-			Input.GetAxis("Rotate") > 0,
-			Input.GetAxis("Depth") > 0,
-			Input.GetAxis("Horizontal") < 0,
-			Input.GetAxis("Vertical") < 0,
-			Input.GetAxis("Horizontal") > 0,
-			Input.GetAxis("Depth") < 0,
-			Input.GetAxis("CycleColor") < 0,
-			Input.GetAxis("CycleColor") > 0,
-		};
+    // updates getInputs and getInputDowns with appropriate InputKeys
+    private void updateInputs ()
+    {
+        bool[] b = { // <1>
+            Input.GetButton("Jump"),
+            Input.GetButton("Palette"),
+            Input.GetButton("Delete"),
+            Input.GetButton("Mouse ButtonLeft"),
+            Input.GetButton("Mouse ButtonRight"),
+            Input.GetButton("ChkpntTool"),
+            Input.GetButton("WarpTool"),
+            Input.GetButton("Tile1"),
+            Input.GetButton("Tile2"),
+            Input.GetButton("Tile3"),
+            Input.GetButton("Tile4"),
+            Input.GetButton("Tile5"),
+            Input.GetButton("Tile6"),
+            Input.GetAxis("Rotate") < 0,
+            Input.GetAxis("Vertical") > 0,
+            Input.GetAxis("Rotate") > 0,
+            Input.GetAxis("Depth") > 0,
+            Input.GetAxis("Horizontal") < 0,
+            Input.GetAxis("Vertical") < 0,
+            Input.GetAxis("Horizontal") > 0,
+            Input.GetAxis("Depth") < 0,
+            Input.GetAxis("CycleColor") < 0,
+            Input.GetAxis("CycleColor") > 0,
+        };
 
-		int k = 0;
-		InputKeys now = InputKeys.None;
-		for (int i = 1; i <= 0x400000; i = i * 2) { // <2>
-			InputKeys ik = (InputKeys) i;
-			if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i; // <3>
-		}
-		getInputDowns = now; // <4>
+        int k = 0;
+        InputKeys now = InputKeys.None;
+        for (int i = 1; i <= 0x400000; i = i * 2) { // <2>
+            InputKeys ik = (InputKeys) i;
+            if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i; // <3>
+        }
+        getInputDowns = now; // <4>
 
-		k = 0;
-		now = InputKeys.None;
-		for (int i = 1; i <= 0x400000; i = i * 2) { // <5>
-			if (b[k++]) now = now | (InputKeys) i;
-		}
-		getInputs = now;
+        k = 0;
+        now = InputKeys.None;
+        for (int i = 1; i <= 0x400000; i = i * 2) { // <5>
+            if (b[k++]) now = now | (InputKeys) i;
+        }
+        getInputs = now;
 
-		currentHUDhover = raycastAllHUD();
+        currentHUDhover = raycastAllHUD();
 
-		/*
-		<1> get inputs from InputManager
-		<2> enum bit flags are assigned by powers of 2
-		<3> CheckInput relies on last frame data before its been updated
-		<4> assign public member for inputdown flags
-		<5> same as above for regular input flags
-		*/
-	}
+        /*
+        <1> get inputs from InputManager
+        <2> enum bit flags are assigned by powers of 2
+        <3> CheckInput relies on last frame data before its been updated
+        <4> assign public member for inputdown flags
+        <5> same as above for regular input flags
+        */
+    }
 
-	// makes changes associated with anchorIcon and layer changes
-	private void updateLevel ()
-	{
-		if (CheckInputDown(InputKeys.ClickAlt)) anchorIcon.FindNewAnchor(); // <2>
+    // makes changes associated with anchorIcon and layer changes
+    private void updateLevel ()
+    {
+        if (CheckInputDown(InputKeys.ClickAlt)) anchorIcon.FindNewAnchor(); // <2>
 
-		if (CheckInputDown(InputKeys.Out)) activateLayer(activeLayer - 1); // <3>
-		if (CheckInputDown(InputKeys.In)) activateLayer(activeLayer + 1);
+        if (CheckInputDown(InputKeys.Out)) activateLayer(activeLayer - 1); // <3>
+        if (CheckInputDown(InputKeys.In)) activateLayer(activeLayer + 1);
 
-		/*
-		<2> right-click will update snap cursor location
-		<3> F and R will change active layer
-		*/
-	}
+        /*
+        <2> right-click will update snap cursor location
+        <3> F and R will change active layer
+        */
+    }
 
-	// updates UI Overlay and Palette panels
-	private void updateUI ()
-	{
-		bool isHUD = CheckInputDown(InputKeys.HUD);
-		bool isPal = CheckInput(InputKeys.Palette);
+    // updates UI Overlay and Palette panels
+    private void updateUI ()
+    {
+        bool isHUD = CheckInputDown(InputKeys.HUD);
+        bool isPal = CheckInput(InputKeys.Palette);
 
-		if (isHUD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
-		hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
+        if (isHUD) hudPanel.SetActive(!hudPanel.activeSelf); // <1>
+        hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
-		if (paletteMode != isPal) {
-			paletteMode = isPal;
-			palettePanel.TogglePalette(); // <2>
-		}
+        if (paletteMode != isPal) {
+            paletteMode = isPal;
+            palettePanel.TogglePalette(); // <2>
+        }
 
-		if (hoveringHUD || paletteMode) {
-			current_tool.SetActive(false); // <3>
-		} else {
-			bool b = false; // <4>
-			if (createMode) b = true;
-			if (editMode && selected_item != new SelectedItem()) b = true;
-			if (paintMode) b = true;
+        if (hoveringHUD || paletteMode) {
+            current_tool.SetActive(false); // <3>
+        } else {
+            bool b = false; // <4>
+            if (createMode) b = true;
+            if (editMode && selected_item != new SelectedItem()) b = true;
+            if (paintMode) b = true;
 
-			if (b) current_tool.SetActive(true); // <5>
-		}
+            if (b) current_tool.SetActive(true); // <5>
+        }
 
-		/*
-		<1> UI is toggled whenever spacebar is pressed
-		<2> palette is toggled on whenever tab key is held down
-		<3> whenever palette activates, current_tool is turned off
-		<4> determine if current_tool should be active when palette deactivates
-		<5> turn current_tool back on if so
-		*/
-	}
+        /*
+        <1> UI is toggled whenever spacebar is pressed
+        <2> palette is toggled on whenever tab key is held down
+        <3> whenever palette activates, current_tool is turned off
+        <4> determine if current_tool should be active when palette deactivates
+        <5> turn current_tool back on if so
+        */
+    }
 
-	// makes changes associated with being in createMode
-	private void updateCreate ()
-	{
-		if (tool_mode == EditTools.Eraser) return; // <1>
+    // makes changes associated with being in createMode
+    private void updateCreate ()
+    {
+        if (tool_mode == EditTools.Eraser) return; // <1>
 
-		updateTool(); // <2>
+        updateTool(); // <2>
 
-		if (CheckInputDown(InputKeys.Chkpnt)) {
-			current_tool.SetActive(false);
-			setTool(EditTools.Chkpnt); // <3>
-		}
-		if (CheckInputDown(InputKeys.Warp)) {
-			current_tool.SetActive(false);
-			setTool(EditTools.Warp); // <3>
-		}
+        if (CheckInputDown(InputKeys.Chkpnt)) {
+            current_tool.SetActive(false);
+            setTool(EditTools.Chkpnt); // <3>
+        }
+        if (CheckInputDown(InputKeys.Warp)) {
+            current_tool.SetActive(false);
+            setTool(EditTools.Warp); // <3>
+        }
 
-		InputKeys nums = InputKeys.One;
-		nums |= InputKeys.Two;
-		nums |= InputKeys.Three;
-		nums |= InputKeys.Four;
-		nums |= InputKeys.Five;
-		nums |= InputKeys.Six;
-		nums &= getInputDowns;
-		if (nums != InputKeys.None) {
-			current_tool.SetActive(false);
-			updateTileProperties();
-			setTool(EditTools.Tile); // <4>
-		}
+        InputKeys nums = InputKeys.One;
+        nums |= InputKeys.Two;
+        nums |= InputKeys.Three;
+        nums |= InputKeys.Four;
+        nums |= InputKeys.Five;
+        nums |= InputKeys.Six;
+        nums &= getInputDowns;
+        if (nums != InputKeys.None) {
+            current_tool.SetActive(false);
+            updateTileProperties();
+            setTool(EditTools.Tile); // <4>
+        }
 
-		current_tool.SetActive(true); // <5>
+        current_tool.SetActive(true); // <5>
 
-		/*
-		<1> break if eraser is active, because it shouldn't be (for now)
-		<2> update active tool according to input
-		<3> C and V activate the checkpoint and warp tools, respectively
-		<4> if numeric key was pressed, set tileCreator as tool
-		<5> whichever tool is being used should always be active
-		*/
-	}
+        /*
+        <1> break if eraser is active, because it shouldn't be (for now)
+        <2> update active tool according to input
+        <3> C and V activate the checkpoint and warp tools, respectively
+        <4> if numeric key was pressed, set tileCreator as tool
+        <5> whichever tool is being used should always be active
+        */
+    }
 
-	// makes changes associated with being in editMode
-	private void updateEdit ()
-	{
-		if (selected_item != new SelectedItem()) { // <1>
-			if (tool_mode == EditTools.Eraser) return; // <2>
+    // makes changes associated with being in editMode
+    private void updateEdit ()
+    {
+        if (selected_item != new SelectedItem()) { // <1>
+            if (tool_mode == EditTools.Eraser) return; // <2>
 
-			updateTool(); // <3>
+            updateTool(); // <3>
 
-			if (CheckInputDown(InputKeys.ClickMain)) {
-				current_tool.SetActive(false); // <4>
-				selected_item = new SelectedItem();
-				return;
-			}
+            if (CheckInputDown(InputKeys.ClickMain)) {
+                current_tool.SetActive(false); // <4>
+                selected_item = new SelectedItem();
+                return;
+            }
 
-			if (CheckInputDown(InputKeys.Delete)) { // <5>
-				current_tool.SetActive(false);
-				Destroy(selected_item.instance);
-				selected_item = new SelectedItem();
-			}
-		} else if (CheckInputDown(InputKeys.ClickMain)) { // <6>
-			Collider2D c2d = GetObjectClicked(); // <7>
-			if (!c2d) {
-				selected_item = new SelectedItem();
-				return;
-			}
+            if (CheckInputDown(InputKeys.Delete)) { // <5>
+                current_tool.SetActive(false);
+                Destroy(selected_item.instance);
+                selected_item = new SelectedItem();
+            }
+        } else if (CheckInputDown(InputKeys.ClickMain)) { // <6>
+            Collider2D c2d = GetObjectClicked(); // <7>
+            if (!c2d) {
+                selected_item = new SelectedItem();
+                return;
+            }
 
-			GameObject go = c2d.gameObject;
-			TileData td;
-			if (IsMappedTile(go, out td)) { // <8>
-				if (td.orient.layer != activeLayer) return; // <9>
-				selected_item = new SelectedItem(null, td);
-				tileCreator.SetProperties(td); // <10>
-				setTool(EditTools.Tile);
+            GameObject go = c2d.gameObject;
+            TileData td;
+            if (IsMappedTile(go, out td)) { // <8>
+                if (td.orient.layer != activeLayer) return; // <9>
+                selected_item = new SelectedItem(null, td);
+                tileCreator.SetProperties(td); // <10>
+                setTool(EditTools.Tile);
 
-				removeTile(go);
-				Destroy(go); // <11>
-			} else {
-				ChkpntData cd;
-				WarpData wd;
-				if (IsMappedChkpnt(go, out cd)) {
-					selected_item = new SelectedItem(null, cd);
-					setTool(EditTools.Chkpnt);
-				}
-				if (IsMappedWarp(go, out wd)) {
-					selected_item = new SelectedItem(null, wd);
-					warp_tool.SetOrientation(wd.orient);
-					setTool(EditTools.Warp);
-				}
-				removeSpecial(go);
-				Destroy(go); // <12>
-			}
-			current_tool.SetActive(true);
-		}
+                removeTile(go);
+                Destroy(go); // <11>
+            } else {
+                ChkpntData cd;
+                WarpData wd;
+                if (IsMappedChkpnt(go, out cd)) {
+                    selected_item = new SelectedItem(null, cd);
+                    setTool(EditTools.Chkpnt);
+                }
+                if (IsMappedWarp(go, out wd)) {
+                    selected_item = new SelectedItem(null, wd);
+                    warp_tool.SetOrientation(wd.orient);
+                    setTool(EditTools.Warp);
+                }
+                removeSpecial(go);
+                Destroy(go); // <12>
+            }
+            current_tool.SetActive(true);
+        }
 
-		/*
-		<1> first, handle the case where an item is currently selected
-		<2> break if eraser is active, because it shouldn't be (for now)
-		<3> update active tool according to input
-		<4> if tool used, turn off current_tool, deselect selected_item, and return
-		<5> Delete will destroy instance and forget selected_item
-		<6> next handle the case where there is no selected tile
-		<7> left-click selects a tile, if miss null out selected_item and return
-		<8> check if clicked object is a mapped tile
-		<9> if clicked tile isn't a part of activeLayer, ignore it
-		<10> use tileData to populate selected item and tool properties
-		<11> when done using data, destroy GameObject
-		<12> if special is clicked, same as tile but with checks for which special
-		*/
-	}
+        /*
+        <1> first, handle the case where an item is currently selected
+        <2> break if eraser is active, because it shouldn't be (for now)
+        <3> update active tool according to input
+        <4> if tool used, turn off current_tool, deselect selected_item, and return
+        <5> Delete will destroy instance and forget selected_item
+        <6> next handle the case where there is no selected tile
+        <7> left-click selects a tile, if miss null out selected_item and return
+        <8> check if clicked object is a mapped tile
+        <9> if clicked tile isn't a part of activeLayer, ignore it
+        <10> use tileData to populate selected item and tool properties
+        <11> when done using data, destroy GameObject
+        <12> if special is clicked, same as tile but with checks for which special
+        */
+    }
 
-	// make changes associated with being in paintMode
-	private void updatePaint()
-	{
-		// stub
-	}
+    // make changes associated with being in paintMode
+    private void updatePaint()
+    {
+        // stub
+    }
 
-	// makes changes associated with being in selectMode
-	private void updateSelect ()
-	{
-		if (CheckInputDown(InputKeys.ClickMain)) { // <1>
-			Collider2D c2d = GetObjectClicked(); // <2>
-			GameObject si = selected_item.instance;
-			if (!c2d || (si && (si == c2d.gameObject))) {
-				selected_item = new SelectedItem(); // <3>
-				return;
-			} else { // <4>
-				GameObject go = c2d.gameObject;
-				TileData td;
-				if (IsMappedTile(go, out td)) selected_item = new SelectedItem(go, td);
-				ChkpntData cd;
-				if (IsMappedChkpnt(go, out cd)) selected_item = new SelectedItem(go, cd);
-				WarpData wd;
-				if (IsMappedWarp(go, out wd)) selected_item = new SelectedItem(go, wd);
-			}
-		}
+    // makes changes associated with being in selectMode
+    private void updateSelect ()
+    {
+        if (CheckInputDown(InputKeys.ClickMain)) { // <1>
+            Collider2D c2d = GetObjectClicked(); // <2>
+            GameObject si = selected_item.instance;
+            if (!c2d || (si && (si == c2d.gameObject))) {
+                selected_item = new SelectedItem(); // <3>
+                return;
+            } else { // <4>
+                GameObject go = c2d.gameObject;
+                TileData td;
+                if (IsMappedTile(go, out td)) selected_item = new SelectedItem(go, td);
+                ChkpntData cd;
+                if (IsMappedChkpnt(go, out cd)) selected_item = new SelectedItem(go, cd);
+                WarpData wd;
+                if (IsMappedWarp(go, out wd)) selected_item = new SelectedItem(go, wd);
+            }
+        }
 
-		/*
-		<1> in select mode, clicking is the only function
-		<2> first find out what (if anything) was clicked on
-		<3> if nothing or selected tile is clicked on, deselect and return
-		<4> otherwise select according to what was clicked on
-		*/
-	}
+        /*
+        <1> in select mode, clicking is the only function
+        <2> first find out what (if anything) was clicked on
+        <3> if nothing or selected tile is clicked on, deselect and return
+        <4> otherwise select according to what was clicked on
+        */
+    }
 
-	// handles input that modifies the tile creator tool
-	private void updateTileProperties ()
-	{
-		int rot = tileCreator.tileOrient.rotation;
-		int oldRot = rot;
-		if (CheckInputDown(InputKeys.CCW)) rot++;
-		if (CheckInputDown(InputKeys.CW)) rot--;
-		if (rot != oldRot) tileCreator.SetRotation(rot); // <1>
+    // handles input that modifies the tile creator tool
+    private void updateTileProperties ()
+    {
+        int rot = tileCreator.tileOrient.rotation;
+        int oldRot = rot;
+        if (CheckInputDown(InputKeys.CCW)) rot++;
+        if (CheckInputDown(InputKeys.CW)) rot--;
+        if (rot != oldRot) tileCreator.SetRotation(rot); // <1>
 
-		if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
-		if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true); // <2>
+        if (CheckInputDown(InputKeys.ColorCCW)) tileCreator.CycleColor(false);
+        if (CheckInputDown(InputKeys.ColorCW)) tileCreator.CycleColor(true); // <2>
 
-		if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
-		if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
-		if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
-		if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
-		if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
-		if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5); // <3>
+        if (CheckInputDown(InputKeys.One)) tileCreator.SelectType(0);
+        if (CheckInputDown(InputKeys.Two)) tileCreator.SelectType(1);
+        if (CheckInputDown(InputKeys.Three)) tileCreator.SelectType(2);
+        if (CheckInputDown(InputKeys.Four)) tileCreator.SelectType(3);
+        if (CheckInputDown(InputKeys.Five)) tileCreator.SelectType(4);
+        if (CheckInputDown(InputKeys.Six)) tileCreator.SelectType(5); // <3>
 
-		/*
-		<1> update tile rotation
-		<2> update tile color
-		<3> update tile type
-		*/
-	}
+        /*
+        <1> update tile rotation
+        <2> update tile color
+        <3> update tile type
+        */
+    }
 
-	// handles input relating to the current tool
-	private void updateTool ()
-	{
-		bool chkclck = CheckInputDown(InputKeys.ClickMain);
-		switch (tool_mode) {
-			case EditTools.Tile:
-				updateTileProperties(); // <1>
-				if (chkclck) addTile(); // <2>
-				break;
-			case EditTools.Chkpnt:
-				if (chkclck) {
-					ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
-					addSpecial(cd); // <2>
-				}
-				break;
-			case EditTools.Warp:
-				int rot = warp_tool.specOrient.rotation;
-				int oldRot = rot;
-				if (CheckInputDown(InputKeys.CCW)) rot++;
-				if (CheckInputDown(InputKeys.CW)) rot--;
-				if (rot != oldRot) warp_tool.SetRotation(rot); // <3>
+    // handles input relating to the current tool
+    private void updateTool ()
+    {
+        bool chkclck = CheckInputDown(InputKeys.ClickMain);
+        switch (tool_mode) {
+            case EditTools.Tile:
+                updateTileProperties(); // <1>
+                if (chkclck) addTile(); // <2>
+                break;
+            case EditTools.Chkpnt:
+                if (chkclck) {
+                    ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
+                    addSpecial(cd); // <2>
+                }
+                break;
+            case EditTools.Warp:
+                int rot = warp_tool.specOrient.rotation;
+                int oldRot = rot;
+                if (CheckInputDown(InputKeys.CCW)) rot++;
+                if (CheckInputDown(InputKeys.CW)) rot--;
+                if (rot != oldRot) warp_tool.SetRotation(rot); // <3>
 
-				if (chkclck) {
-					HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
-					WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
-					addSpecial(wd); // <2>
-				}
-				break;
-			default:
-				break;
-		}
+                if (chkclck) {
+                    HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
+                    WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
+                    addSpecial(wd); // <2>
+                }
+                break;
+            default:
+                break;
+        }
 
-		/*
-		<1> when using tile tool, always update tile creator properties first
-		<2> if main click, add relevant tool item to the level
-		<3> set rotation of the warp tool, if necessary
-		*/
-	}
+        /*
+        <1> when using tile tool, always update tile creator properties first
+        <2> if main click, add relevant tool item to the level
+        <3> set rotation of the warp tool, if necessary
+        */
+    }
 }
