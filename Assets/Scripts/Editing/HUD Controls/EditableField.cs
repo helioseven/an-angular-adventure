@@ -4,58 +4,56 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EditableField : MonoBehaviour {
+public abstract class EditableField : MonoBehaviour {
 
     /* Public Accessors */
 
     public bool isActive {
-        get { return is_active; }
+        get { return _isActive; }
         set {}
     }
 
     /* Protected References */
 
-    protected EditGM gm_ref;
-    protected GameObject inputField;
+    protected EditGM _gmRef;
+    protected GameObject _inputField;
 
     /* Private Variables */
 
-    private bool is_active;
-    private string stored_text;
+    private bool _isActive;
 
-    void Awake ()
+    protected virtual void Awake ()
     {
-        inputField = transform.GetChild(0).gameObject;
+        _inputField = transform.GetChild(0).gameObject;
     }
 
-    void Start ()
+    protected virtual void Start ()
     {
-        gm_ref = EditGM.instance;
-        stored_text = gm_ref.levelName;
+        _gmRef = EditGM.instance;
         DeactivateField();
     }
 
-    void Update ()
+    protected virtual void Update ()
     {
-        bool click = gm_ref.CheckInputDown(EditGM.InputKeys.ClickMain);
-        if (gm_ref.IsHUDElementHovered(this) && click) ActivateField();
+        bool click = _gmRef.CheckInputDown(EditGM.InputKeys.ClickMain);
+        if (_gmRef.IsHUDElementHovered(this) && click) ActivateField();
     }
 
     // activates the child input field and disables self
     public void ActivateField()
     {
-        is_active = true;
+        _isActive = true;
 
-        inputField.SetActive(true);
-        BaseEventData bed = new BaseEventData(gm_ref.eventSystem);
-        // inputField is set as event system's selected object
-        gm_ref.eventSystem.SetSelectedGameObject(inputField, bed);
+        _inputField.SetActive(true);
+        BaseEventData bed = new BaseEventData(_gmRef.eventSystem);
+        // _inputField is set as event system's selected object
+        _gmRef.eventSystem.SetSelectedGameObject(_inputField, bed);
     }
 
     // deactivates the child input field and restores self
     public void DeactivateField ()
     {
-        is_active = false;
-        inputField.SetActive(false);
+        _isActive = false;
+        _inputField.SetActive(false);
     }
 }

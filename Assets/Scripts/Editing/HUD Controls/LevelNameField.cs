@@ -4,10 +4,26 @@ using UnityEngine;
 
 public class LevelNameField : EditableField {
 
-  // simply updates level name info from input
-  public void UpdateLevelName (string fieldData)
-  {
-    gm_ref.levelName = fieldData;
-    DeactivateField();
-  }
+    /* Private Variables */
+
+    private string _storedText;
+
+    protected override void Start ()
+    {
+        base.Start();
+        _storedText = "";
+    }
+
+    protected override void Update ()
+    {
+        base.Update();
+        _storedText = _gmRef.levelName;
+    }
+
+    // simply updates level name info from input
+    public void UpdateLevelName (string fieldData)
+    {
+        _gmRef.levelName = fieldData;
+        DeactivateField();
+    }
 }
