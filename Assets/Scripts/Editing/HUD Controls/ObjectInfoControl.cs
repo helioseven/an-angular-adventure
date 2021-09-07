@@ -67,6 +67,11 @@ public class ObjectInfoControl : MonoBehaviour {
 
     void Start ()
     {
+        gmRef = EditGM.instance;
+        tcRef = gmRef.tileCreator;
+        ctRef = gmRef.chkpntTool.GetComponent<SpecialCreator>();
+        wtRef = gmRef.warpTool.GetComponent<SpecialCreator>();
+
         _objectDisplay = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
 
@@ -171,7 +176,7 @@ public class ObjectInfoControl : MonoBehaviour {
     private InfoPack getUpdatedInfo()
     {
         EditGM.SelectedItem si = gmRef.selectedItem;
-        _isAnySelected = si != new EditGM.SelectedItem();
+        _isAnySelected = si != EditGM.SelectedItem.noSelection;
         bool instance_null = si.instance == null;
         int updt_type = 0;
         int updt_color = 0;

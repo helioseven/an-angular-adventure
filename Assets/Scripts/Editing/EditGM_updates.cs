@@ -96,7 +96,7 @@ public partial class EditGM {
                 bool b = false;
                 if (createMode)
                     b = true;
-                if (editMode && _selectedItem != new SelectedItem())
+                if (editMode && _selectedItem != SelectedItem.noSelection)
                     b = true;
                 if (paintMode)
                     b = true;
@@ -150,7 +150,7 @@ public partial class EditGM {
     private void updateEdit ()
     {
         // first, handle the case where an item is currently selected
-        if (_selectedItem != new SelectedItem()) {
+        if (_selectedItem != SelectedItem.noSelection) {
             if (_toolMode == EditTools.Eraser)
                 // break if eraser is active, because it shouldn't be (for now)
                 return;
@@ -161,7 +161,7 @@ public partial class EditGM {
             if (CheckInputDown(InputKeys.ClickMain)) {
                 // if tool has been used, clean up
                 _currentTool.SetActive(false);
-                _selectedItem = new SelectedItem();
+                _selectedItem = SelectedItem.noSelection;
                 return;
             }
 
@@ -169,14 +169,14 @@ public partial class EditGM {
             if (CheckInputDown(InputKeys.Delete)) {
                 _currentTool.SetActive(false);
                 Destroy(_selectedItem.instance);
-                _selectedItem = new SelectedItem();
+                _selectedItem = SelectedItem.noSelection;
             }
         } else if (CheckInputDown(InputKeys.ClickMain)) {
             // next, handle the case where there is no selected tile
             Collider2D c2d = GetObjectClicked();
             if (!c2d) {
                 // left-click selects a tile, if click misses then break
-                _selectedItem = new SelectedItem();
+                _selectedItem = SelectedItem.noSelection;
                 return;
             }
 
@@ -231,7 +231,7 @@ public partial class EditGM {
             GameObject si = _selectedItem.instance;
             if (!c2d || (si && (si == c2d.gameObject))) {
                 // if nothing or selected tile is clicked on, deselect and return
-                _selectedItem = new SelectedItem();
+                _selectedItem = SelectedItem.noSelection;
                 return;
             } else {
                 // otherwise select according to what was clicked on
