@@ -215,7 +215,7 @@ public struct HexLocus
         string[] s_vals = new string[vals.Length * 2]; // <2>
         for (int i = 0; i < 6; i++) s_vals[i * 2] = vals[i].ToString(); // <3>
         foreach (int i in new int[] {1, 3, 7, 9}) s_vals[i] = ", "; // <4>
-        s_vals[5] = "),\n";
+        s_vals[5] = "),\n(";
         s_vals[11] = ")";
         s += String.Join("", s_vals); // <5>
         return s;
