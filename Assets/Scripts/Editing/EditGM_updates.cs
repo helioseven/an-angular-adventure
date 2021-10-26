@@ -60,6 +60,7 @@ public partial class EditGM {
             if (b[k++]) now = now | (InputKeys) i;
         getInputs = now;
 
+        // get raycast results for this frame's mouse position
         _currentHUDhover = raycastAllHUD();
     }
 
@@ -79,6 +80,8 @@ public partial class EditGM {
     // updates UI Overlay and Palette panels
     private void updateUI ()
     {
+        if (_inputMode) return;
+
         bool isHUD = CheckInputDown(InputKeys.HUD);
         bool isPal = CheckInput(InputKeys.Palette);
 

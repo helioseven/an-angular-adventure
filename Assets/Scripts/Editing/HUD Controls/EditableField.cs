@@ -43,6 +43,7 @@ public abstract class EditableField : MonoBehaviour {
     public void ActivateField()
     {
         _isActive = true;
+        _gmRef.inputMode = true;
 
         _inputField.SetActive(true);
         BaseEventData bed = new BaseEventData(_gmRef.eventSystem);
@@ -54,6 +55,7 @@ public abstract class EditableField : MonoBehaviour {
     public void DeactivateField ()
     {
         _isActive = false;
+        _gmRef.inputMode = false;
         _inputField.SetActive(false);
     }
 }

@@ -29,25 +29,20 @@ public partial class EditGM : MonoBehaviour {
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
-    public InputKeys getInputs { get; private set; }
-    public InputKeys getInputDowns { get; private set; }
-    public bool hoveringHUD { get; private set; }
-    public LevelData levelData { get; private set; }
-    public string levelName {
-        get { return _levelName; }
-        set { setLevelName(value); }
-    }
-    public SelectedItem selectedItem {
-        get { return _selectedItem; }
-        set {}
-    }
-    // public boolean flags
     public bool createMode {
         get { return _currentMode == EditorMode.Create; }
         set {}
     }
     public bool editMode {
         get { return _currentMode == EditorMode.Edit; }
+        set {}
+    }
+    public InputKeys getInputs { get; private set; }
+    public InputKeys getInputDowns { get; private set; }
+    public bool hoveringHUD { get; private set; }
+    public LevelData levelData { get; private set; }
+    public SelectedItem selectedItem {
+        get { return _selectedItem; }
         set {}
     }
     public bool paintMode {
@@ -60,6 +55,16 @@ public partial class EditGM : MonoBehaviour {
         set {}
     }
 
+    // public read- and set-accessibility state variables
+    public bool inputMode {
+        get { return _inputMode; }
+        set { _inputMode = value; }
+    }
+    public string levelName {
+        get { return _levelName; }
+        set { setLevelName(value); }
+    }
+
     // private constants
     private const int DEFAULT_LAYER = 0;
     private const int INACTIVE_LAYER = 9;
@@ -69,6 +74,7 @@ public partial class EditGM : MonoBehaviour {
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentMode;
     private GameObject _currentTool;
+    private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
     private SelectedItem _selectedItem;
@@ -84,6 +90,8 @@ public partial class EditGM : MonoBehaviour {
             instance = this;
 
             // initializations for private state variables
+            _currentHUDhover = null;
+            _inputMode = false;
             _currentMode = EditorMode.Create;
             _toolMode = EditTools.Tile;
             _currentTool = tileCreator.gameObject;
@@ -128,7 +136,7 @@ public partial class EditGM : MonoBehaviour {
         // hudPanel and palettePanel are updated
         updateUI();
         // if the palette is active, skip the rest
-        if (hoveringHUD || paletteMode)
+        if (hoveringHUD || paletteMode || inputMode)
             return;
         // anchorIcon and layer changes are updated
         updateLevel();
