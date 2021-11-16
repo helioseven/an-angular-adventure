@@ -22,6 +22,7 @@ public class SpecialCreator : MonoBehaviour {
         _anchorRef = _gmRef.anchorIcon;
 
         specOrient = new HexOrient();
+        gameObject.SetActive(false);
     }
 
     void Update ()

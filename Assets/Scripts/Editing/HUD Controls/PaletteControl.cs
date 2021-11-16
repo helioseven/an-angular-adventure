@@ -10,7 +10,7 @@ public class PaletteControl : MonoBehaviour {
     private RectTransform _localRT;
     private Camera _mainCam;
 
-    public void Awake () {
+    public void Start () {
         _mainCam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         _localPosition = Vector2.zero;
 
