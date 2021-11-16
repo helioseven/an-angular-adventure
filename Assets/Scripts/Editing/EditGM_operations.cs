@@ -115,18 +115,13 @@ public partial class EditGM {
         if (editMode) return;
 
         if (_selectedItem != SelectedItem.noSelection) {
-            if (_selectedItem.tileData.HasValue) {
-                // if _selectedItem is a tile, use its tileData to set tile tool
-                tileCreator.SetProperties(_selectedItem.tileData.Value);
-                setTool(EditTools.Tile);
+            if (_selectedItem.instance) {
+                removeSelectedItem();
+                Destroy(_selectedItem.instance);
+                _selectedItem.instance = null;
+            } else {
+                _selectedItem = SelectedItem.noSelection;
             }
-            if (_selectedItem.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-            if (_selectedItem.warpData.HasValue) setTool(EditTools.Warp);
-
-            // regardless of item selected, unselect it
-            removeSelectedItem();
-            Destroy(_selectedItem.instance);
-            _selectedItem.instance = null;
         } else {
             // if no _selectedItem, default to tile tool
             setTool(EditTools.Tile);
