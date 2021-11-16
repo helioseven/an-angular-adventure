@@ -115,7 +115,7 @@ public partial class EditGM {
         if (_toolMode == EditTools.Eraser)
             return;
 
-        // update active tool according to input
+        // process input for tool and update active tool accordingly
         updateTool();
 
         // C and V activate the checkpoint and warp tools, respectively
@@ -292,14 +292,17 @@ public partial class EditGM {
             case EditTools.Tile:
                 updateTileProperties();
                 // if main click, add relevant tool's item to the level
-                if (chkclck)
-                    addTile();
+                if (chkclck) {
+                    GameObject go = addTile();
+                    _selectedItem = new SelectedItem(go, _tileLookup[go]);
+                }
                 break;
             case EditTools.Chkpnt:
                 // if main click, add relevant tool's item to the level
                 if (chkclck) {
                     ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
-                    addSpecial(cd);
+                    GameObject go = addSpecial(cd);
+                    _selectedItem = new SelectedItem(go, cd);
                 }
                 break;
             case EditTools.Warp:
@@ -317,7 +320,8 @@ public partial class EditGM {
                 if (chkclck) {
                     HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
                     WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
-                    addSpecial(wd);
+                    GameObject go = addSpecial(wd);
+                    _selectedItem = new SelectedItem(go, wd);
                 }
                 break;
             default:

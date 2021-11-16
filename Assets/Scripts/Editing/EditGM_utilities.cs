@@ -255,6 +255,7 @@ public partial class EditGM {
     // used when entering editMode with an item selected, which removes it
     private void removeSelectedItem ()
     {
+        if (_selectedItem.instance == null) return;
         if (_selectedItem.tileData.HasValue) {
             removeTile(_selectedItem.instance);
             // if _selectedItem is a tile, use tileData to set tileCreator
