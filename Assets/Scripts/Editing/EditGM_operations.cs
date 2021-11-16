@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -96,8 +97,10 @@ public partial class EditGM {
                 setTool(EditTools.Tile);
             }
             // set tool to chkpnt or warp tool as appropriate
-            if (_selectedItem.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-            if (_selectedItem.warpData.HasValue) setTool(EditTools.Warp);
+            if (_selectedItem.chkpntData.HasValue)
+                setTool(EditTools.Chkpnt);
+            if (_selectedItem.warpData.HasValue)
+                setTool(EditTools.Warp);
         } else {
             // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
@@ -120,8 +123,10 @@ public partial class EditGM {
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
                 setTool(EditTools.Tile);
             }
-            if (_selectedItem.chkpntData.HasValue) setTool(EditTools.Chkpnt);
-            if (_selectedItem.warpData.HasValue) setTool(EditTools.Warp);
+            if (_selectedItem.chkpntData.HasValue)
+                setTool(EditTools.Chkpnt);
+            if (_selectedItem.warpData.HasValue)
+                setTool(EditTools.Warp);
 
             // regardless of item selected, unselect it
             removeSelectedItem();
@@ -192,5 +197,29 @@ public partial class EditGM {
 
         string[] lines = levelData.Serialize();
         File.WriteAllLines(fpath, lines);
+    }
+
+    /* Private Operations */
+
+    // sets level name property with passed string
+    public void setLevelName (string inName)
+    {
+        if (inName.Length <= 100) _levelName = inName; // <1>
+
+        /*
+        <1> level names are capped at 100 characters for now
+        */
+    }
+
+    // returns a list of all HUD elements currently under the mouse
+    private List<RaycastResult> raycastAllHUD ()
+    {
+        PointerEventData ped = new PointerEventData(eventSystem);
+        ped.position = Input.mousePosition;
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        uiRaycaster.Raycast(ped, results);
+
+        return results;
     }
 }

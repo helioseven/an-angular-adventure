@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -252,6 +253,12 @@ public partial class EditGM {
         }
     }
 
+    // returns true if the mouse is hovering over any HUD element
+    private bool checkHUDHover ()
+    {
+        return _currentHUDhover.Count > 0;
+    }
+
     // used when entering editMode with an item selected, which removes it
     private void removeSelectedItem ()
     {
@@ -418,6 +425,15 @@ public partial class EditGM {
         v3.z -= 1f;
         r = new Ray(v3, Vector3.forward);
         return Physics2D.GetRayIntersection(r, 2f).collider;
+    }
+
+    // returns true if the given element is mouse hovered
+    public bool IsHUDElementHovered (EditableField element)
+    {
+        bool b = false;
+        foreach (RaycastResult result in _currentHUDhover)
+            if (result.gameObject == element.gameObject) b = true;
+        return b;
     }
 
     // if passed object is a tile, supplies corresponding TileData

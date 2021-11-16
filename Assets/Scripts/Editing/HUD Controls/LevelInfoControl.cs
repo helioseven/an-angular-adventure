@@ -6,11 +6,19 @@ using circleXsquares;
 
 public class LevelInfoControl : MonoBehaviour {
 
+    // private constants
+    private const int ANCHR_CID = 5;
+    private const int ATTR_CID = 1;
+    private const int LAYER_CID = 1;
+    private const int NAME_CID = 0;
+    private const int TILES_CID = 3;
+
     // private variables
     private Text _anchorDisplay;
     private Text _layersDisplay;
     private EditGM _gmRef;
     private Text _nameDisplay;
+    private EditableField _nameField;
     private Text _tilesDisplay;
     private Transform _tmRef;
 
@@ -36,19 +44,47 @@ public class LevelInfoControl : MonoBehaviour {
         _gmRef = EditGM.instance;
         _tmRef = _gmRef.tileMap.transform;
 
-        _nameDisplay = transform.GetChild(0).GetComponent<Text>();
-        Transform t = transform.GetChild(1);
-        _layersDisplay = t.GetChild(1).GetComponent<Text>();
-        _tilesDisplay = t.GetChild(3).GetComponent<Text>();
-        _anchorDisplay = t.GetChild(5).GetComponent<Text>();
+        Transform t = transform.GetChild(NAME_CID);
+        _nameDisplay = t.GetComponent<Text>();
+        _nameField = t.GetComponent<EditableField>();
+        t = transform.GetChild(ATTR_CID);
+        _layersDisplay = t.GetChild(LAYER_CID).GetComponent<Text>();
+        _tilesDisplay = t.GetChild(TILES_CID).GetComponent<Text>();
+        _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<Text>();
     }
 
     void Update ()
     {
+        if (checkAllFields()) updateUI();
+    }
+
+    /* Public Functions */
+
+    // updates the text variables inside the relevant UI sub-elements
+    public void updateUI ()
+    {
+        _nameDisplay.text = _levelName;
+
+        string s = (_activeLayer + 1).ToString() + " / " + _layerCount.ToString();
+        _layersDisplay.text = s;
+
+        s = _layerTiles.ToString() + " (" + _levelTiles.ToString() + ")";
+        _tilesDisplay.text = s;
+
+        _anchorDisplay.text = _anchorLocus.PrettyPrint();
+    }
+
+    /* Private Functions */
+
+    // checks all panel fields for any changes and returns true if found
+    private bool checkAllFields ()
+    {
         bool b = false;
 
-        if (_levelName != _gmRef.levelName) {
-            _levelName = _gmRef.levelName;
+        // text is hidden while input prompt is active by replacement with ""
+        string s = _nameField.isActive ? "" : _gmRef.levelName;
+        if (_levelName != s) {
+            _levelName = s;
             b = true;
         }
         int al = _gmRef.activeLayer;
@@ -73,27 +109,8 @@ public class LevelInfoControl : MonoBehaviour {
             b = true;
         }
 
-        if (b)
-            updateUI();
+        return b;
     }
-
-    /* Public Functions */
-
-    // updates the text variables inside the relevant UI sub-elements
-    public void updateUI ()
-    {
-        _nameDisplay.text = _levelName;
-
-        string s = (_activeLayer + 1).ToString() + " / " + _layerCount.ToString();
-        _layersDisplay.text = s;
-
-        s = _layerTiles.ToString() + " (" + _levelTiles.ToString() + ")";
-        _tilesDisplay.text = s;
-
-        _anchorDisplay.text = _anchorLocus.PrettyPrint();
-    }
-
-    /* Private Functions */
 
     // gets a count of all tiles currently in the level
     private int getTileCount ()
