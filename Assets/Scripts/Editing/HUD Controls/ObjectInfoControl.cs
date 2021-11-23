@@ -15,6 +15,8 @@ public class ObjectInfoControl : MonoBehaviour {
 
     // private variables
     private Text _colorDisplay;
+    private bool _isAnySelected;
+    private InfoPack _lastFrameInfoPack;
     private Text _locusDisplay;
     private Image _objectDisplay;
     private AspectRatioFitter _objectDisplayARF;
@@ -23,44 +25,30 @@ public class ObjectInfoControl : MonoBehaviour {
     private Text _specialDisplay;
     private Text _typeDisplay;
 
-    private bool _isAnySelected;
-    private int _objRotation;
-    private HexLocus _objPosition;
-    private int _tileColor;
-    private int _tileSpecial;
-    private int _tileType;
-
-    private float[] _aspectRatios;
-    private string[] _colorStrings;
-    private string[] _typeStrings;
+    private readonly float[] _aspectRatios = new float[] {1f, 2f, 2f, 1f, 1f, 2f};
+    private readonly string[] _colorStrings = new string[] {
+        "Black",
+        "Blue",
+        "Brown",
+        "Green",
+        "Orange",
+        "Purple",
+        "Red",
+        "White"
+    };
+    private readonly string[] _typeStrings = new string[] {
+        "Triangle",
+        "Diamond",
+        "Trapezoid",
+        "Hexagon",
+        "Square",
+        "Wedge"
+    };
 
     void Awake ()
     {
         _isAnySelected = false;
-        _tileType = 0;
-        _tileColor = 0;
-        _tileSpecial = 0;
-        _objRotation = 0;
-        _objPosition = new HexLocus();
-        _aspectRatios = new float[] {1f, 2f, 2f, 1f, 1f, 2f};
-        _typeStrings = new string[] {
-            "Triangle",
-            "Diamond",
-            "Trapezoid",
-            "Hexagon",
-            "Square",
-            "Wedge"
-        };
-        _colorStrings = new string[] {
-            "Black",
-            "Blue",
-            "Brown",
-            "Green",
-            "Orange",
-            "Purple",
-            "Red",
-            "White"
-        };
+        _lastFrameInfoPack = new InfoPack();
 
         transform.GetChild(2).gameObject.SetActive(false);
     }
@@ -88,68 +76,12 @@ public class ObjectInfoControl : MonoBehaviour {
 
     void Update ()
     {
-        bool b = false;
         InfoPack ip = getUpdatedInfo();
 
-        if (_tileType != ip.type) {
-            _tileType = ip.type;
-            b = true;
-        }
-        if (_tileColor != ip.color) {
-            _tileColor = ip.color;
-            b = true;
-        }
-        if (_objRotation != ip.rot) {
-            _objRotation = ip.rot;
-            b = true;
-        }
-        if (_objPosition != ip.locus) {
-            _objPosition = ip.locus;
-            b = true;
-        }
+        if (_lastFrameInfoPack != ip)
+            updateUI(ip);
 
-        if (b)
-            UpdateUI();
-    }
-
-    /* Public Functions */
-
-    // updates the display image
-    public void UpdateUI ()
-    {
-        // set sprite and aspect ratio for object image, activate if appropriate
-        Transform t = tcRef.transform.GetChild(_tileType).GetChild(_tileColor).GetChild(0);
-        _objectDisplay.sprite = t.GetComponent<SpriteRenderer>().sprite;
-        _objectDisplayARF.aspectRatio = _aspectRatios[_tileType];
-        _objectDisplay.gameObject.SetActive(_isAnySelected);
-
-        // set text strings as appropriate
-        bool b = !_isAnySelected || _tileType == -1;
-        string s = b ? "[N/A]" : _typeStrings[_tileType];
-        _typeDisplay.text = s;
-        b = !_isAnySelected || _tileColor == -1;
-        s = b ? "[N/A]" : _colorStrings[_tileColor];
-        _colorDisplay.text = s;
-        b = !_isAnySelected || _objRotation == -1;
-        s = b ? "[N/A]" : _objRotation.ToString();
-        _rotationDisplay.text = s;
-        s = !_isAnySelected ? "[N/A]" : _objPosition.PrettyPrint();
-        _locusDisplay.text = s;
-
-        // set special dropdown values, activate if appropriate
-        string sp = "Special Value:";
-        b = false;
-        if (_tileColor == 3) {
-            sp = "Switch Target:";
-            b = true;
-        }
-        if (_tileColor == 4) {
-            sp = "Gravity Target:";
-            b = true;
-        }
-        _specialLabel.text = sp;
-        _specialDisplay.text = _tileSpecial.ToString();
-        transform.GetChild(2).gameObject.SetActive(b);
+        _lastFrameInfoPack = ip;
     }
 
     /* Private Structs */
@@ -158,15 +90,43 @@ public class ObjectInfoControl : MonoBehaviour {
     private struct InfoPack {
         public int type;
         public int color;
+        public int spec;
         public int rot;
         public HexLocus locus;
 
-        public InfoPack (int inType, int inColor, int inRot, HexLocus inLocus)
+        public InfoPack (int inType, int inColor, int inSpec, int inRot, HexLocus inLocus)
         {
             type = inType;
             color = inColor;
+            spec = inSpec;
             rot = inRot;
             locus = inLocus;
+        }
+
+        public static bool operator ==(InfoPack ip1, InfoPack ip2)
+        {
+            if (ip1.type != ip2.type) return false;
+            if (ip1.color != ip2.color) return false;
+            if (ip1.spec != ip2.spec) return false;
+            if (ip1.rot != ip2.rot) return false;
+            if (ip1.locus != ip2.locus) return false;
+            return true;
+        }
+
+        public static bool operator !=(InfoPack ip1, InfoPack ip2) { return !(ip1 == ip2); }
+
+        // .NET expects this behavior to be overridden when overriding ==/!= operators
+        public override bool Equals(System.Object obj)
+        {
+            InfoPack? inIP = obj as InfoPack?;
+            if (!inIP.HasValue) return false;
+            else return this == inIP.Value;
+        }
+
+        // .NET expects this behavior to be overridden when overriding ==/!= operators
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -180,55 +140,84 @@ public class ObjectInfoControl : MonoBehaviour {
         bool instance_null = si.instance == null;
         int updt_type = 0;
         int updt_color = 0;
+        int updt_spec = 0;
         int updt_rot = 0;
         HexLocus updt_locus = new HexLocus();
 
         if (_isAnySelected) {
-            // if instance is null, gather info from currently active tool
-            if (instance_null) {
-                if (si.tileData.HasValue) {
+            if (si.tileData.HasValue) {
+                // if instance is null, gather info from currently active tool
+                if (instance_null) {
                     updt_type = tcRef.tileType;
                     updt_color = tcRef.tileColor;
+                    updt_spec = tcRef.tileSpecial;
                     updt_rot = tcRef.tileOrient.rotation;
                     updt_locus = tcRef.tileOrient.locus;
-                }
-                if (si.chkpntData.HasValue) {
-                    updt_type = -1;
-                    updt_color = -1;
-                    updt_rot = -1;
-                    updt_locus = ctRef.specOrient.locus;
-                }
-                if (si.warpData.HasValue) {
-                    updt_type = -1;
-                    updt_color = -1;
-                    updt_rot = wtRef.specOrient.rotation;
-                    updt_locus = wtRef.specOrient.locus;
-                }
-            // if instance is non-null, gather info directly from object data
-            } else {
-                if (si.tileData.HasValue) {
+                // if instance is non-null, gather info directly from object data
+                } else {
                     TileData td = si.tileData.Value;
                     updt_type = td.type;
                     updt_color = td.color;
+                    updt_spec = td.special;
                     updt_rot = td.orient.rotation;
                     updt_locus = td.orient.locus;
                 }
-                if (si.chkpntData.HasValue) {
-                    updt_type = -1;
-                    updt_color = -1;
-                    updt_rot = -1;
-                    updt_locus = si.chkpntData.Value.locus;
-                }
-                if (si.warpData.HasValue) {
-                    WarpData wd = si.warpData.Value;
-                    updt_type = -1;
-                    updt_color = -1;
-                    updt_rot = wd.orient.rotation;
-                    updt_locus = wd.orient.locus;
-                }
+            }
+            if (si.chkpntData.HasValue) {
+                updt_type = -1;
+                updt_color = -1;
+                updt_spec = -1;
+                updt_rot = -1;
+                updt_locus = si.chkpntData.Value.locus;
+            }
+            if (si.warpData.HasValue) {
+                WarpData wd = si.warpData.Value;
+                updt_type = -2;
+                updt_color = -1;
+                updt_spec = -1;
+                updt_rot = wd.orient.rotation;
+                updt_locus = wd.orient.locus;
             }
         }
 
-        return new InfoPack(updt_type, updt_color, updt_rot, updt_locus);
+        return new InfoPack(updt_type, updt_color, updt_spec, updt_rot, updt_locus);
+    }
+
+    // updates the display image
+    private void updateUI (InfoPack inIP)
+    {
+        // set sprite and aspect ratio for object image, activate if appropriate
+        Transform t = tcRef.transform.GetChild(inIP.type).GetChild(inIP.color).GetChild(0);
+        _objectDisplay.sprite = t.GetComponent<SpriteRenderer>().sprite;
+        _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
+        _objectDisplay.gameObject.SetActive(_isAnySelected);
+
+        // set text strings as appropriate
+        bool b = !_isAnySelected || inIP.type < 0;
+        string s = b ? "[N/A]" : _typeStrings[inIP.type];
+        _typeDisplay.text = s;
+        b = !_isAnySelected || inIP.color < 0;
+        s = b ? "[N/A]" : _colorStrings[inIP.color];
+        _colorDisplay.text = s;
+        b = !_isAnySelected || inIP.rot < 0;
+        s = b ? "[N/A]" : inIP.rot.ToString();
+        _rotationDisplay.text = s;
+        s = !_isAnySelected ? "[N/A]" : inIP.locus.PrettyPrint();
+        _locusDisplay.text = s;
+
+        // set special dropdown values, activate if appropriate
+        string sp = "Special Value:";
+        b = false;
+        if (inIP.color == 3) {
+            sp = "Switch Target:";
+            b = true;
+        }
+        if (inIP.color == 4) {
+            sp = "Gravity Target:";
+            b = true;
+        }
+        _specialLabel.text = sp;
+        _specialDisplay.text = inIP.spec.ToString();
+        transform.GetChild(2).gameObject.SetActive(b);
     }
 }
