@@ -16,6 +16,7 @@ public class ObjectInfoControl : MonoBehaviour {
     // private variables
     private Text _colorDisplay;
     private bool _isAnySelected;
+    private bool _isInstanceNull;
     private InfoPack _lastFrameInfoPack;
     private Text _locusDisplay;
     private Image _objectDisplay;
@@ -42,7 +43,9 @@ public class ObjectInfoControl : MonoBehaviour {
         "Trapezoid",
         "Hexagon",
         "Square",
-        "Wedge"
+        "Wedge",
+        "Warp",
+        "Checkpoint"
     };
 
     void Awake ()
@@ -86,7 +89,7 @@ public class ObjectInfoControl : MonoBehaviour {
 
     /* Private Structs */
 
-    // a struct for reporting what current information should be
+    // a struct for reporting what current display information should be
     private struct InfoPack {
         public int type;
         public int color;
@@ -119,8 +122,10 @@ public class ObjectInfoControl : MonoBehaviour {
         public override bool Equals(System.Object obj)
         {
             InfoPack? inIP = obj as InfoPack?;
-            if (!inIP.HasValue) return false;
-            else return this == inIP.Value;
+            if (!inIP.HasValue)
+                return false;
+            else
+                return this == inIP.Value;
         }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
@@ -137,7 +142,7 @@ public class ObjectInfoControl : MonoBehaviour {
     {
         EditGM.SelectedItem si = gmRef.selectedItem;
         _isAnySelected = si != EditGM.SelectedItem.noSelection;
-        bool instance_null = si.instance == null;
+        _isInstanceNull = si.instance == null;
         int updt_type = 0;
         int updt_color = 0;
         int updt_spec = 0;
@@ -146,15 +151,15 @@ public class ObjectInfoControl : MonoBehaviour {
 
         if (_isAnySelected) {
             if (si.tileData.HasValue) {
-                // if instance is null, gather info from currently active tool
-                if (instance_null) {
+                if (_isInstanceNull) {
+                    // if instance is null, gather info from currently active tool
                     updt_type = tcRef.tileType;
                     updt_color = tcRef.tileColor;
                     updt_spec = tcRef.tileSpecial;
                     updt_rot = tcRef.tileOrient.rotation;
                     updt_locus = tcRef.tileOrient.locus;
-                // if instance is non-null, gather info directly from object data
                 } else {
+                    // if instance is non-null, gather info from object data
                     TileData td = si.tileData.Value;
                     updt_type = td.type;
                     updt_color = td.color;
@@ -168,15 +173,27 @@ public class ObjectInfoControl : MonoBehaviour {
                 updt_color = -1;
                 updt_spec = -1;
                 updt_rot = -1;
-                updt_locus = si.chkpntData.Value.locus;
+                if (_isInstanceNull)
+                    // if instance is null, gather info from currently active tool
+                    updt_locus = ctRef.specOrient.locus;
+                else
+                    // if instance is non-null, gather info from object data
+                    updt_locus = si.chkpntData.Value.locus;
             }
             if (si.warpData.HasValue) {
                 WarpData wd = si.warpData.Value;
                 updt_type = -2;
                 updt_color = -1;
                 updt_spec = -1;
-                updt_rot = wd.orient.rotation;
-                updt_locus = wd.orient.locus;
+                if (_isInstanceNull) {
+                    // if instance is null, gather info from currently active tool
+                    updt_rot = wtRef.specOrient.rotation;
+                    updt_locus = wtRef.specOrient.locus;
+                } else {
+                    // if instance is non-null, gather info from object data
+                    updt_rot = wd.orient.rotation;
+                    updt_locus = wd.orient.locus;
+                }
             }
         }
 
@@ -186,11 +203,32 @@ public class ObjectInfoControl : MonoBehaviour {
     // updates the display image
     private void updateUI (InfoPack inIP)
     {
-        // set sprite and aspect ratio for object image, activate if appropriate
-        Transform t = tcRef.transform.GetChild(inIP.type).GetChild(inIP.color).GetChild(0);
-        _objectDisplay.sprite = t.GetComponent<SpriteRenderer>().sprite;
-        _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
-        _objectDisplay.gameObject.SetActive(_isAnySelected);
+        if (_isAnySelected) {
+            // set sprite source transform and aspect ratio for object image
+            Transform t = tcRef.transform;
+            if (inIP.type >= 0) {
+                t = tcRef.transform.GetChild(inIP.type);
+                t = t.GetChild(inIP.color).GetChild(0);
+                _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
+            }
+            if (inIP.type == -1) {
+                t = ctRef.transform.GetChild(0);
+                _objectDisplayARF.aspectRatio = 1f;
+            }
+            if (inIP.type == -2) {
+                t = wtRef.transform.GetChild(0);
+                _objectDisplayARF.aspectRatio = 1f;
+            }
+
+            // check for sprite, activate display as appropriate
+            SpriteRenderer sr = t.GetComponent<SpriteRenderer>();
+            if (sr) {
+                _objectDisplay.sprite = sr.sprite;
+                _objectDisplay.gameObject.SetActive(true);
+            } else
+                _objectDisplay.gameObject.SetActive(false);
+        } else
+            _objectDisplay.gameObject.SetActive(false);
 
         // set text strings as appropriate
         bool b = !_isAnySelected || inIP.type < 0;
