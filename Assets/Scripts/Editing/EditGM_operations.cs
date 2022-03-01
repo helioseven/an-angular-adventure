@@ -98,6 +98,9 @@ public partial class EditGM {
             // set tool to chkpnt or warp tool as appropriate
             if (_selectedItem.chkpntData.HasValue) setTool(EditTools.Chkpnt);
             if (_selectedItem.warpData.HasValue) setTool(EditTools.Warp);
+
+            // null out SelectedItem's instance to instead refer to creation tool
+            _selectedItem.instance = null;
         } else {
             // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
