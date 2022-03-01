@@ -216,7 +216,7 @@ public class ObjectInfoControl : MonoBehaviour {
                 _objectDisplayARF.aspectRatio = 1f;
             }
             if (inIP.type == -2) {
-                t = wtRef.transform.GetChild(0);
+                t = wtRef.transform.GetChild(1);
                 _objectDisplayARF.aspectRatio = 1f;
             }
 
