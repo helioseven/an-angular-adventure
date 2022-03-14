@@ -44,8 +44,8 @@ public class ObjectInfoControl : MonoBehaviour {
         "Hexagon",
         "Square",
         "Wedge",
-        "Warp",
-        "Checkpoint"
+        "Checkpoint",
+        "Warp"
     };
 
     void Awake ()
@@ -169,7 +169,7 @@ public class ObjectInfoControl : MonoBehaviour {
                 }
             }
             if (si.chkpntData.HasValue) {
-                updt_type = -1;
+                updt_type = 6;
                 updt_color = -1;
                 updt_spec = -1;
                 updt_rot = -1;
@@ -182,7 +182,7 @@ public class ObjectInfoControl : MonoBehaviour {
             }
             if (si.warpData.HasValue) {
                 WarpData wd = si.warpData.Value;
-                updt_type = -2;
+                updt_type = 7;
                 updt_color = -1;
                 updt_spec = -1;
                 if (_isInstanceNull) {
@@ -203,19 +203,19 @@ public class ObjectInfoControl : MonoBehaviour {
     // updates the display image
     private void updateUI (InfoPack inIP)
     {
-        if (_isAnySelected) {
+        if (_isAnySelected && inIP.type >= 0) {
             // set sprite source transform and aspect ratio for object image
             Transform t = tcRef.transform;
-            if (inIP.type >= 0) {
+            if (inIP.type <= 5) {
                 t = tcRef.transform.GetChild(inIP.type);
                 t = t.GetChild(inIP.color).GetChild(0);
                 _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
             }
-            if (inIP.type == -1) {
+            if (inIP.type == 6) {
                 t = ctRef.transform.GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
-            if (inIP.type == -2) {
+            if (inIP.type == 7) {
                 t = wtRef.transform.GetChild(1);
                 _objectDisplayARF.aspectRatio = 1f;
             }
