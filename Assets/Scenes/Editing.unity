@@ -1532,18 +1532,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 184378351}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &184378353 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -5456787021317239375, guid: 04dedfbbe68cbb522bf0cbbba359500b,
-    type: 3}
-  m_PrefabInstance: {fileID: 184378351}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 184378352}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &191914313
 GameObject:
   m_ObjectHideFlags: 0
@@ -2802,7 +2790,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4db017495c69e8140a56a0e2b669e3f8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ff6fb1e4b9a69c8479fdc1089e8dbc10, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3901,10 +3889,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e5e49f7efaee894da9476af5f58fb1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gm_ref: {fileID: 1421947832}
-  tc_ref: {fileID: 1136852627}
-  ct_ref: {fileID: 184378353}
-  wt_ref: {fileID: 1513035468}
+  gmRef: {fileID: 0}
+  tcRef: {fileID: 0}
+  ctRef: {fileID: 0}
+  wtRef: {fileID: 0}
 --- !u!1 &694436077
 GameObject:
   m_ObjectHideFlags: 0
@@ -7552,17 +7540,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a90c8b464fcf2d4b8cd99ecdcff93b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  anchorIcon: {fileID: 1740795237}
+  chkpntMap: {fileID: 1861951792}
+  chkpntTool: {fileID: 184378352}
   eventSystem: {fileID: 355242748}
-  uiRaycaster: {fileID: 313801217}
   hudPanel: {fileID: 1249965603}
   palettePanel: {fileID: 765649599}
   tileCreator: {fileID: 1136852627}
-  chkpntTool: {fileID: 184378352}
-  warpTool: {fileID: 1513035467}
-  anchorIcon: {fileID: 1740795237}
   tileMap: {fileID: 1833171069}
-  chkpntMap: {fileID: 1861951792}
+  uiRaycaster: {fileID: 313801217}
   warpMap: {fileID: 485511162}
+  warpTool: {fileID: 1513035467}
 --- !u!4 &1421947833
 Transform:
   m_ObjectHideFlags: 0
@@ -7865,18 +7853,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1513035466}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1513035468 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -5945232996855253916, guid: 0b74a042a6aefde6aadc4b9c08777916,
-    type: 3}
-  m_PrefabInstance: {fileID: 1513035466}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1513035467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d75a9819e4e32a618ccf9f85218f0e7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1580081643
 GameObject:
   m_ObjectHideFlags: 0
@@ -8129,7 +8105,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4db017495c69e8140a56a0e2b669e3f8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ff6fb1e4b9a69c8479fdc1089e8dbc10, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
