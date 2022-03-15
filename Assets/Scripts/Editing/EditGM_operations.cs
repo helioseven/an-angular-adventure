@@ -119,10 +119,12 @@ public partial class EditGM {
 
         if (_selectedItem != SelectedItem.noSelection) {
             if (_selectedItem.instance) {
+                // if an object is selected, destroy it and activate relevant tool
                 removeSelectedItem();
                 Destroy(_selectedItem.instance);
                 _selectedItem.instance = null;
             } else {
+                // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
         } else {
@@ -140,14 +142,14 @@ public partial class EditGM {
         if (paintMode) return;
 
         if (_selectedItem != SelectedItem.noSelection) {
-            // if _selectedItem is a tile, use its tileData to set tile tool
             if (_selectedItem.tileData.HasValue)
+                // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
-            // if in editMode, add _selectedItem back to the level
             if (editMode)
+                // if in editMode, add _selectedItem back to the level
                 addSelectedItem();
-            // if not in editMode, simply unselect _selectedItem
             else
+                // if not in editMode, unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
         }
 
@@ -159,14 +161,14 @@ public partial class EditGM {
     // switches into selectMode
     public void EnterSelect ()
     {
-        if (selectMode)
-            // only do anyting if currently in creationMode or editMode
-            return;
+        // if already in selectMode, simply escape
+        if (selectMode) return;
 
         if (editMode && _selectedItem != SelectedItem.noSelection)
-            // conditional to switch out of editMode while an object is selected
+            // if in editMode while an object is selected, place the object
             addSelectedItem();
-        if (_selectedItem.instance == null)
+        if (!_selectedItem.instance)
+            // if no object is selected, unselect _selectedItem
             _selectedItem = SelectedItem.noSelection;
 
         // _currentTool should always be disabled in selectMode
