@@ -104,10 +104,6 @@ public partial class EditGM : MonoBehaviour {
 
             // initializations for connected state variables
             hudPanel.SetActive(false);
-            palettePanel.gameObject.SetActive(false);
-            tileCreator.gameObject.SetActive(true);
-            chkpntTool.SetActive(false);
-            warpTool.SetActive(false);
 
             // initializations for public state variables
             getInputs = InputKeys.None;

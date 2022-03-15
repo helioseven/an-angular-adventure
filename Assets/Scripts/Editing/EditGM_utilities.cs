@@ -157,9 +157,11 @@ public partial class EditGM {
         levelData.warpSet.Add(inWarp);
 
         // corresponding checkpoint object is added to chkpntMap
-        Vector3 v3 = inWarp.orient.locus.ToUnitySpace();
-        v3.z = GetLayerDepth(inWarp.orient.layer);
-        GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
+        HexOrient o = inWarp.orient;
+        Vector3 v3 = o.locus.ToUnitySpace();
+        v3.z = GetLayerDepth(o.layer);
+        Quaternion r = Quaternion.Euler(0, 0, 30 * o.rotation);
+        GameObject go = Instantiate(warpTool, v3, r) as GameObject;
         go.GetComponent<SpecialCreator>().enabled = false;
         go.transform.SetParent(warpMap.transform); // <2>
 
@@ -260,6 +262,7 @@ public partial class EditGM {
     // used when entering editMode with an item selected, which removes it
     private void removeSelectedItem ()
     {
+        if (_selectedItem.instance == null) return;
         if (_selectedItem.tileData.HasValue) {
             removeTile(_selectedItem.instance);
             // if _selectedItem is a tile, use tileData to set tileCreator
