@@ -62,7 +62,7 @@ public partial class EditGM : MonoBehaviour {
     }
     public string levelName {
         get { return _levelName; }
-        set { setLevelName(value); }
+        set { SetLevelName(value); }
     }
 
     // private constants

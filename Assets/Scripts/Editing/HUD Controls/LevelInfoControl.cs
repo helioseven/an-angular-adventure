@@ -8,13 +8,13 @@ public class LevelInfoControl : MonoBehaviour {
 
     /* Private Constants */
 
-    private const int ANCHR_CID = 9;
+    private const int ANCHR_CID = 13;
     private const int ATTR_CID = 1;
-    private const int CURR_LAYER_CID = 1;
-    private const int LAYER_TILES_CID = 5;
+    private const int CURR_LAYER_CID = 2;
+    private const int LAYER_TILES_CID = 9;
     private const int NAME_CID = 0;
-    private const int TOTAL_LAYER_CID = 3;
-    private const int TOTAL_TILES_CID = 7;
+    private const int TOTAL_LAYER_CID = 6;
+    private const int TOTAL_TILES_CID = 11;
 
     /* Private References */
 

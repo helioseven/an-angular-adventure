@@ -72,9 +72,9 @@ public partial class EditGM {
             anchorIcon.FindNewAnchor();
         // F and R will change active layer
         if (CheckInputDown(InputKeys.Out))
-            activateLayer(activeLayer - 1);
+            MoveUpLayer();
         if (CheckInputDown(InputKeys.In))
-            activateLayer(activeLayer + 1);
+            MoveDownLayer();
     }
 
     // updates UI Overlay and Palette panels

@@ -81,6 +81,12 @@ public partial class EditGM {
 
     /* Public Operations */
 
+    // adds a single layer to the bottom of the level
+    public void AddLayer ()
+    {
+        addLayers(tileMap.transform.childCount);
+    }
+
     // switches into createMode
     public void EnterCreate ()
     {
@@ -188,6 +194,27 @@ public partial class EditGM {
         _currentMode = EditorMode.Select;
     }
 
+    // moves focus down to the next layer
+    public void MoveDownLayer ()
+    {
+        activateLayer(activeLayer + 1);
+    }
+
+    // moves focus up to the previous layer
+    public void MoveUpLayer ()
+    {
+        activateLayer(activeLayer - 1);
+    }
+
+    // removes a single layer from the bottom of the level
+    public void RemoveLayer()
+    {
+        if (!removeLayer(tileMap.transform.childCount - 1, false)) {
+            // popup confirmation dialog
+            removeLayer(tileMap.transform.childCount - 1, true);
+        }
+    }
+
     // (!!)(incomplete) deletes the current scene and loads the MainMenu scene
     public void ReturnToMainMenu ()
     {
@@ -206,10 +233,8 @@ public partial class EditGM {
         File.WriteAllLines(fpath, lines);
     }
 
-    /* Private Operations */
-
     // sets level name property with passed string
-    public void setLevelName (string inName)
+    public void SetLevelName (string inName)
     {
         if (inName.Length <= 100) _levelName = inName; // <1>
 
@@ -217,6 +242,8 @@ public partial class EditGM {
         <1> level names are capped at 100 characters for now
         */
     }
+
+    /* Private Operations */
 
     // returns a list of all HUD elements currently under the mouse
     private List<RaycastResult> raycastAllHUD ()
