@@ -18,6 +18,9 @@ public class ColorSelectControl : MonoBehaviour {
         _rtRef = transform.GetChild(0).GetComponent<RectTransform>();
         _activeColor = 0;
         _startTime = 0f;
+
+        // bump scale for default color
+        _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.5f;
     }
 
     void Update ()
@@ -36,7 +39,7 @@ public class ColorSelectControl : MonoBehaviour {
 
             _activeColor = newColor;
             // the new target has its scale bumped up 20%
-            _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.2f;
+            _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.5f;
         }
 
         float t = Time.time - _startTime;
