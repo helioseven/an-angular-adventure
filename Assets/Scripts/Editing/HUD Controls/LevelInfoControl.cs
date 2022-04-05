@@ -6,21 +6,29 @@ using circleXsquares;
 
 public class LevelInfoControl : MonoBehaviour {
 
-    // private constants
-    private const int ANCHR_CID = 5;
-    private const int ATTR_CID = 1;
-    private const int LAYER_CID = 1;
-    private const int NAME_CID = 0;
-    private const int TILES_CID = 3;
+    /* Private Constants */
 
-    // private variables
+    private const int ANCHR_CID = 9;
+    private const int ATTR_CID = 1;
+    private const int CURR_LAYER_CID = 1;
+    private const int LAYER_TILES_CID = 5;
+    private const int NAME_CID = 0;
+    private const int TOTAL_LAYER_CID = 3;
+    private const int TOTAL_TILES_CID = 7;
+
+    /* Private References */
+
     private Text _anchorDisplay;
-    private Text _layersDisplay;
+    private Text _currentLayerDisplay;
     private EditGM _gmRef;
+    private Text _layerTilesDisplay;
     private Text _nameDisplay;
     private LevelNameField _nameField;
-    private Text _tilesDisplay;
     private Transform _tmRef;
+    private Text _totalLayersDisplay;
+    private Text _totalTilesDisplay;
+
+    /* Private Variables */
 
     private int _activeLayer;
     private HexLocus _anchorLocus;
@@ -48,8 +56,10 @@ public class LevelInfoControl : MonoBehaviour {
         _nameDisplay = t.GetComponent<Text>();
         _nameField = t.GetComponent<LevelNameField>();
         t = transform.GetChild(ATTR_CID);
-        _layersDisplay = t.GetChild(LAYER_CID).GetComponent<Text>();
-        _tilesDisplay = t.GetChild(TILES_CID).GetComponent<Text>();
+        _currentLayerDisplay = t.GetChild(CURR_LAYER_CID).GetComponent<Text>();
+        _totalLayersDisplay = t.GetChild(TOTAL_LAYER_CID).GetComponent<Text>();
+        _layerTilesDisplay = t.GetChild(LAYER_TILES_CID).GetComponent<Text>();
+        _totalTilesDisplay = t.GetChild(TOTAL_TILES_CID).GetComponent<Text>();
         _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<Text>();
     }
 
@@ -65,12 +75,10 @@ public class LevelInfoControl : MonoBehaviour {
     {
         _nameDisplay.text = _levelName;
 
-        string s = (_activeLayer + 1).ToString() + " / " + _layerCount.ToString();
-        _layersDisplay.text = s;
-
-        s = _layerTiles.ToString() + " (" + _levelTiles.ToString() + ")";
-        _tilesDisplay.text = s;
-
+        _currentLayerDisplay.text = (_activeLayer + 1).ToString();
+        _totalLayersDisplay.text = _layerCount.ToString();
+        _layerTilesDisplay.text = _layerTiles.ToString();
+        _totalTilesDisplay.text = _levelTiles.ToString();
         _anchorDisplay.text = _anchorLocus.PrettyPrint();
     }
 
