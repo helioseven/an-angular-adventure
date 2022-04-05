@@ -18,7 +18,7 @@ public class LevelInfoControl : MonoBehaviour {
     private Text _layersDisplay;
     private EditGM _gmRef;
     private Text _nameDisplay;
-    private EditableField _nameField;
+    private LevelNameField _nameField;
     private Text _tilesDisplay;
     private Transform _tmRef;
 
@@ -46,7 +46,7 @@ public class LevelInfoControl : MonoBehaviour {
 
         Transform t = transform.GetChild(NAME_CID);
         _nameDisplay = t.GetComponent<Text>();
-        _nameField = t.GetComponent<EditableField>();
+        _nameField = t.GetComponent<LevelNameField>();
         t = transform.GetChild(ATTR_CID);
         _layersDisplay = t.GetChild(LAYER_CID).GetComponent<Text>();
         _tilesDisplay = t.GetChild(TILES_CID).GetComponent<Text>();

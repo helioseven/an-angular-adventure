@@ -429,11 +429,14 @@ public partial class EditGM {
     }
 
     // returns true if the given element is mouse hovered
-    public bool IsHUDElementHovered (EditableField element)
+    public bool IsLevelNameFieldHovered (LevelNameField element)
     {
         bool b = false;
-        foreach (RaycastResult result in _currentHUDhover)
-            if (result.gameObject == element.gameObject) b = true;
+        foreach (RaycastResult result in _currentHUDhover) {
+            if (result.gameObject == element.gameObject)
+                b = true;
+            break;
+        }
         return b;
     }
 
