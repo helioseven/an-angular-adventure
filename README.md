@@ -25,7 +25,6 @@
 * Database configuration
     * Forthcoming
 
-
 ### Contribution guidelines ###
 
 * Writing tests
@@ -37,6 +36,10 @@
     2. Really, don't be a dick.
     3. Don't accidentally the whole repo.
     4. Be inspired.
+
+### Can I play? ###
+
+Yes! An early release can be found on [the Unity community hub](https://play.unity.com/mg/other/aaa-ax1kv).
 
 ### Who do I talk to? ###
 
