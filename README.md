@@ -27,7 +27,7 @@
     * Beta (Steam Early Access Phase)
     * Unity Version -> Target Unity 6
 
-    
+    Don't accidentally the whole repo.
 ### Who do I talk to? ###
 
 > Yourself in the mirror
