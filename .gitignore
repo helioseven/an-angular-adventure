@@ -10,10 +10,6 @@ NonRepo/
 # VisualStudio-related ignores
 .vscode/*
 
-# Sublime-related ignores (AAA.sublime-project is kept)
-*.sublime-workspace
-obj/Debug/.NETFramework,Version=v4.7.1.AssemblyAttributes.cs
-
 # Unity-related ignores
 
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
