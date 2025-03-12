@@ -170,7 +170,7 @@ public class Player_Controller : MonoBehaviour
             return;
         }
         // use player velocity to set sound intensity
-        float volume = _gmRef.SlideIntensityToVolume(_rb2d.velocity, Physics2D.gravity);
+        float volume = _gmRef.SlideIntensityToVolume(_rb2d.linearVelocity, Physics2D.gravity);
         if (!_groundCheckCollider.IsTouchingLayers())
             volume = 0.0f;
         _audioSource.volume = volume;
