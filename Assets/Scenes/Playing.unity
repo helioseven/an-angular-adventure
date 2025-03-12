@@ -351,7 +351,7 @@ MonoBehaviour:
   tileCreator: {fileID: 8784740274246360473, guid: cf09975b7ea66812eb859c91a71e47f0,
     type: 3}
   tileMap: {fileID: 112465030}
-  player: {fileID: 0}
+  player: {fileID: 2116145627}
   warpRef: {fileID: 7877716018560016979, guid: 1ed878280b29c0e249aecd4284a29fc4, type: 3}
   warpMap: {fileID: 485554455}
   soundManager: {fileID: 0}
@@ -1257,6 +1257,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51aec3cef66274844af3d33972d061e7, type: 3}
+--- !u!114 &2116145627 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114496391257242954, guid: 51aec3cef66274844af3d33972d061e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 2116145626}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e5190c44829d134bb8f2eb0b701b561, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2129861604
 GameObject:
   m_ObjectHideFlags: 0

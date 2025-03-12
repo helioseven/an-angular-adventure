@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -98,12 +99,13 @@ public partial class EditGM {
         anchorIcon.transform.position = v3;
     }
 
-    // simply adds layers to the level until there are enough layers to account for the given layer
+    // adds layers to the level until given total count is met
     private void addLayers(int inLayer)
     {
         // if there are already more layers than the passed index, simply return
         if (inLayer < tileMap.transform.childCount)
             return;
+
         // otherwise, create layers until the passed index is reached
         for (int i = tileMap.transform.childCount; i <= inLayer; i++) {
             GameObject tileLayer = new GameObject("Layer #" + i.ToString());
@@ -250,6 +252,35 @@ public partial class EditGM {
             // add the GameObject,WarpData pair to _warpLookup
             _warpLookup.Add(go, wd);
         }
+    }
+
+    // returns true if the mouse is hovering over any HUD element
+    private bool checkHUDHover ()
+    {
+        return _currentHUDhover.Count > 0;
+    }
+
+    // removes given layer from level, if layer has no tiles or isConfirmed
+    private bool removeLayer (int inLayer, bool isConfirmed)
+    {
+        // if there are already more layers than the passed index, simply return
+        if (inLayer < 0 || inLayer >= tileMap.transform.childCount)
+            return false;
+
+        Transform t = tileMap.transform.GetChild(inLayer);
+        if (t.childCount > 0 && !isConfirmed)
+            return false;
+
+        Destroy(t.gameObject);
+
+        // rename layers from the passed index onwards as appropriate
+        for (int i = inLayer + 1; i < tileMap.transform.childCount; i++) {
+            Transform tileLayer = tileMap.transform.GetChild(i);
+            tileLayer.gameObject.name = "Layer #" + (i - 1).ToString();
+            tileLayer.position = new Vector3(0f, 0f, (i - 1) * 2f);
+        }
+
+        return true;
     }
 
     // used when entering editMode with an item selected, which removes it
@@ -419,6 +450,18 @@ public partial class EditGM {
         v3.z -= 1f;
         r = new Ray(v3, Vector3.forward);
         return Physics2D.GetRayIntersection(r, 2f).collider;
+    }
+
+    // returns true if the given element is mouse hovered
+    public bool IsLevelNameFieldHovered (LevelNameField element)
+    {
+        bool b = false;
+        foreach (RaycastResult result in _currentHUDhover) {
+            if (result.gameObject == element.gameObject)
+                b = true;
+            break;
+        }
+        return b;
     }
 
     // if passed object is a tile, supplies corresponding TileData

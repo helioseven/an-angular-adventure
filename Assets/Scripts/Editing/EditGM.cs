@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -17,30 +18,31 @@ public partial class EditGM : MonoBehaviour {
     public SnapCursor anchorIcon;
     public GameObject chkpntMap;
     public GameObject chkpntTool;
+	public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
     public TileCreator tileCreator;
     public GameObject tileMap;
+	public GraphicRaycaster uiRaycaster;
     public GameObject warpMap;
     public GameObject warpTool;
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
-    public InputKeys getInputs { get; private set; }
-    public InputKeys getInputDowns { get; private set; }
-    public LevelData levelData { get; private set; }
-    public string levelName { get; private set; }
-    public SelectedItem selectedItem {
-        get { return _selectedItem; }
-        set {}
-    }
-    // public boolean flags
     public bool createMode {
         get { return _currentMode == EditorMode.Create; }
         set {}
     }
     public bool editMode {
         get { return _currentMode == EditorMode.Edit; }
+        set {}
+    }
+    public InputKeys getInputs { get; private set; }
+    public InputKeys getInputDowns { get; private set; }
+    public bool hoveringHUD { get; private set; }
+    public LevelData levelData { get; private set; }
+    public SelectedItem selectedItem {
+        get { return _selectedItem; }
         set {}
     }
     public bool paintMode {
@@ -53,15 +55,28 @@ public partial class EditGM : MonoBehaviour {
         set {}
     }
 
+    // public read- and set-accessibility state variables
+    public bool inputMode {
+        get { return _inputMode; }
+        set { _inputMode = value; }
+    }
+    public string levelName {
+        get { return _levelName; }
+        set { SetLevelName(value); }
+    }
+
     // private constants
     private const int DEFAULT_LAYER = 0;
     private const int INACTIVE_LAYER = 9;
 
     // private variables
     private Dictionary<GameObject, ChkpntData> _chkpntLookup;
+    private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentMode;
     private GameObject _currentTool;
+    private bool _inputMode;
     private EditLoader _lvlLoad;
+    private string _levelName;
     private SelectedItem _selectedItem;
     private Dictionary<GameObject, TileData> _tileLookup;
     private EditTools _toolMode;
@@ -75,6 +90,8 @@ public partial class EditGM : MonoBehaviour {
             instance = this;
 
             // initializations for private state variables
+            _currentHUDhover = null;
+            _inputMode = false;
             _currentMode = EditorMode.Create;
             _toolMode = EditTools.Tile;
             _currentTool = tileCreator.gameObject;
@@ -92,6 +109,7 @@ public partial class EditGM : MonoBehaviour {
             getInputs = InputKeys.None;
             getInputDowns = InputKeys.None;
             activeLayer = 0;
+            hoveringHUD = false;
             paletteMode = false;
 
             // file is loaded and parsed
@@ -114,7 +132,7 @@ public partial class EditGM : MonoBehaviour {
         // hudPanel and palettePanel are updated
         updateUI();
         // if the palette is active, skip the rest
-        if (paletteMode)
+        if (hoveringHUD || paletteMode || inputMode)
             return;
         // anchorIcon and layer changes are updated
         updateLevel();

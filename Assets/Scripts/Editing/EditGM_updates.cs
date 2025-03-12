@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
@@ -58,6 +59,9 @@ public partial class EditGM {
         for (int i = 1; i <= 0x400000; i = i * 2)
             if (b[k++]) now = now | (InputKeys) i;
         getInputs = now;
+
+        // get raycast results for this frame's mouse position
+        _currentHUDhover = raycastAllHUD();
     }
 
     // makes changes associated with anchorIcon and layer changes
@@ -68,43 +72,47 @@ public partial class EditGM {
             anchorIcon.FindNewAnchor();
         // F and R will change active layer
         if (CheckInputDown(InputKeys.Out))
-            activateLayer(activeLayer - 1);
+            MoveUpLayer();
         if (CheckInputDown(InputKeys.In))
-            activateLayer(activeLayer + 1);
+            MoveDownLayer();
     }
 
     // updates UI Overlay and Palette panels
     private void updateUI ()
     {
+        if (_inputMode) return;
+
         bool isHUD = CheckInputDown(InputKeys.HUD);
         bool isPal = CheckInput(InputKeys.Palette);
 
         // UI is toggled whenever spacebar is pressed
         if (isHUD)
             hudPanel.SetActive(!hudPanel.activeSelf);
+        // check for HUD hover only when HUD panel is active, otherwise false
+        hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
         // palette is toggled on whenever tab key is held down
         if (paletteMode != isPal) {
             paletteMode = isPal;
             palettePanel.TogglePalette();
+        }
 
-            if (paletteMode) {
-                // whenever palette activates, _currentTool is turned off
-                _currentTool.SetActive(false);
-            } else {
-                // when palette deactivates, determine desired _currentTool activity
-                bool b = false;
-                if (createMode)
-                    b = true;
-                if (editMode && _selectedItem != SelectedItem.noSelection)
-                    b = true;
-                if (paintMode)
-                    b = true;
+        if (hoveringHUD || paletteMode) {
+            // whenever palette activates, _currentTool is turned off
+            _currentTool.SetActive(false);
+        } else {
+            // when palette deactivates, determine desired _currentTool activity
+            bool b = false;
+            if (createMode)
+                b = true;
+            if (editMode && _selectedItem != SelectedItem.noSelection)
+                b = true;
+            if (paintMode)
+                b = true;
 
-                // turn _currentTool back on if necessary
-                if (b)
-                    _currentTool.SetActive(true);
-            }
+            // turn _currentTool back on if necessary
+            if (b)
+                _currentTool.SetActive(true);
         }
     }
 

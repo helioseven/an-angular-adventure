@@ -19,6 +19,8 @@ public class EditCamControl : MonoBehaviour {
 
     void Update ()
     {
+        if (_gmRef.inputMode) return;
+
         // mask identifying the keys relevant to the camera control (WASD)
         _camInputs = _gmRef.getInputs;
         _camInputs &= _keyMask;

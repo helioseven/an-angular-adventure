@@ -7,16 +7,16 @@ using circleXsquares;
 
 public class ObjectInfoControl : MonoBehaviour {
 
-    // public references
+    /* Public References */
+
     public EditGM gmRef;
     public TileCreator tcRef;
     public SpecialCreator ctRef;
     public SpecialCreator wtRef;
 
-    // private variables
+    /* Private References */
+
     private Text _colorDisplay;
-    private bool _isAnySelected;
-    private bool _isInstanceNull;
     private InfoPack _lastFrameInfoPack;
     private Text _locusDisplay;
     private Image _objectDisplay;
@@ -25,6 +25,11 @@ public class ObjectInfoControl : MonoBehaviour {
     private Text _specialLabel;
     private Text _specialDisplay;
     private Text _typeDisplay;
+
+    /* Private Variables */
+
+    private bool _isAnySelected;
+    private bool _isInstanceNull;
 
     private readonly float[] _aspectRatios = new float[] {1f, 2f, 2f, 1f, 1f, 2f};
     private readonly string[] _colorStrings = new string[] {
