@@ -4,7 +4,7 @@
 ### Quickstart ###
 
 + Install Unity
-    * Current build is using `2019.4.11f1`
+    * Current build is using `6000.0.41f1`
 
 + Install Git (if needed)
 
@@ -27,7 +27,9 @@
     * Beta (Steam Early Access Phase)
     * Unity Version -> Target Unity 6
 
-    Don't accidentally the whole repo.
+* Words of Wisdom
+    * Don't accidentally the whole repo.
+
 ### Who do I talk to? ###
 
 > Yourself in the mirror

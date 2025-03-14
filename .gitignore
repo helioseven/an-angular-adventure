@@ -1,3 +1,5 @@
+# Project-related ignores
+
 # All user-created levels are only stored locally, except testLevel
 [Ll]evels/*.txt
 # testLevel is an exception which will be removed later in the dev process
@@ -6,20 +8,12 @@
 NonRepo/
 
 # VisualStudio-related ignores
-*.csproj
-*.sln
-*.userprefs
 .vscode/*
-
-# Sublime-related ignores (AAA.sublime-project is kept)
-*.sublime-workspace
-obj/Debug/.NETFramework,Version=v4.7.1.AssemblyAttributes.cs
-
 
 # Unity-related ignores
 
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
-#
+
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
