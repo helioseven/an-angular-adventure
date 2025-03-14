@@ -40,7 +40,12 @@ public class Tile_Green : Tile
         {
             if (!hasUnlocked && lockedTile.isActiveAndEnabled)
             {
+                // update the state of the tile to note that is has been unlocked
                 hasUnlocked = true;
+
+                keyIcon.gameObject.SetActive(false);
+
+                // show the unlock trail effect
                 StartCoroutine(MoveEffectToLockedTile());
             }
 
