@@ -17,9 +17,9 @@ public class Tile_Green : Tile
     {
         foreach (Tile tile in gameObject.transform.parent.GetComponentsInChildren<Tile>())
         {
-            bool isGreen = tile.data.color != (int)TileColor.Green;
+            bool isGreen = tile.data.color == (int)TileColor.Green; // prevent detecting itself
             bool isCorrespondingSpecialNumber = tile.data.special == gameObject.GetComponent<Tile>().data.special;
-            if (isGreen && isCorrespondingSpecialNumber)
+            if (!isGreen && isCorrespondingSpecialNumber)
             {
                 // set as locked block
                 lockedTile = tile;
