@@ -8,7 +8,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
 
-public partial class EditGM : MonoBehaviour {
+public partial class EditGM : MonoBehaviour
+{
 
     // singleton instance
     [HideInInspector] public static EditGM instance = null;

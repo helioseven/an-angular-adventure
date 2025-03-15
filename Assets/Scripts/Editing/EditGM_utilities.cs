@@ -8,7 +8,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
 
-public partial class EditGM {
+public partial class EditGM
+{
 
     /* Public Enums */
 
