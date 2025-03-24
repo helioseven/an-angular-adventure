@@ -104,7 +104,7 @@ public partial class EditGM : MonoBehaviour
             _warpLookup = new Dictionary<GameObject, WarpData>();
 
             // initializations for connected state variables
-            hudPanel.SetActive(false);
+            hudPanel.SetActive(true);
 
             // initializations for public state variables
             getInputs = InputKeys.None;
