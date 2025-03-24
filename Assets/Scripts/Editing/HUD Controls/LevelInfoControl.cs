@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.UI;
-using circleXsquares;
 
-public class LevelInfoControl : MonoBehaviour {
-
+public class LevelInfoControl : MonoBehaviour
+{
     /* Private Constants */
 
     private const int ANCHR_CID = 13;
@@ -37,7 +37,7 @@ public class LevelInfoControl : MonoBehaviour {
     private string _levelName;
     private int _levelTiles;
 
-    void Awake ()
+    void Awake()
     {
         _levelName = "";
         _activeLayer = 0;
@@ -47,7 +47,7 @@ public class LevelInfoControl : MonoBehaviour {
         _anchorLocus = new HexLocus();
     }
 
-    void Start ()
+    void Start()
     {
         _gmRef = EditGM.instance;
         _tmRef = _gmRef.tileMap.transform;
@@ -63,15 +63,16 @@ public class LevelInfoControl : MonoBehaviour {
         _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<Text>();
     }
 
-    void Update ()
+    void Update()
     {
-        if (checkAllFields()) updateUI();
+        if (checkAllFields())
+            updateUI();
     }
 
     /* Public Functions */
 
     // updates the text variables inside the relevant UI sub-elements
-    public void updateUI ()
+    public void updateUI()
     {
         _nameDisplay.text = _levelName;
 
@@ -85,34 +86,40 @@ public class LevelInfoControl : MonoBehaviour {
     /* Private Functions */
 
     // checks all panel fields for any changes and returns true if found
-    private bool checkAllFields ()
+    private bool checkAllFields()
     {
         bool b = false;
 
         // text is hidden while input prompt is active by replacement with ""
         string s = _nameField.isActive ? "" : _gmRef.levelName;
-        if (_levelName != s) {
+        if (_levelName != s)
+        {
             _levelName = s;
             b = true;
         }
         int al = _gmRef.activeLayer;
-        if (_activeLayer != al) {
+        if (_activeLayer != al)
+        {
             _activeLayer = al;
             b = true;
         }
-        if (_layerCount != _tmRef.childCount) {
+        if (_layerCount != _tmRef.childCount)
+        {
             _layerCount = _tmRef.childCount;
             b = true;
         }
-        if (_layerTiles != _tmRef.GetChild(al).childCount) {
+        if (_layerTiles != _tmRef.GetChild(al).childCount)
+        {
             _layerTiles = _tmRef.GetChild(al).childCount;
             b = true;
         }
-        if (_levelTiles != getTileCount()) {
+        if (_levelTiles != getTileCount())
+        {
             _levelTiles = getTileCount();
             b = true;
         }
-        if (_anchorLocus != _gmRef.anchorIcon.anchor) {
+        if (_anchorLocus != _gmRef.anchorIcon.anchor)
+        {
             _anchorLocus = _gmRef.anchorIcon.anchor;
             b = true;
         }
@@ -121,7 +128,7 @@ public class LevelInfoControl : MonoBehaviour {
     }
 
     // gets a count of all tiles currently in the level
-    private int getTileCount ()
+    private int getTileCount()
     {
         int count = 0;
         foreach (Transform layer in _tmRef)

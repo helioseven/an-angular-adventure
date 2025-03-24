@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Tile_Orange : Tile
 {
@@ -13,7 +13,8 @@ public class Tile_Orange : Tile
         arrow = transform.GetChild(0).GetChild(0);
 
         int direction = (data.special + 1) % 4;
-        if (direction % 2 == 1) direction += 2;
+        if (direction % 2 == 1)
+            direction += 2;
         Vector3 rotation = Vector3.forward * (direction * 90);
 
         arrow.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
@@ -25,7 +26,8 @@ public class Tile_Orange : Tile
     void OnCollisionEnter2D(Collision2D other)
     {
         // identifies the player by tag
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player"))
+        {
             _gmRef.soundManager.Play("gravity");
             redirectGravity();
         }
@@ -38,7 +40,8 @@ public class Tile_Orange : Tile
     {
         int newDir = data.special % 4;
         PlayGM.GravityDirection gd = PlayGM.GravityDirection.Down;
-        switch (newDir) {
+        switch (newDir)
+        {
             case 0:
                 gd = PlayGM.GravityDirection.Down;
                 break;

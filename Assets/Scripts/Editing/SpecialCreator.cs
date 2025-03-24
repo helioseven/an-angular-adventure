@@ -1,10 +1,10 @@
-using UnityEngine;
 using System;
 using System.Collections;
 using circleXsquares;
+using UnityEngine;
 
-public class SpecialCreator : MonoBehaviour {
-
+public class SpecialCreator : MonoBehaviour
+{
     // public read-accessibility state variables
     public HexOrient specOrient { get; private set; }
 
@@ -15,7 +15,7 @@ public class SpecialCreator : MonoBehaviour {
     private EditGM _gmRef;
     private SnapCursor _anchorRef;
 
-    void Start ()
+    void Start()
     {
         // reference to EditGM gives all information needed
         _gmRef = EditGM.instance;
@@ -25,7 +25,7 @@ public class SpecialCreator : MonoBehaviour {
         gameObject.SetActive(false);
     }
 
-    void Update ()
+    void Update()
     {
         // when active, the special will follow the focus
         HexLocus f = _anchorRef.focus;
@@ -41,7 +41,7 @@ public class SpecialCreator : MonoBehaviour {
     /* Public Functions */
 
     // turns the transform in 30 degree increments
-    public void SetRotation (int inRotation)
+    public void SetRotation(int inRotation)
     {
         if (!isWarp)
             return;
@@ -50,7 +50,7 @@ public class SpecialCreator : MonoBehaviour {
     }
 
     // translates and rotates the transform according to given orientation
-    public void SetOrientation (HexOrient inOrient)
+    public void SetOrientation(HexOrient inOrient)
     {
         if (!isWarp)
             inOrient.rotation = 0;

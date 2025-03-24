@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections;
 using circleXsquares;
+using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
@@ -60,7 +60,8 @@ public class Player_Controller : MonoBehaviour
 
     public void Jump()
     {
-        if (_jumpNow) {
+        if (_jumpNow)
+        {
             // jump by force (acceleration)
             _rb2d.AddForce(_jumpForceVec);
 
@@ -81,7 +82,8 @@ public class Player_Controller : MonoBehaviour
     // update jump force based on current gravity direction
     public void UpdateJumpForce(PlayGM.GravityDirection gd)
     {
-        switch (gd) {
+        switch (gd)
+        {
             case PlayGM.GravityDirection.Down:
                 _jumpForceVec = new Vector2(0.0f, jumpForce);
                 break;
@@ -106,7 +108,8 @@ public class Player_Controller : MonoBehaviour
         if (_numJumps == 0)
             canJump = canJump && _groundCheckCollider.IsTouchingLayers();
 
-        if (canJump && Input.GetKeyDown(KeyCode.Space)) {
+        if (canJump && Input.GetKeyDown(KeyCode.Space))
+        {
             // increment numJumps
             _numJumps++;
             // jump now!
@@ -120,7 +123,8 @@ public class Player_Controller : MonoBehaviour
     public void UpdateGodMode()
     {
         // toggle God Mode on G key press
-        if (Input.GetKeyDown(KeyCode.G)) {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
             _gmRef.soundManager.Play("gravity");
             _godMode = !_godMode;
         }
@@ -130,31 +134,36 @@ public class Player_Controller : MonoBehaviour
     public void UpdateGravity()
     {
         // God Mode gravity control
-        if (!_godMode) return;
+        if (!_godMode)
+            return;
 
         // K sets gravity down
-        if (Input.GetKeyDown(KeyCode.K)) {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
             _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(0.0f, -9.81f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Down);
         }
 
         // J sets gravity left
-        if (Input.GetKeyDown(KeyCode.J)) {
+        if (Input.GetKeyDown(KeyCode.J))
+        {
             _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(-9.81f, 0.0f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Left);
         }
 
         // I sets gravity up
-        if (Input.GetKeyDown(KeyCode.I)) {
+        if (Input.GetKeyDown(KeyCode.I))
+        {
             _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(0.0f, 9.81f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Up);
         }
 
         // L sets gravity right
-        if (Input.GetKeyDown(KeyCode.L)) {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
             _gmRef.soundManager.Play("gravity");
             Physics2D.gravity = new Vector2(9.81f, 0.0f);
             this.UpdateJumpForce(PlayGM.GravityDirection.Right);
@@ -165,7 +174,8 @@ public class Player_Controller : MonoBehaviour
     public void UpdateRollingSound()
     {
         // disable rolling sounds once victory is achieved
-        if (_gmRef.victoryAchieved) {
+        if (_gmRef.victoryAchieved)
+        {
             _audioSource.volume = 0f;
             return;
         }

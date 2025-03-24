@@ -1,7 +1,7 @@
-using UnityEngine;
 using System;
 using System.Collections;
 using circleXsquares;
+using UnityEngine;
 
 /* The TileCreator is how new tiles are added to the level in the editor.
  * It behaves differently depending on which editor mode is active.
@@ -12,8 +12,8 @@ using circleXsquares;
  * and turning on/off the renderers for those children.
  */
 
-public class TileCreator : MonoBehaviour {
-
+public class TileCreator : MonoBehaviour
+{
     // public read-accessibility state variables
     public int tileType { get; private set; }
     public int tileColor { get; private set; }
@@ -27,8 +27,7 @@ public class TileCreator : MonoBehaviour {
     private SnapCursor _anchorRef;
     private EditGM _gmRef;
 
-
-    void Start ()
+    void Start()
     {
         _gmRef = EditGM.instance;
         _anchorRef = _gmRef.anchorIcon;
@@ -42,18 +41,21 @@ public class TileCreator : MonoBehaviour {
         _tileRenderers = new SpriteRenderer[nTypes, nColors];
 
         for (int i = 0; i < nTypes; i++)
-            for (int j = 0; j < nColors; j++) {
+        {
+            for (int j = 0; j < nColors; j++)
+            {
                 // gets the sprite renderer for each of the tile types and colors
                 Transform t = transform.GetChild(i).GetChild(j);
                 _tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
                 _tileRenderers[i, j].enabled = false;
             }
+        }
 
         // turns all renderers off except the active tile
         _tileRenderers[tileType, tileColor].enabled = true;
     }
 
-    void Update ()
+    void Update()
     {
         // when active, the TileCreator will follow the focus
         HexLocus f = _anchorRef.focus;
@@ -69,7 +71,7 @@ public class TileCreator : MonoBehaviour {
     /* Public Functions */
 
     // disables and enables renderers based on passed type
-    public void SelectType (int inType)
+    public void SelectType(int inType)
     {
         _tileRenderers[tileType, tileColor].enabled = false;
         tileType = inType % _tileRenderers.GetLength(0);
@@ -77,7 +79,7 @@ public class TileCreator : MonoBehaviour {
     }
 
     // disables and enables renderers based on color
-    public void CycleColor (bool clockwise)
+    public void CycleColor(bool clockwise)
     {
         int cnt = _tileRenderers.GetLength(1);
         _tileRenderers[tileType, tileColor].enabled = false;
@@ -88,7 +90,7 @@ public class TileCreator : MonoBehaviour {
     }
 
     // sets tile's special value if valid color is in use
-    public void SetSpecial (int inSpecial)
+    public void SetSpecial(int inSpecial)
     {
         if (tileColor == 3)
             tileSpecial = inSpecial;
@@ -97,21 +99,21 @@ public class TileCreator : MonoBehaviour {
     }
 
     // turns the transform in 30 degree increments
-    public void SetRotation (int inRotation)
+    public void SetRotation(int inRotation)
     {
         tileOrient = new HexOrient(tileOrient.locus, inRotation, tileOrient.layer);
         Update();
     }
 
     // translates and rotates the transform according to given orientation
-    public void SetOrientation (HexOrient inOrient)
+    public void SetOrientation(HexOrient inOrient)
     {
         tileOrient = inOrient;
         Update();
     }
 
     // sets type, color, and rotation by passed struct
-    public void SetProperties (TileData inData)
+    public void SetProperties(TileData inData)
     {
         _tileRenderers[tileType, tileColor].enabled = false;
         tileType = inData.type;
@@ -122,13 +124,13 @@ public class TileCreator : MonoBehaviour {
     }
 
     // returns a TileData representation of the genesisTile's current state
-    public TileData GetTileData ()
+    public TileData GetTileData()
     {
         return new TileData(tileType, tileColor, tileSpecial, tileOrient);
     }
 
     // returns a new tile copied from the tile in active use
-    public GameObject GetActiveCopy ()
+    public GameObject GetActiveCopy()
     {
         GameObject go = _tileRenderers[tileType, tileColor].transform.parent.gameObject;
         go = Instantiate(go, go.transform.position, go.transform.rotation) as GameObject;
@@ -137,7 +139,7 @@ public class TileCreator : MonoBehaviour {
     }
 
     // returns an instantiated copy of a specified tile
-    public GameObject NewTile (TileData inData)
+    public GameObject NewTile(TileData inData)
     {
         // rather than change TileCreator itself,
         // use it's GameObjects to instantiate a copy as specified

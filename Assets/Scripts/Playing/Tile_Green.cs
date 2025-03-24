@@ -1,13 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using circleXsquares;
 using System.IO;
-using System;
+using circleXsquares;
+using UnityEngine;
 
 public class Tile_Green : Tile
 {
-
     public GameObject particlePrefab; // Assign a glowing particle prefab in Inspector
     private Tile lockedTile; // Assign the corresponding locked Tile
     private Transform keyIcon;
@@ -18,7 +17,8 @@ public class Tile_Green : Tile
         foreach (Tile tile in gameObject.transform.parent.GetComponentsInChildren<Tile>())
         {
             bool isGreen = tile.data.color == (int)TileColor.Green; // prevent detecting itself
-            bool isCorrespondingSpecialNumber = tile.data.special == gameObject.GetComponent<Tile>().data.special;
+            bool isCorrespondingSpecialNumber =
+                tile.data.special == gameObject.GetComponent<Tile>().data.special;
             if (!isGreen && isCorrespondingSpecialNumber)
             {
                 // set as locked block
@@ -48,7 +48,6 @@ public class Tile_Green : Tile
                 // show the unlock trail effect
                 StartCoroutine(MoveEffectToLockedTile());
             }
-
         }
     }
 

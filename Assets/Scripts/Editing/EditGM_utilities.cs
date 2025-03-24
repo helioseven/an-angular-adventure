@@ -2,36 +2,38 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using circleXsquares;
+using UnityEngine.UI;
 
 public partial class EditGM
 {
-
     /* Public Enums */
 
     // EditorMode establishes the different modes the editor can be in
-    public enum EditorMode {
+    public enum EditorMode
+    {
         Select,
         Edit,
         Create,
-        Paint
+        Paint,
     }
 
     // EditTools establishes the different tools usable in the editor
-    public enum EditTools {
+    public enum EditTools
+    {
         Tile,
         Chkpnt,
         Warp,
-        Eraser
+        Eraser,
     }
 
     // InputKeys wraps keyboard input into a bit-flag enum
     [Flags]
-    public enum InputKeys {
+    public enum InputKeys
+    {
         None = 0x0,
         HUD = 0x1,
         Palette = 0x2,
@@ -55,13 +57,13 @@ public partial class EditGM
         Right = 0x80000,
         Out = 0x100000,
         ColorCCW = 0x200000,
-        ColorCW = 0x400000
+        ColorCW = 0x400000,
     }
 
     /* Private Utilities */
 
     // cycles through all layers, calculates distance, and sets opacity accordingly
-    private void activateLayer (int inLayer)
+    private void activateLayer(int inLayer)
     {
         bool b = (inLayer < 0) || (inLayer >= tileMap.transform.childCount);
         if (b)
@@ -72,7 +74,8 @@ public partial class EditGM
             activeLayer = inLayer;
 
         // ordinal distance from activeLayer is calculated, opacity set accordingly
-        foreach (Transform layer in tileMap.transform) {
+        foreach (Transform layer in tileMap.transform)
+        {
             int layerNumber = layer.GetSiblingIndex();
             int distance = Math.Abs(layerNumber - activeLayer);
             // dim layers in front of active layer by an extra amount
@@ -82,7 +85,8 @@ public partial class EditGM
         }
 
         // update opacity for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform) {
+        foreach (Transform checkpoint in chkpntMap.transform)
+        {
             ChkpntData cd;
             bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
             int layerNumber = INACTIVE_LAYER;
@@ -108,7 +112,8 @@ public partial class EditGM
             return;
 
         // otherwise, create layers until the passed index is reached
-        for (int i = tileMap.transform.childCount; i <= inLayer; i++) {
+        for (int i = tileMap.transform.childCount; i <= inLayer; i++)
+        {
             GameObject tileLayer = new GameObject("Layer #" + i.ToString());
             tileLayer.transform.position = new Vector3(0f, 0f, i * 2f);
             tileLayer.transform.SetParent(tileMap.transform);
@@ -116,26 +121,31 @@ public partial class EditGM
     }
 
     // used when leaving editMode, places _selectedItem where it indicates it belongs
-    private void addSelectedItem ()
+    private void addSelectedItem()
     {
         // if nothing is selected, escape
         if (_selectedItem == SelectedItem.noSelection)
             return;
         // for each item type, use item data to restore item
-        if (_selectedItem.tileData.HasValue) {
+        if (_selectedItem.tileData.HasValue)
+        {
             TileData td = _selectedItem.tileData.Value;
             _selectedItem.instance = addTile(td);
-        } else if (_selectedItem.chkpntData.HasValue) {
+        }
+        else if (_selectedItem.chkpntData.HasValue)
+        {
             ChkpntData cd = _selectedItem.chkpntData.Value;
             _selectedItem.instance = addSpecial(cd);
-        } else if (_selectedItem.warpData.HasValue) {
+        }
+        else if (_selectedItem.warpData.HasValue)
+        {
             WarpData wd = _selectedItem.warpData.Value;
             _selectedItem.instance = addSpecial(wd);
         }
     }
 
     // adds a passed ChkpntData to the level and returns a reference
-    private GameObject addSpecial (ChkpntData inChkpnt)
+    private GameObject addSpecial(ChkpntData inChkpnt)
     {
         // first, the given ChkpntData is added to levelData
         levelData.chkpntSet.Add(inChkpnt);
@@ -153,7 +163,7 @@ public partial class EditGM
     }
 
     // adds a passed WarpData to the level and returns a reference
-    private GameObject addSpecial (WarpData inWarp)
+    private GameObject addSpecial(WarpData inWarp)
     {
         // first, the given ChkpntData is added to levelData
         levelData.warpSet.Add(inWarp);
@@ -173,7 +183,7 @@ public partial class EditGM
     }
 
     // adds a default tile to the level and returns a reference
-    private GameObject addTile ()
+    private GameObject addTile()
     {
         // uses tileCreator state for parameterless tile addition
         TileData td = tileCreator.GetTileData();
@@ -181,7 +191,7 @@ public partial class EditGM
     }
 
     // adds a passed tileData to the level and returns a reference
-    private GameObject addTile (TileData inTile)
+    private GameObject addTile(TileData inTile)
     {
         // first, the given TileData is added to levelData
         levelData.tileSet.Add(inTile);
@@ -197,19 +207,23 @@ public partial class EditGM
     }
 
     // instantiates GameObjects and builds lookup dictionaries based on the given LevelData
-    private void buildLevel (LevelData inLevel)
+    private void buildLevel(LevelData inLevel)
     {
         // first, prefab references are arrayed for indexed access
         GameObject[,] prefab_refs = new GameObject[6, 8];
         foreach (Transform tileGroup in tileCreator.transform)
-            foreach (Transform tile in tileGroup) {
+        {
+            foreach (Transform tile in tileGroup)
+            {
                 int tgi = tileGroup.GetSiblingIndex();
                 int ti = tile.GetSiblingIndex();
                 prefab_refs[tgi, ti] = tile.gameObject;
             }
+        }
 
         // build each tile in the level
-        foreach (TileData td in inLevel.tileSet) {
+        foreach (TileData td in inLevel.tileSet)
+        {
             // make sure there are enough layers for the new tile
             addLayers(td.orient.layer);
             Transform tileLayer = tileMap.transform.GetChild(td.orient.layer);
@@ -224,7 +238,8 @@ public partial class EditGM
         }
 
         // build each checkpoint in the level
-        foreach (ChkpntData cd in inLevel.chkpntSet) {
+        foreach (ChkpntData cd in inLevel.chkpntSet)
+        {
             // make sure there are enough layers for the new checkpoint
             addLayers(cd.layer);
             Vector3 v3 = cd.locus.ToUnitySpace();
@@ -240,7 +255,8 @@ public partial class EditGM
         }
 
         // build each warp in the level
-        foreach (WarpData wd in inLevel.warpSet) {
+        foreach (WarpData wd in inLevel.warpSet)
+        {
             // make sure there are enough layers for the new warp
             addLayers(wd.orient.layer);
             Quaternion q;
@@ -256,13 +272,13 @@ public partial class EditGM
     }
 
     // returns true if the mouse is hovering over any HUD element
-    private bool checkHUDHover ()
+    private bool checkHUDHover()
     {
         return _currentHUDhover.Count > 0;
     }
 
     // removes given layer from level, if layer has no tiles or isConfirmed
-    private bool removeLayer (int inLayer, bool isConfirmed)
+    private bool removeLayer(int inLayer, bool isConfirmed)
     {
         // if there are already more layers than the passed index, simply return
         if (inLayer < 0 || inLayer >= tileMap.transform.childCount)
@@ -275,7 +291,8 @@ public partial class EditGM
         Destroy(t.gameObject);
 
         // rename layers from the passed index onwards as appropriate
-        for (int i = inLayer + 1; i < tileMap.transform.childCount; i++) {
+        for (int i = inLayer + 1; i < tileMap.transform.childCount; i++)
+        {
             Transform tileLayer = tileMap.transform.GetChild(i);
             tileLayer.gameObject.name = "Layer #" + (i - 1).ToString();
             tileLayer.position = new Vector3(0f, 0f, (i - 1) * 2f);
@@ -285,20 +302,26 @@ public partial class EditGM
     }
 
     // used when entering editMode with an item selected, which removes it
-    private void removeSelectedItem ()
+    private void removeSelectedItem()
     {
-        if (_selectedItem.instance == null) return;
-        if (_selectedItem.tileData.HasValue) {
+        if (_selectedItem.instance == null)
+            return;
+        if (_selectedItem.tileData.HasValue)
+        {
             removeTile(_selectedItem.instance);
             // if _selectedItem is a tile, use tileData to set tileCreator
             tileCreator.SetProperties(_selectedItem.tileData.Value);
             // remove _selectedItem from level and set tile
             setTool(EditTools.Tile);
-        } else if (_selectedItem.chkpntData.HasValue) {
+        }
+        else if (_selectedItem.chkpntData.HasValue)
+        {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set chkpnt
             setTool(EditTools.Chkpnt);
-        } else if (_selectedItem.warpData.HasValue) {
+        }
+        else if (_selectedItem.warpData.HasValue)
+        {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set warp
             setTool(EditTools.Warp);
@@ -306,28 +329,32 @@ public partial class EditGM
     }
 
     // removes a given special from the level
-    private void removeSpecial (GameObject inSpecial)
+    private void removeSpecial(GameObject inSpecial)
     {
         // check to see whether the given item is a checkpoint
         ChkpntData cData;
         WarpData wData;
-        if (IsMappedChkpnt(inSpecial, out cData)) {
+        if (IsMappedChkpnt(inSpecial, out cData))
+        {
             _selectedItem = new SelectedItem(inSpecial, cData);
             setTool(EditTools.Chkpnt);
 
             //set _selectedItem and tool then remove item from level and lookup
             levelData.chkpntSet.Remove(cData);
             _chkpntLookup.Remove(inSpecial);
-        // check to see whether the given item is a warp
-        } else if (IsMappedWarp(inSpecial, out wData)) {
+            // check to see whether the given item is a warp
+        }
+        else if (IsMappedWarp(inSpecial, out wData))
+        {
             _selectedItem = new SelectedItem(inSpecial, wData);
             setTool(EditTools.Warp);
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.warpSet.Remove(wData);
             _warpLookup.Remove(inSpecial);
-        // if neither, simply return
-        } else
+            // if neither, simply return
+        }
+        else
             return;
 
         // if either, destroy the passed object
@@ -335,7 +362,7 @@ public partial class EditGM
     }
 
     // removes a given tile from the level
-    private void removeTile (GameObject inTile)
+    private void removeTile(GameObject inTile)
     {
         // lookup the item's TileData
         TileData tData;
@@ -350,12 +377,13 @@ public partial class EditGM
     }
 
     // sets the opacity of all tiles within a layer using ordinal distance from activeLayer
-    private void setLayerOpacity (Transform tileLayer, int distance)
+    private void setLayerOpacity(Transform tileLayer, int distance)
     {
         // opacity and layer are calculated for non-active layers
         float alpha = 1f;
         int layer = DEFAULT_LAYER;
-        if (distance != 0) {
+        if (distance != 0)
+        {
             // alpha is calculated as (1/2)^distance from active layer
             alpha = (float)Math.Pow(0.5, (double)distance);
             layer = INACTIVE_LAYER;
@@ -363,19 +391,21 @@ public partial class EditGM
         Color color = new Color(1f, 1f, 1f, alpha);
 
         // each tile's sprite is colored appropriately
-        foreach (Transform tile in tileLayer) {
+        foreach (Transform tile in tileLayer)
+        {
             tile.gameObject.layer = layer;
             tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
         }
     }
 
     // set opacity and physics by given distance for given checkpoint
-    private void setCheckpointOpacity (Transform checkpoint, int distance)
+    private void setCheckpointOpacity(Transform checkpoint, int distance)
     {
         // opacity and layer are calculated for non-active layers
         float alpha = 1f;
         int layer = DEFAULT_LAYER;
-        if (distance != 0) {
+        if (distance != 0)
+        {
             // alpha is calculated as (1/2)^distance from active layer
             alpha = (float)Math.Pow(0.5, (double)distance);
             layer = INACTIVE_LAYER;
@@ -388,9 +418,10 @@ public partial class EditGM
     }
 
     // sets the currently active tool
-    private void setTool (EditTools inTool)
+    private void setTool(EditTools inTool)
     {
-        switch (inTool) {
+        switch (inTool)
+        {
             case EditTools.Tile:
                 _currentTool = tileCreator.gameObject;
                 break;
@@ -414,31 +445,31 @@ public partial class EditGM
     /* Public Utilities */
 
     // simply returns whether the given keys were being held during this frame
-    public bool CheckInput (InputKeys inKeys)
+    public bool CheckInput(InputKeys inKeys)
     {
         return (getInputs & inKeys) == inKeys;
     }
 
     // simply returns whether the given keys were pressed on this frame
-    public bool CheckInputDown (InputKeys inKeys)
+    public bool CheckInputDown(InputKeys inKeys)
     {
         return (getInputDowns & inKeys) == inKeys;
     }
 
     // simply returns the z value of the current layer's transform
-    public float GetLayerDepth ()
+    public float GetLayerDepth()
     {
         return GetLayerDepth(activeLayer);
     }
 
     // simply returns the z value of the given layer's transform
-    public float GetLayerDepth (int inLayer)
+    public float GetLayerDepth(int inLayer)
     {
         return tileMap.transform.GetChild(inLayer).position.z;
     }
 
     // returns first collider hit on active layer under click
-    public Collider2D GetObjectClicked ()
+    public Collider2D GetObjectClicked()
     {
         // use plane at active layer depth to calculate mouse intersection
         Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -454,10 +485,11 @@ public partial class EditGM
     }
 
     // returns true if the given element is mouse hovered
-    public bool IsLevelNameFieldHovered (LevelNameField element)
+    public bool IsLevelNameFieldHovered(LevelNameField element)
     {
         bool b = false;
-        foreach (RaycastResult result in _currentHUDhover) {
+        foreach (RaycastResult result in _currentHUDhover)
+        {
             if (result.gameObject == element.gameObject)
                 b = true;
             break;
@@ -466,41 +498,50 @@ public partial class EditGM
     }
 
     // if passed object is a tile, supplies corresponding TileData
-    public bool IsMappedTile (GameObject inTile, out TileData outData)
+    public bool IsMappedTile(GameObject inTile, out TileData outData)
     {
         outData = new TileData();
         // if tile isn't mapped, output default values and return false
-        if (!inTile || !_tileLookup.ContainsKey(inTile)) {
+        if (!inTile || !_tileLookup.ContainsKey(inTile))
+        {
             return false;
-        // if it is, output the TileData and return true
-        } else {
+            // if it is, output the TileData and return true
+        }
+        else
+        {
             outData = _tileLookup[inTile];
             return true;
         }
     }
 
     // if passed object is a checkpoint, supplies corresponding ChkpntData
-    public bool IsMappedChkpnt (GameObject inChkpnt, out ChkpntData outData)
+    public bool IsMappedChkpnt(GameObject inChkpnt, out ChkpntData outData)
     {
         outData = new ChkpntData();
-        if (!inChkpnt || !_chkpntLookup.ContainsKey(inChkpnt)) {
+        if (!inChkpnt || !_chkpntLookup.ContainsKey(inChkpnt))
+        {
             return false;
-        // if it is, output the ChkpntData and return true
-        } else {
+            // if it is, output the ChkpntData and return true
+        }
+        else
+        {
             outData = _chkpntLookup[inChkpnt];
             return true;
         }
     }
 
     // if passed object is a checkpoint, supplies corresponding WarpData
-    public bool IsMappedWarp (GameObject inWarp, out WarpData outData)
+    public bool IsMappedWarp(GameObject inWarp, out WarpData outData)
     {
         outData = new WarpData();
         // if warp isn't mapped, output default values and return false
-        if (!inWarp || !_warpLookup.ContainsKey(inWarp)) {
+        if (!inWarp || !_warpLookup.ContainsKey(inWarp))
+        {
             return false;
-        // if it is, output the WarpData and return true
-        } else {
+            // if it is, output the WarpData and return true
+        }
+        else
+        {
             outData = _warpLookup[inWarp];
             return true;
         }

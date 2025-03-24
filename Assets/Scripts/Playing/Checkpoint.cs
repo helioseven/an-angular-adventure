@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
@@ -21,7 +21,8 @@ public class Checkpoint : MonoBehaviour
     // becomes the current checkpoint when it detects a collision with the player
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player"))
+        {
             _playGM.soundManager.Play("checkpoint");
             _playGM.SetCheckpoint(data);
         }

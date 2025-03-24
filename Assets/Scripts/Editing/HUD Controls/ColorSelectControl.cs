@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ColorSelectControl : MonoBehaviour {
-
+public class ColorSelectControl : MonoBehaviour
+{
     // private variables
     private int _activeColor;
     private RectTransform _rtRef;
@@ -12,7 +12,7 @@ public class ColorSelectControl : MonoBehaviour {
     private float _startTime;
     private TileCreator _tcRef;
 
-    void Start ()
+    void Start()
     {
         _tcRef = EditGM.instance.tileCreator;
         _rtRef = transform.GetChild(0).GetComponent<RectTransform>();
@@ -23,11 +23,12 @@ public class ColorSelectControl : MonoBehaviour {
         _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.5f;
     }
 
-    void Update ()
+    void Update()
     {
         int newColor = _tcRef.tileColor;
         // whenever the tileCreator changes color, update target
-        if (_activeColor != newColor) {
+        if (_activeColor != newColor)
+        {
             // the current target has its scale reset to one
             _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one;
 
@@ -44,7 +45,8 @@ public class ColorSelectControl : MonoBehaviour {
 
         float t = Time.time - _startTime;
         // transitions are capped at 1 second in length
-        if (t < 1f) {
+        if (t < 1f)
+        {
             Quaternion q = Quaternion.RotateTowards(_rotationOrigin, _rotationTarget, 180 * t);
             // rotation for this frame is calculated and applied
             _rtRef.transform.rotation = q;

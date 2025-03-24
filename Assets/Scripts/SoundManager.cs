@@ -1,6 +1,6 @@
-﻿using UnityEngine.Audio;
+﻿using System;
 using UnityEngine;
-using System;
+using UnityEngine.Audio;
 
 public class SoundManager : MonoBehaviour
 {
@@ -10,12 +10,13 @@ public class SoundManager : MonoBehaviour
     // public references
     public Sound[] sounds;
 
-    void Awake ()
+    void Awake()
     {
         // Solo Dolo
         if (instance == null)
             instance = this;
-        else {
+        else
+        {
             Destroy(gameObject);
             return;
         }
@@ -23,7 +24,8 @@ public class SoundManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // Load our sounds :)
-        foreach(Sound s in sounds) {
+        foreach (Sound s in sounds)
+        {
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
 
@@ -45,11 +47,14 @@ public class SoundManager : MonoBehaviour
     {
         // get the sound
         Sound s = Array.Find(sounds, sound => sound.name == name);
-        if (s == null) {
-            Debug.LogWarning ("Sound name not recognized: " + name);
+        if (s == null)
+        {
+            Debug.LogWarning("Sound name not recognized: " + name);
             return;
-        } else if (s.source == null) {
-            Debug.LogWarning ("Load me better: " + name);
+        }
+        else if (s.source == null)
+        {
+            Debug.LogWarning("Load me better: " + name);
             return;
         }
 

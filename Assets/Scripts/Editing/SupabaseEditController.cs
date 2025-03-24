@@ -22,7 +22,8 @@ public class SupabaseEditController : MonoBehaviour
     }
 
     private const string SUPABASE_URL = "https://nswnjhegifaudsgjyrwf.supabase.co";
-    private const string SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
+    private const string SUPABASE_API_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
 
     public IEnumerator SaveLevel(SupabaseLevelDTO level)
     {
@@ -46,7 +47,9 @@ public class SupabaseEditController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Error saving level: " + request.error + "\n" + request.downloadHandler.text);
+            Debug.LogError(
+                "Error saving level: " + request.error + "\n" + request.downloadHandler.text
+            );
         }
     }
 
