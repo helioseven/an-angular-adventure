@@ -15,20 +15,21 @@ public partial class EditGM
 
     // a struct that manages "selection" (what is active/inactive),
     // particularly when switching modes and/or tools
-    public struct SelectedItem {
+    public struct SelectedItem
+    {
 
         public ChkpntData? chkpntData;
         public GameObject instance;
         public TileData? tileData;
         public WarpData? warpData;
 
-        public SelectedItem (TileData inTile) : this (null, inTile) {}
+        public SelectedItem(TileData inTile) : this(null, inTile) { }
 
-        public SelectedItem (ChkpntData inChkpnt) : this (null, inChkpnt) {}
+        public SelectedItem(ChkpntData inChkpnt) : this(null, inChkpnt) { }
 
-        public SelectedItem (WarpData inWarp) : this (null, inWarp) {}
+        public SelectedItem(WarpData inWarp) : this(null, inWarp) { }
 
-        public SelectedItem (GameObject inInstance, TileData inTile)
+        public SelectedItem(GameObject inInstance, TileData inTile)
         {
             instance = inInstance;
             tileData = inTile;
@@ -36,7 +37,7 @@ public partial class EditGM
             warpData = null;
         }
 
-        public SelectedItem (GameObject inInstance, ChkpntData inChkpnt)
+        public SelectedItem(GameObject inInstance, ChkpntData inChkpnt)
         {
             instance = inInstance;
             tileData = null;
@@ -44,7 +45,7 @@ public partial class EditGM
             warpData = null;
         }
 
-        public SelectedItem (GameObject inInstance, WarpData inWarp)
+        public SelectedItem(GameObject inInstance, WarpData inWarp)
         {
             instance = inInstance;
             tileData = null;
@@ -83,22 +84,24 @@ public partial class EditGM
     /* Public Operations */
 
     // adds a single layer to the bottom of the level
-    public void AddLayer ()
+    public void AddLayer()
     {
         addLayers(tileMap.transform.childCount);
     }
 
     // switches into createMode
-    public void EnterCreate ()
+    public void EnterCreate()
     {
         // if already in createMode, simply escape
         if (createMode) return;
 
-        if (_selectedItem != SelectedItem.noSelection) {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
             // if exiting editMode, add _selectedItem back to the level
             if (editMode) addSelectedItem();
 
-            if (_selectedItem.tileData.HasValue) {
+            if (_selectedItem.tileData.HasValue)
+            {
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
                 setTool(EditTools.Tile);
@@ -111,7 +114,9 @@ public partial class EditGM
 
             // null out SelectedItem's instance to instead refer to creation tool
             _selectedItem.instance = null;
-        } else {
+        }
+        else
+        {
             // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
             _selectedItem = new SelectedItem(td);
@@ -122,18 +127,22 @@ public partial class EditGM
     }
 
     // switches into editMode
-    public void EnterEdit ()
+    public void EnterEdit()
     {
         // if already in editMode, simply escape
         if (editMode) return;
 
-        if (_selectedItem != SelectedItem.noSelection) {
-            if (_selectedItem.instance) {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
+            if (_selectedItem.instance)
+            {
                 // if an object is selected, destroy it and activate relevant tool
                 removeSelectedItem();
                 Destroy(_selectedItem.instance);
                 _selectedItem.instance = null;
-            } else {
+            }
+            else
+            {
                 // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
@@ -146,7 +155,9 @@ public partial class EditGM
             removeSelectedItem();
             Destroy(_selectedItem.instance);
             _selectedItem.instance = null;
-        } else {
+        }
+        else
+        {
             // if no _selectedItem, default to tile tool
             setTool(EditTools.Tile);
         }
@@ -155,12 +166,13 @@ public partial class EditGM
     }
 
     // switches into paintMode
-    public void EnterPaint ()
+    public void EnterPaint()
     {
         // if already in paintMode, simply escape
         if (paintMode) return;
 
-        if (_selectedItem != SelectedItem.noSelection) {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
             if (_selectedItem.tileData.HasValue)
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
@@ -178,7 +190,7 @@ public partial class EditGM
     }
 
     // switches into selectMode
-    public void EnterSelect ()
+    public void EnterSelect()
     {
         // if already in selectMode, simply escape
         if (selectMode) return;
@@ -196,13 +208,13 @@ public partial class EditGM
     }
 
     // moves focus down to the next layer
-    public void MoveDownLayer ()
+    public void MoveDownLayer()
     {
         activateLayer(activeLayer + 1);
     }
 
     // moves focus up to the previous layer
-    public void MoveUpLayer ()
+    public void MoveUpLayer()
     {
         activateLayer(activeLayer - 1);
     }
@@ -210,32 +222,37 @@ public partial class EditGM
     // removes a single layer from the bottom of the level
     public void RemoveLayer()
     {
-        if (!removeLayer(tileMap.transform.childCount - 1, false)) {
+        if (!removeLayer(tileMap.transform.childCount - 1, false))
+        {
             // popup confirmation dialog
             removeLayer(tileMap.transform.childCount - 1, true);
         }
     }
 
     // (!!)(incomplete) deletes the current scene and loads the MainMenu scene
-    public void ReturnToMainMenu ()
+    public void ReturnToMainMenu()
     {
         // (!!) should prompt if unsaved
         SceneManager.LoadScene(0);
     }
 
     // (!!)(incomplete) save level to a file in plain text format
-    public void SaveFile (string levelName)
+    public void SaveFile(string levelName)
     {
         // (!!) should prompt for string instead
         string fname = levelName + ".txt";
-        string fpath = Path.Combine(new string[]{"Levels", fname});
+        string fpath = Path.Combine(new string[] { "Levels", fname });
 
         string[] lines = levelData.Serialize();
         File.WriteAllLines(fpath, lines);
+
+        // ## Supabase Section ## - Uncomment these next 2 line to save files to the database
+        // SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+        // SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
     }
 
     // sets level name property with passed string
-    public void SetLevelName (string inName)
+    public void SetLevelName(string inName)
     {
         if (inName.Length <= 100) _levelName = inName; // <1>
 
@@ -247,7 +264,7 @@ public partial class EditGM
     /* Private Operations */
 
     // returns a list of all HUD elements currently under the mouse
-    private List<RaycastResult> raycastAllHUD ()
+    private List<RaycastResult> raycastAllHUD()
     {
         PointerEventData ped = new PointerEventData(eventSystem);
         ped.position = Input.mousePosition;
