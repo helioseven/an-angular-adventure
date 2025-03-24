@@ -8,7 +8,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using circleXsquares;
 
-public partial class EditGM : MonoBehaviour {
+public partial class EditGM : MonoBehaviour
+{
 
     // singleton instance
     [HideInInspector] public static EditGM instance = null;
@@ -103,7 +104,7 @@ public partial class EditGM : MonoBehaviour {
             _warpLookup = new Dictionary<GameObject, WarpData>();
 
             // initializations for connected state variables
-            hudPanel.SetActive(false);
+            hudPanel.SetActive(true);
 
             // initializations for public state variables
             getInputs = InputKeys.None;
