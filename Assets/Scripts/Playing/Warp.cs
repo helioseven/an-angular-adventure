@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Warp : MonoBehaviour
 {
@@ -32,7 +32,8 @@ public class Warp : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player"))
+        {
             _gmRef.soundManager.Play("warp");
             _gmRef.WarpPlayer(baseLayer, targetLayer);
         }

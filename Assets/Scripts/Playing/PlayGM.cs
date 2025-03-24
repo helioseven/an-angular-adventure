@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using circleXsquares;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public partial class PlayGM : MonoBehaviour {
-
+public partial class PlayGM : MonoBehaviour
+{
     // singleton instance
-    [HideInInspector] public static PlayGM instance = null;
+    [HideInInspector]
+    public static PlayGM instance = null;
 
     // public references
     public Boundary boundaryDown;
@@ -31,18 +32,20 @@ public partial class PlayGM : MonoBehaviour {
     // public read-accessibility state variables
     public ChkpntData activeChkpnt { get; private set; }
     public int activeLayer { get; private set; }
-    public GravityDirection gravDirection {
+    public GravityDirection gravDirection
+    {
         get { return _gravDir; }
-        set {}
+        set { }
     }
     public LevelData levelData { get; private set; }
-    public bool victoryAchieved {get; private set;}
+    public bool victoryAchieved { get; private set; }
 
     // private constants
     private const int DEFAULT_LAYER = 0;
     private const int DEFAULT_NUM_LAYERS = 10;
     private const int INACTIVE_LAYER = 9;
-    public static readonly string[] INT_TO_NAME = {
+    public static readonly string[] INT_TO_NAME =
+    {
         "Zero",
         "One",
         "Two",
@@ -52,7 +55,7 @@ public partial class PlayGM : MonoBehaviour {
         "Six",
         "Seven",
         "Eight",
-        "Nine"
+        "Nine",
     };
 
     // private references
@@ -62,20 +65,22 @@ public partial class PlayGM : MonoBehaviour {
     private GravityDirection _gravDir;
     private HexOrient _playerStart;
 
-    void Awake ()
+    void Awake()
     {
-        if (!instance) {
+        if (!instance)
+        {
             // set singleton instance, then references
             instance = this;
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
             player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
             soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-        } else
+        }
+        else
             // if another singleton already exists, this one cannot
             Destroy(gameObject);
     }
 
-    void Start ()
+    void Start()
     {
         // load the level
         levelData = _lvlLoad.supplyLevel();
@@ -89,7 +94,7 @@ public partial class PlayGM : MonoBehaviour {
         victoryAchieved = false;
 
         // set position of each boundary
-        Boundary[] bs = {boundaryDown, boundaryLeft, boundaryRight, boundaryUp};
+        Boundary[] bs = { boundaryDown, boundaryLeft, boundaryRight, boundaryUp };
         foreach (Boundary b in bs)
             b.SetBoundary();
 
@@ -98,7 +103,7 @@ public partial class PlayGM : MonoBehaviour {
         SetCheckpoint(chkpnt.GetComponent<Checkpoint>().data);
     }
 
-    void Update ()
+    void Update()
     {
         // escape key bails to MainMenu, for now
         if (Input.GetKeyDown(KeyCode.Escape))

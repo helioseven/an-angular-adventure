@@ -2,32 +2,33 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using circleXsquares;
+using UnityEngine.UI;
 
 public partial class EditGM
 {
-
     /* Public Structs */
 
     // a struct that manages "selection" (what is active/inactive),
     // particularly when switching modes and/or tools
     public struct SelectedItem
     {
-
         public ChkpntData? chkpntData;
         public GameObject instance;
         public TileData? tileData;
         public WarpData? warpData;
 
-        public SelectedItem(TileData inTile) : this(null, inTile) { }
+        public SelectedItem(TileData inTile)
+            : this(null, inTile) { }
 
-        public SelectedItem(ChkpntData inChkpnt) : this(null, inChkpnt) { }
+        public SelectedItem(ChkpntData inChkpnt)
+            : this(null, inChkpnt) { }
 
-        public SelectedItem(WarpData inWarp) : this(null, inWarp) { }
+        public SelectedItem(WarpData inWarp)
+            : this(null, inWarp) { }
 
         public SelectedItem(GameObject inInstance, TileData inTile)
         {
@@ -55,23 +56,32 @@ public partial class EditGM
 
         public static bool operator ==(SelectedItem si1, SelectedItem si2)
         {
-            if (si1.instance != si2.instance) return false;
-            if (si1.tileData != si2.tileData) return false;
-            if (si1.chkpntData != si2.chkpntData) return false;
-            if (si1.warpData != si2.warpData) return false;
+            if (si1.instance != si2.instance)
+                return false;
+            if (si1.tileData != si2.tileData)
+                return false;
+            if (si1.chkpntData != si2.chkpntData)
+                return false;
+            if (si1.warpData != si2.warpData)
+                return false;
             return true;
         }
 
         public static SelectedItem noSelection = new SelectedItem();
 
-        public static bool operator !=(SelectedItem si1, SelectedItem si2) { return !(si1 == si2); }
+        public static bool operator !=(SelectedItem si1, SelectedItem si2)
+        {
+            return !(si1 == si2);
+        }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
         public override bool Equals(System.Object obj)
         {
             SelectedItem? inSI = obj as SelectedItem?;
-            if (!inSI.HasValue) return false;
-            else return this == inSI.Value;
+            if (!inSI.HasValue)
+                return false;
+            else
+                return this == inSI.Value;
         }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
@@ -93,12 +103,14 @@ public partial class EditGM
     public void EnterCreate()
     {
         // if already in createMode, simply escape
-        if (createMode) return;
+        if (createMode)
+            return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
             // if exiting editMode, add _selectedItem back to the level
-            if (editMode) addSelectedItem();
+            if (editMode)
+                addSelectedItem();
 
             if (_selectedItem.tileData.HasValue)
             {
@@ -130,7 +142,8 @@ public partial class EditGM
     public void EnterEdit()
     {
         // if already in editMode, simply escape
-        if (editMode) return;
+        if (editMode)
+            return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
@@ -169,7 +182,8 @@ public partial class EditGM
     public void EnterPaint()
     {
         // if already in paintMode, simply escape
-        if (paintMode) return;
+        if (paintMode)
+            return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
@@ -193,7 +207,8 @@ public partial class EditGM
     public void EnterSelect()
     {
         // if already in selectMode, simply escape
-        if (selectMode) return;
+        if (selectMode)
+            return;
 
         if (editMode && _selectedItem != SelectedItem.noSelection)
             // if in editMode while an object is selected, place the object
@@ -254,7 +269,8 @@ public partial class EditGM
     // sets level name property with passed string
     public void SetLevelName(string inName)
     {
-        if (inName.Length <= 100) _levelName = inName; // <1>
+        if (inName.Length <= 100)
+            _levelName = inName; // <1>
 
         /*
         <1> level names are capped at 100 characters for now

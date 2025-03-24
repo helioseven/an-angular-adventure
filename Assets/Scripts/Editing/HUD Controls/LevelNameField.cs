@@ -4,13 +4,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class LevelNameField : MonoBehaviour {
-
+public class LevelNameField : MonoBehaviour
+{
     /* Public Accessors */
 
-    public bool isActive {
+    public bool isActive
+    {
         get { return _isActive; }
-        set {}
+        set { }
     }
 
     /* Private References */
@@ -23,22 +24,23 @@ public class LevelNameField : MonoBehaviour {
     private bool _isActive;
     private string _storedText;
 
-    void Awake ()
+    void Awake()
     {
         _inputField = transform.GetChild(0).gameObject;
     }
 
-    void Start ()
+    void Start()
     {
         _gmRef = EditGM.instance;
         DeactivateField();
         _storedText = "";
     }
 
-    void Update ()
+    void Update()
     {
         bool click = _gmRef.CheckInputDown(EditGM.InputKeys.ClickMain);
-        if (_gmRef.IsLevelNameFieldHovered(this) && click) ActivateField();
+        if (_gmRef.IsLevelNameFieldHovered(this) && click)
+            ActivateField();
         _storedText = _gmRef.levelName;
     }
 
@@ -55,7 +57,7 @@ public class LevelNameField : MonoBehaviour {
     }
 
     // deactivates the child input field and restores self
-    public void DeactivateField ()
+    public void DeactivateField()
     {
         _isActive = false;
         _gmRef.inputMode = false;
@@ -63,7 +65,7 @@ public class LevelNameField : MonoBehaviour {
     }
 
     // simply updates level name info from input
-    public void UpdateLevelName (string fieldData)
+    public void UpdateLevelName(string fieldData)
     {
         _gmRef.levelName = fieldData;
         DeactivateField();

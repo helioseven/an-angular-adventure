@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using circleXsquares;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public partial class PlayGM
 {
@@ -15,7 +15,7 @@ public partial class PlayGM
         Down = 0,
         Left,
         Up,
-        Right
+        Right,
     }
 
     /* Public Utilities */
@@ -74,7 +74,8 @@ public partial class PlayGM
         player.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
 
         // update opacity and physics for all tile layers
-        foreach (Transform layer in tileMap.transform) {
+        foreach (Transform layer in tileMap.transform)
+        {
             int layerNumber = layer.GetSiblingIndex();
             // delta is absolute distance between layers
             int distance = Math.Abs(layerNumber - activeLayer);
@@ -85,7 +86,8 @@ public partial class PlayGM
         }
 
         // update opacity and physics for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform) {
+        foreach (Transform checkpoint in chkpntMap.transform)
+        {
             int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);
             if (activeLayer > layerNumber)
@@ -94,7 +96,8 @@ public partial class PlayGM
         }
 
         // update opacity for all victories
-        foreach (Transform victory in victoryMap.transform) {
+        foreach (Transform victory in victoryMap.transform)
+        {
             int layerNumber = victory.gameObject.GetComponent<Victory>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);
             if (activeLayer > layerNumber)
@@ -103,7 +106,8 @@ public partial class PlayGM
         }
 
         // update physics for warps
-        foreach (Transform warp in warpMap.transform) {
+        foreach (Transform warp in warpMap.transform)
+        {
             Warp w = warp.gameObject.GetComponent<Warp>();
             bool isActive = activeLayer == w.baseLayer || activeLayer == w.targetLayer;
             setWarpOpacityAndPhysics(warp, isActive);
@@ -116,11 +120,12 @@ public partial class PlayGM
         // prefab references to tiles are arrayed for easy access
         GameObject[,] prefab_refs = new GameObject[6, 8];
         foreach (Transform tileType in tileCreator.transform)
-            foreach (Transform tile in tileType)
-                prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
+        foreach (Transform tile in tileType)
+            prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
 
         // create level layers (hard-coded amount for now)
-        for (int i = 0; i < DEFAULT_NUM_LAYERS; i++) {
+        for (int i = 0; i < DEFAULT_NUM_LAYERS; i++)
+        {
             GameObject tileLayer = new GameObject();
             tileLayer.name = "Layer #" + i;
             tileLayer.transform.position = new Vector3(0f, 0f, 2f * i);
@@ -131,7 +136,8 @@ public partial class PlayGM
         Vector3 rotation = Vector3.forward;
 
         // populate tile hierarchy
-        foreach (TileData td in inLevel.tileSet) {
+        foreach (TileData td in inLevel.tileSet)
+        {
             GameObject pfRef = prefab_refs[td.type, td.color];
             Quaternion q;
             Vector3 v3 = td.orient.ToUnitySpace(out q);
@@ -155,7 +161,8 @@ public partial class PlayGM
         }
 
         // populate checkpoint map
-        foreach (ChkpntData cd in inLevel.chkpntSet) {
+        foreach (ChkpntData cd in inLevel.chkpntSet)
+        {
             Vector3 v3 = cd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(cd.layer).position.z;
             GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
@@ -185,7 +192,8 @@ public partial class PlayGM
         ChkpntData start = inLevel.chkpntSet[0];
 
         // populate warp map
-        foreach (WarpData wd in inLevel.warpSet) {
+        foreach (WarpData wd in inLevel.warpSet)
+        {
             Quaternion q;
             Vector3 v3 = wd.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(warpRef, v3, q) as GameObject;
@@ -221,11 +229,13 @@ public partial class PlayGM
             alpha = (float)Math.Pow(0.5, (double)distance);
         Color color = new Color(1f, 1f, 1f, alpha);
 
-        foreach (Transform tile in tileLayer) {
+        foreach (Transform tile in tileLayer)
+        {
             tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
 
             // if there are grandchildren, dim them too
-            if (tile.GetChild(0).childCount > 0) {
+            if (tile.GetChild(0).childCount > 0)
+            {
                 GameObject go = tile.GetChild(0).GetChild(0).gameObject;
                 go.GetComponent<SpriteRenderer>().color = color;
             }
@@ -250,11 +260,14 @@ public partial class PlayGM
     private void setWarpOpacityAndPhysics(Transform warp, bool isActive)
     {
         // warps have only two shades of opacity, active and non-active
-        if (isActive) {
+        if (isActive)
+        {
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
             Color c = new Color(0.15f, 0.45f, 1.0f, 0.5f);
             warp.GetComponentInChildren<MeshRenderer>().material.color = c;
-        } else {
+        }
+        else
+        {
             Color c = new Color(0.15f, 0.45f, 1.0f, 0.0125f);
             warp.GetComponentInChildren<MeshRenderer>().material.color = c;
         }

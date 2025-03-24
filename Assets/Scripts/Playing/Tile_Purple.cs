@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Tile_Purple : Tile
 {
@@ -9,8 +9,12 @@ public class Tile_Purple : Tile
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.CompareTag("Player")) {
-            float volume = _gmRef.ImpactIntensityToVolume(other.relativeVelocity, Physics2D.gravity);
+        if (other.gameObject.CompareTag("Player"))
+        {
+            float volume = _gmRef.ImpactIntensityToVolume(
+                other.relativeVelocity,
+                Physics2D.gravity
+            );
             _gmRef.soundManager.Play("bounce", volume);
         }
     }
