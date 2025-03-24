@@ -800,13 +800,13 @@ namespace circleXsquares
     /* Utility Definitions */
 
     // a class of static file parsing methods useful throughout the ecosystem
-    public static class FileParsing
+    public static class LevelLoader
     {
         // splitChar is just a useful delimiter for general parsing behavior
         public static Char[] splitChar = { ' ' };
 
         // reads an array of strings to parse out level data
-        public static LevelData ReadLevel(string[] lines)
+        public static LevelData LoadLevel(string[] lines)
         {
             // check to see that we have enough data to work with
             if (lines.Length < 10)
