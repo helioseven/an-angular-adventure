@@ -49,4 +49,39 @@ public class SupabaseEditController : MonoBehaviour
             Debug.LogError("Error saving level: " + request.error + "\n" + request.downloadHandler.text);
         }
     }
+
+    public IEnumerator LoadLevel(string levelName, System.Action<SupabaseLevelDTO> onSuccess)
+    {
+        string url = $"{SUPABASE_URL}/rest/v1/levels?name=eq.{UnityWebRequest.EscapeURL(levelName)}&select=*";
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", "Bearer " + SUPABASE_API_KEY);
+        request.SetRequestHeader("Accept", "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            string json = request.downloadHandler.text;
+
+            // Supabase returns a JSON array even if there's only one match
+            json = json.TrimStart('[').TrimEnd(']');
+
+            if (!string.IsNullOrEmpty(json))
+            {
+                SupabaseLevelDTO payload = JsonUtility.FromJson<SupabaseLevelDTO>(json);
+                onSuccess?.Invoke(payload);
+            }
+            else
+            {
+                Debug.LogWarning("Level not found.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Error loading level: " + request.error + "\n" + request.downloadHandler.text);
+        }
+    }
+
 }
