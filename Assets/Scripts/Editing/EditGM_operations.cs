@@ -251,15 +251,17 @@ public partial class EditGM
         SceneManager.LoadScene(0);
     }
 
-    // (!!)(incomplete) save level to a file in plain text format
+    // Save to disk or supabase in json
     public void SaveFile(string levelName)
     {
         bool saveToSupabase = false;
+
+        string[] lines = levelData.Serialize();
+
         if (saveToSupabase)
         {
-            // ## Supabase Section ##
-            // SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-            // SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
+            SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
         }
         else
         {
@@ -270,11 +272,6 @@ public partial class EditGM
                 Directory.CreateDirectory(levelsFolder);
             }
 
-            // (!!) should prompt for string instead
-            // string fname = levelName + ".txt";
-            // string fpath = Path.Combine(new string[] { "Levels", fname });
-
-            string[] lines = levelData.Serialize();
             SupabaseLevelDTO level = new SupabaseLevelDTO
             {
                 name = levelName,

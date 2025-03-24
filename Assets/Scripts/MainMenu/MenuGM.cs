@@ -42,7 +42,6 @@ public class MenuGM : MonoBehaviour
 
     private void OpenLevelBrowser()
     {
-        Debug.Log("asdff");
         levelBrowserPanel.SetActive(true);
         mainMenuPanel.SetActive(false);
     }

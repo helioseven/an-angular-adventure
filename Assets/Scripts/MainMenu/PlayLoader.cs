@@ -19,11 +19,6 @@ public class PlayLoader : MonoBehaviour
 
     private bool levelReady = false;
 
-    void Awake()
-    {
-
-    }
-
     void Start()
     {
         if (string.IsNullOrEmpty(levelName))
@@ -32,18 +27,12 @@ public class PlayLoader : MonoBehaviour
             return;
         }
 
+        // set the path
         string levelsFolder = LevelStorage.LevelsFolder;
-        // levelName is hard coded (!!), should be prompted
-        // levelName = "testLevel";
-        // string filename = levelName + ".txt";
-        // path = Path.Combine(new string[] { "Levels", filename });
-
-        // new path
         path = Path.Combine(levelsFolder, $"{levelName}.json");
 
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
-
 
         // Supabase - switch this to flip the script
         bool loadFromSupabase = false;
@@ -62,15 +51,9 @@ public class PlayLoader : MonoBehaviour
         {
             if (file_exists)
             {
-                // if file exists, it is loaded and parsed
-
-                // string[] lines = File.ReadAllLines(path);
-                // levelData = LevelLoader.LoadLevel(lines);
-
                 string json = File.ReadAllText(path);
                 var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
                 supabaseLevelPayloadData = levelDTO.data;
-
 
                 levelData = LevelLoader.LoadLevel(supabaseLevelPayloadData);
                 levelReady = true;

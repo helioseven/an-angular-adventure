@@ -53,11 +53,4 @@ public class LevelBrowser : MonoBehaviour
             });
         }
     }
-
-
-    void LoadLevel(string id)
-    {
-        Debug.Log($"[LevelBrowser] Load level: {id}");
-        // Add your actual load logic here
-    }
 }
