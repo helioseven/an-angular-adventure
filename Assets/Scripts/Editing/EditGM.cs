@@ -2,66 +2,73 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using circleXsquares;
+using UnityEngine.UI;
 
 public partial class EditGM : MonoBehaviour
 {
-
     // singleton instance
-    [HideInInspector] public static EditGM instance = null;
+    [HideInInspector]
+    public static EditGM instance = null;
 
     // references to UI elements, snap cursor, creation tool,
     // checkpoint tool, warp tool, and tile hierarchy
     public SnapCursor anchorIcon;
     public GameObject chkpntMap;
     public GameObject chkpntTool;
-	public EventSystem eventSystem;
+    public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
     public TileCreator tileCreator;
     public GameObject tileMap;
-	public GraphicRaycaster uiRaycaster;
+    public GraphicRaycaster uiRaycaster;
     public GameObject warpMap;
     public GameObject warpTool;
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
-    public bool createMode {
+    public bool createMode
+    {
         get { return _currentMode == EditorMode.Create; }
-        set {}
+        set { }
     }
-    public bool editMode {
+    public bool editMode
+    {
         get { return _currentMode == EditorMode.Edit; }
-        set {}
+        set { }
     }
     public InputKeys getInputs { get; private set; }
     public InputKeys getInputDowns { get; private set; }
     public bool hoveringHUD { get; private set; }
     public LevelData levelData { get; private set; }
-    public SelectedItem selectedItem {
+    public SelectedItem selectedItem
+    {
         get { return _selectedItem; }
-        set {}
+        set { }
     }
-    public bool paintMode {
+    public bool paintMode
+    {
         get { return _currentMode == EditorMode.Paint; }
-        set {}
+        set { }
     }
     public bool paletteMode { get; private set; }
-    public bool selectMode {
+    public bool selectMode
+    {
         get { return _currentMode == EditorMode.Select; }
-        set {}
+        set { }
     }
 
     // public read- and set-accessibility state variables
-    public bool inputMode {
+    public bool inputMode
+    {
         get { return _inputMode; }
         set { _inputMode = value; }
     }
-    public string levelName {
+    public string levelName
+    {
         get { return _levelName; }
         set { SetLevelName(value); }
     }
@@ -84,14 +91,15 @@ public partial class EditGM : MonoBehaviour
     private Dictionary<GameObject, WarpData> _warpLookup;
     private SpecialCreator _warpTool;
 
-    void Awake ()
+    void Awake()
     {
-        if (!instance) {
+        if (!instance)
+        {
             // set singleton instance
             instance = this;
 
             // initializations for private state variables
-            _currentHUDhover = null;
+            _currentHUDhover = new List<RaycastResult>();
             _inputMode = false;
             _currentMode = EditorMode.Create;
             _toolMode = EditTools.Tile;
@@ -121,12 +129,13 @@ public partial class EditGM : MonoBehaviour
 
             // first layer is activated
             activateLayer(activeLayer);
-        } else
+        }
+        else
             // only one singleton can exist
             Destroy(gameObject);
     }
 
-    void Update ()
+    void Update()
     {
         // getInputs and getInputDowns are updated
         updateInputs();
