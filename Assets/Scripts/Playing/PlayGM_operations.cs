@@ -1,20 +1,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using circleXsquares;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
-public partial class PlayGM {
-
+public partial class PlayGM
+{
     /* Public Operations */
 
     // redirects gravity in the specified direction
-    public void DirectGravity (GravityDirection inDirect)
+    public void DirectGravity(GravityDirection inDirect)
     {
         // set gravity vector according to direction
-        switch (inDirect) {
+        switch (inDirect)
+        {
             case GravityDirection.Down:
                 Physics2D.gravity = new Vector2(0.0f, -9.81f);
                 break;
@@ -37,7 +38,7 @@ public partial class PlayGM {
     }
 
     // kills the player
-    public void KillPlayer ()
+    public void KillPlayer()
     {
         player.gameObject.SetActive(false);
         Vector3 p = player.transform.position;
@@ -47,19 +48,19 @@ public partial class PlayGM {
     }
 
     // updates last-touched checkpoint
-    public void SetCheckpoint (ChkpntData inCheckpoint)
+    public void SetCheckpoint(ChkpntData inCheckpoint)
     {
         activeChkpnt = inCheckpoint;
     }
 
     // allows Victory prefabs to register victory with PlayGM
-    public void RegisterVictory (Victory inVictory)
+    public void RegisterVictory(Victory inVictory)
     {
         victoryAchieved = true;
     }
 
     // resets the player to last checkpoint
-    public void ResetToCheckpoint ()
+    public void ResetToCheckpoint()
     {
         Vector3 v3 = activeChkpnt.locus.ToUnitySpace();
         int l = activeChkpnt.layer;
@@ -70,7 +71,7 @@ public partial class PlayGM {
     }
 
     // warps player from either base or target layer
-    public void WarpPlayer (int baseLayer, int targetLayer)
+    public void WarpPlayer(int baseLayer, int targetLayer)
     {
         // if activeLayer matches either base or target, select the other
         int next_layer = activeLayer == baseLayer ? targetLayer : baseLayer;

@@ -2,18 +2,21 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MenuGM : MonoBehaviour {
-
+public class MenuGM : MonoBehaviour
+{
     // Edit button ref
     public Button editButton;
+
     // EditLoader ref
     public GameObject editLoader;
+
     // Play button ref
     public Button playButton;
+
     // PlayLoader ref
     public GameObject playLoader;
 
-    void Awake ()
+    void Awake()
     {
         playButton.onClick.AddListener(StartPlay);
         editButton.onClick.AddListener(StartEdit);
@@ -21,12 +24,12 @@ public class MenuGM : MonoBehaviour {
 
     /* Private Functions */
 
-    private void StartPlay ()
+    private void StartPlay()
     {
         Instantiate(playLoader);
     }
 
-    private void StartEdit ()
+    private void StartEdit()
     {
         Instantiate(editLoader);
     }

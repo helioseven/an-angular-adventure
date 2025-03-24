@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.UI;
-using circleXsquares;
 
-public class ObjectInfoControl : MonoBehaviour {
-
+public class ObjectInfoControl : MonoBehaviour
+{
     /* Public References */
 
     public EditGM gmRef;
@@ -31,8 +31,9 @@ public class ObjectInfoControl : MonoBehaviour {
     private bool _isAnySelected;
     private bool _isInstanceNull;
 
-    private readonly float[] _aspectRatios = new float[] {1f, 2f, 2f, 1f, 1f, 2f};
-    private readonly string[] _colorStrings = new string[] {
+    private readonly float[] _aspectRatios = new float[] { 1f, 2f, 2f, 1f, 1f, 2f };
+    private readonly string[] _colorStrings = new string[]
+    {
         "Black",
         "Blue",
         "Brown",
@@ -40,9 +41,10 @@ public class ObjectInfoControl : MonoBehaviour {
         "Orange",
         "Purple",
         "Red",
-        "White"
+        "White",
     };
-    private readonly string[] _typeStrings = new string[] {
+    private readonly string[] _typeStrings = new string[]
+    {
         "Triangle",
         "Diamond",
         "Trapezoid",
@@ -50,10 +52,10 @@ public class ObjectInfoControl : MonoBehaviour {
         "Square",
         "Wedge",
         "Checkpoint",
-        "Warp"
+        "Warp",
     };
 
-    void Awake ()
+    void Awake()
     {
         _isAnySelected = false;
         _lastFrameInfoPack = new InfoPack();
@@ -61,7 +63,7 @@ public class ObjectInfoControl : MonoBehaviour {
         transform.GetChild(2).gameObject.SetActive(false);
     }
 
-    void Start ()
+    void Start()
     {
         gmRef = EditGM.instance;
         tcRef = gmRef.tileCreator;
@@ -82,7 +84,7 @@ public class ObjectInfoControl : MonoBehaviour {
         _specialDisplay = t.GetChild(1).GetComponent<Text>();
     }
 
-    void Update ()
+    void Update()
     {
         InfoPack ip = getUpdatedInfo();
 
@@ -95,14 +97,15 @@ public class ObjectInfoControl : MonoBehaviour {
     /* Private Structs */
 
     // a struct for reporting what current display information should be
-    private struct InfoPack {
+    private struct InfoPack
+    {
         public int type;
         public int color;
         public int spec;
         public int rot;
         public HexLocus locus;
 
-        public InfoPack (int inType, int inColor, int inSpec, int inRot, HexLocus inLocus)
+        public InfoPack(int inType, int inColor, int inSpec, int inRot, HexLocus inLocus)
         {
             type = inType;
             color = inColor;
@@ -113,15 +116,23 @@ public class ObjectInfoControl : MonoBehaviour {
 
         public static bool operator ==(InfoPack ip1, InfoPack ip2)
         {
-            if (ip1.type != ip2.type) return false;
-            if (ip1.color != ip2.color) return false;
-            if (ip1.spec != ip2.spec) return false;
-            if (ip1.rot != ip2.rot) return false;
-            if (ip1.locus != ip2.locus) return false;
+            if (ip1.type != ip2.type)
+                return false;
+            if (ip1.color != ip2.color)
+                return false;
+            if (ip1.spec != ip2.spec)
+                return false;
+            if (ip1.rot != ip2.rot)
+                return false;
+            if (ip1.locus != ip2.locus)
+                return false;
             return true;
         }
 
-        public static bool operator !=(InfoPack ip1, InfoPack ip2) { return !(ip1 == ip2); }
+        public static bool operator !=(InfoPack ip1, InfoPack ip2)
+        {
+            return !(ip1 == ip2);
+        }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
         public override bool Equals(System.Object obj)
@@ -154,16 +165,21 @@ public class ObjectInfoControl : MonoBehaviour {
         int updt_rot = 0;
         HexLocus updt_locus = new HexLocus();
 
-        if (_isAnySelected) {
-            if (si.tileData.HasValue) {
-                if (_isInstanceNull) {
+        if (_isAnySelected)
+        {
+            if (si.tileData.HasValue)
+            {
+                if (_isInstanceNull)
+                {
                     // if instance is null, gather info from currently active tool
                     updt_type = tcRef.tileType;
                     updt_color = tcRef.tileColor;
                     updt_spec = tcRef.tileSpecial;
                     updt_rot = tcRef.tileOrient.rotation;
                     updt_locus = tcRef.tileOrient.locus;
-                } else {
+                }
+                else
+                {
                     // if instance is non-null, gather info from object data
                     TileData td = si.tileData.Value;
                     updt_type = td.type;
@@ -173,7 +189,8 @@ public class ObjectInfoControl : MonoBehaviour {
                     updt_locus = td.orient.locus;
                 }
             }
-            if (si.chkpntData.HasValue) {
+            if (si.chkpntData.HasValue)
+            {
                 updt_type = 6;
                 updt_color = -1;
                 updt_spec = -1;
@@ -185,16 +202,20 @@ public class ObjectInfoControl : MonoBehaviour {
                     // if instance is non-null, gather info from object data
                     updt_locus = si.chkpntData.Value.locus;
             }
-            if (si.warpData.HasValue) {
+            if (si.warpData.HasValue)
+            {
                 WarpData wd = si.warpData.Value;
                 updt_type = 7;
                 updt_color = -1;
                 updt_spec = -1;
-                if (_isInstanceNull) {
+                if (_isInstanceNull)
+                {
                     // if instance is null, gather info from currently active tool
                     updt_rot = wtRef.specOrient.rotation;
                     updt_locus = wtRef.specOrient.locus;
-                } else {
+                }
+                else
+                {
                     // if instance is non-null, gather info from object data
                     updt_rot = wd.orient.rotation;
                     updt_locus = wd.orient.locus;
@@ -206,33 +227,40 @@ public class ObjectInfoControl : MonoBehaviour {
     }
 
     // updates the display image
-    private void updateUI (InfoPack inIP)
+    private void updateUI(InfoPack inIP)
     {
-        if (_isAnySelected && inIP.type >= 0) {
+        if (_isAnySelected && inIP.type >= 0)
+        {
             // set sprite source transform and aspect ratio for object image
             Transform t = tcRef.transform;
-            if (inIP.type <= 5) {
+            if (inIP.type <= 5)
+            {
                 t = tcRef.transform.GetChild(inIP.type);
                 t = t.GetChild(inIP.color).GetChild(0);
                 _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
             }
-            if (inIP.type == 6) {
+            if (inIP.type == 6)
+            {
                 t = ctRef.transform.GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
-            if (inIP.type == 7) {
+            if (inIP.type == 7)
+            {
                 t = wtRef.transform.GetChild(1);
                 _objectDisplayARF.aspectRatio = 1f;
             }
 
             // check for sprite, activate display as appropriate
             SpriteRenderer sr = t.GetComponent<SpriteRenderer>();
-            if (sr) {
+            if (sr)
+            {
                 _objectDisplay.sprite = sr.sprite;
                 _objectDisplay.gameObject.SetActive(true);
-            } else
+            }
+            else
                 _objectDisplay.gameObject.SetActive(false);
-        } else
+        }
+        else
             _objectDisplay.gameObject.SetActive(false);
 
         // set text strings as appropriate
@@ -251,11 +279,13 @@ public class ObjectInfoControl : MonoBehaviour {
         // set special dropdown values, activate if appropriate
         string sp = "Special Value:";
         b = false;
-        if (inIP.color == 3) {
+        if (inIP.color == 3)
+        {
             sp = "Switch Target:";
             b = true;
         }
-        if (inIP.color == 4) {
+        if (inIP.color == 4)
+        {
             sp = "Gravity Target:";
             b = true;
         }

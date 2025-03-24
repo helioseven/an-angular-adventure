@@ -2,23 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PaletteControl : MonoBehaviour {
-
+public class PaletteControl : MonoBehaviour
+{
     // private variables
     private RectTransform _canvasRT;
     private Vector2 _localPosition;
     private RectTransform _localRT;
     private Camera _mainCam;
 
-    public void Start () {
+    public void Start()
+    {
         _mainCam = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
         _localPosition = Vector2.zero;
 
         Canvas c = GetComponentInParent<Canvas>();
-        if (c) {
+        if (c)
+        {
             _canvasRT = c.transform as RectTransform;
             _localRT = transform as RectTransform;
-        } else {
+        }
+        else
+        {
             // this panel will not initialize properly if not the child of a canvas
             Debug.LogError("Failed to find the canvas.");
             _canvasRT = new RectTransform();
@@ -31,14 +35,22 @@ public class PaletteControl : MonoBehaviour {
     /* Public Functions */
 
     // activates the panel and places it at the given location
-    public void TogglePalette () {
+    public void TogglePalette()
+    {
         if (gameObject.activeSelf)
             // if the panel is already active, deactivate it
             gameObject.SetActive(false);
-        else {
+        else
+        {
             // otherwise mouse input is translated to local rect space
-            Vector2 lp, mP = Input.mousePosition;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRT, mP, _mainCam, out lp);
+            Vector2 lp,
+                mP = Input.mousePosition;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _canvasRT,
+                mP,
+                _mainCam,
+                out lp
+            );
             _localPosition = lp;
             // panel is then moved to the translated position and activated
             _localRT.localPosition = _localPosition;

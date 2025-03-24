@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
@@ -11,7 +11,7 @@ public class Tile : MonoBehaviour
     // protected references
     protected PlayGM _gmRef;
 
-    void Awake ()
+    void Awake()
     {
         _gmRef = PlayGM.instance;
     }

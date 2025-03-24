@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using circleXsquares;
+﻿using circleXsquares;
+using UnityEngine;
 
 public class Victory : MonoBehaviour
 {
@@ -9,7 +9,8 @@ public class Victory : MonoBehaviour
     public float pullForce;
 
     // private constants
-    private readonly string[] INT_TO_NAME = {
+    private readonly string[] INT_TO_NAME =
+    {
         "Zero",
         "One",
         "Two",
@@ -19,7 +20,7 @@ public class Victory : MonoBehaviour
         "Six",
         "Seven",
         "Eight",
-        "Nine"
+        "Nine",
     };
 
     // private references
@@ -39,8 +40,10 @@ public class Victory : MonoBehaviour
     {
         int mask = 1 << LayerMask.NameToLayer(INT_TO_NAME[data.layer]);
         Collider2D[] c2ds = Physics2D.OverlapCircleAll(transform.position, pullRadius, mask);
-        foreach (Collider2D c in c2ds) {
-            if (c.gameObject.CompareTag("Player")) {
+        foreach (Collider2D c in c2ds)
+        {
+            if (c.gameObject.CompareTag("Player"))
+            {
                 play_gm.RegisterVictory(this);
 
                 // calculate direction from target to victory center
@@ -57,7 +60,8 @@ public class Victory : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player"))
+        {
             play_gm.RegisterVictory(this);
             play_gm.soundManager.Play("victory");
         }

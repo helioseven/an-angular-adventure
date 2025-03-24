@@ -10,14 +10,14 @@ public class PlayCam_Controller : MonoBehaviour
     // private variables
     private Vector3 _velocity = Vector3.zero;
 
-    void Start ()
+    void Start()
     {
         _player = GameObject.FindWithTag("Player");
         _velocity = _player.transform.position;
     }
 
     // uses SmoothDamp to move camera towards the player at all times
-    void Update ()
+    void Update()
     {
         Vector3 target = _player.transform.position;
         target.z = target.z - 8f;

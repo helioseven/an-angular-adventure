@@ -2,22 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using circleXsquares;
+using UnityEngine.UI;
 
 public partial class EditGM
 {
-
     /* Update() Sub-Routines */
 
     // updates getInputs and getInputDowns with appropriate InputKeys
-    private void updateInputs ()
+    private void updateInputs()
     {
         // get inputs from InputManager
-        bool[] b = {
+        bool[] b =
+        {
             Input.GetButton("Jump"),
             Input.GetButton("Palette"),
             Input.GetButton("Delete"),
@@ -46,10 +46,12 @@ public partial class EditGM
         int k = 0;
         InputKeys now = InputKeys.None;
         // enum bit flags are assigned by powers of 2
-        for (int i = 1; i <= 0x400000; i = i * 2) {
-            InputKeys ik = (InputKeys) i;
+        for (int i = 1; i <= 0x400000; i = i * 2)
+        {
+            InputKeys ik = (InputKeys)i;
             // CheckInput relies on last frame data before its been updated
-            if (b[k++] && !CheckInput(ik)) now = now | (InputKeys) i;
+            if (b[k++] && !CheckInput(ik))
+                now = now | (InputKeys)i;
         }
         // assign public member for inputdown flags
         getInputDowns = now;
@@ -58,7 +60,8 @@ public partial class EditGM
         k = 0;
         now = InputKeys.None;
         for (int i = 1; i <= 0x400000; i = i * 2)
-            if (b[k++]) now = now | (InputKeys) i;
+            if (b[k++])
+                now = now | (InputKeys)i;
         getInputs = now;
 
         // get raycast results for this frame's mouse position
@@ -66,7 +69,7 @@ public partial class EditGM
     }
 
     // makes changes associated with anchorIcon and layer changes
-    private void updateLevel ()
+    private void updateLevel()
     {
         // right-click will update snap cursor location
         if (CheckInputDown(InputKeys.ClickAlt))
@@ -79,9 +82,10 @@ public partial class EditGM
     }
 
     // updates UI Overlay and Palette panels
-    private void updateUI ()
+    private void updateUI()
     {
-        if (_inputMode) return;
+        if (_inputMode)
+            return;
 
         bool isHUD = CheckInputDown(InputKeys.HUD);
         bool isPal = CheckInput(InputKeys.Palette);
@@ -93,15 +97,19 @@ public partial class EditGM
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
         // palette is toggled on whenever tab key is held down
-        if (paletteMode != isPal) {
+        if (paletteMode != isPal)
+        {
             paletteMode = isPal;
             palettePanel.TogglePalette();
         }
 
-        if (hoveringHUD || paletteMode) {
+        if (hoveringHUD || paletteMode)
+        {
             // whenever palette activates, _currentTool is turned off
             _currentTool.SetActive(false);
-        } else {
+        }
+        else
+        {
             // when palette deactivates, determine desired _currentTool activity
             bool b = false;
             if (createMode)
@@ -118,7 +126,7 @@ public partial class EditGM
     }
 
     // makes changes associated with being in createMode
-    private void updateCreate ()
+    private void updateCreate()
     {
         // break if eraser is active, because it shouldn't be (for now)
         if (_toolMode == EditTools.Eraser)
@@ -128,11 +136,13 @@ public partial class EditGM
         updateTool();
 
         // C and V activate the checkpoint and warp tools, respectively
-        if (CheckInputDown(InputKeys.Chkpnt)) {
+        if (CheckInputDown(InputKeys.Chkpnt))
+        {
             _currentTool.SetActive(false);
             setTool(EditTools.Chkpnt);
         }
-        if (CheckInputDown(InputKeys.Warp)) {
+        if (CheckInputDown(InputKeys.Warp))
+        {
             _currentTool.SetActive(false);
             setTool(EditTools.Warp);
         }
@@ -145,7 +155,8 @@ public partial class EditGM
         nums |= InputKeys.Five;
         nums |= InputKeys.Six;
         nums &= getInputDowns;
-        if (nums != InputKeys.None) {
+        if (nums != InputKeys.None)
+        {
             _currentTool.SetActive(false);
             updateTileProperties();
             setTool(EditTools.Tile);
@@ -156,10 +167,11 @@ public partial class EditGM
     }
 
     // makes changes associated with being in editMode
-    private void updateEdit ()
+    private void updateEdit()
     {
         // first, handle the case where an item is currently selected
-        if (_selectedItem != SelectedItem.noSelection) {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
             if (_toolMode == EditTools.Eraser)
                 // break if eraser is active, because it shouldn't be (for now)
                 return;
@@ -167,7 +179,8 @@ public partial class EditGM
             // make updates associated with active tool according to input
             updateTool();
 
-            if (CheckInputDown(InputKeys.ClickMain)) {
+            if (CheckInputDown(InputKeys.ClickMain))
+            {
                 // if tool has been used, clean up
                 _currentTool.SetActive(false);
                 _selectedItem = SelectedItem.noSelection;
@@ -175,15 +188,19 @@ public partial class EditGM
             }
 
             // Delete key will destroy instance and forget _selectedItem
-            if (CheckInputDown(InputKeys.Delete)) {
+            if (CheckInputDown(InputKeys.Delete))
+            {
                 _currentTool.SetActive(false);
                 Destroy(_selectedItem.instance);
                 _selectedItem = SelectedItem.noSelection;
             }
-        } else if (CheckInputDown(InputKeys.ClickMain)) {
+        }
+        else if (CheckInputDown(InputKeys.ClickMain))
+        {
             // next, handle the case where there is no selected tile
             Collider2D c2d = GetObjectClicked();
-            if (!c2d) {
+            if (!c2d)
+            {
                 // left-click selects a tile, if click misses then break
                 _selectedItem = SelectedItem.noSelection;
                 return;
@@ -192,7 +209,8 @@ public partial class EditGM
             GameObject go = c2d.gameObject;
             TileData td;
             // check if clicked object is a mapped tile
-            if (IsMappedTile(go, out td)) {
+            if (IsMappedTile(go, out td))
+            {
                 // if clicked tile isn't a part of activeLayer, ignore it
                 if (td.orient.layer != activeLayer)
                     return;
@@ -204,15 +222,19 @@ public partial class EditGM
                 // when done using data, remove and destroy GameObject
                 removeTile(go);
                 Destroy(go);
-            } else {
+            }
+            else
+            {
                 // if special is clicked, same as above with extra checks
                 ChkpntData cd;
                 WarpData wd;
-                if (IsMappedChkpnt(go, out cd)) {
+                if (IsMappedChkpnt(go, out cd))
+                {
                     _selectedItem = new SelectedItem(null, cd);
                     setTool(EditTools.Chkpnt);
                 }
-                if (IsMappedWarp(go, out wd)) {
+                if (IsMappedWarp(go, out wd))
+                {
                     _selectedItem = new SelectedItem(null, wd);
                     _warpTool.SetOrientation(wd.orient);
                     setTool(EditTools.Warp);
@@ -231,18 +253,22 @@ public partial class EditGM
     }
 
     // makes changes associated with being in selectMode
-    private void updateSelect ()
+    private void updateSelect()
     {
         // in select mode, clicking is the only function
-        if (CheckInputDown(InputKeys.ClickMain)) {
+        if (CheckInputDown(InputKeys.ClickMain))
+        {
             // first find out what (if anything) was clicked on
             Collider2D c2d = GetObjectClicked();
             GameObject si = _selectedItem.instance;
-            if (!c2d || (si && (si == c2d.gameObject))) {
+            if (!c2d || (si && (si == c2d.gameObject)))
+            {
                 // if nothing or selected tile is clicked on, deselect and return
                 _selectedItem = SelectedItem.noSelection;
                 return;
-            } else {
+            }
+            else
+            {
                 // otherwise select according to what was clicked on
                 GameObject go = c2d.gameObject;
                 TileData td;
@@ -259,7 +285,7 @@ public partial class EditGM
     }
 
     // handles input that modifies the tile creator tool
-    private void updateTileProperties ()
+    private void updateTileProperties()
     {
         // update tile rotation
         int rot = tileCreator.tileOrient.rotation;
@@ -293,22 +319,25 @@ public partial class EditGM
     }
 
     // handles input relating to the current tool
-    private void updateTool ()
+    private void updateTool()
     {
         bool chkclck = CheckInputDown(InputKeys.ClickMain);
-        switch (_toolMode) {
+        switch (_toolMode)
+        {
             // when using tile tool, always update tile creator properties first
             case EditTools.Tile:
                 updateTileProperties();
                 // if main click, add relevant tool's item to the level
-                if (chkclck) {
+                if (chkclck)
+                {
                     GameObject go = addTile();
                     _selectedItem = new SelectedItem(go, _tileLookup[go]);
                 }
                 break;
             case EditTools.Chkpnt:
                 // if main click, add relevant tool's item to the level
-                if (chkclck) {
+                if (chkclck)
+                {
                     ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(cd);
                     _selectedItem = new SelectedItem(go, cd);
@@ -326,7 +355,8 @@ public partial class EditGM
                     _warpTool.SetRotation(rot);
 
                 // if main click, add relevant tool's item to the level
-                if (chkclck) {
+                if (chkclck)
+                {
                     HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
                     WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
                     GameObject go = addSpecial(wd);

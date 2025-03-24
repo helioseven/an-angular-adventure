@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using circleXsquares;
+using UnityEngine;
 
 public class Tile_Red : Tile
 {
