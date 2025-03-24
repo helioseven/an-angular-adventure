@@ -41,12 +41,14 @@ public class TileCreator : MonoBehaviour
         _tileRenderers = new SpriteRenderer[nTypes, nColors];
 
         for (int i = 0; i < nTypes; i++)
-        for (int j = 0; j < nColors; j++)
         {
-            // gets the sprite renderer for each of the tile types and colors
-            Transform t = transform.GetChild(i).GetChild(j);
-            _tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
-            _tileRenderers[i, j].enabled = false;
+            for (int j = 0; j < nColors; j++)
+            {
+                // gets the sprite renderer for each of the tile types and colors
+                Transform t = transform.GetChild(i).GetChild(j);
+                _tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
+                _tileRenderers[i, j].enabled = false;
+            }
         }
 
         // turns all renderers off except the active tile

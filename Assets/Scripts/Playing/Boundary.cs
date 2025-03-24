@@ -41,19 +41,21 @@ public class Boundary : MonoBehaviour
     {
         float max = 0f;
         foreach (Transform layer in _gmRef.tileMap.transform)
-        foreach (Transform tile in layer)
         {
-            // test each tile against current known max extents
-            Vector2 v2 = tile.GetChild(0).position;
-            float f = 0f;
-            if (isVertical)
-                f = v2.y * (isPositive ? 1 : -1);
-            else
-                f = v2.x * (isPositive ? 1 : -1);
+            foreach (Transform tile in layer)
+            {
+                // test each tile against current known max extents
+                Vector2 v2 = tile.GetChild(0).position;
+                float f = 0f;
+                if (isVertical)
+                    f = v2.y * (isPositive ? 1 : -1);
+                else
+                    f = v2.x * (isPositive ? 1 : -1);
 
-            // write new max extent if found
-            if (f > max)
-                max = f;
+                // write new max extent if found
+                if (f > max)
+                    max = f;
+            }
         }
 
         // set each boundary 20 units beyond appropriate max extent
