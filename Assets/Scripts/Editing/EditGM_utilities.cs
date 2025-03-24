@@ -212,11 +212,13 @@ public partial class EditGM
         // first, prefab references are arrayed for indexed access
         GameObject[,] prefab_refs = new GameObject[6, 8];
         foreach (Transform tileGroup in tileCreator.transform)
-        foreach (Transform tile in tileGroup)
         {
-            int tgi = tileGroup.GetSiblingIndex();
-            int ti = tile.GetSiblingIndex();
-            prefab_refs[tgi, ti] = tile.gameObject;
+            foreach (Transform tile in tileGroup)
+            {
+                int tgi = tileGroup.GetSiblingIndex();
+                int ti = tile.GetSiblingIndex();
+                prefab_refs[tgi, ti] = tile.gameObject;
+            }
         }
 
         // build each tile in the level

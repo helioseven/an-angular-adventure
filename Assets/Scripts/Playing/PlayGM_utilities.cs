@@ -120,8 +120,10 @@ public partial class PlayGM
         // prefab references to tiles are arrayed for easy access
         GameObject[,] prefab_refs = new GameObject[6, 8];
         foreach (Transform tileType in tileCreator.transform)
-        foreach (Transform tile in tileType)
-            prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
+        {
+            foreach (Transform tile in tileType)
+                prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
+        }
 
         // create level layers (hard-coded amount for now)
         for (int i = 0; i < DEFAULT_NUM_LAYERS; i++)
