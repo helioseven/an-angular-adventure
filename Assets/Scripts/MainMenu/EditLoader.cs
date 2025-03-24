@@ -37,7 +37,7 @@ public class EditLoader : MonoBehaviour
         {
             // if file exists, it is loaded and parsed
             string[] lines = File.ReadAllLines(path);
-            ld = FileParsing.ReadLevel(lines);
+            ld = LevelLoader.LoadLevel(lines);
         }
         else
         {

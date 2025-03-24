@@ -53,9 +53,10 @@ public class SupabaseEditController : MonoBehaviour
         }
     }
 
-    public IEnumerator LoadLevel(string levelName, System.Action<SupabaseLevelDTO> onSuccess)
+    public IEnumerator LoadLevel(string levelId, System.Action<SupabaseLevelDTO> onSuccess)
     {
-        string url = $"{SUPABASE_URL}/rest/v1/levels?name=eq.{UnityWebRequest.EscapeURL(levelName)}&select=*";
+        string url = $"{SUPABASE_URL}/rest/v1/levels?id=eq.{levelId}&select=*";
+        Debug.Log("Request URL: " + url);
 
         UnityWebRequest request = UnityWebRequest.Get(url);
         request.SetRequestHeader("apikey", SUPABASE_API_KEY);
@@ -67,6 +68,7 @@ public class SupabaseEditController : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             string json = request.downloadHandler.text;
+            Debug.Log(json);
 
             // Supabase returns a JSON array even if there's only one match
             json = json.TrimStart('[').TrimEnd(']');
