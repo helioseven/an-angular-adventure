@@ -24,7 +24,6 @@ public class LevelBrowser : MonoBehaviour
             RefreshUI();
         }));
 
-
         RefreshUI();
         filterInput.onValueChanged.AddListener(_ => RefreshUI());
     }

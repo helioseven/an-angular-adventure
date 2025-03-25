@@ -7,22 +7,18 @@ public class MenuGM : MonoBehaviour
 {
     // Edit button ref
     public Button editButton;
-
     // EditLoader ref
     public GameObject editLoader;
-
     // Play button ref
     public Button playButton;
-
     // PlayLoader ref
     public GameObject playLoader;
-
     // Browse Menu ref
     public Button browseButton;
 
+    // Panels
     public GameObject levelBrowserPanel;
     public GameObject mainMenuPanel;
-
 
     void Awake()
     {
