@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -254,7 +255,6 @@ public partial class EditGM
     // Save to disk in json
     public void SaveFile(string levelName)
     {
-
         string[] lines = levelData.Serialize();
         string levelsFolder = LevelStorage.LevelsFolder;
 
@@ -263,13 +263,20 @@ public partial class EditGM
             Directory.CreateDirectory(levelsFolder);
         }
 
-        SupabaseLevelDTO level = new SupabaseLevelDTO
-        {
-            name = levelName,
-            data = lines
-        };
+        SupabaseLevelDTO level = new SupabaseLevelDTO { name = levelName, data = lines };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
-        string path = Path.Combine(levelsFolder, $"{levelName}.json");
+        var invalidChars = Path.GetInvalidFileNameChars();
+        string cleanName = new string(
+            levelName
+                .Where(c => !invalidChars.Contains(c) && c != '\u200B') // removes invisible U+200B
+                .ToArray()
+        );
+        cleanName = cleanName.Trim();
+        if (cleanName != levelName)
+        {
+            Debug.LogWarning($"[LevelStorage] Filename sanitized: '{levelName}' → '{cleanName}'");
+        }
+        string path = Path.Combine(levelsFolder, $"{cleanName}.json");
 
         File.WriteAllText(path, json);
     }
@@ -280,7 +287,9 @@ public partial class EditGM
         string[] lines = levelData.Serialize();
 
         SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-        SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
+        SupabaseEditController.Instance.StartCoroutine(
+            SupabaseEditController.Instance.SaveLevel(levelDTO)
+        );
     }
 
     // sets level name property with passed string
