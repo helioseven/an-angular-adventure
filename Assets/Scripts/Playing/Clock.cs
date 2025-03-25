@@ -1,15 +1,16 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Clock : MonoBehaviour
 {
-    private Text clockText;
+    private TMP_Text clockText;
     private float secondsCount;
     private int minuteCount;
 
     void Start()
     {
-        clockText = gameObject.GetComponent<Text>();
+        clockText = gameObject.GetComponent<TMP_Text>();
     }
 
     void Update()

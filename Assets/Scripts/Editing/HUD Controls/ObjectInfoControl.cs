@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,15 +17,15 @@ public class ObjectInfoControl : MonoBehaviour
 
     /* Private References */
 
-    private Text _colorDisplay;
+    private TMP_Text _colorDisplay;
     private InfoPack _lastFrameInfoPack;
-    private Text _locusDisplay;
+    private TMP_Text _locusDisplay;
     private Image _objectDisplay;
     private AspectRatioFitter _objectDisplayARF;
-    private Text _rotationDisplay;
-    private Text _specialLabel;
-    private Text _specialDisplay;
-    private Text _typeDisplay;
+    private TMP_Text _rotationDisplay;
+    private TMP_Text _specialLabel;
+    private TMP_Text _specialDisplay;
+    private TMP_Text _typeDisplay;
 
     /* Private Variables */
 
@@ -74,14 +75,14 @@ public class ObjectInfoControl : MonoBehaviour
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
 
         Transform t = transform.GetChild(1);
-        _typeDisplay = t.GetChild(1).GetComponent<Text>();
-        _colorDisplay = t.GetChild(3).GetComponent<Text>();
-        _rotationDisplay = t.GetChild(5).GetComponent<Text>();
-        _locusDisplay = t.GetChild(7).GetComponent<Text>();
+        _typeDisplay = t.GetChild(1).GetComponent<TMP_Text>();
+        _colorDisplay = t.GetChild(3).GetComponent<TMP_Text>();
+        _rotationDisplay = t.GetChild(5).GetComponent<TMP_Text>();
+        _locusDisplay = t.GetChild(7).GetComponent<TMP_Text>();
 
         t = transform.GetChild(2);
-        _specialLabel = t.GetChild(0).GetComponent<Text>();
-        _specialDisplay = t.GetChild(1).GetComponent<Text>();
+        _specialLabel = t.GetChild(0).GetComponent<TMP_Text>();
+        _specialDisplay = t.GetChild(1).GetComponent<TMP_Text>();
     }
 
     void Update()
