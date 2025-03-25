@@ -10,6 +10,8 @@ public class PlayLoader : MonoBehaviour
     // Public variables
     // The basic human readable level name
     public string levelName;
+    // Level Id
+    public string id;
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
 
@@ -39,20 +41,18 @@ public class PlayLoader : MonoBehaviour
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
-
-
         // Supabase - hardcoded test level id
-        string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
-
-        // first, check to see whether the file exists
-        bool file_exists = File.Exists(path);
+        // string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(supabaseTestLevelId, GetLevelFromPayload));
+            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
         }
         else
         {
+            // first, check to see whether the file exists
+            bool file_exists = File.Exists(path);
+
             if (file_exists)
             {
                 string json = File.ReadAllText(path);

@@ -1645,6 +1645,7 @@ MonoBehaviour:
   levelListContent: {fileID: 774517037}
   filterInput: {fileID: 807153912}
   playLoader: {fileID: 1131004099238000, guid: bbac2f3309ace634a8fa5422c3c1047c, type: 3}
+  supabase: {fileID: 1399648873}
 --- !u!114 &1059377435
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -251,39 +251,38 @@ public partial class EditGM
         SceneManager.LoadScene(0);
     }
 
-    // Save to disk or supabase in json
+    // Save to disk in json
     public void SaveFile(string levelName)
     {
-        bool saveToSupabase = false;
 
         string[] lines = levelData.Serialize();
+        string levelsFolder = LevelStorage.LevelsFolder;
 
-        if (saveToSupabase)
+        if (!Directory.Exists(levelsFolder))
         {
-            SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
+            Directory.CreateDirectory(levelsFolder);
         }
-        else
+
+        SupabaseLevelDTO level = new SupabaseLevelDTO
         {
-            string levelsFolder = LevelStorage.LevelsFolder;
+            name = levelName,
+            data = lines
+        };
+        string json = JsonUtility.ToJson(level, true); // true = pretty print
+        string path = Path.Combine(levelsFolder, $"{levelName}.json");
 
-            if (!Directory.Exists(levelsFolder))
-            {
-                Directory.CreateDirectory(levelsFolder);
-            }
+        File.WriteAllText(path, json);
 
-            SupabaseLevelDTO level = new SupabaseLevelDTO
-            {
-                name = levelName,
-                data = lines
-            };
-            string json = JsonUtility.ToJson(level, true); // true = pretty print
-            string path = Path.Combine(levelsFolder, $"{levelName}.json");
-
-            File.WriteAllText(path, json);
-        }
     }
 
+    // Save to supabase!
+    public void PublishToSupabase(string levelName)
+    {
+        string[] lines = levelData.Serialize();
+
+        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+        SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
+    }
 
     // sets level name property with passed string
     public void SetLevelName(string inName)

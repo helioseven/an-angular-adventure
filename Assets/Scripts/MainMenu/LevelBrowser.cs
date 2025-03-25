@@ -59,6 +59,7 @@ public class LevelBrowser : MonoBehaviour
                 var loaderGO = Instantiate(playLoader);
                 var loader = loaderGO.GetComponent<PlayLoader>();
                 loader.levelName = level.name;
+                loader.id = level.id;
                 loader.loadFromSupabase = !level.isLocal;
             });
         }
