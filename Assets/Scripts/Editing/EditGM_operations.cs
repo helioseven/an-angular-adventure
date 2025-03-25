@@ -251,19 +251,36 @@ public partial class EditGM
         SceneManager.LoadScene(0);
     }
 
-    // (!!)(incomplete) save level to a file in plain text format
+    // Save to disk in json
     public void SaveFile(string levelName)
     {
-        // (!!) should prompt for string instead
-        string fname = levelName + ".txt";
-        string fpath = Path.Combine(new string[] { "Levels", fname });
 
         string[] lines = levelData.Serialize();
-        File.WriteAllLines(fpath, lines);
+        string levelsFolder = LevelStorage.LevelsFolder;
 
-        // ## Supabase Section ## - Uncomment these next 2 line to save files to the database
-        // SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-        // SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
+        if (!Directory.Exists(levelsFolder))
+        {
+            Directory.CreateDirectory(levelsFolder);
+        }
+
+        SupabaseLevelDTO level = new SupabaseLevelDTO
+        {
+            name = levelName,
+            data = lines
+        };
+        string json = JsonUtility.ToJson(level, true); // true = pretty print
+        string path = Path.Combine(levelsFolder, $"{levelName}.json");
+
+        File.WriteAllText(path, json);
+    }
+
+    // Save to supabase!
+    public void PublishToSupabase(string levelName)
+    {
+        string[] lines = levelData.Serialize();
+
+        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+        SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.SaveLevel(levelDTO));
     }
 
     // sets level name property with passed string

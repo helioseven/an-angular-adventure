@@ -7,47 +7,96 @@ using UnityEngine.SceneManagement;
 
 public class EditLoader : MonoBehaviour
 {
-    // public read-accessibility state variables
-    public string levelName { get; private set; }
+    // Public variables
+    // The basic human readable level name
+    public string levelName;
+    // Level Id
+    public string id;
+    // Cloud load flag - fetch from Supabase instead of local
+    public bool loadFromSupabase = false;
 
     // private variables
     private string path;
+    // String array representation of the payload data
+    private string[] supabaseLevelPayloadData;
+    // Built level data that needs to be handed off in the end
+    private LevelData levelData = new LevelData();
+    // Once this flips to true we hand off to the play scene
+    private bool levelReady = false;
 
-    void Awake()
+    void Start()
     {
-        // levelName is hard coded (!!), should be prompted
-        levelName = "testLevel";
-        string filename = levelName + ".txt";
-        path = Path.Combine(new string[] { "Levels", filename });
+        if (string.IsNullOrEmpty(levelName))
+        {
+            Debug.LogError("[EditLoader] No level Name set!");
+            return;
+        }
+
+        // set the path
+        string levelsFolder = LevelStorage.LevelsFolder;
+        path = Path.Combine(levelsFolder, $"{levelName}.json");
+
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
-        // load Editing scene (EditGM will call supplyLevel)
-        SceneManager.LoadScene(2);
+
+        // Supabase - hardcoded test level id
+        // string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
+
+        if (loadFromSupabase)
+        {
+            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
+        }
+        else
+        {
+            // first, check to see whether the file exists
+            bool file_exists = File.Exists(path);
+
+            if (file_exists)
+            {
+                string json = File.ReadAllText(path);
+                var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
+                supabaseLevelPayloadData = levelDTO.data;
+
+                levelData = LevelLoader.LoadLevel(supabaseLevelPayloadData);
+                levelReady = true;
+            }
+            else
+            {
+                // if file doesn't exist, empty level is created
+                Debug.LogError("File not found, loading empty level.");
+            }
+        }
+    }
+
+    void Update()
+    {
+        if (levelReady)
+        {
+            // load Editing scene (EditGM will call supplyLevel)
+            SceneManager.LoadScene("Editing");
+
+            // only do this once
+            levelReady = false;
+        }
     }
 
     /* Public Functions */
 
-    // supplies a levelData from file
+    // Supabase - callback function after loading
+    public void GetLevelFromPayload(SupabaseLevelDTO payload)
+    {
+        supabaseLevelPayloadData = payload.data;
+        Debug.Log("Got level: " + payload.name);
+
+        levelData = LevelLoader.LoadLevel(supabaseLevelPayloadData);
+        levelReady = true;
+    }
+
+    // supplies a LevelData
     public LevelData supplyLevel()
     {
-        // first, check to see whether the file exists
-        bool file_exists = File.Exists(path);
-        LevelData ld;
-        if (file_exists)
-        {
-            // if file exists, it is loaded and parsed
-            string[] lines = File.ReadAllLines(path);
-            ld = LevelLoader.LoadLevel(lines);
-        }
-        else
-        {
-            // if file doesn't exist, empty level is created
-            Debug.LogError("File not found, loading new level.");
-            ld = new LevelData();
-        }
-
         // when script is done, it schedules self-termination and returns
         Destroy(gameObject);
-        return ld;
+        return levelData;
     }
 }
