@@ -35,7 +35,7 @@ public class MenuGM : MonoBehaviour
         List<LevelInfo> drafts = LevelStorage.LoadLocalLevelMetadata();
         foreach (var level in drafts)
         {
-            Debug.Log($"Draft: {level.name} (Last Modified: {level.lastModified})");
+            Debug.Log($"Draft: {level.name} (Created At / Last Modified: {level.created_at})");
         }
     }
     /* Private Functions */

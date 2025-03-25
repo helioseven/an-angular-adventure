@@ -9,12 +9,21 @@ public class LevelBrowser : MonoBehaviour
     public Transform levelListContent;
     public InputField filterInput;
     public GameObject playLoader;
-
+    public SupabaseEditController supabase;
     private List<LevelInfo> allLevels = new();
 
     void OnEnable()
     {
         allLevels = LevelStorage.LoadLocalLevelMetadata();
+
+        // Fetch published levels from Supabase
+        StartCoroutine(supabase.FetchPublishedLevels(onlineLevels =>
+        {
+            allLevels.AddRange(onlineLevels);
+            RefreshUI();
+        }));
+
+
         RefreshUI();
         filterInput.onValueChanged.AddListener(_ => RefreshUI());
     }
@@ -50,6 +59,7 @@ public class LevelBrowser : MonoBehaviour
                 var loaderGO = Instantiate(playLoader);
                 var loader = loaderGO.GetComponent<PlayLoader>();
                 loader.levelName = level.name;
+                loader.loadFromSupabase = !level.isLocal;
             });
         }
     }

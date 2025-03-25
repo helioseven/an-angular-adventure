@@ -1,4 +1,7 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -51,6 +54,51 @@ public class SupabaseEditController : MonoBehaviour
                 "Error saving level: " + request.error + "\n" + request.downloadHandler.text
             );
         }
+    }
+
+    public IEnumerator FetchPublishedLevels(Action<List<LevelInfo>> onComplete)
+    {
+        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at";
+
+        Debug.Log("Fetching Published Levels: " + url);
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", $"Bearer {SUPABASE_API_KEY}");
+
+        yield return request.SendWebRequest();
+
+        var results = new List<LevelInfo>();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                var json = request.downloadHandler.text;
+                var array = JArray.Parse(json);
+
+                foreach (var entry in array)
+                {
+                    results.Add(new LevelInfo
+                    {
+                        id = entry["id"]?.ToString(),
+                        name = entry["name"]?.ToString(),
+                        isLocal = false,
+                        created_at = DateTime.Parse(entry["created_at"]?.ToString())
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SupabaseController] JSON parse error: {e.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"[SupabaseController] Fetch failed: {request.error}");
+        }
+
+        onComplete?.Invoke(results);
     }
 
     public IEnumerator LoadLevel(string levelId, System.Action<SupabaseLevelDTO> onSuccess)

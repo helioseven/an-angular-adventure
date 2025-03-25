@@ -30,7 +30,7 @@ public static class LevelStorage
                     id = Path.GetFileNameWithoutExtension(file),
                     name = levelData.name,
                     isLocal = true,
-                    lastModified = File.GetLastWriteTime(file)
+                    created_at = File.GetLastWriteTime(file)
                 };
                 levelInfos.Add(info);
             }

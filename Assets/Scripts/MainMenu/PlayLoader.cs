@@ -7,16 +7,21 @@ using UnityEngine.SceneManagement;
 
 public class PlayLoader : MonoBehaviour
 {
-    // public read-accessibility state variables
+    // Public variables
+    // The basic human readable level name
     public string levelName;
+    // Cloud load flag - fetch from Supabase instead of local
+    public bool loadFromSupabase = false;
 
-    // private variables
+    // Private variables
+
+    // This path is the local file (if it's a "Draft") - built from levelName
     private string path;
-
+    // String array representation of the payload data
     private string[] supabaseLevelPayloadData;
-
+    // Built level data that needs to be handed off in the end
     private LevelData levelData = new LevelData();
-
+    // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
     void Start()
@@ -34,8 +39,7 @@ public class PlayLoader : MonoBehaviour
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
-        // Supabase - switch this to flip the script
-        bool loadFromSupabase = false;
+
 
         // Supabase - hardcoded test level id
         string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
