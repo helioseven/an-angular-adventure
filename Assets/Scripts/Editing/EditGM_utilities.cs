@@ -465,12 +465,6 @@ public partial class EditGM
     // simply returns the z value of the given layer's transform
     public float GetLayerDepth(int inLayer)
     {
-        if (inLayer < 0 || inLayer >= transform.childCount)
-        {
-            Debug.LogWarning($"[EditGM] Layer index {inLayer} is out of bounds. Has {transform.childCount} children.");
-            return 0; // or some fallback value
-        }
-
         return tileMap.transform.GetChild(inLayer).position.z;
     }
 

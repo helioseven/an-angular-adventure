@@ -54,9 +54,9 @@ public class LevelBrowser : MonoBehaviour
 
             itemUI.Setup(level, onPlay: () =>
             {
-                Debug.Log($"Clicked: {level.name} (ID: {level.id})");
+                Debug.Log($"Clicked Play: {level.name} (ID: {level.id})");
 
-                // Load the level 
+                // Load the level to play
                 var loaderGO = Instantiate(playLoader);
                 var loader = loaderGO.GetComponent<PlayLoader>();
                 loader.levelName = level.name;
@@ -65,19 +65,7 @@ public class LevelBrowser : MonoBehaviour
             },
             onEditOrRemix: () =>
             {
-                if (level.isLocal)
-                {
-                    Debug.Log($"Editing local level: {level.name}");
-
-                    // PlayLoaderUtility.LoadLevelForEditing(level.id);
-                }
-                else
-                {
-                    Debug.Log($"Remixing published level: {level.name}");
-                    // StartCoroutine(RemixOnlineLevel(level.id));
-                }
-
-                // Load the level 
+                // Load the level for editing
                 var loaderGO = Instantiate(editLoader);
                 var loader = loaderGO.GetComponent<EditLoader>();
                 loader.levelName = level.name;

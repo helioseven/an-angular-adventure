@@ -43,11 +43,13 @@ public static class LevelStorage
         return levelInfos;
     }
 
-    public static void DeleteLevel(string id)
+    public static void DeleteLevel(string name)
     {
-        string path = Path.Combine(LevelsFolder, $"{id}.json");
+        string path = Path.Combine(LevelsFolder, $"{name}.json");
         if (File.Exists(path))
+        {
             File.Delete(path);
+        }
     }
 
 }
