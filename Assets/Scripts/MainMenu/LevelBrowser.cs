@@ -9,6 +9,7 @@ public class LevelBrowser : MonoBehaviour
     public Transform levelListContent;
     public InputField filterInput;
     public GameObject playLoader;
+    public GameObject editLoader;
     public SupabaseEditController supabase;
     private List<LevelInfo> allLevels = new();
 
@@ -51,13 +52,34 @@ public class LevelBrowser : MonoBehaviour
             var itemGO = Instantiate(levelListItemPrefab, levelListContent);
             var itemUI = itemGO.GetComponent<LevelListItemUI>();
 
-            itemUI.Setup(level, () =>
+            itemUI.Setup(level, onPlay: () =>
             {
                 Debug.Log($"Clicked: {level.name} (ID: {level.id})");
 
                 // Load the level 
                 var loaderGO = Instantiate(playLoader);
                 var loader = loaderGO.GetComponent<PlayLoader>();
+                loader.levelName = level.name;
+                loader.id = level.id;
+                loader.loadFromSupabase = !level.isLocal;
+            },
+            onEditOrRemix: () =>
+            {
+                if (level.isLocal)
+                {
+                    Debug.Log($"Editing local level: {level.name}");
+
+                    // PlayLoaderUtility.LoadLevelForEditing(level.id);
+                }
+                else
+                {
+                    Debug.Log($"Remixing published level: {level.name}");
+                    // StartCoroutine(RemixOnlineLevel(level.id));
+                }
+
+                // Load the level 
+                var loaderGO = Instantiate(editLoader);
+                var loader = loaderGO.GetComponent<EditLoader>();
                 loader.levelName = level.name;
                 loader.id = level.id;
                 loader.loadFromSupabase = !level.isLocal;

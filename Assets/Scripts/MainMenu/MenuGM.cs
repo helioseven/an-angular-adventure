@@ -30,14 +30,7 @@ public class MenuGM : MonoBehaviour
         editButton.onClick.AddListener(StartEdit);
         browseButton.onClick.AddListener(OpenLevelBrowser);
     }
-    void Start()
-    {
-        List<LevelInfo> drafts = LevelStorage.LoadLocalLevelMetadata();
-        foreach (var level in drafts)
-        {
-            Debug.Log($"Draft: {level.name} (Created At / Last Modified: {level.created_at})");
-        }
-    }
+
     /* Private Functions */
 
     private void OpenLevelBrowser()
@@ -55,6 +48,8 @@ public class MenuGM : MonoBehaviour
 
     private void StartEdit()
     {
-        Instantiate(editLoader);
+        var loaderGO = Instantiate(editLoader);
+        var loader = loaderGO.GetComponent<EditLoader>();
+        loader.levelName = "default";
     }
 }

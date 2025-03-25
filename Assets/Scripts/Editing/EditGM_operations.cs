@@ -272,7 +272,6 @@ public partial class EditGM
         string path = Path.Combine(levelsFolder, $"{levelName}.json");
 
         File.WriteAllText(path, json);
-
     }
 
     // Save to supabase!

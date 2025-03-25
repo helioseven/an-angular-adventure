@@ -151,7 +151,7 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1624488030}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.39}
+  m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -1148,7 +1148,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &774517038
 MonoBehaviour:
@@ -1645,6 +1645,7 @@ MonoBehaviour:
   levelListContent: {fileID: 774517037}
   filterInput: {fileID: 807153912}
   playLoader: {fileID: 1131004099238000, guid: bbac2f3309ace634a8fa5422c3c1047c, type: 3}
+  editLoader: {fileID: 1373611270657428, guid: 7d6f9632f31fbae46a039d65cf9a3e96, type: 3}
   supabase: {fileID: 1399648873}
 --- !u!114 &1059377435
 MonoBehaviour:
@@ -2210,8 +2211,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 31528936}
   m_HandleRect: {fileID: 31528935}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.61
+  m_Value: 0
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

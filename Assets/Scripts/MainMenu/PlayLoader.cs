@@ -30,7 +30,7 @@ public class PlayLoader : MonoBehaviour
     {
         if (string.IsNullOrEmpty(levelName))
         {
-            Debug.LogError("[PlayLoader] No level ID set!");
+            Debug.LogError("[PlayLoader] No level Name set!");
             return;
         }
 
@@ -68,7 +68,6 @@ public class PlayLoader : MonoBehaviour
                 Debug.LogError("File not found, loading empty level.");
             }
         }
-
     }
 
     void Update()
@@ -81,7 +80,6 @@ public class PlayLoader : MonoBehaviour
             // only do this once
             levelReady = false;
         }
-
     }
 
     /* Public Functions */
