@@ -1,12 +1,13 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LevelListItemUI : MonoBehaviour
 {
-    public Text levelNameText;
+    public TMP_Text levelNameText;
     public Button playButton;
     public Button editOrRemixButton;
-    public Text editOrRemixButtonText;
+    public TMP_Text editOrRemixButtonText;
 
     public void Setup(LevelInfo info, System.Action onPlay, System.Action onEditOrRemix)
     {

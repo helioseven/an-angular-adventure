@@ -1,16 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SaveDialogControl : MonoBehaviour
 {
-    private Text _pathField;
+    private TMP_Text _pathField;
 
     void Awake()
     {
-        // establishes a reference to the relevant Text component
-        _pathField = transform.Find("InputField").Find("Text").GetComponent<Text>();
+        // establishes a reference to the relevant text component
+        _pathField = transform
+            .Find("Save Name Input")
+            .Find("Text Area")
+            .Find("Text")
+            .GetComponent<TMP_Text>();
 
         gameObject.SetActive(false);
     }

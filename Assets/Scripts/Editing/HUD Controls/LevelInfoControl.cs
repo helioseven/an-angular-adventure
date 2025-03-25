@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,15 +19,15 @@ public class LevelInfoControl : MonoBehaviour
 
     /* Private References */
 
-    private Text _anchorDisplay;
-    private Text _currentLayerDisplay;
+    private TMP_Text _anchorDisplay;
+    private TMP_Text _currentLayerDisplay;
     private EditGM _gmRef;
-    private Text _layerTilesDisplay;
-    private Text _nameDisplay;
+    private TMP_Text _layerTilesDisplay;
+    private TMP_Text _nameDisplay;
     private LevelNameField _nameField;
     private Transform _tmRef;
-    private Text _totalLayersDisplay;
-    private Text _totalTilesDisplay;
+    private TMP_Text _totalLayersDisplay;
+    private TMP_Text _totalTilesDisplay;
 
     /* Private Variables */
 
@@ -53,14 +54,14 @@ public class LevelInfoControl : MonoBehaviour
         _tmRef = _gmRef.tileMap.transform;
 
         Transform t = transform.GetChild(NAME_CID);
-        _nameDisplay = t.GetComponent<Text>();
+        _nameDisplay = t.GetComponent<TMP_Text>();
         _nameField = t.GetComponent<LevelNameField>();
         t = transform.GetChild(ATTR_CID);
-        _currentLayerDisplay = t.GetChild(CURR_LAYER_CID).GetComponent<Text>();
-        _totalLayersDisplay = t.GetChild(TOTAL_LAYER_CID).GetComponent<Text>();
-        _layerTilesDisplay = t.GetChild(LAYER_TILES_CID).GetComponent<Text>();
-        _totalTilesDisplay = t.GetChild(TOTAL_TILES_CID).GetComponent<Text>();
-        _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<Text>();
+        _currentLayerDisplay = t.GetChild(CURR_LAYER_CID).GetComponent<TMP_Text>();
+        _totalLayersDisplay = t.GetChild(TOTAL_LAYER_CID).GetComponent<TMP_Text>();
+        _layerTilesDisplay = t.GetChild(LAYER_TILES_CID).GetComponent<TMP_Text>();
+        _totalTilesDisplay = t.GetChild(TOTAL_TILES_CID).GetComponent<TMP_Text>();
+        _anchorDisplay = t.GetChild(ANCHR_CID).GetComponent<TMP_Text>();
     }
 
     void Update()
