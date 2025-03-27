@@ -2673,6 +2673,7 @@ MonoBehaviour:
   playButton: {fileID: 1719783439}
   playLoader: {fileID: 1131004099238000, guid: bbac2f3309ace634a8fa5422c3c1047c, type: 3}
   browseButton: {fileID: 2089692220}
+  quitButton: {fileID: 626281430}
   levelBrowserPanel: {fileID: 1059377432}
   mainMenuPanel: {fileID: 828819014}
 --- !u!4 &1756177706
