@@ -123,7 +123,7 @@ public partial class EditGM : MonoBehaviour
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-            levelName = _lvlLoad.levelName;
+            levelName = string.IsNullOrEmpty(_lvlLoad.levelName) ? "default" : _lvlLoad.levelName;
             levelData = _lvlLoad.supplyLevel();
             buildLevel(levelData);
 

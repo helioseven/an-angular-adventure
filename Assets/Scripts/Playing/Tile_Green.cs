@@ -10,7 +10,7 @@ public class Tile_Green : Tile
     public GameObject particlePrefab; // Assign a glowing particle prefab in Inspector
     private Tile lockedTile; // Assign the corresponding locked Tile
     private Transform keyIcon;
-    private Boolean hasUnlocked = false;
+    private bool hasUnlocked = false;
 
     void Start()
     {
