@@ -15,6 +15,7 @@ public class MenuGM : MonoBehaviour
     public GameObject playLoader;
     // Browse Menu ref
     public Button browseButton;
+    public Button quitButton;
 
     // Panels
     public GameObject levelBrowserPanel;
@@ -25,6 +26,7 @@ public class MenuGM : MonoBehaviour
         playButton.onClick.AddListener(StartPlay);
         editButton.onClick.AddListener(StartEdit);
         browseButton.onClick.AddListener(OpenLevelBrowser);
+        quitButton.onClick.AddListener(Quit);
     }
 
     /* Private Functions */
@@ -47,5 +49,11 @@ public class MenuGM : MonoBehaviour
         var loaderGO = Instantiate(editLoader);
         var loader = loaderGO.GetComponent<EditLoader>();
         loader.levelName = "default";
+    }
+
+    private void Quit()
+    {
+        Debug.Log("You Quitter");
+        Application.Quit();
     }
 }
