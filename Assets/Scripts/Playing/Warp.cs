@@ -23,9 +23,13 @@ public class Warp : MonoBehaviour
     // private references
     private PlayGM _gmRef;
 
+    [SerializeField] private GameObject warpRipple;
+
+
     void Awake()
     {
         _gmRef = PlayGM.instance;
+        warpRipple = transform.Find("WarpRipple")?.gameObject;
     }
 
     /* Override Functions */
@@ -36,6 +40,15 @@ public class Warp : MonoBehaviour
         {
             _gmRef.soundManager.Play("warp");
             _gmRef.WarpPlayer(baseLayer, targetLayer);
+
+            warpRipple.transform.position = other.transform.position;
+
+            if (warpRipple != null)
+            {
+                warpRipple.SetActive(false); // Reset in case it was left on
+                warpRipple.SetActive(true);  // Triggers OnEnable and the ripple animation
+            }
+
         }
     }
 }

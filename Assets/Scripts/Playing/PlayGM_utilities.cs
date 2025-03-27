@@ -109,8 +109,9 @@ public partial class PlayGM
         foreach (Transform warp in warpMap.transform)
         {
             Warp w = warp.gameObject.GetComponent<Warp>();
-            bool isActive = activeLayer == w.baseLayer || activeLayer == w.targetLayer;
-            setWarpOpacityAndPhysics(warp, isActive);
+            bool isConnected = activeLayer == w.baseLayer || activeLayer == w.targetLayer;
+            bool isFrontActive = activeLayer == w.baseLayer;
+            setWarpOpacityAndPhysics(warp, isConnected, isFrontActive);
         }
     }
 
@@ -323,19 +324,57 @@ public partial class PlayGM
     }
 
     // set opacity and physics layer for warps
-    private void setWarpOpacityAndPhysics(Transform warp, bool isActive)
+    private void setWarpOpacityAndPhysics(Transform warp, bool isConnected, bool isFrontActive)
     {
-        // warps have only two shades of opacity, active and non-active
-        if (isActive)
+        ParticleSystem particleSystem = warp.GetComponentInChildren<ParticleSystem>();
+        // warps have 3 levels of opacity - connected but not active layer, active layer, and non active layer
+        if (isConnected)
         {
+            // turn on the particle system
+            if (particleSystem)
+            {
+                var main = particleSystem.main;
+                main.startColor = new Color(1f, 1f, 1f, 1f);
+            }
+
+            // activate
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
-            Color c = new Color(0.15f, 0.45f, 1.0f, 0.5f);
-            warp.GetComponentInChildren<MeshRenderer>().material.color = c;
+            Color bright = new Color(1f, 1f, 1f, 1f);
+            Color mediumDim = new Color(1f, 1f, 1f, 0.3f);
+            Transform child = warp.transform.Find(isFrontActive ? "WarpOverlay" : "WarpOverlayBack");
+            if (child)
+            {
+                // set to bright if it's the active warp on the active layer
+                child.gameObject.GetComponent<SpriteRenderer>().material.color = bright;
+            }
+            child = warp.transform.Find(isFrontActive ? "WarpOverlayBack" : "WarpOverlay");
+            if (child)
+            {
+                // set to medium dim if attached to the active layer via the dropdown but is not on the active layer
+                child.gameObject.GetComponent<SpriteRenderer>().material.color = mediumDim;
+            }
         }
         else
         {
-            Color c = new Color(0.15f, 0.45f, 1.0f, 0.0125f);
-            warp.GetComponentInChildren<MeshRenderer>().material.color = c;
+            // dim the particle system when not connected to active layer
+            if (particleSystem)
+            {
+                var main = particleSystem.main;
+                main.startColor = new Color(1f, 1f, 1f, 0.1f);
+            }
+
+            // dim both the front and the back of the warp if not connected to active layer
+            Color dim = new Color(1f, 1f, 1f, 0.05f);
+            Transform child = warp.transform.Find("WarpOverlay");
+            if (child)
+            {
+                child.gameObject.GetComponent<SpriteRenderer>().material.color = dim;
+            }
+            child = warp.transform.Find("WarpOverlayBack");
+            if (child)
+            {
+                child.gameObject.GetComponent<SpriteRenderer>().material.color = dim;
+            }
         }
     }
 }
