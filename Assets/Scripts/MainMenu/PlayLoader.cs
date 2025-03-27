@@ -37,6 +37,7 @@ public class PlayLoader : MonoBehaviour
         // set the path
         string levelsFolder = LevelStorage.LevelsFolder;
         path = Path.Combine(levelsFolder, $"{levelName}.json");
+        path = path.Replace("\\", "/");
 
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
@@ -49,6 +50,7 @@ public class PlayLoader : MonoBehaviour
         {
             // first, check to see whether the file exists
             bool file_exists = File.Exists(path);
+            Debug.Log($"[LOAD] Loading from: {path}"); // when loading
 
             if (file_exists)
             {
@@ -62,7 +64,7 @@ public class PlayLoader : MonoBehaviour
             else
             {
                 // if file doesn't exist, empty level is created
-                Debug.LogError("File not found, loading empty level.");
+                Debug.LogError("File not found :(");
             }
         }
     }
