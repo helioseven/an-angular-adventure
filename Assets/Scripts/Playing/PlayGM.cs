@@ -97,6 +97,7 @@ public partial class PlayGM : MonoBehaviour
         // reset gravity for real
         _gravDir = GravityDirection.Down;
         Physics2D.gravity = new Vector2(0.0f, -9.81f);
+        player.UpdateJumpForce(GravityDirection.Down);
 
         // set position of each boundary
         Boundary[] bs = { boundaryDown, boundaryLeft, boundaryRight, boundaryUp };
