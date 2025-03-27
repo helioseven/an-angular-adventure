@@ -30,7 +30,9 @@ public partial class PlayGM : MonoBehaviour
     public GameObject warpMap;
 
     // public read-accessibility state variables
-    public ChkpntData activeChkpnt { get; private set; }
+    public GameObject activeCheckpoint { get; private set; }
+
+    public ChkpntData activeCheckpointData { get; private set; }
     public int activeLayer { get; private set; }
     public GravityDirection gravDirection
     {
@@ -99,8 +101,15 @@ public partial class PlayGM : MonoBehaviour
             b.SetBoundary();
 
         // set first checkpoint
-        GameObject chkpnt = chkpntMap.transform.GetChild(0).gameObject;
-        SetCheckpoint(chkpnt.GetComponent<Checkpoint>().data);
+        GameObject checkpoint = chkpntMap.transform.GetChild(0).gameObject;
+        SetCheckpoint(checkpoint);
+        SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
+
+        // intro
+        player.gameObject.SetActive(false);
+        Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
+        bool isIntroSpawn = true;
+        StartCoroutine(ResetToCheckpoint(rb2d, isIntroSpawn));
     }
 
     void Update()

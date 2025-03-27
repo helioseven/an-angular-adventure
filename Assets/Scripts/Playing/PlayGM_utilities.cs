@@ -102,7 +102,7 @@ public partial class PlayGM
             int distance = Math.Abs(layerNumber - activeLayer);
             if (activeLayer > layerNumber)
                 distance += 2;
-            setCheckpointOpacity(victory, distance);
+            setVictoryOpacity(victory, distance);
         }
 
         // update physics for warps
@@ -169,9 +169,12 @@ public partial class PlayGM
             v3.z = tileMap.transform.GetChild(cd.layer).position.z;
             GameObject go = Instantiate(chkpntRef, v3, Quaternion.identity) as GameObject;
 
-            Checkpoint c = go.GetComponent<Checkpoint>();
-            if (c)
-                c.data = cd;
+            Checkpoint checkpointGO = go.GetComponent<Checkpoint>();
+            if (checkpointGO)
+            {
+                checkpointGO.data = cd;
+            }
+
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[cd.layer]);
             go.transform.SetParent(chkpntMap.transform);
         }
@@ -247,15 +250,76 @@ public partial class PlayGM
     // set opacity and physics layer by given distance for given checkpoint
     private void setCheckpointOpacity(Transform checkpoint, int distance)
     {
+        bool isActive = false;
+        if (activeCheckpoint != null)
+        {
+            isActive = checkpoint == activeCheckpoint.transform;
+        }
         // calculate opacity and physics layer for each checkpoint
-        float alpha = 1f;
+        float alpha = 0.5f;
         // checkpoints on active game layer use default values
         if (distance != 0)
-            // otherwise alpha is calculated as (1/2)^distance
-            alpha = (float)Math.Pow(0.5, (double)distance);
-        Color color = new Color(1f, 1f, 1f, alpha);
+        {
+            alpha -= Math.Abs(distance * 0.2f);
+            alpha = Math.Max(alpha, 0.1f);
+        }
 
-        checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+        // overwrite if it's the active checkpoint
+        if (isActive)
+        {
+            alpha = 1f;
+        }
+
+        // Set color via particle effect emitter
+        Transform child = checkpoint.transform.Find("CheckpointShimmer");
+        if (child != null)
+        {
+            ParticleSystem checkpointParticleShimmer = child.GetComponent<ParticleSystem>();
+            // ✨ Trigger the particle burst
+            Color bright = new Color(1f, 1f, 1f, alpha);
+            var main = checkpointParticleShimmer.main;
+            main.startColor = bright;
+        }
+
+    }
+
+    // set opacity and physics layer by given distance for given victory
+    private void setVictoryOpacity(Transform victory, int distance)
+    {
+        // calculate opacity and physics layer for each victory
+        float alpha = 1f;
+        // victorys on active game layer use default values
+        if (distance != 0)
+        {
+            alpha -= Math.Abs(distance * 0.3f);
+            alpha = Math.Max(alpha, 0.1f);
+        }
+
+        // Set color via particle effect emitter
+        Transform child = victory.transform.Find("Particle System");
+        if (child != null)
+        {
+            ParticleSystem victoryParticleSystem = child.GetComponent<ParticleSystem>();
+
+
+            var colorOverLifetime = victoryParticleSystem.colorOverLifetime;
+
+            Gradient currentGradient = colorOverLifetime.color.gradient;
+            Gradient newGradient = new Gradient();
+
+            // Copy the color keys (preserve the rainbow)
+            GradientColorKey[] colorKeys = currentGradient.colorKeys;
+
+            // Replace just the alpha keys
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[]
+            {
+                new GradientAlphaKey(alpha, 0.0f),
+                new GradientAlphaKey(alpha, 1.0f)
+            };
+
+            newGradient.SetKeys(colorKeys, alphaKeys);
+            colorOverLifetime.color = newGradient;
+        }
     }
 
     // set opacity and physics layer for warps

@@ -24,7 +24,17 @@ public class Checkpoint : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             _playGM.soundManager.Play("checkpoint");
-            _playGM.SetCheckpoint(data);
+            _playGM.SetCheckpoint(gameObject);
+            _playGM.SetCheckpointData(data);
+
+            ParticleSystem checkpointBurst;
+            Transform child = transform.Find("CheckpointBurst");
+            if (child != null)
+            {
+                checkpointBurst = child.GetComponent<ParticleSystem>();
+                // ✨ Trigger the particle burst
+                checkpointBurst.Play();
+            }
         }
     }
 }
