@@ -11,17 +11,7 @@
 
 ## Current Goal ##
 
-*  Release on Steam (Early Access)
-   * Upgrade to Unity 6 (Complete) ✅
-   * Play Menu - Choose level and load from the internet
-   * Save Menu - Upload your levels
-   * Checkpoint Graphics - Circular particlal emitter
-      * Stop time for 3 seconds after loading at a checkpoint
-   * Waterfall Graphics - Space distorting warps that instantly teleport you, preserving momentum
-   * Final Goal Graphics - Vibrant rainbow teselations
-   * Sound Updates
-      * Sounds for edit mode
-      * Record playing sounds
+*  Release on Steam (Playtest only)
 
 ## Notes ##
 
