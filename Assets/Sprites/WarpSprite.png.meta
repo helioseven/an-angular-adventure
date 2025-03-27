@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 229ec4b0c01504bac904ef30812bba2e
+guid: 352b7de8e7e73423d8eb357d64386933
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1441140110006309180
-    second: Warp 1_0
+      213: -5700834686056453487
+    second: Warp_2 2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Warp 1_0
+      name: Warp_2 2_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 256
-        height: 256
+        x: 4
+        y: 5
+        width: 247
+        height: 247
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4cea18794ba000ce0800000000000000
-      internalID: -1441140110006309180
+      spriteID: 19a216eae0192e0b0800000000000000
+      internalID: -5700834686056453487
       vertices: []
       indices: 
       edges: []
@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Warp_2 2_0: -5700834686056453487
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

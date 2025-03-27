@@ -336,8 +336,8 @@ public partial class PlayGM
                 main.startColor = new Color(1f, 1f, 1f, 1f);
             }
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
-            Color bright = new Color(1f, 1f, 1f, 0.666f);
-            Color mediumDim = new Color(1f, 1f, 1f, 0.2f);
+            Color bright = new Color(1f, 1f, 1f, 1f);
+            Color mediumDim = new Color(1f, 1f, 1f, 0.3f);
             Transform child = warp.transform.Find(isFrontActive ? "WarpOverlay" : "WarpOverlayBack");
             if (child)
             {
