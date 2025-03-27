@@ -33,6 +33,6 @@ public class RippleEffect : MonoBehaviour
             yield return null;
         }
 
-        gameObject.SetActive(false); // Optional: disable or destroy
+        gameObject.SetActive(false);
     }
 }

@@ -326,11 +326,15 @@ public partial class PlayGM
     // set opacity and physics layer for warps
     private void setWarpOpacityAndPhysics(Transform warp, bool isConnected, bool isFrontActive)
     {
-
-
-        // warps have only two shades of opacity, active and non-active
+        ParticleSystem particleSystem = warp.GetComponentInChildren<ParticleSystem>();
+        // warps have 3 levels of opacity - connected but not active layer, active layer, and non active layer
         if (isConnected)
         {
+            if (particleSystem)
+            {
+                var main = particleSystem.main;
+                main.startColor = new Color(1f, 1f, 1f, 1f);
+            }
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
             Color bright = new Color(1f, 1f, 1f, 0.666f);
             Color mediumDim = new Color(1f, 1f, 1f, 0.2f);
@@ -347,6 +351,12 @@ public partial class PlayGM
         }
         else
         {
+            if (particleSystem)
+            {
+                var main = particleSystem.main;
+                main.startColor = new Color(1f, 1f, 1f, 0.1f);
+            }
+
             Color dim = new Color(1f, 1f, 1f, 0.05f);
             Transform child = warp.transform.Find("WarpOverlay");
             if (child)
