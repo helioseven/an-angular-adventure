@@ -41,9 +41,6 @@ public class PlayLoader : MonoBehaviour
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
-        // Supabase - hardcoded test level id
-        // string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
-
         if (loadFromSupabase)
         {
             SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
