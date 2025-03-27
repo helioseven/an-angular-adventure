@@ -252,6 +252,14 @@ public partial class EditGM
         SceneManager.LoadScene(0);
     }
 
+    // In case we need it again...
+    string SanitizeFilename(string input)
+    {
+        return new string(input
+            .Where(c => !char.IsControl(c) && c != '\u200B' && c != '\uFEFF')
+            .ToArray()).Trim();
+    }
+
     // Save to disk in json
     public void SaveFile(string levelName)
     {
@@ -265,19 +273,11 @@ public partial class EditGM
 
         SupabaseLevelDTO level = new SupabaseLevelDTO { name = levelName, data = lines };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
-        var invalidChars = Path.GetInvalidFileNameChars();
-        string cleanName = new string(
-            levelName
-                .Where(c => !invalidChars.Contains(c) && c != '\u200B') // removes invisible U+200B
-                .ToArray()
-        );
-        cleanName = cleanName.Trim();
-        if (cleanName != levelName)
-        {
-            Debug.LogWarning($"[LevelStorage] Filename sanitized: '{levelName}' → '{cleanName}'");
-        }
-        string path = Path.Combine(levelsFolder, $"{cleanName}.json");
 
+        string path = Path.Combine(levelsFolder, $"{levelName}.json");
+        path = path.Replace("\\", "/");
+
+        Debug.Log($"[SAVE] Saving to: {path}");
         File.WriteAllText(path, json);
     }
 

@@ -6,7 +6,7 @@ using UnityEngine;
 public static class LevelStorage
 {
     public static string LevelsFolder =>
-        Path.Combine(Application.persistentDataPath, "levels");
+        Path.Combine(Application.persistentDataPath, "levels").Replace("\\", "/");
 
     public static List<LevelInfo> LoadLocalLevelMetadata()
     {
