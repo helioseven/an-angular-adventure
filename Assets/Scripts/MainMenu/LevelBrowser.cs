@@ -11,6 +11,7 @@ public class LevelBrowser : MonoBehaviour
     public GameObject playLoader;
     public GameObject editLoader;
     public SupabaseEditController supabase;
+    public MenuGM menuGM;
     private List<LevelInfo> allLevels = new();
 
     void OnEnable()
@@ -31,6 +32,14 @@ public class LevelBrowser : MonoBehaviour
     void OnDisable()
     {
         filterInput.onValueChanged.RemoveAllListeners();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            menuGM.OpenMainMenu();
+        }
     }
 
     void RefreshUI()

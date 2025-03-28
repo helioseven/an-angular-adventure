@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using circleXsquares;
@@ -9,7 +10,7 @@ public class EditLoader : MonoBehaviour
 {
     // Public variables
     // The basic human readable level name
-    public string levelName;
+    public string levelName = "";
     // Level Id
     public string id;
     // Cloud load flag - fetch from Supabase instead of local
@@ -26,21 +27,27 @@ public class EditLoader : MonoBehaviour
 
     void Start()
     {
+        // this loader stays awake when next scene is loaded
+        DontDestroyOnLoad(gameObject);
+
         if (string.IsNullOrEmpty(levelName))
         {
-            Debug.LogError("[EditLoader] No level Name set!");
+            Debug.Log("[EditLoader] No level Name set! - Will load defaultCreateLevelData");
+
+            string[] defaultCreateLevelData = new string[] { "-- Tiles --", "-- End Tiles --", " ",
+            "-- Checkpoints --", "0 0 0 0 0 0 0", "-- End Checkpoints --", " ",
+            "-- Victories --", "2 2 0 0 0 0 0", "-- End Victories --", " ",
+            "-- Warps --",  "-- End Warps --" };
+
+            Debug.Log("defaultCreateLevelData: " + defaultCreateLevelData);
+            levelData = LevelLoader.LoadLevel(defaultCreateLevelData);
+            levelReady = true;
             return;
         }
 
         // set the path
         string levelsFolder = LevelStorage.LevelsFolder;
         path = Path.Combine(levelsFolder, $"{levelName}.json");
-
-        // this loader stays awake when next scene is loaded
-        DontDestroyOnLoad(gameObject);
-
-        // Supabase - hardcoded test level id
-        // string supabaseTestLevelId = "7bf4ff67-d3b6-4c60-ab96-0166daa439dc";
 
         if (loadFromSupabase)
         {

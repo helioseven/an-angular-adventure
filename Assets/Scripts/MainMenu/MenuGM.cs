@@ -16,6 +16,7 @@ public class MenuGM : MonoBehaviour
     // Browse Menu ref
     public Button browseButton;
     public Button quitButton;
+    public GameObject Logo;
 
     // Panels
     public GameObject levelBrowserPanel;
@@ -35,10 +36,19 @@ public class MenuGM : MonoBehaviour
     {
         levelBrowserPanel.SetActive(true);
         mainMenuPanel.SetActive(false);
+        Logo.SetActive(false);
+    }
+
+    public void OpenMainMenu()
+    {
+        levelBrowserPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
+        Logo.SetActive(true);
     }
 
     private void StartPlay()
     {
+        // start the play scene and set the levelName to default
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
         loader.levelName = "default";
@@ -46,9 +56,8 @@ public class MenuGM : MonoBehaviour
 
     private void StartEdit()
     {
-        var loaderGO = Instantiate(editLoader);
-        var loader = loaderGO.GetComponent<EditLoader>();
-        loader.levelName = "default";
+        // fire off an empty editing scene (it will load the default creation level)
+        Instantiate(editLoader);
     }
 
     private void Quit()
