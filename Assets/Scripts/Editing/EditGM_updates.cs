@@ -140,11 +140,13 @@ public partial class EditGM
         {
             _currentTool.SetActive(false);
             setTool(EditTools.Chkpnt);
+            soundManager.Play("checkpoint");
         }
         if (CheckInputDown(InputKeys.Warp))
         {
             _currentTool.SetActive(false);
             setTool(EditTools.Warp);
+            soundManager.Play("warp");
         }
 
         // if numeric key was pressed, set tileCreator as tool
@@ -190,6 +192,8 @@ public partial class EditGM
             // Delete key will destroy instance and forget _selectedItem
             if (CheckInputDown(InputKeys.Delete))
             {
+                soundManager.Play("delete");
+
                 _currentTool.SetActive(false);
                 Destroy(_selectedItem.instance);
                 _selectedItem = SelectedItem.noSelection;
@@ -295,13 +299,28 @@ public partial class EditGM
         if (CheckInputDown(InputKeys.CW))
             rot--;
         if (rot != oldRot)
+        {
+            // play a sound for rotation
+            soundManager.Play("bounce");
+
             tileCreator.SetRotation(rot);
+        }
 
         // update tile color
         if (CheckInputDown(InputKeys.ColorCCW))
+        {
+            // play a sound for color Change
+            soundManager.Play("bounce");
+
             tileCreator.CycleColor(false);
+        }
         if (CheckInputDown(InputKeys.ColorCW))
+        {
+            // play a sound for color Change
+            soundManager.Play("bounce");
+
             tileCreator.CycleColor(true);
+        }
 
         // update tile type
         if (CheckInputDown(InputKeys.One))
@@ -316,6 +335,17 @@ public partial class EditGM
             tileCreator.SelectType(4);
         if (CheckInputDown(InputKeys.Six))
             tileCreator.SelectType(5);
+
+        if (CheckInputDown(InputKeys.One) ||
+            CheckInputDown(InputKeys.Two) ||
+            CheckInputDown(InputKeys.Three) ||
+            CheckInputDown(InputKeys.Four) ||
+            CheckInputDown(InputKeys.Five) ||
+            CheckInputDown(InputKeys.Six))
+        {
+            // Play the sound for any tile type selected
+            soundManager.Play("bounce");
+        }
     }
 
     // handles input relating to the current tool
@@ -330,6 +360,10 @@ public partial class EditGM
                 // if main click, add relevant tool's item to the level
                 if (chkclck)
                 {
+                    // play random drawing sound
+                    int variant = UnityEngine.Random.Range(1, 10);
+                    soundManager.Play($"drawing-{variant}");
+
                     GameObject go = addTile();
                     _selectedItem = new SelectedItem(go, _tileLookup[go]);
                 }
@@ -338,6 +372,8 @@ public partial class EditGM
                 // if main click, add relevant tool's item to the level
                 if (chkclck)
                 {
+                    // play warp sound
+                    soundManager.Play("checkpoint");
                     ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(cd);
                     _selectedItem = new SelectedItem(go, cd);
@@ -357,6 +393,9 @@ public partial class EditGM
                 // if main click, add relevant tool's item to the level
                 if (chkclck)
                 {
+                    // play warp sound
+                    soundManager.Play("warp");
+
                     HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
                     WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
                     GameObject go = addSpecial(wd);

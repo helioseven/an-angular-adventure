@@ -22,6 +22,7 @@ public partial class EditGM : MonoBehaviour
     public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
+    public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
     public GraphicRaycaster uiRaycaster;
@@ -129,10 +130,18 @@ public partial class EditGM : MonoBehaviour
 
             // first layer is activated
             activateLayer(activeLayer);
+
+            // set sound manager
+            soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
+            // play the edit scene wakeup sound
+            int variant = UnityEngine.Random.Range(1, 3);
+            soundManager.Play($"loading-{variant}");
         }
         else
+        {
             // only one singleton can exist
             Destroy(gameObject);
+        }
     }
 
     void Update()
