@@ -27,6 +27,7 @@ public partial class EditGM
         Tile,
         Chkpnt,
         Warp,
+        Victory,
         Eraser,
     }
 
@@ -58,6 +59,7 @@ public partial class EditGM
         Out = 0x100000,
         ColorCCW = 0x200000,
         ColorCW = 0x400000,
+        Victory = 0x800000,
     }
 
     /* Private Utilities */
@@ -137,6 +139,11 @@ public partial class EditGM
             ChkpntData cd = _selectedItem.chkpntData.Value;
             _selectedItem.instance = addSpecial(cd);
         }
+        else if (_selectedItem.victoryData.HasValue)
+        {
+            VictoryData victoryData = _selectedItem.victoryData.Value;
+            _selectedItem.instance = addSpecial(victoryData);
+        }
         else if (_selectedItem.warpData.HasValue)
         {
             WarpData wd = _selectedItem.warpData.Value;
@@ -179,6 +186,24 @@ public partial class EditGM
 
         // resulting gameObject is added to lookup dictionary and returned
         _warpLookup[go] = inWarp; // <3>
+        return go;
+    }
+
+    // adds a passed VictoryData to the level and returns a reference
+    private GameObject addSpecial(VictoryData inVictory)
+    {
+        // first, the given VictoryData is added to levelData
+        levelData.victorySet.Add(inVictory);
+
+        // corresponding victory object is added to victoryMap
+        Vector3 v3 = inVictory.locus.ToUnitySpace();
+        v3.z = GetLayerDepth(inVictory.layer);
+        GameObject go = Instantiate(victoryTool, v3, Quaternion.identity) as GameObject;
+        go.GetComponent<SpecialCreator>().enabled = false;
+        go.transform.SetParent(victoryMap.transform);
+
+        // resulting gameObject is added to lookup dictionary and returned
+        _victoryLookup[go] = inVictory;
         return go;
     }
 
@@ -269,6 +294,22 @@ public partial class EditGM
             // add the GameObject,WarpData pair to _warpLookup
             _warpLookup.Add(go, wd);
         }
+
+        // build each victory in the level
+        foreach (VictoryData victoryData in inLevel.victorySet)
+        {
+            // make sure there are enough layers for the new warp
+            addLayers(victoryData.layer);
+            Vector3 v3 = victoryData.locus.ToUnitySpace();
+            v3.z = GetLayerDepth(victoryData.layer);
+            GameObject go = Instantiate(victoryTool, v3, Quaternion.identity) as GameObject;
+            go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+            go.transform.SetParent(victoryMap.transform);
+            go.SetActive(true);
+            go.GetComponent<SpecialCreator>().enabled = false;
+            // add the GameObject,VictoryData pair to _victoryLookup
+            _victoryLookup.Add(go, victoryData);
+        }
     }
 
     // returns true if the mouse is hovering over any HUD element
@@ -334,6 +375,7 @@ public partial class EditGM
         // check to see whether the given item is a checkpoint
         ChkpntData cData;
         WarpData wData;
+        VictoryData vData;
         if (IsMappedChkpnt(inSpecial, out cData))
         {
             _selectedItem = new SelectedItem(inSpecial, cData);
@@ -342,20 +384,31 @@ public partial class EditGM
             //set _selectedItem and tool then remove item from level and lookup
             levelData.chkpntSet.Remove(cData);
             _chkpntLookup.Remove(inSpecial);
-            // check to see whether the given item is a warp
         }
         else if (IsMappedWarp(inSpecial, out wData))
         {
+            // if the given item is a warp
             _selectedItem = new SelectedItem(inSpecial, wData);
             setTool(EditTools.Warp);
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.warpSet.Remove(wData);
             _warpLookup.Remove(inSpecial);
-            // if neither, simply return
+        }
+        else if (IsMappedVictory(inSpecial, out vData))
+        {
+            // must be victory, eh?
+            _selectedItem = new SelectedItem(inSpecial, vData);
+            setTool(EditTools.Victory);
+
+            //set _selectedItem and tool then remove item from level and lookup
+            levelData.victorySet.Remove(vData);
+            _victoryLookup.Remove(inSpecial);
         }
         else
+        {
             return;
+        }
 
         // if either, destroy the passed object
         Destroy(inSpecial);
@@ -430,6 +483,9 @@ public partial class EditGM
                 break;
             case EditTools.Warp:
                 _currentTool = warpTool;
+                break;
+            case EditTools.Victory:
+                _currentTool = victoryTool;
                 break;
             case EditTools.Eraser:
                 // missing implementation
@@ -530,7 +586,7 @@ public partial class EditGM
         }
     }
 
-    // if passed object is a checkpoint, supplies corresponding WarpData
+    // if passed object is a warp, supplies corresponding WarpData
     public bool IsMappedWarp(GameObject inWarp, out WarpData outData)
     {
         outData = new WarpData();
@@ -543,6 +599,23 @@ public partial class EditGM
         else
         {
             outData = _warpLookup[inWarp];
+            return true;
+        }
+    }
+
+    // if passed object is a victory, supplies corresponding VictoryData
+    public bool IsMappedVictory(GameObject inVictory, out VictoryData outData)
+    {
+        outData = new VictoryData();
+        // if victory isn't mapped, output default values and return false
+        if (!inVictory || !_victoryLookup.ContainsKey(inVictory))
+        {
+            return false;
+            // if it is, output the VictoryData and return true
+        }
+        else
+        {
+            outData = _victoryLookup[inVictory];
             return true;
         }
     }

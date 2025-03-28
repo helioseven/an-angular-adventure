@@ -22,9 +22,12 @@ public partial class EditGM : MonoBehaviour
     public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
+    public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
     public GraphicRaycaster uiRaycaster;
+    public GameObject victoryMap;
+    public GameObject victoryTool;
     public GameObject warpMap;
     public GameObject warpTool;
 
@@ -90,6 +93,7 @@ public partial class EditGM : MonoBehaviour
     private EditTools _toolMode;
     private Dictionary<GameObject, WarpData> _warpLookup;
     private SpecialCreator _warpTool;
+    private Dictionary<GameObject, VictoryData> _victoryLookup;
 
     void Awake()
     {
@@ -110,6 +114,7 @@ public partial class EditGM : MonoBehaviour
             _tileLookup = new Dictionary<GameObject, TileData>();
             _chkpntLookup = new Dictionary<GameObject, ChkpntData>();
             _warpLookup = new Dictionary<GameObject, WarpData>();
+            _victoryLookup = new Dictionary<GameObject, VictoryData>();
 
             // initializations for connected state variables
             hudPanel.SetActive(true);
@@ -129,10 +134,18 @@ public partial class EditGM : MonoBehaviour
 
             // first layer is activated
             activateLayer(activeLayer);
+
+            // set sound manager
+            soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
+            // play the edit scene wakeup sound
+            int variant = UnityEngine.Random.Range(1, 3);
+            soundManager.Play($"loading-{variant}");
         }
         else
+        {
             // only one singleton can exist
             Destroy(gameObject);
+        }
     }
 
     void Update()

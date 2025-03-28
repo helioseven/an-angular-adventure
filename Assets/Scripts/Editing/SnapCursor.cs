@@ -56,6 +56,9 @@ public class SnapCursor : MonoBehaviour
     // finds the closest snap point to the current mouse position and sets the anchor there
     public void FindNewAnchor()
     {
+        // Make the sound
+        _gmRef.soundManager.Play("anchor");
+
         // lists all collisions within radius 0.5 circle from mouse position
         Vector2 mouseIn = findPointOnPlane();
         Collider2D[] hitCols = Physics2D.OverlapCircleAll(mouseIn, 0.5f, 1);
