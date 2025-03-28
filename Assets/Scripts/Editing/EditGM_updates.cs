@@ -151,7 +151,6 @@ public partial class EditGM
         }
         if (CheckInputDown(InputKeys.Warp))
         {
-            Debug.Log("updateCreate Warp");
             _currentTool.SetActive(false);
             setTool(EditTools.Warp);
             soundManager.Play("warp");
