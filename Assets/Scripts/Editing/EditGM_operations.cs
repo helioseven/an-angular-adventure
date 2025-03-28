@@ -21,6 +21,7 @@ public partial class EditGM
         public GameObject instance;
         public TileData? tileData;
         public WarpData? warpData;
+        public VictoryData? victoryData;
 
         public SelectedItem(TileData inTile)
             : this(null, inTile) { }
@@ -31,12 +32,16 @@ public partial class EditGM
         public SelectedItem(WarpData inWarp)
             : this(null, inWarp) { }
 
+        public SelectedItem(VictoryData inVictory)
+            : this(null, inVictory) { }
+
         public SelectedItem(GameObject inInstance, TileData inTile)
         {
             instance = inInstance;
             tileData = inTile;
             chkpntData = null;
             warpData = null;
+            victoryData = null;
         }
 
         public SelectedItem(GameObject inInstance, ChkpntData inChkpnt)
@@ -45,6 +50,7 @@ public partial class EditGM
             tileData = null;
             chkpntData = inChkpnt;
             warpData = null;
+            victoryData = null;
         }
 
         public SelectedItem(GameObject inInstance, WarpData inWarp)
@@ -53,6 +59,16 @@ public partial class EditGM
             tileData = null;
             chkpntData = null;
             warpData = inWarp;
+            victoryData = null;
+        }
+
+        public SelectedItem(GameObject inInstance, VictoryData inVictory)
+        {
+            instance = inInstance;
+            tileData = null;
+            chkpntData = null;
+            warpData = null;
+            victoryData = inVictory;
         }
 
         public static bool operator ==(SelectedItem si1, SelectedItem si2)
@@ -64,6 +80,8 @@ public partial class EditGM
             if (si1.chkpntData != si2.chkpntData)
                 return false;
             if (si1.warpData != si2.warpData)
+                return false;
+            if (si1.victoryData != si2.victoryData)
                 return false;
             return true;
         }
@@ -124,6 +142,8 @@ public partial class EditGM
                 setTool(EditTools.Chkpnt);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditTools.Warp);
+            if (_selectedItem.victoryData.HasValue)
+                setTool(EditTools.Victory);
 
             // null out SelectedItem's instance to instead refer to creation tool
             _selectedItem.instance = null;
@@ -160,6 +180,8 @@ public partial class EditGM
                 // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
+            if (_selectedItem.victoryData.HasValue)
+                setTool(EditTools.Victory);
             if (_selectedItem.chkpntData.HasValue)
                 setTool(EditTools.Chkpnt);
             if (_selectedItem.warpData.HasValue)

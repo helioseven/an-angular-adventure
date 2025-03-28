@@ -41,12 +41,13 @@ public partial class EditGM
             Input.GetAxis("Depth") < 0,
             Input.GetAxis("CycleColor") < 0,
             Input.GetAxis("CycleColor") > 0,
+            Input.GetButton("VictoryTool"),
         };
 
         int k = 0;
         InputKeys now = InputKeys.None;
         // enum bit flags are assigned by powers of 2
-        for (int i = 1; i <= 0x400000; i = i * 2)
+        for (int i = 1; i <= 0x800000; i = i * 2)
         {
             InputKeys ik = (InputKeys)i;
             // CheckInput relies on last frame data before its been updated
@@ -135,15 +136,22 @@ public partial class EditGM
         // process input for tool and update active tool accordingly
         updateTool();
 
-        // C and V activate the checkpoint and warp tools, respectively
+        // C, V, and B activate the checkpoint, victory, and warp tools, respectively
         if (CheckInputDown(InputKeys.Chkpnt))
         {
             _currentTool.SetActive(false);
             setTool(EditTools.Chkpnt);
             soundManager.Play("checkpoint");
         }
+        if (CheckInputDown(InputKeys.Victory))
+        {
+            _currentTool.SetActive(false);
+            setTool(EditTools.Victory);
+            soundManager.Play("victory");
+        }
         if (CheckInputDown(InputKeys.Warp))
         {
+            Debug.Log("updateCreate Warp");
             _currentTool.SetActive(false);
             setTool(EditTools.Warp);
             soundManager.Play("warp");
@@ -400,6 +408,17 @@ public partial class EditGM
                     WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
                     GameObject go = addSpecial(wd);
                     _selectedItem = new SelectedItem(go, wd);
+                }
+                break;
+            case EditTools.Victory:
+                // if main click, add relevant tool's item to the level
+                if (chkclck)
+                {
+                    // play warp sound
+                    soundManager.Play("victory");
+                    VictoryData victoryData = new VictoryData(anchorIcon.focus, activeLayer);
+                    GameObject go = addSpecial(victoryData);
+                    _selectedItem = new SelectedItem(go, victoryData);
                 }
                 break;
             default:

@@ -26,6 +26,8 @@ public partial class EditGM : MonoBehaviour
     public TileCreator tileCreator;
     public GameObject tileMap;
     public GraphicRaycaster uiRaycaster;
+    public GameObject victoryMap;
+    public GameObject victoryTool;
     public GameObject warpMap;
     public GameObject warpTool;
 
@@ -91,6 +93,7 @@ public partial class EditGM : MonoBehaviour
     private EditTools _toolMode;
     private Dictionary<GameObject, WarpData> _warpLookup;
     private SpecialCreator _warpTool;
+    private Dictionary<GameObject, VictoryData> _victoryLookup;
 
     void Awake()
     {
@@ -111,6 +114,7 @@ public partial class EditGM : MonoBehaviour
             _tileLookup = new Dictionary<GameObject, TileData>();
             _chkpntLookup = new Dictionary<GameObject, ChkpntData>();
             _warpLookup = new Dictionary<GameObject, WarpData>();
+            _victoryLookup = new Dictionary<GameObject, VictoryData>();
 
             // initializations for connected state variables
             hudPanel.SetActive(true);

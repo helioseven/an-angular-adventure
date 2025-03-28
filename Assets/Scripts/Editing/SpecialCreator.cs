@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using circleXsquares;
 using UnityEngine;
+using static EditGM;
 
 public class SpecialCreator : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class SpecialCreator : MonoBehaviour
     public HexOrient specOrient { get; private set; }
 
     // public variables
-    public bool isWarp;
+    public EditTools toolType = EditTools.Warp;
 
     // private variables
     private EditGM _gmRef;
@@ -29,7 +30,7 @@ public class SpecialCreator : MonoBehaviour
     {
         // when active, the special will follow the focus
         HexLocus f = _anchorRef.focus;
-        int r = isWarp ? specOrient.rotation : 0;
+        int r = toolType == EditTools.Warp ? specOrient.rotation : 0;
         int l = _gmRef.activeLayer;
         specOrient = new HexOrient(f, r, l);
 
@@ -43,7 +44,7 @@ public class SpecialCreator : MonoBehaviour
     // turns the transform in 30 degree increments
     public void SetRotation(int inRotation)
     {
-        if (!isWarp)
+        if (!(toolType == EditTools.Warp))
             return;
         specOrient = new HexOrient(specOrient.locus, inRotation, specOrient.layer);
         Update();
@@ -52,7 +53,7 @@ public class SpecialCreator : MonoBehaviour
     // translates and rotates the transform according to given orientation
     public void SetOrientation(HexOrient inOrient)
     {
-        if (!isWarp)
+        if (!(toolType == EditTools.Warp))
             inOrient.rotation = 0;
         specOrient = inOrient;
         Update();
