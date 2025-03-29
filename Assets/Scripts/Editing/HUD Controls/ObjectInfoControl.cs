@@ -25,6 +25,8 @@ public class ObjectInfoControl : MonoBehaviour
     private TMP_Text _rotationDisplay;
     private TMP_Text _specialLabel;
     private TMP_Text _specialDisplay;
+    private TMP_Text _doorIdLabel;
+    private TMP_Text _doorIdDisplay;
     private TMP_Text _typeDisplay;
 
     /* Private Variables */
@@ -83,6 +85,10 @@ public class ObjectInfoControl : MonoBehaviour
         t = transform.GetChild(2);
         _specialLabel = t.GetChild(0).GetComponent<TMP_Text>();
         _specialDisplay = t.GetChild(1).GetComponent<TMP_Text>();
+
+        t = transform.GetChild(3);
+        _doorIdLabel = t.GetChild(0).GetComponent<TMP_Text>();
+        _doorIdDisplay = t.GetChild(1).GetComponent<TMP_Text>();
     }
 
     void Update()
@@ -105,14 +111,16 @@ public class ObjectInfoControl : MonoBehaviour
         public int spec;
         public int rot;
         public HexLocus locus;
+        public int doorId;
 
-        public InfoPack(int inType, int inColor, int inSpec, int inRot, HexLocus inLocus)
+        public InfoPack(int inType, int inColor, int inSpec, int inRot, HexLocus inLocus, int inDoorId)
         {
             type = inType;
             color = inColor;
             spec = inSpec;
             rot = inRot;
             locus = inLocus;
+            doorId = inDoorId;
         }
 
         public static bool operator ==(InfoPack ip1, InfoPack ip2)
@@ -126,6 +134,8 @@ public class ObjectInfoControl : MonoBehaviour
             if (ip1.rot != ip2.rot)
                 return false;
             if (ip1.locus != ip2.locus)
+                return false;
+            if (ip1.doorId != ip2.doorId)
                 return false;
             return true;
         }
@@ -165,6 +175,7 @@ public class ObjectInfoControl : MonoBehaviour
         int updt_spec = 0;
         int updt_rot = 0;
         HexLocus updt_locus = new HexLocus();
+        int updt_doorId = 0;
 
         if (_isAnySelected)
         {
@@ -178,6 +189,7 @@ public class ObjectInfoControl : MonoBehaviour
                     updt_spec = tcRef.tileSpecial;
                     updt_rot = tcRef.tileOrient.rotation;
                     updt_locus = tcRef.tileOrient.locus;
+                    updt_doorId = tcRef.tileDoorId;
                 }
                 else
                 {
@@ -188,6 +200,7 @@ public class ObjectInfoControl : MonoBehaviour
                     updt_spec = td.special;
                     updt_rot = td.orient.rotation;
                     updt_locus = td.orient.locus;
+                    updt_doorId = td.doorId;
                 }
             }
             if (si.chkpntData.HasValue)
@@ -196,6 +209,7 @@ public class ObjectInfoControl : MonoBehaviour
                 updt_color = -1;
                 updt_spec = -1;
                 updt_rot = -1;
+                updt_doorId = 0;
                 if (_isInstanceNull)
                     // if instance is null, gather info from currently active tool
                     updt_locus = ctRef.specOrient.locus;
@@ -209,6 +223,7 @@ public class ObjectInfoControl : MonoBehaviour
                 updt_type = 7;
                 updt_color = -1;
                 updt_spec = -1;
+                updt_doorId = 0;
                 if (_isInstanceNull)
                 {
                     // if instance is null, gather info from currently active tool
@@ -224,7 +239,7 @@ public class ObjectInfoControl : MonoBehaviour
             }
         }
 
-        return new InfoPack(updt_type, updt_color, updt_spec, updt_rot, updt_locus);
+        return new InfoPack(updt_type, updt_color, updt_spec, updt_rot, updt_locus, updt_doorId);
     }
 
     // updates the display image
@@ -292,6 +307,10 @@ public class ObjectInfoControl : MonoBehaviour
         }
         _specialLabel.text = sp;
         _specialDisplay.text = inIP.spec.ToString();
+
+        // update the door id display number
+        _doorIdDisplay.text = inIP.doorId.ToString();
+
         transform.GetChild(2).gameObject.SetActive(b);
     }
 }
