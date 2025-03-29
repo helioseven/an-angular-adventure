@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class WarpOverlay : MonoBehaviour
 {
-    public float pulseSpeed = 0.5f;
-    public float pulseScale = 0.25f;
-    public float spinSpeed = 60f; // degrees per second
+    public float pulseSpeed = 2.5f;
+    public float pulseScale = 0.02f;
+    public float spinSpeed = 120f; // degrees per second
     private Vector3 baseScale;
     private SpriteRenderer sr;
 
