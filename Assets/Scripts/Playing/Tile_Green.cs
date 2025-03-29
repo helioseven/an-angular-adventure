@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using circleXsquares;
 using UnityEngine;
 
 public class Tile_Green : Tile
 {
     public GameObject particlePrefab; // Assign a glowing particle prefab in Inspector
-    private Tile lockedTile; // Assign the corresponding locked Tile
+    private List<Tile> connectedDoorTiles = new List<Tile>(); // To be filled with list of corresponding locked "door tiles"
     private Transform keyIcon;
     private bool hasUnlocked = false;
 
@@ -16,13 +17,12 @@ public class Tile_Green : Tile
     {
         foreach (Tile tile in gameObject.transform.parent.GetComponentsInChildren<Tile>())
         {
-            bool isGreen = tile.data.color == (int)TileColor.Green; // prevent detecting itself
             bool isCorrespondingSpecialNumber =
-                tile.data.special == gameObject.GetComponent<Tile>().data.special;
-            if (!isGreen && isCorrespondingSpecialNumber)
+                tile.data.doorId == gameObject.GetComponent<Tile>().data.special;
+            if (isCorrespondingSpecialNumber)
             {
-                // set as locked block
-                lockedTile = tile;
+                // add to list of connected door tiles
+                connectedDoorTiles.Add(tile);
             }
         }
 
@@ -38,32 +38,36 @@ public class Tile_Green : Tile
         // triggers door open on player collision
         if (other.gameObject.CompareTag("Player"))
         {
-            if (!hasUnlocked && lockedTile.isActiveAndEnabled)
+            if (!hasUnlocked)
             {
                 // update the state of the tile to note that is has been unlocked
                 hasUnlocked = true;
 
                 keyIcon.gameObject.SetActive(false);
 
-                // show the unlock trail effect
-                StartCoroutine(MoveEffectToLockedTile());
+                foreach (Tile doorTile in connectedDoorTiles)
+                {
+                    // show the unlock trail effect
+                    StartCoroutine(MoveEffectToLockedTile(doorTile));
+                }
+
             }
         }
     }
 
     /* Private Functions */
 
-    private void openDoor()
+    private void openDoor(Tile doorTile)
     {
         // TODO: flash locked tile before disappearing
-        lockedTile.gameObject.SetActive(false);
+        doorTile.gameObject.SetActive(false);
     }
 
-    IEnumerator MoveEffectToLockedTile()
+    IEnumerator MoveEffectToLockedTile(Tile doorTile)
     {
         // Spawn the particle effect at the key tile's position
         Vector3 startPos = keyIcon.position;
-        Vector3 endPos = lockedTile.transform.GetChild(0).GetChild(0).position;
+        Vector3 endPos = doorTile.transform.GetChild(0).GetChild(0).position;
         GameObject effect = Instantiate(particlePrefab, startPos, Quaternion.identity);
 
         // Get the ParticleSystem component
@@ -82,7 +86,7 @@ public class Tile_Green : Tile
         }
 
         // remove the tile as soon as the trail gets there
-        openDoor();
+        openDoor(doorTile);
 
         // Stop particle emission but allow existing particles to fade out
         if (particleSystem != null)

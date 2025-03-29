@@ -19,6 +19,7 @@ public class TileCreator : MonoBehaviour
     public int tileColor { get; private set; }
     public int tileSpecial { get; private set; }
     public HexOrient tileOrient { get; private set; }
+    public int tileDoorId { get; private set; }
 
     // private references
     private SpriteRenderer[,] _tileRenderers;
@@ -34,6 +35,7 @@ public class TileCreator : MonoBehaviour
         tileType = 0;
         tileColor = 0;
         tileSpecial = 0;
+        tileDoorId = 0;
         tileOrient = new HexOrient(new HexLocus(), 0, 0);
 
         int nTypes = transform.childCount;
@@ -81,21 +83,54 @@ public class TileCreator : MonoBehaviour
     // disables and enables renderers based on color
     public void CycleColor(bool clockwise)
     {
-        int cnt = _tileRenderers.GetLength(1);
+        int count = _tileRenderers.GetLength(1);
         _tileRenderers[tileType, tileColor].enabled = false;
-        // we add cnt so that modulus doesn't choke on a negative number
-        int newColor = cnt + (clockwise ? tileColor + 1 : tileColor - 1);
-        tileColor = newColor % cnt;
+        // we add count so that modulus doesn't choke on a negative number
+        int newColor = count + (clockwise ? tileColor + 1 : tileColor - 1);
+        tileColor = newColor % count;
         _tileRenderers[tileType, tileColor].enabled = true;
     }
 
-    // sets tile's special value if valid color is in use
-    public void SetSpecial(int inSpecial)
+    public void TrackDoorId(string inId)
     {
+        Debug.Log($"[DEBUG] Got SetDoorId call with: \"{inId}\" (Length: {inId?.Length})");
+    }
+
+
+    // set door id
+    public void SetDoorId(string inId)
+    {
+        Debug.Log("SetDoorId: " + inId);
+        int doorId = 0;
+
+        if (int.TryParse(inId, out int parsedId))
+        {
+            doorId = parsedId;
+            Debug.Log("Set door ID to: " + parsedId);
+        }
+        else
+        {
+            Debug.LogWarning($"Could not parse door ID from input: \"{inId}\"");
+        }
+
+        tileDoorId = doorId;
+    }
+
+    // sets tile's special value if valid color is in use
+    public void SetSpecial(string inSpecial)
+    {
+        Debug.Log("SetSpecial: " + inSpecial);
+        int special = int.Parse(inSpecial);
         if (tileColor == 3)
-            tileSpecial = inSpecial;
+        {
+            // green (door unlock)
+            tileSpecial = special;
+        }
         if (tileColor == 4)
-            tileSpecial = (inSpecial + 4) % 4;
+        {
+            // orange (gravity)
+            tileSpecial = (special + 4) % 4;
+        }
     }
 
     // turns the transform in 30 degree increments
@@ -119,6 +154,7 @@ public class TileCreator : MonoBehaviour
         tileType = inData.type;
         tileColor = inData.color;
         tileSpecial = inData.special;
+        tileDoorId = inData.doorId;
         _tileRenderers[tileType, tileColor].enabled = true;
         SetRotation(inData.orient.rotation);
     }
@@ -126,7 +162,8 @@ public class TileCreator : MonoBehaviour
     // returns a TileData representation of the genesisTile's current state
     public TileData GetTileData()
     {
-        return new TileData(tileType, tileColor, tileSpecial, tileOrient);
+        Debug.Log("GetTileData: tiledoorid: " + tileDoorId);
+        return new TileData(tileType, tileColor, tileSpecial, tileOrient, tileDoorId);
     }
 
     // returns a new tile copied from the tile in active use

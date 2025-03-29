@@ -519,13 +519,15 @@ namespace circleXsquares
         public int color;
         public int special;
         public HexOrient orient;
+        public int doorId;
 
         // simple constructor
-        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient)
+        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient, int inDoorId = 0)
         {
             type = inType;
             color = inColor;
             special = inSpec;
+            doorId = inDoorId;
             orient = inOrient;
         }
 
@@ -536,6 +538,7 @@ namespace circleXsquares
             s += " " + color.ToString();
             s += " " + special.ToString();
             s += " " + orient.Serialize();
+            s += " " + doorId.ToString();
             return s;
         }
 
@@ -549,6 +552,8 @@ namespace circleXsquares
             if (td1.special != td2.special)
                 b = false;
             if (td1.orient != td2.orient)
+                b = false;
+            if (td1.doorId != td2.doorId)
                 b = false;
             return b;
         }
@@ -907,10 +912,10 @@ namespace circleXsquares
             }
 
             // proceeds to read the line items
-            int t = Int32.Parse(s[0]);
-            int c = Int32.Parse(s[1]);
-            int x = Int32.Parse(s[2]);
-            HexLocus hl = new HexLocus(
+            int type = Int32.Parse(s[0]);
+            int color = Int32.Parse(s[1]);
+            int extra = Int32.Parse(s[2]);
+            HexLocus hexLocus = new HexLocus(
                 Int32.Parse(s[3]),
                 Int32.Parse(s[4]),
                 Int32.Parse(s[5]),
@@ -918,10 +923,16 @@ namespace circleXsquares
                 Int32.Parse(s[7]),
                 Int32.Parse(s[8])
             );
-            int r = Int32.Parse(s[9]);
-            int y = Int32.Parse(s[10]);
+            int roation = Int32.Parse(s[9]);
+            int layer = Int32.Parse(s[10]);
 
-            return new TileData(t, c, x, new HexOrient(hl, r, y));
+            int doorId = 0;
+            if (s.Length > 11)
+            {
+                doorId = Int32.Parse(s[11]);
+            }
+
+            return new TileData(type, color, extra, new HexOrient(hexLocus, roation, layer), doorId);
         }
 
         // parses a string to construct a ChkpntData
