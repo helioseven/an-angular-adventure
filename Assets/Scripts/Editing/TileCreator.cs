@@ -91,12 +91,6 @@ public class TileCreator : MonoBehaviour
         _tileRenderers[tileType, tileColor].enabled = true;
     }
 
-    public void TrackDoorId(string inId)
-    {
-        Debug.Log($"[DEBUG] Got SetDoorId call with: \"{inId}\" (Length: {inId?.Length})");
-    }
-
-
     // set door id
     public void SetDoorId(string inId)
     {
@@ -118,7 +112,6 @@ public class TileCreator : MonoBehaviour
     // sets tile's special value if valid color is in use
     public void SetSpecial(string inSpecial)
     {
-        Debug.Log("SetSpecial: " + inSpecial);
         int special = int.Parse(inSpecial);
         if (tileColor == 3)
         {
