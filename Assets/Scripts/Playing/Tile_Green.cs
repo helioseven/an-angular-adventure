@@ -15,6 +15,30 @@ public class Tile_Green : Tile
 
     void Start()
     {
+        // get the grandparent tilemap
+        Transform tileMap = transform.parent?.parent;
+
+        if (tileMap != null)
+        {
+            foreach (Transform layer in tileMap)
+            {
+                foreach (Transform otherTile in layer)
+                {
+                    // check for each tile to add to list of connected door tiles
+                    Tile tileComp = otherTile.GetComponent<Tile>();
+                    bool isCorrespondingSpecialNumber =
+                       tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
+
+                    if (tileComp != null && isCorrespondingSpecialNumber)
+                    {
+                        // add to list of connected door tiles
+                        connectedDoorTiles.Add(tileComp);
+                    }
+                }
+            }
+        }
+
+
         foreach (Tile tile in gameObject.transform.parent.GetComponentsInChildren<Tile>())
         {
             bool isCorrespondingSpecialNumber =
