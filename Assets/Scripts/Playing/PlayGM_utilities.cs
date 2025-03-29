@@ -155,9 +155,9 @@ public partial class PlayGM
             if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
                 continue;
 
-            // Lose door icon if non special (non door) tile
+            // Lose door icon if non doorId tile
             Transform icon = go.transform.GetChild(0).GetChild(0);
-            if (td.special == 0)
+            if (td.doorId == 0)
                 icon.gameObject.SetActive(false);
             else
                 icon.localRotation = Quaternion.Euler(rotation - go.transform.rotation.eulerAngles);

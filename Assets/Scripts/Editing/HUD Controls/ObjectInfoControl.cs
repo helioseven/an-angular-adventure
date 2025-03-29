@@ -282,12 +282,12 @@ public class ObjectInfoControl : MonoBehaviour
         b = false;
         if (inIP.color == 3)
         {
-            sp = "Switch Target:";
+            sp = "Key Id:";
             b = true;
         }
         if (inIP.color == 4)
         {
-            sp = "Gravity Target:";
+            sp = "Gravity Direction:";
             b = true;
         }
         _specialLabel.text = sp;
