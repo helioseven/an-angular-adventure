@@ -38,18 +38,6 @@ public class Tile_Green : Tile
             }
         }
 
-
-        foreach (Tile tile in gameObject.transform.parent.GetComponentsInChildren<Tile>())
-        {
-            bool isCorrespondingSpecialNumber =
-                tile.data.doorId == gameObject.GetComponent<Tile>().data.special;
-            if (isCorrespondingSpecialNumber)
-            {
-                // add to list of connected door tiles
-                connectedDoorTiles.Add(tile);
-            }
-        }
-
         keyIcon = transform.GetChild(0).GetChild(0);
         Vector3 rotation = Vector3.forward;
         keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
