@@ -99,7 +99,6 @@ public class TileCreator : MonoBehaviour
         if (int.TryParse(inId, out int parsedId))
         {
             doorId = parsedId;
-            Debug.Log("Set door ID to: " + parsedId);
         }
         else
         {
@@ -154,7 +153,6 @@ public class TileCreator : MonoBehaviour
     // returns a TileData representation of the genesisTile's current state
     public TileData GetTileData()
     {
-        Debug.Log("GetTileData: tiledoorid: " + tileDoorId);
         return new TileData(tileType, tileColor, tileSpecial, tileOrient, tileDoorId);
     }
 
