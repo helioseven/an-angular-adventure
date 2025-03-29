@@ -24,12 +24,8 @@ public class InlineTextEditor : MonoBehaviour, IPointerClickHandler
 
     public void OnEditFinished(string newText)
     {
-        Debug.Log("OnEditFinished");
         labelText.text = newText;
         labelText.gameObject.SetActive(true);
         inputField.gameObject.SetActive(false);
-
-        // Optionally: update tile logic here
-        // tile.SetDoorId(newText);
     }
 }

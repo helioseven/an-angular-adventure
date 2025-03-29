@@ -100,7 +100,6 @@ public class TileCreator : MonoBehaviour
     // set door id
     public void SetDoorId(string inId)
     {
-        Debug.Log("SetDoorId: " + inId);
         int doorId = 0;
 
         if (int.TryParse(inId, out int parsedId))
