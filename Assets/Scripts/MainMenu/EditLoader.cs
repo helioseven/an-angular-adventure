@@ -11,17 +11,22 @@ public class EditLoader : MonoBehaviour
     // Public variables
     // The basic human readable level name
     public string levelName = "";
+
     // Level Id
     public string id;
+
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
 
     // private variables
     private string path;
+
     // String array representation of the payload data
     private string[] supabaseLevelPayloadData;
+
     // Built level data that needs to be handed off in the end
     private LevelData levelData = new LevelData();
+
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
@@ -34,10 +39,22 @@ public class EditLoader : MonoBehaviour
         {
             Debug.Log("[EditLoader] No level Name set! - Will load defaultCreateLevelData");
 
-            string[] defaultCreateLevelData = new string[] { "-- Tiles --", "-- End Tiles --", " ",
-            "-- Checkpoints --", "0 0 0 0 0 0 0", "-- End Checkpoints --", " ",
-            "-- Victories --", "2 2 0 0 0 0 0", "-- End Victories --", " ",
-            "-- Warps --",  "-- End Warps --" };
+            string[] defaultCreateLevelData = new string[]
+            {
+                "-- Tiles --",
+                "-- End Tiles --",
+                " ",
+                "-- Checkpoints --",
+                "0 0 0 0 0 0 0",
+                "-- End Checkpoints --",
+                " ",
+                "-- Victories --",
+                "2 2 0 0 0 0 0",
+                "-- End Victories --",
+                " ",
+                "-- Warps --",
+                "-- End Warps --",
+            };
 
             Debug.Log("defaultCreateLevelData: " + defaultCreateLevelData);
             levelData = LevelLoader.LoadLevel(defaultCreateLevelData);
@@ -51,7 +68,9 @@ public class EditLoader : MonoBehaviour
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
+            SupabaseEditController.Instance.StartCoroutine(
+                SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload)
+            );
         }
         else
         {

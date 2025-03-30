@@ -27,7 +27,7 @@ public class Tile_Green : Tile
                     // check for each tile to add to list of connected door tiles
                     Tile tileComp = otherTile.GetComponent<Tile>();
                     bool isCorrespondingSpecialNumber =
-                       tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
+                        tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
 
                     if (tileComp != null && isCorrespondingSpecialNumber)
                     {
@@ -62,7 +62,6 @@ public class Tile_Green : Tile
                     // show the unlock trail effect
                     StartCoroutine(MoveEffectToLockedTile(doorTile));
                 }
-
             }
         }
     }

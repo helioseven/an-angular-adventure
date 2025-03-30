@@ -10,8 +10,10 @@ public class PlayLoader : MonoBehaviour
     // Public variables
     // The basic human readable level name
     public string levelName;
+
     // Level Id
     public string id;
+
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
 
@@ -19,10 +21,13 @@ public class PlayLoader : MonoBehaviour
 
     // This path is the local file (if it's a "Draft") - built from levelName
     private string path;
+
     // String array representation of the payload data
     private string[] supabaseLevelPayloadData;
+
     // Built level data that needs to be handed off in the end
     private LevelData levelData = new LevelData();
+
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
@@ -44,7 +49,9 @@ public class PlayLoader : MonoBehaviour
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
+            SupabaseEditController.Instance.StartCoroutine(
+                SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload)
+            );
         }
         else
         {

@@ -277,9 +277,9 @@ public partial class EditGM
     // In case we need it again...
     string SanitizeFilename(string input)
     {
-        return new string(input
-            .Where(c => !char.IsControl(c) && c != '\u200B' && c != '\uFEFF')
-            .ToArray()).Trim();
+        return new string(
+            input.Where(c => !char.IsControl(c) && c != '\u200B' && c != '\uFEFF').ToArray()
+        ).Trim();
     }
 
     // Save to disk in json

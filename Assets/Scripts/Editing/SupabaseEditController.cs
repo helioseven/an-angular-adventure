@@ -79,13 +79,15 @@ public class SupabaseEditController : MonoBehaviour
 
                 foreach (var entry in array)
                 {
-                    results.Add(new LevelInfo
-                    {
-                        id = entry["id"]?.ToString(),
-                        name = entry["name"]?.ToString(),
-                        isLocal = false,
-                        created_at = DateTime.Parse(entry["created_at"]?.ToString())
-                    });
+                    results.Add(
+                        new LevelInfo
+                        {
+                            id = entry["id"]?.ToString(),
+                            name = entry["name"]?.ToString(),
+                            isLocal = false,
+                            created_at = DateTime.Parse(entry["created_at"]?.ToString()),
+                        }
+                    );
                 }
             }
             catch (Exception e)
@@ -133,8 +135,9 @@ public class SupabaseEditController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Error loading level: " + request.error + "\n" + request.downloadHandler.text);
+            Debug.LogError(
+                "Error loading level: " + request.error + "\n" + request.downloadHandler.text
+            );
         }
     }
-
 }

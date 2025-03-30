@@ -9,9 +9,7 @@ public class SaveDialogControl : MonoBehaviour
     void Awake()
     {
         // establishes a reference to the relevant text component
-        _pathField = transform
-            .Find("Save Name Input")
-            .GetComponent<TMP_InputField>();
+        _pathField = transform.Find("Save Name Input").GetComponent<TMP_InputField>();
 
         gameObject.SetActive(false);
     }

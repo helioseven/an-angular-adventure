@@ -113,7 +113,14 @@ public class ObjectInfoControl : MonoBehaviour
         public HexLocus locus;
         public int doorId;
 
-        public InfoPack(int inType, int inColor, int inSpec, int inRot, HexLocus inLocus, int inDoorId)
+        public InfoPack(
+            int inType,
+            int inColor,
+            int inSpec,
+            int inRot,
+            HexLocus inLocus,
+            int inDoorId
+        )
         {
             type = inType;
             color = inColor;

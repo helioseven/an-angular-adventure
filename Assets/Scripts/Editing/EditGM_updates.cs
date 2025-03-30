@@ -343,12 +343,14 @@ public partial class EditGM
         if (CheckInputDown(InputKeys.Six))
             tileCreator.SelectType(5);
 
-        if (CheckInputDown(InputKeys.One) ||
-            CheckInputDown(InputKeys.Two) ||
-            CheckInputDown(InputKeys.Three) ||
-            CheckInputDown(InputKeys.Four) ||
-            CheckInputDown(InputKeys.Five) ||
-            CheckInputDown(InputKeys.Six))
+        if (
+            CheckInputDown(InputKeys.One)
+            || CheckInputDown(InputKeys.Two)
+            || CheckInputDown(InputKeys.Three)
+            || CheckInputDown(InputKeys.Four)
+            || CheckInputDown(InputKeys.Five)
+            || CheckInputDown(InputKeys.Six)
+        )
         {
             // Play the sound for any tile type selected
             soundManager.Play("bounce");

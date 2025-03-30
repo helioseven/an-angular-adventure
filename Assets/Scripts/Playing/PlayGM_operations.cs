@@ -154,8 +154,6 @@ public partial class PlayGM
 
         // Unfreeze and restore momentum
         rb2d.bodyType = RigidbodyType2D.Dynamic;
-
-
     }
 
     // warps player from either base or target layer
@@ -172,5 +170,4 @@ public partial class PlayGM
         p.z = tileMap.transform.GetChild(next_layer).position.z;
         player.transform.position = p;
     }
-
 }

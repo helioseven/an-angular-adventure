@@ -281,7 +281,6 @@ public partial class PlayGM
             var main = checkpointParticleShimmer.main;
             main.startColor = bright;
         }
-
     }
 
     // set opacity and physics layer by given distance for given victory
@@ -302,7 +301,6 @@ public partial class PlayGM
         {
             ParticleSystem victoryParticleSystem = child.GetComponent<ParticleSystem>();
 
-
             var colorOverLifetime = victoryParticleSystem.colorOverLifetime;
 
             Gradient currentGradient = colorOverLifetime.color.gradient;
@@ -315,7 +313,7 @@ public partial class PlayGM
             GradientAlphaKey[] alphaKeys = new GradientAlphaKey[]
             {
                 new GradientAlphaKey(alpha, 0.0f),
-                new GradientAlphaKey(alpha, 1.0f)
+                new GradientAlphaKey(alpha, 1.0f),
             };
 
             newGradient.SetKeys(colorKeys, alphaKeys);
@@ -341,7 +339,9 @@ public partial class PlayGM
             warp.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
             Color bright = new Color(1f, 1f, 1f, 1f);
             Color mediumDim = new Color(1f, 1f, 1f, 0.3f);
-            Transform child = warp.transform.Find(isFrontActive ? "WarpOverlay" : "WarpOverlayBack");
+            Transform child = warp.transform.Find(
+                isFrontActive ? "WarpOverlay" : "WarpOverlayBack"
+            );
             if (child)
             {
                 // set to bright if it's the active warp on the active layer

@@ -23,8 +23,8 @@ public class Warp : MonoBehaviour
     // private references
     private PlayGM _gmRef;
 
-    [SerializeField] private GameObject warpRipple;
-
+    [SerializeField]
+    private GameObject warpRipple;
 
     void Awake()
     {
@@ -46,9 +46,8 @@ public class Warp : MonoBehaviour
             if (warpRipple != null)
             {
                 warpRipple.SetActive(false); // Reset in case it was left on
-                warpRipple.SetActive(true);  // Triggers OnEnable and the ripple animation
+                warpRipple.SetActive(true); // Triggers OnEnable and the ripple animation
             }
-
         }
     }
 }
