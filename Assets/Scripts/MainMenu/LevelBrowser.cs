@@ -18,12 +18,12 @@ public class LevelBrowser : MonoBehaviour
     {
         allLevels = LevelStorage.LoadLocalLevelMetadata();
 
-        // Fetch published levels from Supabase
-        StartCoroutine(supabase.FetchPublishedLevels(onlineLevels =>
-        {
-            allLevels.AddRange(onlineLevels);
-            RefreshUI();
-        }));
+        /* ## Supabase ## - Fetch all published levels from Supabase */
+        // StartCoroutine(supabase.FetchPublishedLevels(onlineLevels =>
+        // {
+        //     allLevels.AddRange(onlineLevels);
+        //     RefreshUI();
+        // }));
 
         RefreshUI();
         filterInput.onValueChanged.AddListener(_ => RefreshUI());

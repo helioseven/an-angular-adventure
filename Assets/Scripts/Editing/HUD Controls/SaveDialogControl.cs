@@ -16,11 +16,17 @@ public class SaveDialogControl : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    void Start()
+    {
+        _pathField.text = EditGM.instance.levelName;
+    }
+
     /* Public Functions */
 
     // pauses what the EditGM is doing to invoke the save dialog
     public void invokeDialog()
     {
+        _pathField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
@@ -36,6 +42,7 @@ public class SaveDialogControl : MonoBehaviour
     public void confirmSave()
     {
         EditGM.instance.SaveFile(_pathField.text);
+        EditGM.instance.levelName = _pathField.text;
         cancelDialog();
     }
 
@@ -44,6 +51,7 @@ public class SaveDialogControl : MonoBehaviour
     {
         Debug.Log("Publishing to supabase!: " + _pathField.text);
         EditGM.instance.PublishToSupabase(_pathField.text);
+        EditGM.instance.levelName = _pathField.text;
         cancelDialog();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -17,23 +18,24 @@ public class LevelNameField : MonoBehaviour
     /* Private References */
 
     protected EditGM _gmRef;
-    protected GameObject _inputField;
+    protected GameObject _inputFieldGO;
+    protected TMP_InputField _inputField;
+
 
     /* Private Variables */
 
     private bool _isActive;
-    private string _storedText;
 
     void Awake()
     {
-        _inputField = transform.GetChild(0).gameObject;
+        _inputFieldGO = transform.GetChild(0).gameObject;
+        _inputField = _inputFieldGO.GetComponent<TMP_InputField>();
     }
 
     void Start()
     {
         _gmRef = EditGM.instance;
         DeactivateField();
-        _storedText = "";
     }
 
     void Update()
@@ -41,7 +43,6 @@ public class LevelNameField : MonoBehaviour
         bool click = _gmRef.CheckInputDown(EditGM.InputKeys.ClickMain);
         if (_gmRef.IsLevelNameFieldHovered(this) && click)
             ActivateField();
-        _storedText = _gmRef.levelName;
     }
 
     // activates the child input field and disables self
@@ -50,10 +51,12 @@ public class LevelNameField : MonoBehaviour
         _isActive = true;
         _gmRef.inputMode = true;
 
-        _inputField.SetActive(true);
+        _inputFieldGO.SetActive(true);
+        _inputField.text = _gmRef.levelName;
+
         BaseEventData bed = new BaseEventData(_gmRef.eventSystem);
-        // _inputField is set as event system's selected object
-        _gmRef.eventSystem.SetSelectedGameObject(_inputField, bed);
+        // _inputFieldGO is set as event system's selected object
+        _gmRef.eventSystem.SetSelectedGameObject(_inputFieldGO, bed);
     }
 
     // deactivates the child input field and restores self
@@ -61,7 +64,7 @@ public class LevelNameField : MonoBehaviour
     {
         _isActive = false;
         _gmRef.inputMode = false;
-        _inputField.SetActive(false);
+        _inputFieldGO.SetActive(false);
     }
 
     // simply updates level name info from input

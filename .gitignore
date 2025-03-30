@@ -10,6 +10,9 @@ NonRepo/
 # VisualStudio-related ignores
 .vscode/*
 
+# Mac OS related ignores
+*/.DS_Store
+
 # Unity-related ignores
 
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
