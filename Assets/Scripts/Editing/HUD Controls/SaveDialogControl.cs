@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class SaveDialogControl : MonoBehaviour
 {
+    private EditGM _gmRef;
     private TMP_InputField _pathField;
 
     void Awake()
@@ -14,6 +15,12 @@ public class SaveDialogControl : MonoBehaviour
             .GetComponent<TMP_InputField>();
 
         gameObject.SetActive(false);
+    }
+
+    void Start()
+    {
+        _gmRef = EditGM.instance;
+        _pathField.text = _gmRef.levelName;
     }
 
     /* Public Functions */
