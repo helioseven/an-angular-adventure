@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SaveDialogControl : MonoBehaviour
 {
-    private EditGM _gmRef;
     private TMP_InputField _pathField;
 
     void Awake()
@@ -19,8 +18,7 @@ public class SaveDialogControl : MonoBehaviour
 
     void Start()
     {
-        _gmRef = EditGM.instance;
-        _pathField.text = _gmRef.levelName;
+        _pathField.text = EditGM.instance.levelName;
     }
 
     /* Public Functions */
@@ -28,6 +26,7 @@ public class SaveDialogControl : MonoBehaviour
     // pauses what the EditGM is doing to invoke the save dialog
     public void invokeDialog()
     {
+        _pathField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
