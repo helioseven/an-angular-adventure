@@ -85,6 +85,13 @@ public partial class PlayGM
         // Victory and it feels so good
         victoryAchieved = true;
 
+        // Stop the clock
+        clock.PauseClock();
+        // Set time for victory panel
+        victoryTimeText.text = clock.clockTimeToString();
+        // Open the victory panel
+        levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
+
         ParticleSystem victoryBurst;
         Transform child = inVictory.transform.Find("VictoryBurst");
         if (child != null)
@@ -154,6 +161,12 @@ public partial class PlayGM
 
         // Unfreeze and restore momentum
         rb2d.bodyType = RigidbodyType2D.Dynamic;
+
+        // Start the clock
+        if (isSpawn)
+        {
+            clock.StartClock();
+        }
     }
 
     // warps player from either base or target layer
