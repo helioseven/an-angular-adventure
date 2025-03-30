@@ -27,6 +27,7 @@ public class SaveDialogControl : MonoBehaviour
         _pathField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
+        _pathField.Select();
     }
 
     // cancels the save dialog by deactivating the panel and resuming EditGM
