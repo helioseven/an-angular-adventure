@@ -314,6 +314,23 @@ public partial class EditGM
         );
     }
 
+    public void TestLevel()
+    {
+        // first save a copy to disk
+        SaveFile(levelName);
+
+        // start the play scene and set the levelName to current levelName
+        var loaderGO = Instantiate(playLoader);
+        var loader = loaderGO.GetComponent<PlayLoader>();
+        loader.levelName = levelName;
+
+        // important - let the play loader know it's coming from edit mode
+        loader.playModeContext = PlayGM.PlayModeContext.FromEditor;
+
+        // fire the scene off
+        SceneManager.LoadScene("Playing");
+    }
+
     // sets level name property with passed string
     public void SetLevelName(string inName)
     {

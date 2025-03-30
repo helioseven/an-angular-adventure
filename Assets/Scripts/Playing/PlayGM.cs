@@ -25,6 +25,9 @@ public partial class PlayGM : MonoBehaviour
     public GameObject victoryMap;
     public GameObject warpRef;
     public GameObject warpMap;
+    public EditLoader editLoader;
+    public GameObject playtestWatermark;
+    public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
 
     // public read-accessibility state variables
     public GameObject activeCheckpoint { get; private set; }
@@ -60,6 +63,13 @@ public partial class PlayGM : MonoBehaviour
         "Nine",
     };
 
+    public enum PlayModeContext
+    {
+        FromEditor,
+        FromBrowser,
+        FromMainMenuPlayButton,
+    }
+
     // private references
     public PlayLoader levelLoader = null;
 
@@ -78,7 +88,6 @@ public partial class PlayGM : MonoBehaviour
             player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
             soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
             clock = GameObject.FindWithTag("Clock").GetComponent<Clock>();
-            clock = GameObject.FindWithTag("Clock").GetComponent<Clock>();
         }
         else
             // if another singleton already exists, this one cannot
@@ -90,6 +99,7 @@ public partial class PlayGM : MonoBehaviour
         // load the level
         Debug.Log("PlayGM Start levelid: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
+        playModeContext = levelLoader.playModeContext;
         levelData = levelLoader.supplyLevel();
         buildLevel(levelData);
 
@@ -114,7 +124,14 @@ public partial class PlayGM : MonoBehaviour
         SetCheckpoint(checkpoint);
         SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
 
-        // intro
+        // if it's a playtest enable the watermark (default disabled)
+        playtestWatermark.SetActive(false);
+        if (playModeContext == PlayModeContext.FromEditor)
+        {
+            playtestWatermark.SetActive(true);
+        }
+
+        // intro - spawn player
         player.gameObject.SetActive(false);
         Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
         bool isIntroSpawn = true;

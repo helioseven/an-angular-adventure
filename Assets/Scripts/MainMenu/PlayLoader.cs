@@ -4,6 +4,7 @@ using System.IO;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static PlayGM;
 
 public class PlayLoader : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class PlayLoader : MonoBehaviour
 
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
+
+    public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
 
     // Private variables
 

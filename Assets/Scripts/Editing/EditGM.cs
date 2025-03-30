@@ -30,6 +30,7 @@ public partial class EditGM : MonoBehaviour
     public GameObject victoryTool;
     public GameObject warpMap;
     public GameObject warpTool;
+    public GameObject playLoader;
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
