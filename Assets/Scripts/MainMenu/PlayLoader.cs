@@ -4,33 +4,47 @@ using System.IO;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static PlayGM;
 
 public class PlayLoader : MonoBehaviour
 {
     // Public variables
     // The basic human readable level name
     public string levelName;
-    // Level Id
-    public string id;
+
+    // Level Id (From Supabase)
+    public string supabase_uuid;
+
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
+
+    public LevelInfo levelInfo;
+
+    public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
 
     // Private variables
 
     // This path is the local file (if it's a "Draft") - built from levelName
     private string path;
+
     // String array representation of the payload data
     private string[] supabaseLevelPayloadData;
+
     // Built level data that needs to be handed off in the end
     private LevelData levelData = new LevelData();
+
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
     void Start()
     {
-        if (string.IsNullOrEmpty(levelName))
+        levelName = levelInfo.name;
+        supabase_uuid = levelInfo.id; // note this might not be a supabase level
+        loadFromSupabase = !levelInfo.isLocal;
+
+        if (string.IsNullOrEmpty(levelInfo.name))
         {
-            Debug.LogError("[PlayLoader] No level Name set!");
+            Debug.LogError("[PlayLoader] No level Name in Level Info!");
             return;
         }
 
@@ -44,7 +58,9 @@ public class PlayLoader : MonoBehaviour
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
+            SupabaseController.Instance.StartCoroutine(
+                SupabaseController.Instance.LoadLevel(supabase_uuid, GetLevelFromPayload)
+            );
         }
         else
         {

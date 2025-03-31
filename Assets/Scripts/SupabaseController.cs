@@ -12,9 +12,9 @@ public class SupabaseLevelDTO
     public string[] data;
 }
 
-public class SupabaseEditController : MonoBehaviour
+public class SupabaseController : MonoBehaviour
 {
-    public static SupabaseEditController Instance { get; private set; }
+    public static SupabaseController Instance { get; private set; }
 
     void Awake()
     {
@@ -28,7 +28,7 @@ public class SupabaseEditController : MonoBehaviour
     private const string SUPABASE_API_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
 
-    public IEnumerator SaveLevel(SupabaseLevelDTO level)
+    public IEnumerator SaveLevel(SupabaseLevelDTO level, System.Action<string> onSuccess)
     {
         string jsonBody = JsonUtility.ToJson(level);
 
@@ -47,6 +47,8 @@ public class SupabaseEditController : MonoBehaviour
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log("Level saved to Supabase!");
+            Debug.Log("Calling on success - request.ToString(): " + request.ToString());
+            onSuccess(request.ToString());
         }
         else
         {
@@ -79,13 +81,15 @@ public class SupabaseEditController : MonoBehaviour
 
                 foreach (var entry in array)
                 {
-                    results.Add(new LevelInfo
-                    {
-                        id = entry["id"]?.ToString(),
-                        name = entry["name"]?.ToString(),
-                        isLocal = false,
-                        created_at = DateTime.Parse(entry["created_at"]?.ToString())
-                    });
+                    results.Add(
+                        new LevelInfo
+                        {
+                            id = entry["id"]?.ToString(),
+                            name = entry["name"]?.ToString(),
+                            isLocal = false,
+                            created_at = DateTime.Parse(entry["created_at"]?.ToString()),
+                        }
+                    );
                 }
             }
             catch (Exception e)
@@ -133,8 +137,9 @@ public class SupabaseEditController : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Error loading level: " + request.error + "\n" + request.downloadHandler.text);
+            Debug.LogError(
+                "Error loading level: " + request.error + "\n" + request.downloadHandler.text
+            );
         }
     }
-
 }

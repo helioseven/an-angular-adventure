@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,12 +8,16 @@ public class MenuGM : MonoBehaviour
 {
     // Edit button ref
     public Button editButton;
+
     // EditLoader ref
     public GameObject editLoader;
+
     // Play button ref
     public Button playButton;
+
     // PlayLoader ref
     public GameObject playLoader;
+
     // Browse Menu ref
     public Button browseButton;
     public Button quitButton;
@@ -51,12 +56,21 @@ public class MenuGM : MonoBehaviour
         // start the play scene and set the levelName to default
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
-        loader.levelName = "default";
+
+        // use dummy default level info to load us into the default level
+        loader.levelInfo = new LevelInfo
+        {
+            id = "",
+            name = "default",
+            isLocal = true,
+            created_at = DateTime.MinValue,
+        };
     }
 
     private void StartEdit()
     {
         // fire off an empty editing scene (it will load the default creation level)
+
         Instantiate(editLoader);
     }
 

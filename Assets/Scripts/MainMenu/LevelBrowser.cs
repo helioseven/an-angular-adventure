@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelBrowser : MonoBehaviour
 {
@@ -10,7 +10,7 @@ public class LevelBrowser : MonoBehaviour
     public InputField filterInput;
     public GameObject playLoader;
     public GameObject editLoader;
-    public SupabaseEditController supabase;
+    public SupabaseController supabase;
     public MenuGM menuGM;
     private List<LevelInfo> allLevels = new();
 
@@ -19,11 +19,13 @@ public class LevelBrowser : MonoBehaviour
         allLevels = LevelStorage.LoadLocalLevelMetadata();
 
         /* ## Supabase ## - Fetch all published levels from Supabase */
-        // StartCoroutine(supabase.FetchPublishedLevels(onlineLevels =>
-        // {
-        //     allLevels.AddRange(onlineLevels);
-        //     RefreshUI();
-        // }));
+        StartCoroutine(
+            supabase.FetchPublishedLevels(onlineLevels =>
+            {
+                allLevels.AddRange(onlineLevels);
+                RefreshUI();
+            })
+        );
 
         RefreshUI();
         filterInput.onValueChanged.AddListener(_ => RefreshUI());
@@ -51,35 +53,32 @@ public class LevelBrowser : MonoBehaviour
         }
 
         string query = filterInput.text.ToLower();
-        var filtered = allLevels
-            .Where(level => level.name.ToLower().Contains(query))
-            .ToList();
+        var filtered = allLevels.Where(level => level.name.ToLower().Contains(query)).ToList();
 
         foreach (var level in filtered)
         {
             var itemGO = Instantiate(levelListItemPrefab, levelListContent);
             var itemUI = itemGO.GetComponent<LevelListItemUI>();
 
-            itemUI.Setup(level, onPlay: () =>
-            {
-                Debug.Log($"Clicked Play: {level.name} (ID: {level.id})");
+            itemUI.Setup(
+                level,
+                onPlay: () =>
+                {
+                    Debug.Log($"Clicked Play: {level.name} (ID: {level.id})");
 
-                // Load the level to play
-                var loaderGO = Instantiate(playLoader);
-                var loader = loaderGO.GetComponent<PlayLoader>();
-                loader.levelName = level.name;
-                loader.id = level.id;
-                loader.loadFromSupabase = !level.isLocal;
-            },
-            onEditOrRemix: () =>
-            {
-                // Load the level for editing
-                var loaderGO = Instantiate(editLoader);
-                var loader = loaderGO.GetComponent<EditLoader>();
-                loader.levelName = level.name;
-                loader.id = level.id;
-                loader.loadFromSupabase = !level.isLocal;
-            });
+                    // Load the level to play
+                    var loaderGO = Instantiate(playLoader);
+                    var loader = loaderGO.GetComponent<PlayLoader>();
+                    loader.levelInfo = level;
+                },
+                onEditOrRemix: () =>
+                {
+                    // Load the level for editing
+                    var loaderGO = Instantiate(editLoader);
+                    var loader = loaderGO.GetComponent<EditLoader>();
+                    loader.levelInfo = level;
+                }
+            );
         }
     }
 }

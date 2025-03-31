@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using circleXsquares;
+﻿using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class PlayGM : MonoBehaviour
 {
@@ -28,6 +25,10 @@ public partial class PlayGM : MonoBehaviour
     public GameObject victoryMap;
     public GameObject warpRef;
     public GameObject warpMap;
+    public EditLoader editLoader;
+    public GameObject playtestWatermark;
+    public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
+    public LevelInfo levelInfo;
 
     // public read-accessibility state variables
     public GameObject activeCheckpoint { get; private set; }
@@ -40,7 +41,10 @@ public partial class PlayGM : MonoBehaviour
         set { }
     }
     public LevelData levelData { get; private set; }
+    public string levelName { get; private set; }
     public bool victoryAchieved { get; private set; }
+    public GameObject levelCompletePanel;
+    public TMP_Text victoryTimeText;
 
     // private constants
     private const int DEFAULT_LAYER = 0;
@@ -60,12 +64,20 @@ public partial class PlayGM : MonoBehaviour
         "Nine",
     };
 
+    public enum PlayModeContext
+    {
+        FromEditor,
+        FromBrowser,
+        FromMainMenuPlayButton,
+    }
+
     // private references
-    private PlayLoader _lvlLoad = null;
+    public PlayLoader levelLoader = null;
 
     // private variables
     private GravityDirection _gravDir;
     private HexOrient _playerStart;
+    private Clock clock;
 
     void Awake()
     {
@@ -73,9 +85,10 @@ public partial class PlayGM : MonoBehaviour
         {
             // set singleton instance, then references
             instance = this;
-            _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
+            levelLoader = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
             player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
             soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
+            clock = GameObject.FindWithTag("Clock").GetComponent<Clock>();
         }
         else
             // if another singleton already exists, this one cannot
@@ -85,7 +98,11 @@ public partial class PlayGM : MonoBehaviour
     void Start()
     {
         // load the level
-        levelData = _lvlLoad.supplyLevel();
+        Debug.Log("PlayGM Start levelid: " + levelLoader.levelName);
+        levelName = levelLoader.levelName;
+        playModeContext = levelLoader.playModeContext;
+        levelInfo = levelLoader.levelInfo;
+        levelData = levelLoader.supplyLevel();
         buildLevel(levelData);
 
         // initialize variables
@@ -109,7 +126,14 @@ public partial class PlayGM : MonoBehaviour
         SetCheckpoint(checkpoint);
         SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
 
-        // intro
+        // if it's a playtest enable the watermark (default disabled)
+        playtestWatermark.SetActive(false);
+        if (playModeContext == PlayModeContext.FromEditor)
+        {
+            playtestWatermark.SetActive(true);
+        }
+
+        // intro - spawn player
         player.gameObject.SetActive(false);
         Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
         bool isIntroSpawn = true;

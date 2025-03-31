@@ -9,9 +9,7 @@ public class SaveDialogControl : MonoBehaviour
     void Awake()
     {
         // establishes a reference to the relevant text component
-        _pathField = transform
-            .Find("Save Name Input")
-            .GetComponent<TMP_InputField>();
+        _pathField = transform.Find("Save Name Input").GetComponent<TMP_InputField>();
 
         gameObject.SetActive(false);
     }
@@ -29,6 +27,7 @@ public class SaveDialogControl : MonoBehaviour
         _pathField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
+        _pathField.Select();
     }
 
     // cancels the save dialog by deactivating the panel and resuming EditGM
@@ -42,15 +41,6 @@ public class SaveDialogControl : MonoBehaviour
     public void confirmSave()
     {
         EditGM.instance.SaveFile(_pathField.text);
-        EditGM.instance.levelName = _pathField.text;
-        cancelDialog();
-    }
-
-    // confirms the file save by passing the entered filename to the EditGM
-    public void confirmPublish()
-    {
-        Debug.Log("Publishing to supabase!: " + _pathField.text);
-        EditGM.instance.PublishToSupabase(_pathField.text);
         EditGM.instance.levelName = _pathField.text;
         cancelDialog();
     }

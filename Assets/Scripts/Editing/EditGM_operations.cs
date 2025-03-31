@@ -277,9 +277,9 @@ public partial class EditGM
     // In case we need it again...
     string SanitizeFilename(string input)
     {
-        return new string(input
-            .Where(c => !char.IsControl(c) && c != '\u200B' && c != '\uFEFF')
-            .ToArray()).Trim();
+        return new string(
+            input.Where(c => !char.IsControl(c) && c != '\u200B' && c != '\uFEFF').ToArray()
+        ).Trim();
     }
 
     // Save to disk in json
@@ -303,26 +303,38 @@ public partial class EditGM
         File.WriteAllText(path, json);
     }
 
-    // Save to supabase!
-    public void PublishToSupabase(string levelName)
+    public void TestLevel()
     {
-        string[] lines = levelData.Serialize();
+        // first save a copy to disk
+        SaveFile(levelName);
 
-        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-        SupabaseEditController.Instance.StartCoroutine(
-            SupabaseEditController.Instance.SaveLevel(levelDTO)
-        );
+        // start the play scene and set the levelName to current levelName
+        var loaderGO = Instantiate(playLoader);
+        var loader = loaderGO.GetComponent<PlayLoader>();
+
+        // overwrite the levelname with most recent
+        levelInfo.name = levelName;
+        // even if this level was loaded from supabase, its all local from here baby
+        levelInfo.isLocal = true;
+        // set the level info in the loader (this is the passoff)
+        loader.levelInfo = levelInfo;
+
+        // let the play loader know it's coming from edit mode
+        loader.playModeContext = PlayGM.PlayModeContext.FromEditor;
+
+        // fire the scene off
+        SceneManager.LoadScene("Playing");
     }
 
     // sets level name property with passed string
     public void SetLevelName(string inName)
     {
+        // level names are capped at 100 characters for now
         if (inName.Length <= 100)
-            _levelName = inName; // <1>
-
-        /*
-        <1> level names are capped at 100 characters for now
-        */
+        {
+            _levelName = inName;
+            levelInfo.name = inName;
+        }
     }
 
     /* Private Operations */

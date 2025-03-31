@@ -932,7 +932,13 @@ namespace circleXsquares
                 doorId = Int32.Parse(s[11]);
             }
 
-            return new TileData(type, color, extra, new HexOrient(hexLocus, roation, layer), doorId);
+            return new TileData(
+                type,
+                color,
+                extra,
+                new HexOrient(hexLocus, roation, layer),
+                doorId
+            );
         }
 
         // parses a string to construct a ChkpntData

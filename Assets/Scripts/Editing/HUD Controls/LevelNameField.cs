@@ -21,7 +21,6 @@ public class LevelNameField : MonoBehaviour
     protected GameObject _inputFieldGO;
     protected TMP_InputField _inputField;
 
-
     /* Private Variables */
 
     private bool _isActive;

@@ -11,22 +11,32 @@ public class EditLoader : MonoBehaviour
     // Public variables
     // The basic human readable level name
     public string levelName = "";
+
     // Level Id
-    public string id;
+    public string supabase_uuid;
+
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
+    public LevelInfo levelInfo;
 
     // private variables
     private string path;
+
     // String array representation of the payload data
     private string[] supabaseLevelPayloadData;
+
     // Built level data that needs to be handed off in the end
     private LevelData levelData = new LevelData();
+
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
     void Start()
     {
+        levelName = levelInfo.name;
+        supabase_uuid = levelInfo.id; // note this might not be a supabase level
+        loadFromSupabase = !levelInfo.isLocal;
+
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
@@ -34,13 +44,35 @@ public class EditLoader : MonoBehaviour
         {
             Debug.Log("[EditLoader] No level Name set! - Will load defaultCreateLevelData");
 
-            string[] defaultCreateLevelData = new string[] { "-- Tiles --", "-- End Tiles --", " ",
-            "-- Checkpoints --", "0 0 0 0 0 0 0", "-- End Checkpoints --", " ",
-            "-- Victories --", "2 2 0 0 0 0 0", "-- End Victories --", " ",
-            "-- Warps --",  "-- End Warps --" };
+            string[] defaultCreateLevelData = new string[]
+            {
+                "-- Tiles --",
+                "-- End Tiles --",
+                " ",
+                "-- Checkpoints --",
+                "0 0 0 0 0 0 0",
+                "-- End Checkpoints --",
+                " ",
+                "-- Victories --",
+                "2 2 0 0 0 0 0",
+                "-- End Victories --",
+                " ",
+                "-- Warps --",
+                "-- End Warps --",
+            };
 
             Debug.Log("defaultCreateLevelData: " + defaultCreateLevelData);
             levelData = LevelLoader.LoadLevel(defaultCreateLevelData);
+
+            // set level info to dummy default level info
+            levelInfo = new LevelInfo
+            {
+                id = "",
+                name = "default",
+                isLocal = true,
+                created_at = DateTime.MinValue,
+            };
+
             levelReady = true;
             return;
         }
@@ -51,7 +83,9 @@ public class EditLoader : MonoBehaviour
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload));
+            SupabaseController.Instance.StartCoroutine(
+                SupabaseController.Instance.LoadLevel(supabase_uuid, GetLevelFromPayload)
+            );
         }
         else
         {
