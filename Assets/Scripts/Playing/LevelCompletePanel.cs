@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static PlayGM;
 
 public class LevelCompletePanel : MonoBehaviour
@@ -11,6 +12,7 @@ public class LevelCompletePanel : MonoBehaviour
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
     public GameObject playtestButtons;
     public GameObject standardButtons;
+    private bool uploadComplete = false;
 
     private void Start()
     {
@@ -72,6 +74,19 @@ public class LevelCompletePanel : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (uploadComplete)
+        {
+            // load editing scene
+            var loaderGO = Instantiate(PlayGM.instance.editLoader);
+            var loader = loaderGO.GetComponent<EditLoader>();
+            loader.levelInfo = PlayGM.instance.levelInfo;
+            loader.levelInfo.isLocal = true;
+            SceneManager.LoadScene("Editing");
+        }
+    }
+
     public void OnPositiveButton()
     {
         // this is used for all "postive buttons" in victory menu (replay or upload)
@@ -81,7 +96,19 @@ public class LevelCompletePanel : MonoBehaviour
         {
             case PlayModeContext.FromEditor:
                 // Upload from edit mode
-                Debug.Log("Publishing to Supabase: " + PlayGM.instance.levelName);
+                Debug.Log(
+                    "OnPositiveButton - Publishing to Supabase: " + PlayGM.instance.levelName
+                );
+                // disable buttons
+                Button[] buttons = playtestButtons.GetComponentsInChildren<Button>(
+                    includeInactive: true
+                );
+                foreach (Button btn in buttons)
+                {
+                    btn.interactable = false;
+                }
+
+                // publish to supabase
                 PublishToSupabase();
                 break;
             case PlayModeContext.FromBrowser:
@@ -90,10 +117,6 @@ public class LevelCompletePanel : MonoBehaviour
                 PlayLoader playLoaderGO = Instantiate(levelLoader);
                 var playLoader = playLoaderGO.GetComponent<PlayLoader>();
                 playLoader.levelInfo = PlayGM.instance.levelInfo;
-                // playLoader.levelName = PlayGM.instance.levelName;
-                // playLoader.id = PlayGM.instance.
-                // playLoader.loadFromSupabase = true;
-                // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 break;
         }
     }
@@ -107,6 +130,15 @@ public class LevelCompletePanel : MonoBehaviour
             name = PlayGM.instance.levelName,
             data = lines,
         };
-        SupabaseController.Instance.StartCoroutine(SupabaseController.Instance.SaveLevel(levelDTO));
+        SupabaseController.Instance.StartCoroutine(
+            SupabaseController.Instance.SaveLevel(levelDTO, SaveLevelCallback)
+        );
+    }
+
+    public void SaveLevelCallback(string s)
+    {
+        Debug.Log("[LevelCompletePanel] SaveLevelCallback");
+        Debug.Log(s);
+        uploadComplete = true;
     }
 }

@@ -303,15 +303,6 @@ public partial class EditGM
         File.WriteAllText(path, json);
     }
 
-    // Save to supabase!
-    public void PublishToSupabase(string levelName)
-    {
-        string[] lines = levelData.Serialize();
-
-        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-        SupabaseController.Instance.StartCoroutine(SupabaseController.Instance.SaveLevel(levelDTO));
-    }
-
     public void TestLevel()
     {
         // first save a copy to disk

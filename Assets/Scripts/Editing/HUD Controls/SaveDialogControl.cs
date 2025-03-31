@@ -44,13 +44,4 @@ public class SaveDialogControl : MonoBehaviour
         EditGM.instance.levelName = _pathField.text;
         cancelDialog();
     }
-
-    // confirms the file save by passing the entered filename to the EditGM
-    public void confirmPublish()
-    {
-        Debug.Log("Publishing to supabase!: " + _pathField.text);
-        EditGM.instance.PublishToSupabase(_pathField.text);
-        EditGM.instance.levelName = _pathField.text;
-        cancelDialog();
-    }
 }
