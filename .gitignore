@@ -1,9 +1,5 @@
 # Project-related ignores
 
-# All user-created levels are only stored locally, except testLevel
-[Ll]evels/*.txt
-# testLevel is an exception which will be removed later in the dev process
-![Ll]evels/testLevel.txt
 # NonRepo is a folder designated for non-tracked items
 NonRepo/
 
