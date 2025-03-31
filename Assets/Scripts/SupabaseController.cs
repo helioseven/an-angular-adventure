@@ -12,9 +12,9 @@ public class SupabaseLevelDTO
     public string[] data;
 }
 
-public class SupabaseEditController : MonoBehaviour
+public class SupabaseController : MonoBehaviour
 {
-    public static SupabaseEditController Instance { get; private set; }
+    public static SupabaseController Instance { get; private set; }
 
     void Awake()
     {

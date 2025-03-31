@@ -10,7 +10,7 @@ public class LevelBrowser : MonoBehaviour
     public InputField filterInput;
     public GameObject playLoader;
     public GameObject editLoader;
-    public SupabaseEditController supabase;
+    public SupabaseController supabase;
     public MenuGM menuGM;
     private List<LevelInfo> allLevels = new();
 
@@ -19,11 +19,13 @@ public class LevelBrowser : MonoBehaviour
         allLevels = LevelStorage.LoadLocalLevelMetadata();
 
         /* ## Supabase ## - Fetch all published levels from Supabase */
-        // StartCoroutine(supabase.FetchPublishedLevels(onlineLevels =>
-        // {
-        //     allLevels.AddRange(onlineLevels);
-        //     RefreshUI();
-        // }));
+        StartCoroutine(
+            supabase.FetchPublishedLevels(onlineLevels =>
+            {
+                allLevels.AddRange(onlineLevels);
+                RefreshUI();
+            })
+        );
 
         RefreshUI();
         filterInput.onValueChanged.AddListener(_ => RefreshUI());
@@ -67,18 +69,14 @@ public class LevelBrowser : MonoBehaviour
                     // Load the level to play
                     var loaderGO = Instantiate(playLoader);
                     var loader = loaderGO.GetComponent<PlayLoader>();
-                    loader.levelName = level.name;
-                    loader.id = level.id;
-                    loader.loadFromSupabase = !level.isLocal;
+                    loader.levelInfo = level;
                 },
                 onEditOrRemix: () =>
                 {
                     // Load the level for editing
                     var loaderGO = Instantiate(editLoader);
                     var loader = loaderGO.GetComponent<EditLoader>();
-                    loader.levelName = level.name;
-                    loader.id = level.id;
-                    loader.loadFromSupabase = !level.isLocal;
+                    loader.levelInfo = level;
                 }
             );
         }

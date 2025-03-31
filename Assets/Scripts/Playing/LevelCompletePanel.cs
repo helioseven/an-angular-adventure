@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -60,7 +61,8 @@ public class LevelCompletePanel : MonoBehaviour
             case PlayModeContext.FromEditor:
                 var loaderGO = Instantiate(PlayGM.instance.editLoader);
                 var loader = loaderGO.GetComponent<EditLoader>();
-                loader.levelName = PlayGM.instance.levelName;
+                loader.levelInfo = PlayGM.instance.levelInfo;
+                loader.levelInfo.isLocal = true;
                 SceneManager.LoadScene("Editing");
                 break;
             case PlayModeContext.FromBrowser:
@@ -79,16 +81,32 @@ public class LevelCompletePanel : MonoBehaviour
         {
             case PlayModeContext.FromEditor:
                 // Upload from edit mode
-                Debug.Log("upload: " + PlayGM.instance.levelName);
+                Debug.Log("Publishing to Supabase: " + PlayGM.instance.levelName);
+                PublishToSupabase();
                 break;
             case PlayModeContext.FromBrowser:
             case PlayModeContext.FromMainMenuPlayButton:
                 // start the play scene and set the levelName to default
                 PlayLoader playLoaderGO = Instantiate(levelLoader);
                 var playLoader = playLoaderGO.GetComponent<PlayLoader>();
-                playLoader.levelName = PlayGM.instance.levelName;
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                playLoader.levelInfo = PlayGM.instance.levelInfo;
+                // playLoader.levelName = PlayGM.instance.levelName;
+                // playLoader.id = PlayGM.instance.
+                // playLoader.loadFromSupabase = true;
+                // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
                 break;
         }
+    }
+
+    public void PublishToSupabase()
+    {
+        string[] lines = PlayGM.instance.levelData.Serialize();
+
+        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO
+        {
+            name = PlayGM.instance.levelName,
+            data = lines,
+        };
+        SupabaseController.Instance.StartCoroutine(SupabaseController.Instance.SaveLevel(levelDTO));
     }
 }

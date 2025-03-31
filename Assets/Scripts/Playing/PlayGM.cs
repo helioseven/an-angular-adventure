@@ -28,6 +28,7 @@ public partial class PlayGM : MonoBehaviour
     public EditLoader editLoader;
     public GameObject playtestWatermark;
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
+    public LevelInfo levelInfo;
 
     // public read-accessibility state variables
     public GameObject activeCheckpoint { get; private set; }
@@ -100,6 +101,7 @@ public partial class PlayGM : MonoBehaviour
         Debug.Log("PlayGM Start levelid: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
         playModeContext = levelLoader.playModeContext;
+        levelInfo = levelLoader.levelInfo;
         levelData = levelLoader.supplyLevel();
         buildLevel(levelData);
 

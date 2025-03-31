@@ -32,6 +32,9 @@ public partial class EditGM : MonoBehaviour
     public GameObject warpTool;
     public GameObject playLoader;
 
+    // Level Info
+    public LevelInfo levelInfo;
+
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
     public bool createMode
@@ -129,7 +132,8 @@ public partial class EditGM : MonoBehaviour
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-            levelName = string.IsNullOrEmpty(_lvlLoad.levelName) ? "My Tiles" : _lvlLoad.levelName;
+            levelName = string.IsNullOrEmpty(_lvlLoad.levelName) ? "My Tessel" : _lvlLoad.levelName;
+            levelInfo = _lvlLoad.levelInfo;
             levelData = _lvlLoad.supplyLevel();
             buildLevel(levelData);
 

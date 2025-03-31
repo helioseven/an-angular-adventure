@@ -13,10 +13,11 @@ public class EditLoader : MonoBehaviour
     public string levelName = "";
 
     // Level Id
-    public string id;
+    public string supabase_uuid;
 
     // Cloud load flag - fetch from Supabase instead of local
     public bool loadFromSupabase = false;
+    public LevelInfo levelInfo;
 
     // private variables
     private string path;
@@ -32,6 +33,10 @@ public class EditLoader : MonoBehaviour
 
     void Start()
     {
+        levelName = levelInfo.name;
+        supabase_uuid = levelInfo.id; // note this might not be a supabase level
+        loadFromSupabase = !levelInfo.isLocal;
+
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
@@ -58,6 +63,16 @@ public class EditLoader : MonoBehaviour
 
             Debug.Log("defaultCreateLevelData: " + defaultCreateLevelData);
             levelData = LevelLoader.LoadLevel(defaultCreateLevelData);
+
+            // set level info to dummy default level info
+            levelInfo = new LevelInfo
+            {
+                id = "",
+                name = "default",
+                isLocal = true,
+                created_at = DateTime.MinValue,
+            };
+
             levelReady = true;
             return;
         }
@@ -68,8 +83,8 @@ public class EditLoader : MonoBehaviour
 
         if (loadFromSupabase)
         {
-            SupabaseEditController.Instance.StartCoroutine(
-                SupabaseEditController.Instance.LoadLevel(id, GetLevelFromPayload)
+            SupabaseController.Instance.StartCoroutine(
+                SupabaseController.Instance.LoadLevel(supabase_uuid, GetLevelFromPayload)
             );
         }
         else

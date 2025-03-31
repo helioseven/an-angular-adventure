@@ -309,9 +309,7 @@ public partial class EditGM
         string[] lines = levelData.Serialize();
 
         SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
-        SupabaseEditController.Instance.StartCoroutine(
-            SupabaseEditController.Instance.SaveLevel(levelDTO)
-        );
+        SupabaseController.Instance.StartCoroutine(SupabaseController.Instance.SaveLevel(levelDTO));
     }
 
     public void TestLevel()
@@ -322,9 +320,15 @@ public partial class EditGM
         // start the play scene and set the levelName to current levelName
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
-        loader.levelName = levelName;
 
-        // important - let the play loader know it's coming from edit mode
+        // overwrite the levelname with most recent
+        levelInfo.name = levelName;
+        // even if this level was loaded from supabase, its all local from here baby
+        levelInfo.isLocal = true;
+        // set the level info in the loader (this is the passoff)
+        loader.levelInfo = levelInfo;
+
+        // let the play loader know it's coming from edit mode
         loader.playModeContext = PlayGM.PlayModeContext.FromEditor;
 
         // fire the scene off
@@ -334,12 +338,12 @@ public partial class EditGM
     // sets level name property with passed string
     public void SetLevelName(string inName)
     {
+        // level names are capped at 100 characters for now
         if (inName.Length <= 100)
-            _levelName = inName; // <1>
-
-        /*
-        <1> level names are capped at 100 characters for now
-        */
+        {
+            _levelName = inName;
+            levelInfo.name = inName;
+        }
     }
 
     /* Private Operations */
