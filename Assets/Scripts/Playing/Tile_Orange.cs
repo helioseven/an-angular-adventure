@@ -28,7 +28,6 @@ public class Tile_Orange : Tile
         // identifies the player by tag
         if (other.gameObject.CompareTag("Player"))
         {
-            _gmRef.soundManager.Play("gravity");
             redirectGravity();
         }
     }
@@ -39,7 +38,7 @@ public class Tile_Orange : Tile
     private void redirectGravity()
     {
         int newDir = data.special % 4;
-        PlayGM.GravityDirection gd = PlayGM.GravityDirection.Down;
+        PlayGM.GravityDirection gd;
         switch (newDir)
         {
             case 0:
