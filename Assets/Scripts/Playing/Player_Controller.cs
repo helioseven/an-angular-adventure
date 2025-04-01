@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Numerics;
-using circleXsquares;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
@@ -18,7 +14,7 @@ public class Player_Controller : MonoBehaviour
 
     // private variables
     private bool _godMode = false;
-    private UnityEngine.Vector2 _jumpForceVec;
+    private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
     private int _maxJumps = 1;
     private int _numJumps;
@@ -26,7 +22,7 @@ public class Player_Controller : MonoBehaviour
     void Awake()
     {
         _rb2d = gameObject.GetComponent<Rigidbody2D>();
-        _jumpForceVec = new UnityEngine.Vector2(0.0f, jumpForce);
+        _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = gameObject.GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
     }
@@ -76,9 +72,9 @@ public class Player_Controller : MonoBehaviour
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
-        UnityEngine.Vector2 movement = new UnityEngine.Vector2(moveHorizontal, moveVertical);
+        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
 
-        UnityEngine.Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
+        Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
 
         // reduce force in oppsite direction of gravity
         _rb2d.AddForce(upwardDragForcedMovement * speed * Time.deltaTime);
@@ -86,34 +82,34 @@ public class Player_Controller : MonoBehaviour
 
     // update "upward drag" force based on current gravity direction
     // this is to prevent hovering while allowing a higher speed (original 420 -> target: 600+)
-    public UnityEngine.Vector2 UpdateUpwardDragForce(UnityEngine.Vector2 inMovement)
+    public Vector2 UpdateUpwardDragForce(Vector2 inMovement)
     {
         float dragForce = 0.2f; // 0 would be no upward mobility, 1 would be full upward mobility.
 
-        UnityEngine.Vector2 outMovement = inMovement;
+        Vector2 outMovement = inMovement;
 
         switch (PlayGM.instance.gravDirection)
         {
             case PlayGM.GravityDirection.Down:
-                outMovement = new UnityEngine.Vector2(
+                outMovement = new Vector2(
                     inMovement.x,
                     inMovement.y > 0f ? (inMovement.y * dragForce) : inMovement.y
                 );
                 break;
             case PlayGM.GravityDirection.Left:
-                outMovement = new UnityEngine.Vector2(
+                outMovement = new Vector2(
                     inMovement.x > 0f ? (inMovement.x * dragForce) : inMovement.x,
                     inMovement.y
                 );
                 break;
             case PlayGM.GravityDirection.Up:
-                outMovement = new UnityEngine.Vector2(
+                outMovement = new Vector2(
                     inMovement.x,
                     inMovement.y < 0f ? (inMovement.y * dragForce) : inMovement.y
                 );
                 break;
             case PlayGM.GravityDirection.Right:
-                outMovement = new UnityEngine.Vector2(
+                outMovement = new Vector2(
                     inMovement.x < 0f ? (inMovement.x * dragForce) : inMovement.x,
                     inMovement.y
                 );
@@ -129,16 +125,16 @@ public class Player_Controller : MonoBehaviour
         switch (gd)
         {
             case PlayGM.GravityDirection.Down:
-                _jumpForceVec = new UnityEngine.Vector2(0.0f, jumpForce);
+                _jumpForceVec = new Vector2(0.0f, jumpForce);
                 break;
             case PlayGM.GravityDirection.Left:
-                _jumpForceVec = new UnityEngine.Vector2(jumpForce, 0.0f);
+                _jumpForceVec = new Vector2(jumpForce, 0.0f);
                 break;
             case PlayGM.GravityDirection.Up:
-                _jumpForceVec = new UnityEngine.Vector2(0.0f, -jumpForce);
+                _jumpForceVec = new Vector2(0.0f, -jumpForce);
                 break;
             case PlayGM.GravityDirection.Right:
-                _jumpForceVec = new UnityEngine.Vector2(-jumpForce, 0.0f);
+                _jumpForceVec = new Vector2(-jumpForce, 0.0f);
                 break;
             default:
                 return;
