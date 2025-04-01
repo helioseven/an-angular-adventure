@@ -5,6 +5,8 @@ public class Player_Controller : MonoBehaviour
     // public variables
     public int speed;
     public float jumpForce;
+    public bool isOnIce;
+    public bool isIceScalingBlockingJump;
 
     // private references
     private AudioSource _audioSource;
@@ -13,6 +15,7 @@ public class Player_Controller : MonoBehaviour
     private Rigidbody2D _rb2d;
 
     // private variables
+    private const float JUMP_FORCE_DEFAULT_VALUE = 420f;
     private bool _godMode = false;
     private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
@@ -38,6 +41,7 @@ public class Player_Controller : MonoBehaviour
         UpdateGravity();
         UpdateGodMode();
         UpdateRollingSound();
+        UpdateJumpForce();
     }
 
     void FixedUpdate()
@@ -120,7 +124,18 @@ public class Player_Controller : MonoBehaviour
     }
 
     // update jump force based on current gravity direction
-    public void UpdateJumpForce(PlayGM.GravityDirection gd)
+    public void UpdateJumpForce()
+    {
+        // if (isIceScalingBlockingJump)
+        // Debug.Log("howdy");
+        // update the jumpForce value
+        jumpForce = isIceScalingBlockingJump ? 0f : JUMP_FORCE_DEFAULT_VALUE;
+        // use the udpated value in the jump force vector
+        UpdateJumpForceVector(PlayGM.instance.gravDirection);
+    }
+
+    // update jump force vector based on current gravity direction
+    public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
     {
         switch (gd)
         {
