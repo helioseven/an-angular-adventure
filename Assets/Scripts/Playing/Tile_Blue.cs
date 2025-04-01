@@ -14,11 +14,11 @@ public class Tile_Blue : Tile
 
     /* Override Functions */
 
-    void OnCollisionEnter2D(Collision2D other)
+    void OnCollisionEnter2D(Collision2D collision)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            Vector2 vel = other.relativeVelocity;
+            Vector2 vel = collision.relativeVelocity;
             Vector2 grav = Physics2D.gravity;
 
             // dot product calculates projection of velocity vector onto vector perpendicular gravity vector
@@ -28,24 +28,22 @@ public class Tile_Blue : Tile
             float intensity = Mathf.Clamp(slideForce * _volumeMultiplier, 0f, _maxVolume);
             _gmRef.soundManager.Play("ice", intensity);
 
-            foreach (ContactPoint2D contact in other.contacts)
-            {
-                if (contact.collider.CompareTag("Player"))
-                {
-                    slopeNormal = contact.normal;
-                    isOnIce = true;
-                    Player_Controller playerController =
-                        other.gameObject.GetComponent<Player_Controller>();
-                    playerController.isOnIce = true;
-                    playerController.isIceScalingBlockingJump = !CanJump(
-                        playerController.GetGravityDirection()
-                    );
-                }
-            }
+            EnactIceOnPlayer(collision);
         }
     }
 
     void OnCollisionStay2D(Collision2D collision)
+    {
+        foreach (ContactPoint2D contact in collision.contacts)
+        {
+            if (contact.collider.CompareTag("Player"))
+            {
+                EnactIceOnPlayer(collision);
+            }
+        }
+    }
+
+    void EnactIceOnPlayer(Collision2D collision)
     {
         foreach (ContactPoint2D contact in collision.contacts)
         {
@@ -66,15 +64,19 @@ public class Tile_Blue : Tile
         }
     }
 
+    void RemoveIceOnPlayer(Collision2D collision)
+    {
+        isOnIce = false;
+        Player_Controller playerController = collision.gameObject.GetComponent<Player_Controller>();
+        playerController.isOnIce = false;
+        playerController.isIceScalingBlockingJump = false;
+    }
+
     void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Player"))
         {
-            isOnIce = false;
-            Player_Controller playerController =
-                collision.gameObject.GetComponent<Player_Controller>();
-            playerController.isOnIce = false;
-            playerController.isIceScalingBlockingJump = false;
+            RemoveIceOnPlayer(collision);
         }
     }
 
