@@ -11,8 +11,11 @@ public partial class PlayGM
     /* Public Operations */
 
     // redirects gravity in the specified direction
-    public void DirectGravity(GravityDirection inDirect)
+    public void SetGravity(GravityDirection inDirect)
     {
+        // update PlayGM instance state or gravity direction
+        _gravDir = inDirect;
+
         // set gravity vector according to direction
         switch (inDirect)
         {
@@ -34,6 +37,7 @@ public partial class PlayGM
 
         // reset player's jump force
         _gravDir = inDirect;
+        soundManager.Play("gravity");
         player.UpdateJumpForce(inDirect);
     }
 

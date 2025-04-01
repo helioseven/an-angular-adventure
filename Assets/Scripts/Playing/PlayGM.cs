@@ -75,7 +75,7 @@ public partial class PlayGM : MonoBehaviour
     public PlayLoader levelLoader = null;
 
     // private variables
-    private GravityDirection _gravDir;
+    public GravityDirection _gravDir;
     private HexOrient _playerStart;
     private Clock clock;
 
