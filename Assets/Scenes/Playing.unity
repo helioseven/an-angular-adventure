@@ -3524,6 +3524,12 @@ PrefabInstance:
       propertyPath: jumpForce
       value: 420
       objectReference: {fileID: 0}
+    - target: {fileID: 8126714323904837470, guid: 51aec3cef66274844af3d33972d061e7,
+        type: 3}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: -450487402688507255, guid: 88feab21252f04fcaa8f117bd51743e8,
+        type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

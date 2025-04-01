@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,11 +22,16 @@ public class MenuGM : MonoBehaviour
     // Browse Menu ref
     public Button browseButton;
     public Button quitButton;
+    public Button settingsButton;
     public GameObject Logo;
 
     // Panels
-    public GameObject levelBrowserPanel;
+    public GameObject browsePanel;
     public GameObject mainMenuPanel;
+    public GameObject settingsPanel;
+
+    // private variables
+    private GameObject[] menuPanels;
 
     void Awake()
     {
@@ -33,24 +39,35 @@ public class MenuGM : MonoBehaviour
         editButton.onClick.AddListener(StartEdit);
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
+        settingsButton.onClick.AddListener(OpenSettingsMenu);
+        menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel };
+        OpenMainMenu();
     }
 
-    /* Private Functions */
-
-    private void OpenLevelBrowser()
+    public void SwitchToMenu(GameObject targetPanel)
     {
-        levelBrowserPanel.SetActive(true);
-        mainMenuPanel.SetActive(false);
-        Logo.SetActive(false);
+        foreach (GameObject panel in menuPanels)
+        {
+            panel.SetActive(panel == targetPanel);
+        }
+    }
+
+    public void OpenLevelBrowser()
+    {
+        SwitchToMenu(browsePanel);
     }
 
     public void OpenMainMenu()
     {
-        levelBrowserPanel.SetActive(false);
-        mainMenuPanel.SetActive(true);
-        Logo.SetActive(true);
+        SwitchToMenu(mainMenuPanel);
     }
 
+    public void OpenSettingsMenu()
+    {
+        SwitchToMenu(settingsPanel);
+    }
+
+    /* Private Functions */
     private void StartPlay()
     {
         // start the play scene and set the levelName to default
