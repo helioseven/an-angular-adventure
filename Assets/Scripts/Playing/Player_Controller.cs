@@ -84,6 +84,11 @@ public class Player_Controller : MonoBehaviour
         _rb2d.AddForce(upwardDragForcedMovement * speed * Time.deltaTime);
     }
 
+    public PlayGM.GravityDirection GetGravityDirection()
+    {
+        return _gmRef.gravDirection;
+    }
+
     // update "upward drag" force based on current gravity direction
     // this is to prevent hovering while allowing a higher speed (original 420 -> target: 600+)
     public Vector2 UpdateUpwardDragForce(Vector2 inMovement)
@@ -126,9 +131,7 @@ public class Player_Controller : MonoBehaviour
     // update jump force based on current gravity direction
     public void UpdateJumpForce()
     {
-        // if (isIceScalingBlockingJump)
-        // Debug.Log("howdy");
-        // update the jumpForce value
+        // update the jumpForce value based on ice block toggle to 0 or default
         jumpForce = isIceScalingBlockingJump ? 0f : JUMP_FORCE_DEFAULT_VALUE;
         // use the udpated value in the jump force vector
         UpdateJumpForceVector(PlayGM.instance.gravDirection);

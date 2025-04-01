@@ -34,15 +34,14 @@ public class Tile_Blue : Tile
                 {
                     slopeNormal = contact.normal;
                     isOnIce = true;
-                    other.gameObject.GetComponent<Player_Controller>().isOnIce = true;
-                    other.gameObject.GetComponent<Player_Controller>().isIceScalingBlockingJump =
-                        !CanJump();
+                    Player_Controller playerController =
+                        other.gameObject.GetComponent<Player_Controller>();
+                    playerController.isOnIce = true;
+                    playerController.isIceScalingBlockingJump = !CanJump(
+                        playerController.GetGravityDirection()
+                    );
                 }
             }
-
-            // other.gameObject.GetComponent<Player_Controller>().isOnIce = true;
-            // isOnIce = true;
-            // other.gameObject.GetComponent<Player_Controller>().isIceScalingBlockingJump = true;
         }
     }
 
@@ -54,9 +53,12 @@ public class Tile_Blue : Tile
             {
                 slopeNormal = contact.normal;
                 isOnIce = true;
-                collision.gameObject.GetComponent<Player_Controller>().isOnIce = true;
-                collision.gameObject.GetComponent<Player_Controller>().isIceScalingBlockingJump =
-                    !CanJump();
+                Player_Controller playerController =
+                    collision.gameObject.GetComponent<Player_Controller>();
+                playerController.isOnIce = true;
+                playerController.isIceScalingBlockingJump = !CanJump(
+                    playerController.GetGravityDirection()
+                );
 
                 // Debug.Log("[BlueTiile] [OnCollisionStay2D] slopeNormal: " + slopeNormal);
                 // Debug.Log("[BlueTiile] [OnCollisionStay2D] CanJump(_): " + CanJump());
@@ -68,27 +70,43 @@ public class Tile_Blue : Tile
     {
         if (collision.collider.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<Player_Controller>().isOnIce = false;
             isOnIce = false;
-            collision.gameObject.GetComponent<Player_Controller>().isIceScalingBlockingJump = false;
+            Player_Controller playerController =
+                collision.gameObject.GetComponent<Player_Controller>();
+            playerController.isOnIce = false;
+            playerController.isIceScalingBlockingJump = false;
         }
     }
 
     /* Private Functions */
-
-    bool CanJump()
+    private bool CanJump(PlayGM.GravityDirection gravityDirection)
     {
-        Debug.Log("[BlueTiile] [CanJump] slopeNormal: " + slopeNormal);
-        Debug.Log("[BlueTiile] [CanJump] (returns if false)isOnIce: " + isOnIce);
+        // Debug.Log("[BlueTiile] [CanJump] slopeNormal: " + slopeNormal);
+        // Debug.Log("[BlueTiile] [CanJump] (returns if false)isOnIce: " + isOnIce);
+
+        float breakPoint = 0.6f;
 
         if (!isOnIce)
             return true;
 
         // Disallow jump if facing into the slope (i.e., trying to scale it)
         float slopeDot = Vector2.Dot(slopeNormal, Vector2.up);
-        Debug.Log("slopeDot: " + slopeDot);
-        bool shouldBeAbleToJump = Math.Abs(slopeDot) > .6f;
-        Debug.Log("[BlueTiile] [CanJump] shouldBeAbleToJump: " + shouldBeAbleToJump);
+        float slopeDotGoofy = Vector2.Dot(slopeNormal, Vector2.right);
+
+        // Debug.Log("slopeDot: " + slopeDot);
+        // Debug.Log("slopeDotGoofy: " + slopeDotGoofy);
+
+        bool shouldBeAbleToJump = Math.Abs(slopeDot) > breakPoint;
+        // need to use goofy when gravity is left or right
+        if (
+            gravityDirection == PlayGM.GravityDirection.Left
+            || gravityDirection == PlayGM.GravityDirection.Right
+        )
+        {
+            shouldBeAbleToJump = Math.Abs(slopeDotGoofy) > breakPoint;
+        }
+
+        // Debug.Log("[BlueTiile] [CanJump] shouldBeAbleToJump: " + shouldBeAbleToJump);
 
         return shouldBeAbleToJump;
     }
