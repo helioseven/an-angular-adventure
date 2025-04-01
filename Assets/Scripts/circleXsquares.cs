@@ -606,7 +606,7 @@ namespace circleXsquares
 
         public static bool operator ==(ChkpntData a, ChkpntData b)
         {
-            return (a.locus != b.locus) && (a.layer != b.layer);
+            return (a.locus == b.locus) && (a.layer == b.layer);
         }
 
         public static bool operator !=(ChkpntData a, ChkpntData b)
@@ -656,7 +656,7 @@ namespace circleXsquares
 
         public static bool operator ==(VictoryData a, VictoryData b)
         {
-            return (a.locus != b.locus) && (a.layer != b.layer);
+            return (a.locus == b.locus) && (a.layer == b.layer);
         }
 
         public static bool operator !=(VictoryData a, VictoryData b)
