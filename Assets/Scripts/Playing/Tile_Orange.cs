@@ -57,6 +57,6 @@ public class Tile_Orange : Tile
                 return;
         }
 
-        _gmRef.DirectGravity(gd);
+        _gmRef.SetGravity(gd);
     }
 }

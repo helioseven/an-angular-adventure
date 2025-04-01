@@ -184,25 +184,25 @@ public class Player_Controller : MonoBehaviour
         // K sets gravity down
         if (Input.GetKeyDown(KeyCode.K))
         {
-            _gmRef.DirectGravity(PlayGM.GravityDirection.Down);
+            _gmRef.SetGravity(PlayGM.GravityDirection.Down);
         }
 
         // J sets gravity left
         if (Input.GetKeyDown(KeyCode.J))
         {
-            _gmRef.DirectGravity(PlayGM.GravityDirection.Left);
+            _gmRef.SetGravity(PlayGM.GravityDirection.Left);
         }
 
         // I sets gravity up
         if (Input.GetKeyDown(KeyCode.I))
         {
-            _gmRef.DirectGravity(PlayGM.GravityDirection.Up);
+            _gmRef.SetGravity(PlayGM.GravityDirection.Up);
         }
 
         // L sets gravity right
         if (Input.GetKeyDown(KeyCode.L))
         {
-            _gmRef.DirectGravity(PlayGM.GravityDirection.Right);
+            _gmRef.SetGravity(PlayGM.GravityDirection.Right);
         }
     }
 
