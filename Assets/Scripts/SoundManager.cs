@@ -15,9 +15,6 @@ public class SoundManager : MonoBehaviour
     public Sound[] sounds;
 
     // privates
-    private float masterVolume = 0.5f;
-    private float sfxVolume = 0.5f;
-    private float musicVolume = 0.5f;
     private const string masterVolumeKey = "MasterVolume";
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";

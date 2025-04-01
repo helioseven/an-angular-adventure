@@ -11,7 +11,29 @@ public class Tile_Brown : Tile
     {
         // identifies the player by tag
         if (other.gameObject.CompareTag("Player"))
+        {
+            Rigidbody2D rb = other.rigidbody;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
             playerAction();
+        }
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Rigidbody2D rb = collision.rigidbody;
+            if (rb != null)
+            {
+                rb.linearVelocity *= 0.9f;
+                rb.angularVelocity = 0f;
+            }
+        }
     }
 
     /* Private Functions */
