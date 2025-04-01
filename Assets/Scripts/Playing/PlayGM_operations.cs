@@ -38,7 +38,7 @@ public partial class PlayGM
         // reset player's jump force
         _gravDir = inDirect;
         soundManager.Play("gravity");
-        player.UpdateJumpForce(inDirect);
+        player.UpdateJumpForceVector(inDirect);
     }
 
     // kills the player
