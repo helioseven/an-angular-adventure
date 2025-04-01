@@ -239,6 +239,7 @@ public partial class EditGM
                 // if special is clicked, same as above with extra checks
                 ChkpntData cd;
                 WarpData wd;
+                VictoryData vd;
                 if (IsMappedChkpnt(go, out cd))
                 {
                     _selectedItem = new SelectedItem(null, cd);
@@ -249,6 +250,11 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(null, wd);
                     _warpTool.SetOrientation(wd.orient);
                     setTool(EditTools.Warp);
+                }
+                if (IsMappedVictory(go, out vd))
+                {
+                    _selectedItem = new SelectedItem(null, vd);
+                    setTool(EditTools.Victory);
                 }
                 removeSpecial(go);
                 Destroy(go);
@@ -415,7 +421,7 @@ public partial class EditGM
                 // if main click, add relevant tool's item to the level
                 if (chkclck)
                 {
-                    // play warp sound
+                    // play victory sound
                     soundManager.Play("victory");
                     VictoryData victoryData = new VictoryData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(victoryData);

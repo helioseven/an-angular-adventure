@@ -361,6 +361,12 @@ public partial class EditGM
             // remove _selectedItem from level and set chkpnt
             setTool(EditTools.Chkpnt);
         }
+        else if (_selectedItem.victoryData.HasValue)
+        {
+            removeSpecial(_selectedItem.instance);
+            // remove _selectedItem from level and set victory
+            setTool(EditTools.Victory);
+        }
         else if (_selectedItem.warpData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
@@ -372,17 +378,21 @@ public partial class EditGM
     // removes a given special from the level
     private void removeSpecial(GameObject inSpecial)
     {
-        // check to see whether the given item is a checkpoint
         ChkpntData cData;
         WarpData wData;
         VictoryData vData;
         if (IsMappedChkpnt(inSpecial, out cData))
         {
+            // if the given item is a checkpoint
             _selectedItem = new SelectedItem(inSpecial, cData);
             setTool(EditTools.Chkpnt);
 
-            //set _selectedItem and tool then remove item from level and lookup
+            // set _selectedItem and tool then remove item from level and lookup
+            Debug.Log(levelData.chkpntSet.Contains(cData));
+            // Debug.Log(levelData.chkpntSet.Count);
             levelData.chkpntSet.Remove(cData);
+            // Debug.Log(levelData.chkpntSet.Contains(cData));
+            // Debug.Log(levelData.chkpntSet.Count);
             _chkpntLookup.Remove(inSpecial);
         }
         else if (IsMappedWarp(inSpecial, out wData))
@@ -392,7 +402,11 @@ public partial class EditGM
             setTool(EditTools.Warp);
 
             // set _selectedItem and tool then remove item from level and lookup
+            Debug.Log(levelData.warpSet.Contains(wData));
+            // Debug.Log(levelData.warpSet.Count);
             levelData.warpSet.Remove(wData);
+            Debug.Log(levelData.warpSet.Contains(wData));
+            // Debug.Log(levelData.warpSet.Count);
             _warpLookup.Remove(inSpecial);
         }
         else if (IsMappedVictory(inSpecial, out vData))
