@@ -238,7 +238,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 52.8
+  m_fontSize: 58.45
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -426,6 +426,87 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!1 &270949586
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 270949587}
+  - component: {fileID: 270949589}
+  - component: {fileID: 270949588}
+  m_Layer: 10
+  m_Name: JumpProximityZoneForPurple
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &270949587
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270949586}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2116145628}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &270949588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270949586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77693558b125bbb4090ed6fa8015ff8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!58 &270949589
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270949586}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 3
 --- !u!1 &485554455
 GameObject:
   m_ObjectHideFlags: 0
@@ -3231,7 +3312,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 96.3
+  m_fontSize: 94
   m_fontSizeBase: 72
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3524,6 +3605,11 @@ PrefabInstance:
       propertyPath: jumpForce
       value: 420
       objectReference: {fileID: 0}
+    - target: {fileID: 114496391257242954, guid: 51aec3cef66274844af3d33972d061e7,
+        type: 3}
+      propertyPath: purpleGroundCheckCollider
+      value: 
+      objectReference: {fileID: 270949589}
     - target: {fileID: 8126714323904837470, guid: 51aec3cef66274844af3d33972d061e7,
         type: 3}
       propertyPath: OutputAudioMixerGroup
@@ -3532,7 +3618,11 @@ PrefabInstance:
         type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4527814932538884, guid: 51aec3cef66274844af3d33972d061e7,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 270949587}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 51aec3cef66274844af3d33972d061e7, type: 3}
 --- !u!114 &2116145627 stripped
@@ -3547,6 +3637,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e5190c44829d134bb8f2eb0b701b561, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2116145628 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4527814932538884, guid: 51aec3cef66274844af3d33972d061e7,
+    type: 3}
+  m_PrefabInstance: {fileID: 2116145626}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2129861604
 GameObject:
   m_ObjectHideFlags: 0

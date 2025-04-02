@@ -7,6 +7,7 @@ public class Player_Controller : MonoBehaviour
     public float jumpForce;
     public bool isOnIce;
     public bool isIceScalingBlockingJump;
+    public Collider2D purpleGroundCheckCollider;
 
     // private references
     private AudioSource _audioSource;
@@ -162,9 +163,15 @@ public class Player_Controller : MonoBehaviour
     // update jumping state and number of jumps
     public void UpdateJumping()
     {
-        bool canJump = (_numJumps < _maxJumps);
+        bool canJump = _numJumps < _maxJumps;
         if (_numJumps == 0)
+        {
             canJump = canJump && _groundCheckCollider.IsTouchingLayers();
+        }
+
+        // purpleGroundCheck override
+        canJump =
+            canJump || purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple;
 
         if (canJump && Input.GetKeyDown(KeyCode.Space))
         {
