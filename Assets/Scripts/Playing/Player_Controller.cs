@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Player_Controller : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Player_Controller : MonoBehaviour
     public bool isOnIce;
     public bool isIceScalingBlockingJump;
     public Collider2D purpleGroundCheckCollider;
+    public bool queueSuperJumpOnPurpleTouch = false;
 
     // private references
     private AudioSource _audioSource;
@@ -22,6 +24,8 @@ public class Player_Controller : MonoBehaviour
     private bool _jumpNow = false;
     private int _maxJumps = 1;
     private int _numJumps;
+    public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
+    private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
 
     void Awake()
     {
@@ -56,6 +60,26 @@ public class Player_Controller : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         _numJumps = 0;
+
+        // Debug.Log(
+        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name: " + other.collider.name
+        // );
+
+        // Debug.Log(
+        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name.Contains(\"Purple\"): "
+        //         + other.collider.name.Contains("Purple")
+        // );
+
+        if (other.collider.name.Contains("Purple"))
+        {
+            recentlyTouchedPurpleTiles.Add(other.collider);
+            if (queueSuperJumpOnPurpleTouch)
+            {
+                Debug.Log("SUPERJUMP");
+                queueSuperJumpOnPurpleTouch = false;
+                _jumpNow = true;
+            }
+        }
     }
 
     /* Public Functions */
@@ -171,7 +195,30 @@ public class Player_Controller : MonoBehaviour
 
         // purpleGroundCheck override
         canJump =
-            canJump || purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple;
+            canJump
+            || (
+                purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
+                && purpTucher
+            );
+
+        if (
+            purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
+            && !purpTucher
+            && Input.GetKeyDown(KeyCode.Space)
+        )
+        {
+            Debug.Log("queueSuperJumpOnTouch");
+            queueSuperJumpOnPurpleTouch = true;
+        }
+
+        if (
+            purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
+            && purpTucher
+            && Input.GetKeyDown(KeyCode.Space)
+        )
+        {
+            Debug.Log("JUST after");
+        }
 
         if (canJump && Input.GetKeyDown(KeyCode.Space))
         {

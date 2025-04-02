@@ -9,12 +9,12 @@ public class JumpProximityZone : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
+        // Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
 
-        Debug.Log(
-            "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
-                + other.name.Contains("Purple")
-        );
+        // Debug.Log(
+        //     "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
+        //         + other.name.Contains("Purple")
+        // );
         if (other.name.Contains("Purple"))
         {
             nearbyPurpleTiles.Add(other);
@@ -25,7 +25,23 @@ public class JumpProximityZone : MonoBehaviour
     {
         if (other.name.Contains("Purple"))
         {
+            // remove from hashset
             nearbyPurpleTiles.Remove(other);
+
+            // remove from player controller
+            gameObject
+                .GetComponentInParent<Player_Controller>()
+                .recentlyTouchedPurpleTiles.Remove(other);
+
+            if (
+                gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch
+                == true
+            )
+            {
+                Debug.Log("cancelingsuperjump");
+            }
+            gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch =
+                false;
         }
     }
 }
