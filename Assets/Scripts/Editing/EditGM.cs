@@ -132,7 +132,9 @@ public partial class EditGM : MonoBehaviour
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
-            levelName = string.IsNullOrEmpty(_lvlLoad.levelName) ? "My Tessel" : _lvlLoad.levelName;
+            levelName = string.IsNullOrEmpty(_lvlLoad.levelName)
+                ? LevelNameGenerator.GenerateLevelName()
+                : _lvlLoad.levelName;
             levelInfo = _lvlLoad.levelInfo;
             levelData = _lvlLoad.supplyLevel();
             buildLevel(levelData);
