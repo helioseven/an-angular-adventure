@@ -9,22 +9,32 @@ public class JumpProximityZone : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
+        Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
 
-        // Debug.Log(
-        //     "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
-        //         + other.name.Contains("Purple")
-        // );
-        if (other.name.Contains("Purple"))
+        Debug.Log(
+            "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
+                + other.name.Contains("Purple")
+        );
+
+        Debug.Log(
+            "[JumpProximityZone] [OnTriggerEnter2D] other.gameObject.layer: "
+                + other.gameObject.layer
+        );
+
+        Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] gameObject.layer " + gameObject.layer);
+        if (other.name.Contains("Purple") && other.gameObject.layer == gameObject.layer)
         {
+            Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] nearbyPurpleTiles.Add(other); ");
             nearbyPurpleTiles.Add(other);
         }
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
-        if (other.name.Contains("Purple"))
+        if (other.name.Contains("Purple") && other.gameObject.layer == gameObject.layer)
         {
+            // NOTE: should these also be removed on taking a warp?
+
             // remove from hashset
             nearbyPurpleTiles.Remove(other);
 
@@ -38,7 +48,7 @@ public class JumpProximityZone : MonoBehaviour
                 == true
             )
             {
-                Debug.Log("cancelingsuperjump");
+                Debug.Log("[JumpProximityZone] [OnTriggerExit2D] cancelling---superjump---");
             }
             gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch =
                 false;

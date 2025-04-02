@@ -71,7 +71,14 @@ public partial class PlayGM
         // activeLayer is source of truth for active physics layer by index
         activeLayer = layerIndex;
 
-        player.gameObject.layer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
+        int targetLayer = LayerMask.NameToLayer(INT_TO_NAME[activeLayer]);
+
+        player.gameObject.layer = targetLayer;
+
+        foreach (Transform child in player.transform)
+        {
+            child.gameObject.layer = targetLayer;
+        }
 
         // update opacity and physics for all tile layers
         foreach (Transform layer in tileMap.transform)
