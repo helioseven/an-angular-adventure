@@ -68,7 +68,7 @@ public class EditLoader : MonoBehaviour
             levelInfo = new LevelInfo
             {
                 id = "",
-                name = "default",
+                name = "defaultCreateLevelFromMainMenu",
                 isLocal = true,
                 created_at = DateTime.MinValue,
             };
