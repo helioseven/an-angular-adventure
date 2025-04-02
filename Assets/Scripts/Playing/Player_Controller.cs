@@ -61,14 +61,14 @@ public class Player_Controller : MonoBehaviour
     {
         _numJumps = 0;
 
-        Debug.Log(
-            "[Player_Controller] [OnCollisionEnter2D] other.collider.name: " + other.collider.name
-        );
+        // Debug.Log(
+        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name: " + other.collider.name
+        // );
 
-        Debug.Log(
-            "[Player_Controller] [OnCollisionEnter2D] other.collider.name.Contains(\"Purple\"): "
-                + other.collider.name.Contains("Purple")
-        );
+        // Debug.Log(
+        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name.Contains(\"Purple\"): "
+        //         + other.collider.name.Contains("Purple")
+        // );
 
         if (other.collider.name.Contains("Purple"))
         {

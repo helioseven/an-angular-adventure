@@ -9,22 +9,22 @@ public class JumpProximityZone : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
+        // Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] other.name: " + other.name);
 
-        Debug.Log(
-            "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
-                + other.name.Contains("Purple")
-        );
+        // Debug.Log(
+        //     "[JumpProximityZone] [OnTriggerEnter2D] other.name.Contains(\"Purple\"): "
+        //         + other.name.Contains("Purple")
+        // );
 
-        Debug.Log(
-            "[JumpProximityZone] [OnTriggerEnter2D] other.gameObject.layer: "
-                + other.gameObject.layer
-        );
+        // Debug.Log(
+        //     "[JumpProximityZone] [OnTriggerEnter2D] other.gameObject.layer: "
+        //         + other.gameObject.layer
+        // );
 
-        Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] gameObject.layer " + gameObject.layer);
+        // Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] gameObject.layer " + gameObject.layer);
         if (other.name.Contains("Purple") && other.gameObject.layer == gameObject.layer)
         {
-            Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] nearbyPurpleTiles.Add(other); ");
+            // Debug.Log("[JumpProximityZone] [OnTriggerEnter2D] nearbyPurpleTiles.Add(other); ");
             nearbyPurpleTiles.Add(other);
         }
     }
@@ -48,7 +48,7 @@ public class JumpProximityZone : MonoBehaviour
                 == true
             )
             {
-                Debug.Log("[JumpProximityZone] [OnTriggerExit2D] cancelling---superjump---");
+                Debug.Log("[JumpProximityZone] [OnTriggerExit2D] CANCELLING---superjump---");
             }
             gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch =
                 false;
