@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class AlphaHitTestImage : Image
 {
     [Range(0, 1)]
-    public float alphaThreshold = 0.001f;
+    public float alphaThreshold = 0.1f;
 
     public override bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
     {

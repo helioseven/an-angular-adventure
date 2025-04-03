@@ -2928,7 +2928,7 @@ GameObject:
   m_Component:
   - component: {fileID: 969885896}
   - component: {fileID: 969885899}
-  - component: {fileID: 969885898}
+  - component: {fileID: 969885900}
   - component: {fileID: 969885897}
   m_Layer: 5
   m_Name: Settings Button
@@ -2980,7 +2980,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 0.2627451}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_PressedColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -2997,11 +2997,19 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 969885898}
+  m_TargetGraphic: {fileID: 969885900}
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &969885898
+--- !u!222 &969885899
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 969885895}
+  m_CullTransparentMesh: 0
+--- !u!114 &969885900
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3010,7 +3018,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 969885895}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Script: {fileID: 11500000, guid: f74ccbc0412da481f962536a8f6d2835, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
@@ -3032,14 +3040,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &969885899
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 969885895}
-  m_CullTransparentMesh: 1
+  alphaThreshold: 0.001
 --- !u!1 &1059377432
 GameObject:
   m_ObjectHideFlags: 0
