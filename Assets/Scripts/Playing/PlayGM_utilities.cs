@@ -129,8 +129,8 @@ public partial class PlayGM
                 prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
         }
 
-        // create level layers (hard-coded amount for now)
-        for (int i = 0; i < DEFAULT_NUM_LAYERS; i++)
+        // create default number of level layers
+        for (int i = 0; i < Constants.DEFAULT_NUM_LAYERS; i++)
         {
             GameObject tileLayer = new GameObject();
             tileLayer.name = "Layer #" + i;

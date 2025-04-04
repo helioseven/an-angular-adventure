@@ -62,7 +62,7 @@ public partial class EditGM
     // cycles through all layers, calculates distance, and sets opacity accordingly
     private void activateLayer(int inLayer)
     {
-        bool b = (inLayer < 0) || (inLayer >= tileMap.transform.childCount);
+        bool b = (inLayer < 0) || (inLayer >= Constants.DEFAULT_NUM_LAYERS);
         if (b)
             // if invalid layer index is given, fail quietly
             return;
@@ -239,6 +239,15 @@ public partial class EditGM
                 int ti = tile.GetSiblingIndex();
                 prefab_refs[tgi, ti] = tile.gameObject;
             }
+        }
+
+        // create default number of level layers
+        for (int i = 0; i < Constants.DEFAULT_NUM_LAYERS; i++)
+        {
+            GameObject tileLayer = new GameObject();
+            tileLayer.name = "Layer #" + i;
+            tileLayer.transform.position = new Vector3(0f, 0f, 2f * i);
+            tileLayer.transform.SetParent(tileMap.transform);
         }
 
         // build each tile in the level

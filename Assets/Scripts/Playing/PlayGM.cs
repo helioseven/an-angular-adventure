@@ -48,7 +48,6 @@ public partial class PlayGM : MonoBehaviour
 
     // private constants
     private const int DEFAULT_LAYER = 0;
-    private const int DEFAULT_NUM_LAYERS = 10;
     private const int INACTIVE_LAYER = 9;
     public static readonly string[] INT_TO_NAME =
     {

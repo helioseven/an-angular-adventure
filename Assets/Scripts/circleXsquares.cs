@@ -30,6 +30,11 @@ namespace circleXsquares
 
     /* Primary Struct Definitions */
 
+    public struct Constants
+    {
+        public const int DEFAULT_NUM_LAYERS = 10;
+    }
+
     // HexLocus describes a location in a hexagonal coodinate system
     public struct HexLocus
     {
