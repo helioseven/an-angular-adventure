@@ -129,9 +129,9 @@ public partial class EditGM
             TileData td = _selectedItem.tileData.Value;
             _selectedItem.instance = addTile(td);
         }
-        else if (_selectedItem.CheckpointData.HasValue)
+        else if (_selectedItem.checkpointData.HasValue)
         {
-            CheckpointData cd = _selectedItem.CheckpointData.Value;
+            CheckpointData cd = _selectedItem.checkpointData.Value;
             _selectedItem.instance = addSpecial(cd);
         }
         else if (_selectedItem.victoryData.HasValue)
@@ -194,8 +194,6 @@ public partial class EditGM
         GameObject go = Instantiate(victoryTool, v3, Quaternion.identity) as GameObject;
         go.GetComponent<SpecialCreator>().enabled = false;
         go.transform.SetParent(victoryMap.transform);
-
-        Debug.Log("Victory moneys added to lookup dictionary  MONEY");
 
         // resulting gameObject is added to lookup dictionary and returned
         _victoryLookup[go] = inVictory;
@@ -356,7 +354,7 @@ public partial class EditGM
             // remove _selectedItem from level and set tile
             setTool(EditCreatorTool.Tile);
         }
-        else if (_selectedItem.CheckpointData.HasValue)
+        else if (_selectedItem.checkpointData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set checkpoint

@@ -17,9 +17,9 @@ public partial class EditGM
     // particularly when switching modes and/or tools
     public struct SelectedItem
     {
-        public CheckpointData? CheckpointData;
         public GameObject instance;
         public TileData? tileData;
+        public CheckpointData? checkpointData;
         public WarpData? warpData;
         public VictoryData? victoryData;
 
@@ -39,7 +39,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = inTile;
-            CheckpointData = null;
+            checkpointData = null;
             warpData = null;
             victoryData = null;
         }
@@ -48,7 +48,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            CheckpointData = inChkpnt;
+            checkpointData = inChkpnt;
             warpData = null;
             victoryData = null;
         }
@@ -57,7 +57,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            CheckpointData = null;
+            checkpointData = null;
             warpData = inWarp;
             victoryData = null;
         }
@@ -66,7 +66,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            CheckpointData = null;
+            checkpointData = null;
             warpData = null;
             victoryData = inVictory;
         }
@@ -77,7 +77,7 @@ public partial class EditGM
                 return false;
             if (si1.tileData != si2.tileData)
                 return false;
-            if (si1.CheckpointData != si2.CheckpointData)
+            if (si1.checkpointData != si2.checkpointData)
                 return false;
             if (si1.warpData != si2.warpData)
                 return false;
@@ -138,7 +138,7 @@ public partial class EditGM
                 setTool(EditCreatorTool.Tile);
             }
             // set tool to checkpoint or warp tool as appropriate
-            if (_selectedItem.CheckpointData.HasValue)
+            if (_selectedItem.checkpointData.HasValue)
                 setTool(EditCreatorTool.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditCreatorTool.Warp);
@@ -180,7 +180,7 @@ public partial class EditGM
                 // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
-            if (_selectedItem.CheckpointData.HasValue)
+            if (_selectedItem.checkpointData.HasValue)
                 setTool(EditCreatorTool.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditCreatorTool.Warp);

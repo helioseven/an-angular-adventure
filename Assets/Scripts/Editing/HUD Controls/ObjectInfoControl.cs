@@ -171,17 +171,19 @@ public class ObjectInfoControl : MonoBehaviour
         _isAnyItemSelected = selectedItem != EditGM.SelectedItem.noSelection;
         _isInstanceNull = selectedItem.instance == null;
 
-        // type will be set below
+        // Set Infopack return items to their default values
+        // type should always be updated during this function
         int type = 0;
 
-        // the rest might not be set for special tiles since they don't need them
+        // the rest change for tiles but stay as defaults for special tiles
         int color = 0;
         int spec = 0;
         int rot = 0;
         HexLocus locus = new HexLocus();
         int doorId = 0;
 
-        // If the editor is in Create mode - update object panel InfoPack based on active and enabled CreatorTool status
+        // If the editor is in Create mode
+        //   update object panel InfoPack based on active and enabled CreatorTool status
         if (_editGM.isEditorInCreateMode)
         {
             if (_tileCreator.isActiveAndEnabled)
@@ -217,7 +219,7 @@ public class ObjectInfoControl : MonoBehaviour
             }
         }
         // Otherwise - In this case the editor is not in create mode
-        //   ie it's in select or edit mode (or paint mode I suppose)
+        //   ie it's in edit / paint mode
         else if (_isAnyItemSelected)
         {
             if (selectedItem.tileData.HasValue)
@@ -244,31 +246,24 @@ public class ObjectInfoControl : MonoBehaviour
                     doorId = td.doorId;
                 }
             }
-            if (selectedItem.CheckpointData.HasValue)
+            if (selectedItem.checkpointData.HasValue)
             {
+                CheckpointData cd = selectedItem.checkpointData.Value;
                 type = 6;
-                color = -1;
-                spec = -1;
-                rot = -1;
-                doorId = 0;
                 if (_isInstanceNull)
-                    // if instance is null, gather info from currently active tool
+                    // if instance is null, gather info from correct creator tool
                     locus = _checkpointCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
-                    locus = selectedItem.CheckpointData.Value.locus;
+                    locus = selectedItem.checkpointData.Value.locus;
             }
             if (selectedItem.warpData.HasValue)
             {
                 WarpData wd = selectedItem.warpData.Value;
                 type = 7;
-                color = -1;
-                spec = -1;
-                rot = -1;
-                doorId = 0;
                 if (_isInstanceNull)
                 {
-                    // if instance is null, gather info from currently active tool
+                    // if instance is null, gather info from correct creator tool
                     rot = _warpCreator.specOrient.rotation;
                     locus = _warpCreator.specOrient.locus;
                 }
@@ -282,13 +277,9 @@ public class ObjectInfoControl : MonoBehaviour
             {
                 VictoryData vd = selectedItem.victoryData.Value;
                 type = 8;
-                color = -1;
-                spec = -1;
-                rot = -1;
-                doorId = 0;
 
                 if (_isInstanceNull)
-                    // if instance is null, gather info from currently active tool
+                    // if instance is null, gather info from correct creator tool
                     locus = _victoryCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
