@@ -12532,6 +12532,7 @@ MonoBehaviour:
     id: 
     name: 
     isLocal: 0
+  quitDialogPanel: {fileID: 897251555}
 --- !u!4 &1421947833
 Transform:
   m_ObjectHideFlags: 0

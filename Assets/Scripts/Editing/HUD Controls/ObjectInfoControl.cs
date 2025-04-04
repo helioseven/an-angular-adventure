@@ -181,9 +181,9 @@ public class ObjectInfoControl : MonoBehaviour
         HexLocus locus = new HexLocus();
         int doorId = 0;
 
+        // If the editor is in Create mode - update object panel InfoPack based on active and enabled CreatorTool status
         if (_editGM.isEditorInCreateMode)
         {
-            // Create mode - update object panel InfoPack based on creator status
             if (_tileCreator.isActiveAndEnabled)
             {
                 type = _tileCreator.tileType;
@@ -210,9 +210,14 @@ public class ObjectInfoControl : MonoBehaviour
             }
             else
             {
+                // Default (Create Mode) Case (no creators are active)
+                //   This happens when HUD hover is active (or palette mode/hover)
+                //   We simply hang onto the same info pack until we have an active creator again
                 return _lastFrameInfoPack;
             }
         }
+        // Otherwise - In this case the editor is not in create mode
+        //   ie it's in select or edit mode (or paint mode I suppose)
         else if (_isAnyItemSelected)
         {
             if (selectedItem.tileData.HasValue)
@@ -259,7 +264,7 @@ public class ObjectInfoControl : MonoBehaviour
                 type = 7;
                 color = -1;
                 spec = -1;
-                rot = 0;
+                rot = -1;
                 doorId = 0;
                 if (_isInstanceNull)
                 {
@@ -279,6 +284,7 @@ public class ObjectInfoControl : MonoBehaviour
                 type = 8;
                 color = -1;
                 spec = -1;
+                rot = -1;
                 doorId = 0;
 
                 if (_isInstanceNull)

@@ -28,6 +28,7 @@ public partial class EditGM : MonoBehaviour
     public GameObject warpTool;
     public GameObject playLoader;
     public LevelInfo levelInfo;
+    public GameObject quitDialogPanel;
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
@@ -162,6 +163,12 @@ public partial class EditGM : MonoBehaviour
 
     void Update()
     {
+        // Check for escape key and pop up the quit (exit to main menu) dialog
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            quitDialogPanel.gameObject.SetActive(true);
+        }
+
         // getInputs and getInputDowns are updated
         updateInputs();
         // hudPanel and palettePanel are updated

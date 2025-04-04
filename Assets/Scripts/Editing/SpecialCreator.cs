@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using circleXsquares;
 using UnityEngine;
 using static EditGM;
@@ -30,7 +28,7 @@ public class SpecialCreator : MonoBehaviour
     {
         // when active, the special will follow the focus
         HexLocus f = _anchorRef.focus;
-        int r = toolType == EditCreatorTool.Warp ? specOrient.rotation : 0;
+        int r = 0;
         int l = _gmRef.activeLayer;
         specOrient = new HexOrient(f, r, l);
 
