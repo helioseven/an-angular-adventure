@@ -176,7 +176,7 @@ CircleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 1, y: 1}
+  m_Offset: {x: 0, y: 0}
   m_Radius: 1
 --- !u!114 &2247309276653015095
 MonoBehaviour:
@@ -218,7 +218,7 @@ Transform:
   m_GameObject: {fileID: 3862192152516294494}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 1, z: 2}
+  m_LocalPosition: {x: 0, y: 0, z: 2}
   m_LocalScale: {x: 0.318, y: 0.318, z: 0.318}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -322,7 +322,7 @@ Transform:
   m_GameObject: {fileID: 6820763316168256860}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.318, y: 0.318, z: 0.318}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1069,7 +1069,7 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 1, y: 1, z: 1}
+    m_Position: {x: 0, y: 0, z: 1}
     m_Rotation: {x: 0, y: 0, z: 0}
     m_Scale: {x: 1.5, y: 1.5, z: 2}
     placementMode: 0
