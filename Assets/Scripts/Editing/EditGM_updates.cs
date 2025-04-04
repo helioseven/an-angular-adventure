@@ -400,8 +400,7 @@ public partial class EditGM
                     // play warp sound
                     soundManager.Play("warp");
 
-                    HexOrient ho = new HexOrient(anchorIcon.focus, 0, activeLayer);
-                    WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
+                    WarpData wd = new WarpData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(wd);
                     _selectedItem = new SelectedItem(go, wd);
                 }

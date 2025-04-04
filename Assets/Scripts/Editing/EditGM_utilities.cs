@@ -176,11 +176,9 @@ public partial class EditGM
         levelData.warpSet.Add(inWarp);
 
         // corresponding checkpoint object is added to chkpntMap
-        HexOrient o = inWarp.orient;
-        Vector3 v3 = o.locus.ToUnitySpace();
-        v3.z = GetLayerDepth(o.layer);
-        Quaternion r = Quaternion.Euler(0, 0, 30 * o.rotation);
-        GameObject go = Instantiate(warpTool, v3, r) as GameObject;
+        Vector3 v3 = inWarp.locus.ToUnitySpace();
+        v3.z = GetLayerDepth(inWarp.layer);
+        GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
         go.GetComponent<SpecialCreator>().enabled = false;
         go.transform.SetParent(warpMap.transform); // <2>
 
@@ -283,10 +281,9 @@ public partial class EditGM
         foreach (WarpData wd in inLevel.warpSet)
         {
             // make sure there are enough layers for the new warp
-            addLayers(wd.orient.layer);
-            Quaternion q;
-            Vector3 v3 = wd.orient.ToUnitySpace(out q);
-            GameObject go = Instantiate(warpTool, v3, q) as GameObject;
+            addLayers(wd.layer + 1);
+            Vector3 v3 = wd.locus.ToUnitySpace();
+            GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
             go.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
             go.transform.SetParent(warpMap.transform);
             go.SetActive(true);
