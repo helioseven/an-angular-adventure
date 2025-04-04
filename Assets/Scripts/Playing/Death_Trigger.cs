@@ -20,7 +20,6 @@ public class Death_Trigger : MonoBehaviour
         // identifies the player by tag
         if (other.gameObject.CompareTag("Player"))
         {
-            _playGM.soundManager.Play("death");
             _playGM.KillPlayer();
         }
     }

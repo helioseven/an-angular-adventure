@@ -44,6 +44,9 @@ public partial class PlayGM
     // kills the player
     public void KillPlayer()
     {
+        // play the death sound
+        soundManager.Play("death");
+
         // hide and reset the player
         player.gameObject.SetActive(false);
         Vector3 p = player.transform.position;
@@ -173,6 +176,29 @@ public partial class PlayGM
         }
     }
 
+    void CheckForTelefrag(int playerLayer)
+    {
+        Vector2 playerPos = player.transform.position;
+        float radius = 0.4f; // Match player size
+
+        int layerMask = 1 << playerLayer;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(playerPos, radius, layerMask);
+
+        foreach (Collider2D hit in hits)
+        {
+            if (hit.gameObject.name.Contains("Player"))
+                continue; // Ignore Self
+
+            if (hit.isTrigger)
+                continue; // Ignore triggers like checkpoints
+
+            // Lethal collision detected
+            Debug.Log("Telefragged by: " + hit.gameObject.name);
+            KillPlayer();
+            return;
+        }
+    }
+
     // warps player from either base or target layer
     public void WarpPlayer(int baseLayer, int targetLayer)
     {
@@ -186,5 +212,8 @@ public partial class PlayGM
         Vector3 p = player.transform.position;
         p.z = tileMap.transform.GetChild(next_layer).position.z;
         player.transform.position = p;
+
+        // Telefragging 😈
+        CheckForTelefrag(LayerMask.NameToLayer(INT_TO_NAME[activeLayer]));
     }
 }

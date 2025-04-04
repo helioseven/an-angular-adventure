@@ -39,9 +39,26 @@ public class Warp : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             _gmRef.soundManager.Play("warp");
+
+            Vector3 warpRipplePosition = other.gameObject.transform.position;
+
+            SpriteRenderer spriteRenderer = gameObject
+                .transform.Find("WarpOverlay")
+                .GetComponent<SpriteRenderer>();
+            Vector3 center = spriteRenderer.bounds.center;
+            other.gameObject.transform.position = new Vector3(
+                center.x,
+                center.y,
+                other.gameObject.transform.position.z
+            );
+
             _gmRef.WarpPlayer(baseLayer, targetLayer);
 
-            warpRipple.transform.position = other.transform.position;
+            warpRipple.transform.position = new Vector3(
+                warpRipplePosition.x,
+                warpRipplePosition.y,
+                _gmRef.player.gameObject.transform.position.z
+            );
 
             if (warpRipple != null)
             {
