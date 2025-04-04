@@ -8,7 +8,7 @@ public class Warp : MonoBehaviour
     // public read-accessibility state variables
     public int baseLayer
     {
-        get { return data.orient.layer; }
+        get { return data.layer; }
         set { }
     }
     public int targetLayer

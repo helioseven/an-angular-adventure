@@ -248,7 +248,6 @@ public partial class EditGM
                 if (IsMappedWarp(go, out wd))
                 {
                     _selectedItem = new SelectedItem(null, wd);
-                    _warpTool.SetOrientation(wd.orient);
                     setTool(EditTools.Warp);
                 }
                 if (IsMappedVictory(go, out vd))
@@ -401,24 +400,13 @@ public partial class EditGM
                 }
                 break;
             case EditTools.Warp:
-                // set rotation of the warp tool, if necessary
-                int rot = _warpTool.specOrient.rotation;
-                int oldRot = rot;
-                if (CheckInputDown(InputKeys.CCW))
-                    rot++;
-                if (CheckInputDown(InputKeys.CW))
-                    rot--;
-                if (rot != oldRot)
-                    _warpTool.SetRotation(rot);
-
                 // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
                     // play warp sound
                     soundManager.Play("warp");
 
-                    HexOrient ho = new HexOrient(anchorIcon.focus, rot, activeLayer);
-                    WarpData wd = new WarpData(false, true, ho, activeLayer + 1);
+                    WarpData wd = new WarpData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(wd);
                     _selectedItem = new SelectedItem(go, wd);
                 }

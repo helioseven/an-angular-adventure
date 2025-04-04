@@ -207,10 +207,11 @@ public partial class PlayGM
         // populate warp map
         foreach (WarpData wd in inLevel.warpSet)
         {
-            Quaternion q;
-            Vector3 v3 = wd.orient.ToUnitySpace(out q);
-            GameObject go = Instantiate(warpRef, v3, q) as GameObject;
-            int baseLayer = wd.orient.layer;
+            Debug.Log("warp generation: " + wd.layer);
+            Vector3 v3 = wd.locus.ToUnitySpace();
+            v3.z = tileMap.transform.GetChild(wd.layer).position.z;
+            GameObject go = Instantiate(warpRef, v3, Quaternion.identity) as GameObject;
+            int baseLayer = wd.layer;
             int targetLayer = wd.targetLayer;
             Warp w = go.GetComponent<Warp>();
             if (w)

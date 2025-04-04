@@ -38,24 +38,4 @@ public class SpecialCreator : MonoBehaviour
         transform.position = specOrient.ToUnitySpace(out q);
         transform.rotation = q;
     }
-
-    /* Public Functions */
-
-    // turns the transform in 30 degree increments
-    public void SetRotation(int inRotation)
-    {
-        if (!(toolType == EditTools.Warp))
-            return;
-        specOrient = new HexOrient(specOrient.locus, inRotation, specOrient.layer);
-        Update();
-    }
-
-    // translates and rotates the transform according to given orientation
-    public void SetOrientation(HexOrient inOrient)
-    {
-        if (!(toolType == EditTools.Warp))
-            inOrient.rotation = 0;
-        specOrient = inOrient;
-        Update();
-    }
 }

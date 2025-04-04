@@ -229,6 +229,7 @@ public class ObjectInfoControl : MonoBehaviour
                 type = 7;
                 color = -1;
                 spec = -1;
+                rot = 0;
                 doorId = 0;
                 if (_isInstanceNull)
                 {
@@ -239,8 +240,7 @@ public class ObjectInfoControl : MonoBehaviour
                 else
                 {
                     // if instance is non-null, gather info from object data
-                    rot = wd.orient.rotation;
-                    locus = wd.orient.locus;
+                    locus = wd.locus;
                 }
             }
             if (selectedItem.victoryData.HasValue)
@@ -301,7 +301,6 @@ public class ObjectInfoControl : MonoBehaviour
         }
 
         return new InfoPack(type, color, spec, rot, locus, doorId);
-        ;
     }
 
     // updates the display image
