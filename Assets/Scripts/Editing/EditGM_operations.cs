@@ -137,9 +137,9 @@ public partial class EditGM
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
                 setTool(EditTools.Tile);
             }
-            // set tool to chkpnt or warp tool as appropriate
+            // set tool to checkpoint or warp tool as appropriate
             if (_selectedItem.chkpntData.HasValue)
-                setTool(EditTools.Chkpnt);
+                setTool(EditTools.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditTools.Warp);
             if (_selectedItem.victoryData.HasValue)
@@ -180,12 +180,12 @@ public partial class EditGM
                 // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
-            if (_selectedItem.victoryData.HasValue)
-                setTool(EditTools.Victory);
             if (_selectedItem.chkpntData.HasValue)
-                setTool(EditTools.Chkpnt);
+                setTool(EditTools.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditTools.Warp);
+            if (_selectedItem.victoryData.HasValue)
+                setTool(EditTools.Victory);
 
             // regardless of item selected, unselect it
             removeSelectedItem();

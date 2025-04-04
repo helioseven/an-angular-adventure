@@ -61,7 +61,7 @@ public partial class PlayGM
         activeCheckpoint = checkpointGO;
 
         // update opacity for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform)
+        foreach (Transform checkpoint in checkpointMap.transform)
         {
             int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);

@@ -93,7 +93,7 @@ public partial class PlayGM
         }
 
         // update opacity and physics for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform)
+        foreach (Transform checkpoint in checkpointMap.transform)
         {
             int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);
@@ -184,7 +184,7 @@ public partial class PlayGM
             }
 
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[cd.layer]);
-            go.transform.SetParent(chkpntMap.transform);
+            go.transform.SetParent(checkpointMap.transform);
         }
 
         // populate victory map

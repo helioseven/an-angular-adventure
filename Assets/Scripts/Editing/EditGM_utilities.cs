@@ -25,7 +25,7 @@ public partial class EditGM
     public enum EditTools
     {
         Tile,
-        Chkpnt,
+        Checkpoint,
         Warp,
         Victory,
         Eraser,
@@ -41,7 +41,7 @@ public partial class EditGM
         Delete = 0x4,
         ClickMain = 0x8,
         ClickAlt = 0x10,
-        Chkpnt = 0x20,
+        Checkpoint = 0x20,
         Warp = 0x40,
         One = 0x80,
         Two = 0x100,
@@ -87,7 +87,7 @@ public partial class EditGM
         }
 
         // update opacity for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform)
+        foreach (Transform checkpoint in checkpointMap.transform)
         {
             ChkpntData cd;
             bool ok = IsMappedChkpnt(checkpoint.gameObject, out cd);
@@ -157,12 +157,12 @@ public partial class EditGM
         // first, the given ChkpntData is added to levelData
         levelData.chkpntSet.Add(inChkpnt);
 
-        // corresponding checkpoint object is added to chkpntMap
+        // corresponding checkpoint object is added to checkpointMap
         Vector3 v3 = inChkpnt.locus.ToUnitySpace();
         v3.z = GetLayerDepth(inChkpnt.layer);
-        GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+        GameObject go = Instantiate(checkpointTool, v3, Quaternion.identity) as GameObject;
         go.GetComponent<SpecialCreator>().enabled = false;
-        go.transform.SetParent(chkpntMap.transform);
+        go.transform.SetParent(checkpointMap.transform);
 
         // resulting gameObject is added to lookup dictionary and returned
         _chkpntLookup[go] = inChkpnt;
@@ -175,7 +175,7 @@ public partial class EditGM
         // first, the given ChkpntData is added to levelData
         levelData.warpSet.Add(inWarp);
 
-        // corresponding checkpoint object is added to chkpntMap
+        // corresponding checkpoint object is added to checkpointMap
         HexOrient o = inWarp.orient;
         Vector3 v3 = o.locus.ToUnitySpace();
         v3.z = GetLayerDepth(o.layer);
@@ -270,9 +270,9 @@ public partial class EditGM
             Vector3 v3 = cd.locus.ToUnitySpace();
             // checkpoints' z positions are assigned by corresponding tileMap layer
             v3.z = GetLayerDepth(cd.layer);
-            GameObject go = Instantiate(chkpntTool, v3, Quaternion.identity) as GameObject;
+            GameObject go = Instantiate(checkpointTool, v3, Quaternion.identity) as GameObject;
             go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
-            go.transform.SetParent(chkpntMap.transform);
+            go.transform.SetParent(checkpointMap.transform);
             go.SetActive(true);
             go.GetComponent<SpecialCreator>().enabled = false;
             // add the GameObject,ChkpntData pair to _chkpntLookup
@@ -287,7 +287,7 @@ public partial class EditGM
             Quaternion q;
             Vector3 v3 = wd.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(warpTool, v3, q) as GameObject;
-            go.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
+            // go.transform.GetChild(0).GetComponent<MeshRenderer>().enabled = true;
             go.transform.SetParent(warpMap.transform);
             go.SetActive(true);
             go.GetComponent<SpecialCreator>().enabled = false;
@@ -303,7 +303,7 @@ public partial class EditGM
             Vector3 v3 = victoryData.locus.ToUnitySpace();
             v3.z = GetLayerDepth(victoryData.layer);
             GameObject go = Instantiate(victoryTool, v3, Quaternion.identity) as GameObject;
-            go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+            // go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
             go.transform.SetParent(victoryMap.transform);
             go.SetActive(true);
             go.GetComponent<SpecialCreator>().enabled = false;
@@ -358,8 +358,8 @@ public partial class EditGM
         else if (_selectedItem.chkpntData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
-            // remove _selectedItem from level and set chkpnt
-            setTool(EditTools.Chkpnt);
+            // remove _selectedItem from level and set checkpoint
+            setTool(EditTools.Checkpoint);
         }
         else if (_selectedItem.victoryData.HasValue)
         {
@@ -385,7 +385,7 @@ public partial class EditGM
         {
             // if the given item is a checkpoint
             _selectedItem = new SelectedItem(inSpecial, cData);
-            setTool(EditTools.Chkpnt);
+            setTool(EditTools.Checkpoint);
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.chkpntSet.Remove(cData);
@@ -471,7 +471,7 @@ public partial class EditGM
         }
         Color color = new Color(1f, 1f, 1f, alpha);
 
-        // each chkpnt's sprite is colored appropriately
+        // each checkpoint's sprite is colored appropriately
         checkpoint.gameObject.layer = layer;
         checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
     }
@@ -484,8 +484,8 @@ public partial class EditGM
             case EditTools.Tile:
                 _currentTool = tileCreator.gameObject;
                 break;
-            case EditTools.Chkpnt:
-                _currentTool = chkpntTool;
+            case EditTools.Checkpoint:
+                _currentTool = checkpointTool;
                 break;
             case EditTools.Warp:
                 _currentTool = warpTool;

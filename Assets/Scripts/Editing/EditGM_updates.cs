@@ -23,7 +23,7 @@ public partial class EditGM
             Input.GetButton("Delete"),
             Input.GetButton("Mouse ButtonLeft"),
             Input.GetButton("Mouse ButtonRight"),
-            Input.GetButton("ChkpntTool"),
+            Input.GetButton("CheckpointTool"),
             Input.GetButton("WarpTool"),
             Input.GetButton("Tile1"),
             Input.GetButton("Tile2"),
@@ -137,10 +137,10 @@ public partial class EditGM
         updateTool();
 
         // C, V, and B activate the checkpoint, victory, and warp tools, respectively
-        if (CheckInputDown(InputKeys.Chkpnt))
+        if (CheckInputDown(InputKeys.Checkpoint))
         {
             _currentTool.SetActive(false);
-            setTool(EditTools.Chkpnt);
+            setTool(EditTools.Checkpoint);
             soundManager.Play("checkpoint");
         }
         if (CheckInputDown(InputKeys.Victory))
@@ -243,7 +243,7 @@ public partial class EditGM
                 if (IsMappedChkpnt(go, out cd))
                 {
                     _selectedItem = new SelectedItem(null, cd);
-                    setTool(EditTools.Chkpnt);
+                    setTool(EditTools.Checkpoint);
                 }
                 if (IsMappedWarp(go, out wd))
                 {
@@ -297,6 +297,9 @@ public partial class EditGM
                 WarpData wd;
                 if (IsMappedWarp(go, out wd))
                     _selectedItem = new SelectedItem(go, wd);
+                VictoryData vd;
+                if (IsMappedVictory(go, out vd))
+                    _selectedItem = new SelectedItem(go, vd);
             }
         }
     }
@@ -383,7 +386,7 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(go, _tileLookup[go]);
                 }
                 break;
-            case EditTools.Chkpnt:
+            case EditTools.Checkpoint:
                 // if main click, add relevant tool's item to the level
                 if (chkclck)
                 {

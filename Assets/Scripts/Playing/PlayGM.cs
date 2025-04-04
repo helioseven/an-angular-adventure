@@ -15,7 +15,7 @@ public partial class PlayGM : MonoBehaviour
     public Boundary boundaryRight;
     public Boundary boundaryUp;
     public GameObject chkpntRef;
-    public GameObject chkpntMap;
+    public GameObject checkpointMap;
     public GameObject deathParticles;
     public Player_Controller player;
     public SoundManager soundManager;
@@ -122,7 +122,7 @@ public partial class PlayGM : MonoBehaviour
             b.SetBoundary();
 
         // set first checkpoint
-        GameObject checkpoint = chkpntMap.transform.GetChild(0).gameObject;
+        GameObject checkpoint = checkpointMap.transform.GetChild(0).gameObject;
         SetCheckpoint(checkpoint);
         SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
 

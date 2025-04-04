@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using circleXsquares;
 using TMPro;
 using UnityEngine;
@@ -8,15 +9,12 @@ using UnityEngine.UI;
 
 public class ObjectInfoControl : MonoBehaviour
 {
-    /* Public References */
-
-    public EditGM gmRef;
-    public TileCreator tcRef;
-    public SpecialCreator ctRef;
-    public SpecialCreator wtRef;
-
     /* Private References */
-
+    private EditGM _editGM;
+    private TileCreator _tileCreator;
+    private SpecialCreator _checkpointCreator;
+    private SpecialCreator _warpCreator;
+    private SpecialCreator _victoryCreator;
     private TMP_Text _colorDisplay;
     private InfoPack _lastFrameInfoPack;
     private TMP_Text _locusDisplay;
@@ -28,10 +26,11 @@ public class ObjectInfoControl : MonoBehaviour
     private TMP_Text _doorIdLabel;
     private TMP_Text _doorIdDisplay;
     private TMP_Text _typeDisplay;
+    private TMP_Text _combinedNameDisplay;
 
     /* Private Variables */
 
-    private bool _isAnySelected;
+    private bool _isAnyItemSelected;
     private bool _isInstanceNull;
 
     private readonly float[] _aspectRatios = new float[] { 1f, 2f, 2f, 1f, 1f, 2f };
@@ -60,7 +59,7 @@ public class ObjectInfoControl : MonoBehaviour
 
     void Awake()
     {
-        _isAnySelected = false;
+        _isAnyItemSelected = false;
         _lastFrameInfoPack = new InfoPack();
 
         transform.GetChild(2).gameObject.SetActive(false);
@@ -68,13 +67,18 @@ public class ObjectInfoControl : MonoBehaviour
 
     void Start()
     {
-        gmRef = EditGM.instance;
-        tcRef = gmRef.tileCreator;
-        ctRef = gmRef.chkpntTool.GetComponent<SpecialCreator>();
-        wtRef = gmRef.warpTool.GetComponent<SpecialCreator>();
+        _editGM = EditGM.instance;
+        _tileCreator = _editGM.tileCreator;
+        _checkpointCreator = _editGM.checkpointTool.GetComponent<SpecialCreator>();
+        _warpCreator = _editGM.warpTool.GetComponent<SpecialCreator>();
+        _victoryCreator = _editGM.victoryTool.GetComponent<SpecialCreator>();
+
+        // TODO: Add victory
 
         _objectDisplay = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
+
+        _combinedNameDisplay = transform.GetChild(0).GetChild(1).GetComponent<TMP_Text>();
 
         Transform t = transform.GetChild(1);
         _typeDisplay = t.GetChild(1).GetComponent<TMP_Text>();
@@ -93,12 +97,12 @@ public class ObjectInfoControl : MonoBehaviour
 
     void Update()
     {
-        InfoPack ip = getUpdatedInfo();
+        InfoPack infoPack = getUpdatedInfo();
 
-        if (_lastFrameInfoPack != ip)
-            updateUI(ip);
+        if (_lastFrameInfoPack != infoPack)
+            updateUI(infoPack);
 
-        _lastFrameInfoPack = ip;
+        _lastFrameInfoPack = infoPack;
     }
 
     /* Private Structs */
@@ -155,11 +159,11 @@ public class ObjectInfoControl : MonoBehaviour
         // .NET expects this behavior to be overridden when overriding ==/!= operators
         public override bool Equals(System.Object obj)
         {
-            InfoPack? inIP = obj as InfoPack?;
-            if (!inIP.HasValue)
+            InfoPack? infoPack = obj as InfoPack?;
+            if (!infoPack.HasValue)
                 return false;
             else
-                return this == inIP.Value;
+                return this == infoPack.Value;
         }
 
         // .NET expects this behavior to be overridden when overriding ==/!= operators
@@ -174,102 +178,126 @@ public class ObjectInfoControl : MonoBehaviour
     // gets information from appropriate sources to fill InfoPack
     private InfoPack getUpdatedInfo()
     {
-        EditGM.SelectedItem si = gmRef.selectedItem;
-        _isAnySelected = si != EditGM.SelectedItem.noSelection;
-        _isInstanceNull = si.instance == null;
-        int updt_type = 0;
-        int updt_color = 0;
-        int updt_spec = 0;
-        int updt_rot = 0;
-        HexLocus updt_locus = new HexLocus();
-        int updt_doorId = 0;
+        EditGM.SelectedItem selectedItem = _editGM.selectedItem;
+        _isAnyItemSelected = selectedItem != EditGM.SelectedItem.noSelection;
+        _isInstanceNull = selectedItem.instance == null;
+        int type = 0;
+        int color = 0;
+        int spec = 0;
+        int rot = 0;
+        HexLocus locus = new HexLocus();
+        int doorId = 0;
 
-        if (_isAnySelected)
+        if (_isAnyItemSelected)
         {
-            if (si.tileData.HasValue)
+            if (selectedItem.tileData.HasValue)
             {
                 if (_isInstanceNull)
                 {
                     // if instance is null, gather info from currently active tool
-                    updt_type = tcRef.tileType;
-                    updt_color = tcRef.tileColor;
-                    updt_spec = tcRef.tileSpecial;
-                    updt_rot = tcRef.tileOrient.rotation;
-                    updt_locus = tcRef.tileOrient.locus;
-                    updt_doorId = tcRef.tileDoorId;
+                    type = _tileCreator.tileType;
+                    color = _tileCreator.tileColor;
+                    spec = _tileCreator.tileSpecial;
+                    rot = _tileCreator.tileOrient.rotation;
+                    locus = _tileCreator.tileOrient.locus;
+                    doorId = _tileCreator.tileDoorId;
                 }
                 else
                 {
                     // if instance is non-null, gather info from object data
-                    TileData td = si.tileData.Value;
-                    updt_type = td.type;
-                    updt_color = td.color;
-                    updt_spec = td.special;
-                    updt_rot = td.orient.rotation;
-                    updt_locus = td.orient.locus;
-                    updt_doorId = td.doorId;
+                    TileData td = selectedItem.tileData.Value;
+                    type = td.type;
+                    color = td.color;
+                    spec = td.special;
+                    rot = td.orient.rotation;
+                    locus = td.orient.locus;
+                    doorId = td.doorId;
                 }
             }
-            if (si.chkpntData.HasValue)
+            if (selectedItem.chkpntData.HasValue)
             {
-                updt_type = 6;
-                updt_color = -1;
-                updt_spec = -1;
-                updt_rot = -1;
-                updt_doorId = 0;
+                type = 6;
+                color = -1;
+                spec = -1;
+                rot = -1;
+                doorId = 0;
                 if (_isInstanceNull)
                     // if instance is null, gather info from currently active tool
-                    updt_locus = ctRef.specOrient.locus;
+                    locus = _checkpointCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
-                    updt_locus = si.chkpntData.Value.locus;
+                    locus = selectedItem.chkpntData.Value.locus;
             }
-            if (si.warpData.HasValue)
+            if (selectedItem.warpData.HasValue)
             {
-                WarpData wd = si.warpData.Value;
-                updt_type = 7;
-                updt_color = -1;
-                updt_spec = -1;
-                updt_doorId = 0;
+                WarpData wd = selectedItem.warpData.Value;
+                type = 7;
+                color = -1;
+                spec = -1;
+                doorId = 0;
                 if (_isInstanceNull)
                 {
                     // if instance is null, gather info from currently active tool
-                    updt_rot = wtRef.specOrient.rotation;
-                    updt_locus = wtRef.specOrient.locus;
+                    rot = _warpCreator.specOrient.rotation;
+                    locus = _warpCreator.specOrient.locus;
                 }
                 else
                 {
                     // if instance is non-null, gather info from object data
-                    updt_rot = wd.orient.rotation;
-                    updt_locus = wd.orient.locus;
+                    rot = wd.orient.rotation;
+                    locus = wd.orient.locus;
                 }
+            }
+            if (selectedItem.victoryData.HasValue)
+            {
+                VictoryData vd = selectedItem.victoryData.Value;
+                type = 8;
+                color = -1;
+                spec = -1;
+                doorId = 0;
+
+                if (_isInstanceNull)
+                    // if instance is null, gather info from currently active tool
+                    locus = _victoryCreator.specOrient.locus;
+                else
+                    // if instance is non-null, gather info from object data
+                    locus = vd.locus;
             }
         }
 
-        return new InfoPack(updt_type, updt_color, updt_spec, updt_rot, updt_locus, updt_doorId);
+        return new InfoPack(type, color, spec, rot, locus, doorId);
     }
 
     // updates the display image
-    private void updateUI(InfoPack inIP)
+    private void updateUI(InfoPack infoPack)
     {
-        if (_isAnySelected && inIP.type >= 0)
+        if (_isAnyItemSelected && infoPack.type >= 0)
         {
             // set sprite source transform and aspect ratio for object image
-            Transform t = tcRef.transform;
-            if (inIP.type <= 5)
+            Transform t = _tileCreator.transform;
+
+            // Tiles
+            if (infoPack.type <= 5)
             {
-                t = tcRef.transform.GetChild(inIP.type);
-                t = t.GetChild(inIP.color).GetChild(0);
-                _objectDisplayARF.aspectRatio = _aspectRatios[inIP.type];
+                t = _tileCreator.transform.GetChild(infoPack.type);
+                t = t.GetChild(infoPack.color).GetChild(0);
+                _objectDisplayARF.aspectRatio = _aspectRatios[infoPack.type];
             }
-            if (inIP.type == 6)
+
+            // Specials
+            if (infoPack.type == 6)
             {
-                t = ctRef.transform.GetChild(0);
+                t = _checkpointCreator.transform.GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
-            if (inIP.type == 7)
+            if (infoPack.type == 7)
             {
-                t = wtRef.transform.GetChild(1);
+                t = _warpCreator.transform.GetChild(1);
+                _objectDisplayARF.aspectRatio = 1f;
+            }
+            if (infoPack.type == 8)
+            {
+                t = _warpCreator.transform.GetChild(1);
                 _objectDisplayARF.aspectRatio = 1f;
             }
 
@@ -286,38 +314,76 @@ public class ObjectInfoControl : MonoBehaviour
         else
             _objectDisplay.gameObject.SetActive(false);
 
-        // set text strings as appropriate
-        bool b = !_isAnySelected || inIP.type < 0;
-        string s = b ? "[N/A]" : _typeStrings[inIP.type];
-        _typeDisplay.text = s;
-        b = !_isAnySelected || inIP.color < 0;
-        s = b ? "[N/A]" : _colorStrings[inIP.color];
-        _colorDisplay.text = s;
-        b = !_isAnySelected || inIP.rot < 0;
-        s = b ? "[N/A]" : inIP.rot.ToString();
-        _rotationDisplay.text = s;
-        s = !_isAnySelected ? "[N/A]" : inIP.locus.PrettyPrint();
-        _locusDisplay.text = s;
+        /* Object Panel Text Setting */
+        // General approach - if we have a selected tile and it has the associated property - set the text in the object viewing panel
+        // Combined Name
+        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.color >= 0)
+            _combinedNameDisplay.text =
+                _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
+        if (infoPack.type >= 6)
+        {
+            Debug.Log("infoPack.type: " + infoPack.type);
+            // special switch
+            switch (infoPack.type)
+            {
+                case 6:
+                    _combinedNameDisplay.text = "Checkpoint";
+                    break;
+                case 7:
+                    _combinedNameDisplay.text = "Warp";
+                    break;
+                case 8:
+                    _combinedNameDisplay.text = "Victory";
+                    break;
+                default:
+                    _combinedNameDisplay.text = "Special Type";
+                    break;
+            }
+        }
+
+        // Type (Not displayed at the moment)
+        if (_isAnyItemSelected && infoPack.type >= 0)
+            _typeDisplay.text = _typeStrings[infoPack.type];
+        else
+            _typeDisplay.text = "[N/A]";
+
+        // Color (Not displayed at the moment)
+        if (_isAnyItemSelected && infoPack.color >= 0)
+            _colorDisplay.text = _colorStrings[infoPack.color];
+        else
+            _colorDisplay.text = "[N/A]";
+
+        // Rotation
+        if (_isAnyItemSelected && infoPack.rot >= 0)
+            _rotationDisplay.text = infoPack.rot.ToString();
+        else
+            _rotationDisplay.text = "[N/A]";
+
+        // Locus
+        if (_isAnyItemSelected)
+            _locusDisplay.text = infoPack.locus.PrettyPrint();
+        else
+            _locusDisplay.text = "[N/A]";
 
         // set special dropdown values, activate if appropriate
-        string sp = "Special Value:";
-        b = false;
-        if (inIP.color == 3)
+        // Green - Special Text
+        if (infoPack.color == 3)
         {
-            sp = "Key Id:";
-            b = true;
+            _specialLabel.text = "Key Id:";
+            _specialDisplay.text = infoPack.spec.ToString();
         }
-        if (inIP.color == 4)
+
+        // Orange - Special Text
+        if (infoPack.color == 4)
         {
-            sp = "Gravity Direction:";
-            b = true;
+            _specialLabel.text = "Gravity Direction:";
+            _specialDisplay.text = infoPack.spec.ToString();
         }
-        _specialLabel.text = sp;
-        _specialDisplay.text = inIP.spec.ToString();
 
-        // update the door id display number
-        _doorIdDisplay.text = inIP.doorId.ToString();
+        // Door ID
+        _doorIdDisplay.text = infoPack.doorId.ToString();
 
-        transform.GetChild(2).gameObject.SetActive(b);
+        // Only show special attributes for green and orange tiles
+        transform.GetChild(2).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
     }
 }

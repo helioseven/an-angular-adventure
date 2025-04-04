@@ -17,8 +17,8 @@ public partial class EditGM : MonoBehaviour
     // references to UI elements, snap cursor, creation tool,
     // checkpoint tool, warp tool, and tile hierarchy
     public SnapCursor anchorIcon;
-    public GameObject chkpntMap;
-    public GameObject chkpntTool;
+    public GameObject checkpointMap;
+    public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
