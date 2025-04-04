@@ -684,43 +684,35 @@ namespace circleXsquares
     // WarpData describes the mechanism by which players move between level layers
     public struct WarpData
     {
-        // warps are used as win triggers, of which there may be multiple
-        public bool isVictory;
-
-        // otherwise, warps consist of a two-way flag, orientation, and target layer
-        public bool isTwoWay;
-        public HexOrient orient;
-        public int targetLayer;
+        public HexLocus locus;
+        public int layer;
+        public int targetLayer
+        {
+            get { return layer + 1; }
+            set { }
+        }
 
         // simple constructor
-        public WarpData(bool inVictory, bool inTW, HexOrient inOrient, int inTarget)
+        public WarpData(HexLocus inLocus, int inLayer)
         {
-            isVictory = inVictory;
-            isTwoWay = inTW;
-            orient = inOrient;
-            targetLayer = inTarget;
+            locus = inLocus;
+            layer = inLayer;
         }
 
         // Serialize turns this WarpData into strings separated by spaces
         public string Serialize()
         {
-            string s = (isVictory ? 1 : 0).ToString();
-            s += " " + (isTwoWay ? 1 : 0).ToString();
-            s += " " + orient.Serialize();
-            s += " " + targetLayer.ToString();
+            string s = locus.Serialize();
+            s += " " + layer.ToString();
             return s;
         }
 
         public static bool operator ==(WarpData wd1, WarpData wd2)
         {
             bool b = true;
-            if (wd1.isVictory != wd2.isVictory)
+            if (wd1.locus != wd2.locus)
                 b = false;
-            if (wd1.isTwoWay != wd2.isTwoWay)
-                b = false;
-            if (wd1.orient != wd2.orient)
-                b = false;
-            if (wd1.targetLayer != wd2.targetLayer)
+            if (wd1.layer != wd2.layer)
                 b = false;
             return b;
         }
@@ -1002,28 +994,24 @@ namespace circleXsquares
             string[] s = lineIn.Split(splitChar);
 
             // checks to see if there's enough items to be read
-            if (s.Length < 10)
+            if (s.Length < 7)
             {
                 Debug.LogError("Line for checkpoint data is formatted incorrectly.");
                 return new WarpData();
             }
 
             // proceeds to read the line items
-            bool b1 = Int32.Parse(s[0]) == 0 ? false : true;
-            bool b2 = Int32.Parse(s[1]) == 0 ? false : true;
             HexLocus hl = new HexLocus(
+                Int32.Parse(s[0]),
+                Int32.Parse(s[1]),
                 Int32.Parse(s[2]),
                 Int32.Parse(s[3]),
                 Int32.Parse(s[4]),
-                Int32.Parse(s[5]),
-                Int32.Parse(s[6]),
-                Int32.Parse(s[7])
+                Int32.Parse(s[5])
             );
-            int r = Int32.Parse(s[8]);
-            int y = Int32.Parse(s[9]);
-            int d = Int32.Parse(s[10]);
+            int y = Int32.Parse(s[6]);
 
-            return new WarpData(b1, b2, new HexOrient(hl, r, y), d);
+            return new WarpData(hl, y);
         }
     }
 }

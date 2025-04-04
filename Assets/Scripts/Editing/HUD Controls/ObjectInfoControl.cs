@@ -239,9 +239,10 @@ public class ObjectInfoControl : MonoBehaviour
                 }
                 else
                 {
+                    // this shouldn't exist anymore
+                    updt_rot = 0;
                     // if instance is non-null, gather info from object data
-                    updt_rot = wd.orient.rotation;
-                    updt_locus = wd.orient.locus;
+                    updt_locus = wd.locus;
                 }
             }
         }
