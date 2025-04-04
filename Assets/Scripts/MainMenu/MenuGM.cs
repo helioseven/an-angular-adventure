@@ -87,7 +87,6 @@ public class MenuGM : MonoBehaviour
     private void StartEdit()
     {
         // fire off an empty editing scene (it will load the default creation level)
-
         Instantiate(editLoader);
     }
 

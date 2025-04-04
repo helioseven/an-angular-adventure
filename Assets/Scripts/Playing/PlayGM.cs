@@ -143,6 +143,17 @@ public partial class PlayGM : MonoBehaviour
     {
         // escape key bails to MainMenu, for now
         if (Input.GetKeyDown(KeyCode.Escape))
-            SceneManager.LoadScene(0);
+        {
+            if (playModeContext == PlayModeContext.FromEditor)
+            {
+                var loaderGO = Instantiate(editLoader);
+                var loader = loaderGO.GetComponent<EditLoader>();
+                loader.levelInfo = levelInfo;
+            }
+            else
+            {
+                SceneManager.LoadScene("MainMenu");
+            }
+        }
     }
 }

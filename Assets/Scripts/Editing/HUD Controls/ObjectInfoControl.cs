@@ -173,14 +173,14 @@ public class ObjectInfoControl : MonoBehaviour
 
         // Set Infopack return items to their default values
         // type should always be updated during this function
-        int type = 0;
+        int type = -1;
 
-        // the rest change for tiles but stay as defaults for special tiles
-        int color = 0;
-        int spec = 0;
-        int rot = 0;
+        // the rest change for tiles but stay as default negative 1 for special tiles
+        int color = -1;
+        int spec = -1;
+        int rot = -1;
         HexLocus locus = new HexLocus();
-        int doorId = 0;
+        int doorId = -1;
 
         // If the editor is in Create mode
         //   update object panel InfoPack based on active and enabled CreatorTool status
@@ -341,27 +341,36 @@ public class ObjectInfoControl : MonoBehaviour
         /* Object Panel Text Setting */
         // General approach - if we have a selected tile and it has the associated property - set the text in the object viewing panel
         // Combined Name (use standard for tile types (0-5) and special switch for 6, 7, 8 (checkpoint, warp, and victory))
-        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.color >= 0 && infoPack.type < 6)
-            _combinedNameDisplay.text =
-                _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
-        if (infoPack.type >= 6)
+        if (_isAnyItemSelected)
         {
-            // special switch
-            switch (infoPack.type)
+            if (infoPack.type >= 0 && infoPack.color >= 0 && infoPack.type < 6)
             {
-                case 6:
-                    _combinedNameDisplay.text = "Checkpoint";
-                    break;
-                case 7:
-                    _combinedNameDisplay.text = "Warp";
-                    break;
-                case 8:
-                    _combinedNameDisplay.text = "Victory";
-                    break;
-                default:
-                    _combinedNameDisplay.text = "Special Type";
-                    break;
+                _combinedNameDisplay.text =
+                    _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
             }
+            else
+            {
+                // special names switcher
+                switch (infoPack.type)
+                {
+                    case 6:
+                        _combinedNameDisplay.text = "Checkpoint";
+                        break;
+                    case 7:
+                        _combinedNameDisplay.text = "Warp";
+                        break;
+                    case 8:
+                        _combinedNameDisplay.text = "Victory";
+                        break;
+                    default:
+                        _combinedNameDisplay.text = "Unknown Special Type";
+                        break;
+                }
+            }
+        }
+        else
+        {
+            _combinedNameDisplay.text = "None Selected";
         }
 
         // Type (Not displayed at the moment)
@@ -404,6 +413,8 @@ public class ObjectInfoControl : MonoBehaviour
         }
 
         // Door ID
+        // Only show door id tiles
+        transform.GetChild(3).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
         _doorIdDisplay.text = infoPack.doorId.ToString();
 
         // Only show special attributes for green and orange tiles

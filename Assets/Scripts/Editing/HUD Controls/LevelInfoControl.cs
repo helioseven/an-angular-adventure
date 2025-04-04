@@ -33,7 +33,8 @@ public class LevelInfoControl : MonoBehaviour
 
     private int _activeLayer;
     private HexLocus _anchorLocus;
-    private int _layerCount;
+
+    // private int _layerCount;
     private int _layerTiles;
     private string _levelName;
     private int _levelTiles;
@@ -42,7 +43,7 @@ public class LevelInfoControl : MonoBehaviour
     {
         _levelName = "";
         _activeLayer = 0;
-        _layerCount = Constants.DEFAULT_NUM_LAYERS;
+        // _layerCount = Constants.DEFAULT_NUM_LAYERS;
         _layerTiles = 0;
         _levelTiles = 0;
         _anchorLocus = new HexLocus();
