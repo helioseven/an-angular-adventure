@@ -72,7 +72,7 @@ public partial class PlayGM
     }
 
     // updates last-touched checkpoint (just the data)
-    public void SetCheckpointData(ChkpntData inCheckpoint)
+    public void SetCheckpointData(CheckpointData inCheckpoint)
     {
         activeCheckpointData = inCheckpoint;
     }

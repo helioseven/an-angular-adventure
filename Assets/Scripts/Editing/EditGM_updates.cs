@@ -237,10 +237,10 @@ public partial class EditGM
             else
             {
                 // if special is clicked, same as above with extra checks
-                ChkpntData cd;
+                CheckpointData cd;
                 WarpData wd;
                 VictoryData vd;
-                if (IsMappedChkpnt(go, out cd))
+                if (IsMappedCheckpoint(go, out cd))
                 {
                     _selectedItem = new SelectedItem(null, cd);
                     setTool(EditTools.Checkpoint);
@@ -278,6 +278,9 @@ public partial class EditGM
             // first find out what (if anything) was clicked on
             Collider2D c2d = GetObjectClicked();
             GameObject si = _selectedItem.instance;
+
+            // Debug.Log("[updates] [updateSelect] c2d.gameObject.name: " + c2d.gameObject.name);
+
             if (!c2d || (si && (si == c2d.gameObject)))
             {
                 // if nothing or selected tile is clicked on, deselect and return
@@ -291,8 +294,8 @@ public partial class EditGM
                 TileData td;
                 if (IsMappedTile(go, out td))
                     _selectedItem = new SelectedItem(go, td);
-                ChkpntData cd;
-                if (IsMappedChkpnt(go, out cd))
+                CheckpointData cd;
+                if (IsMappedCheckpoint(go, out cd))
                     _selectedItem = new SelectedItem(go, cd);
                 WarpData wd;
                 if (IsMappedWarp(go, out wd))
@@ -369,14 +372,14 @@ public partial class EditGM
     // handles input relating to the current tool
     private void updateTool()
     {
-        bool chkclck = CheckInputDown(InputKeys.ClickMain);
+        bool isMainClick = CheckInputDown(InputKeys.ClickMain);
         switch (_toolMode)
         {
             // when using tile tool, always update tile creator properties first
             case EditTools.Tile:
                 updateTileProperties();
                 // if main click, add relevant tool's item to the level
-                if (chkclck)
+                if (isMainClick)
                 {
                     // play random drawing sound
                     int variant = UnityEngine.Random.Range(1, 10);
@@ -388,11 +391,11 @@ public partial class EditGM
                 break;
             case EditTools.Checkpoint:
                 // if main click, add relevant tool's item to the level
-                if (chkclck)
+                if (isMainClick)
                 {
                     // play warp sound
                     soundManager.Play("checkpoint");
-                    ChkpntData cd = new ChkpntData(anchorIcon.focus, activeLayer);
+                    CheckpointData cd = new CheckpointData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(cd);
                     _selectedItem = new SelectedItem(go, cd);
                 }
@@ -409,7 +412,7 @@ public partial class EditGM
                     _warpTool.SetRotation(rot);
 
                 // if main click, add relevant tool's item to the level
-                if (chkclck)
+                if (isMainClick)
                 {
                     // play warp sound
                     soundManager.Play("warp");
@@ -422,7 +425,7 @@ public partial class EditGM
                 break;
             case EditTools.Victory:
                 // if main click, add relevant tool's item to the level
-                if (chkclck)
+                if (isMainClick)
                 {
                     // play victory sound
                     soundManager.Play("victory");

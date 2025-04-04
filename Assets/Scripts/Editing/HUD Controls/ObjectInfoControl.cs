@@ -73,8 +73,6 @@ public class ObjectInfoControl : MonoBehaviour
         _warpCreator = _editGM.warpTool.GetComponent<SpecialCreator>();
         _victoryCreator = _editGM.victoryTool.GetComponent<SpecialCreator>();
 
-        // TODO: Add victory
-
         _objectDisplay = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
 
@@ -136,19 +134,14 @@ public class ObjectInfoControl : MonoBehaviour
 
         public static bool operator ==(InfoPack ip1, InfoPack ip2)
         {
-            if (ip1.type != ip2.type)
-                return false;
-            if (ip1.color != ip2.color)
-                return false;
-            if (ip1.spec != ip2.spec)
-                return false;
-            if (ip1.rot != ip2.rot)
-                return false;
-            if (ip1.locus != ip2.locus)
-                return false;
-            if (ip1.doorId != ip2.doorId)
-                return false;
-            return true;
+            return (
+                (ip1.type == ip2.type)
+                && (ip1.color == ip2.color)
+                && (ip1.spec == ip2.spec)
+                && (ip1.rot == ip2.rot)
+                && (ip1.locus == ip2.locus)
+                && (ip1.doorId == ip2.doorId)
+            );
         }
 
         public static bool operator !=(InfoPack ip1, InfoPack ip2)
@@ -188,6 +181,8 @@ public class ObjectInfoControl : MonoBehaviour
         HexLocus locus = new HexLocus();
         int doorId = 0;
 
+        // TODO: rewrite this whole function to use _currentTool based on creation vs seletion mode
+
         if (_isAnyItemSelected)
         {
             if (selectedItem.tileData.HasValue)
@@ -214,7 +209,7 @@ public class ObjectInfoControl : MonoBehaviour
                     doorId = td.doorId;
                 }
             }
-            if (selectedItem.chkpntData.HasValue)
+            if (selectedItem.CheckpointData.HasValue)
             {
                 type = 6;
                 color = -1;
@@ -226,7 +221,7 @@ public class ObjectInfoControl : MonoBehaviour
                     locus = _checkpointCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
-                    locus = selectedItem.chkpntData.Value.locus;
+                    locus = selectedItem.CheckpointData.Value.locus;
             }
             if (selectedItem.warpData.HasValue)
             {
@@ -265,7 +260,48 @@ public class ObjectInfoControl : MonoBehaviour
             }
         }
 
+        // replace based on create tool (possibly a hack?)
+        InfoPack infoPack = new InfoPack(type, color, spec, rot, locus, doorId);
+        InfoPack infoPackReplaced = ReplaceInfoToDesiredItem(infoPack);
+
+        return infoPackReplaced;
+    }
+
+    private InfoPack ReplaceInfoToDesiredItem(InfoPack infoPack)
+    {
+        EditGM.SelectedItem selectedItem = _editGM.selectedItem;
+        _isAnyItemSelected = selectedItem != EditGM.SelectedItem.noSelection;
+        _isInstanceNull = selectedItem.instance == null;
+        int type = infoPack.type;
+        int color = infoPack.color;
+        int spec = infoPack.spec;
+        int rot = infoPack.rot;
+        HexLocus locus = infoPack.locus;
+        int doorId = infoPack.doorId;
+        if (_tileCreator.isActiveAndEnabled)
+        {
+            type = _tileCreator.tileType;
+            color = _tileCreator.tileColor;
+            spec = _tileCreator.tileSpecial;
+            rot = _tileCreator.tileOrient.rotation;
+            locus = _tileCreator.tileOrient.locus;
+            doorId = _tileCreator.tileDoorId;
+        }
+        if (_checkpointCreator.isActiveAndEnabled)
+        {
+            type = 6;
+        }
+        if (_warpCreator.isActiveAndEnabled)
+        {
+            type = 7;
+        }
+        if (_victoryCreator.isActiveAndEnabled)
+        {
+            type = 8;
+        }
+
         return new InfoPack(type, color, spec, rot, locus, doorId);
+        ;
     }
 
     // updates the display image
@@ -297,7 +333,7 @@ public class ObjectInfoControl : MonoBehaviour
             }
             if (infoPack.type == 8)
             {
-                t = _warpCreator.transform.GetChild(1);
+                t = _victoryCreator.transform.GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
 
@@ -316,8 +352,8 @@ public class ObjectInfoControl : MonoBehaviour
 
         /* Object Panel Text Setting */
         // General approach - if we have a selected tile and it has the associated property - set the text in the object viewing panel
-        // Combined Name
-        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.color >= 0)
+        // Combined Name (use standard for tile types (0-5) and special switch for 6, 7, 8 (checkpoint, warp, and victory))
+        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.color >= 0 && infoPack.type < 6)
             _combinedNameDisplay.text =
                 _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
         if (infoPack.type >= 6)
@@ -342,7 +378,7 @@ public class ObjectInfoControl : MonoBehaviour
         }
 
         // Type (Not displayed at the moment)
-        if (_isAnyItemSelected && infoPack.type >= 0)
+        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.type < 6)
             _typeDisplay.text = _typeStrings[infoPack.type];
         else
             _typeDisplay.text = "[N/A]";

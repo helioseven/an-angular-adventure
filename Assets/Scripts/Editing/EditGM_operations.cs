@@ -17,7 +17,7 @@ public partial class EditGM
     // particularly when switching modes and/or tools
     public struct SelectedItem
     {
-        public ChkpntData? chkpntData;
+        public CheckpointData? CheckpointData;
         public GameObject instance;
         public TileData? tileData;
         public WarpData? warpData;
@@ -26,7 +26,7 @@ public partial class EditGM
         public SelectedItem(TileData inTile)
             : this(null, inTile) { }
 
-        public SelectedItem(ChkpntData inChkpnt)
+        public SelectedItem(CheckpointData inChkpnt)
             : this(null, inChkpnt) { }
 
         public SelectedItem(WarpData inWarp)
@@ -39,16 +39,16 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = inTile;
-            chkpntData = null;
+            CheckpointData = null;
             warpData = null;
             victoryData = null;
         }
 
-        public SelectedItem(GameObject inInstance, ChkpntData inChkpnt)
+        public SelectedItem(GameObject inInstance, CheckpointData inChkpnt)
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = inChkpnt;
+            CheckpointData = inChkpnt;
             warpData = null;
             victoryData = null;
         }
@@ -57,7 +57,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = null;
+            CheckpointData = null;
             warpData = inWarp;
             victoryData = null;
         }
@@ -66,7 +66,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = null;
+            CheckpointData = null;
             warpData = null;
             victoryData = inVictory;
         }
@@ -77,7 +77,7 @@ public partial class EditGM
                 return false;
             if (si1.tileData != si2.tileData)
                 return false;
-            if (si1.chkpntData != si2.chkpntData)
+            if (si1.CheckpointData != si2.CheckpointData)
                 return false;
             if (si1.warpData != si2.warpData)
                 return false;
@@ -138,7 +138,7 @@ public partial class EditGM
                 setTool(EditTools.Tile);
             }
             // set tool to checkpoint or warp tool as appropriate
-            if (_selectedItem.chkpntData.HasValue)
+            if (_selectedItem.CheckpointData.HasValue)
                 setTool(EditTools.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditTools.Warp);
@@ -180,7 +180,7 @@ public partial class EditGM
                 // otherwise, simply unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
             }
-            if (_selectedItem.chkpntData.HasValue)
+            if (_selectedItem.CheckpointData.HasValue)
                 setTool(EditTools.Checkpoint);
             if (_selectedItem.warpData.HasValue)
                 setTool(EditTools.Warp);

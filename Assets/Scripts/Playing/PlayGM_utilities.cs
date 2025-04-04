@@ -171,7 +171,7 @@ public partial class PlayGM
         }
 
         // populate checkpoint map
-        foreach (ChkpntData cd in inLevel.chkpntSet)
+        foreach (CheckpointData cd in inLevel.chkpntSet)
         {
             Vector3 v3 = cd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(cd.layer).position.z;
@@ -202,7 +202,7 @@ public partial class PlayGM
         }
 
         // get starting checkpoing to set warp data physics layer
-        ChkpntData start = inLevel.chkpntSet[0];
+        CheckpointData start = inLevel.chkpntSet[0];
 
         // populate warp map
         foreach (WarpData wd in inLevel.warpSet)

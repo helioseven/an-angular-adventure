@@ -6,7 +6,7 @@ using UnityEngine;
 public class Checkpoint : MonoBehaviour
 {
     // public variables
-    public ChkpntData data;
+    public CheckpointData data;
 
     // private references
     private PlayGM _playGM;

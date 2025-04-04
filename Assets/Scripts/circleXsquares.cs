@@ -48,19 +48,14 @@ namespace circleXsquares
         // comparison operators just compares internal coordinates
         public static bool operator ==(HexLocus h1, HexLocus h2)
         {
-            bool bA,
-                bB,
-                bC,
-                bD,
-                bE,
-                bF;
-            bA = h1.a == h2.a;
-            bB = h1.b == h2.b;
-            bC = h1.c == h2.c;
-            bD = h1.d == h2.d;
-            bE = h1.e == h2.e;
-            bF = h1.f == h2.f;
-            return (bA && bB && bC && bD && bE && bF);
+            return (
+                (h1.a == h2.a)
+                && (h1.b == h2.b)
+                && (h1.c == h2.c)
+                && (h1.d == h2.d)
+                && (h1.e == h2.e)
+                && (h1.f == h2.f)
+            );
         }
 
         public static bool operator !=(HexLocus h1, HexLocus h2)
@@ -479,14 +474,11 @@ namespace circleXsquares
 
         public static bool operator ==(HexOrient ho1, HexOrient ho2)
         {
-            bool b = true;
-            if (ho1.locus != ho2.locus)
-                b = false;
-            if (ho1.rotation != ho2.rotation)
-                b = false;
-            if (ho1.layer != ho2.layer)
-                b = false;
-            return b;
+            return (
+                (ho1.locus == ho2.locus)
+                && (ho1.rotation == ho2.rotation)
+                && (ho1.layer == ho2.layer)
+            );
         }
 
         public static bool operator !=(HexOrient ho1, HexOrient ho2)
@@ -544,18 +536,13 @@ namespace circleXsquares
 
         public static bool operator ==(TileData td1, TileData td2)
         {
-            bool b = true;
-            if (td1.type != td2.type)
-                b = false;
-            if (td1.color != td2.color)
-                b = false;
-            if (td1.special != td2.special)
-                b = false;
-            if (td1.orient != td2.orient)
-                b = false;
-            if (td1.doorId != td2.doorId)
-                b = false;
-            return b;
+            return (
+                (td1.type != td2.type)
+                && (td1.color != td2.color)
+                && (td1.special != td2.special)
+                && (td1.orient != td2.orient)
+                && (td1.doorId != td2.doorId)
+            );
         }
 
         public static bool operator !=(TileData td1, TileData td2)
@@ -580,15 +567,15 @@ namespace circleXsquares
         }
     }
 
-    // ChkpntData describes the player progression tracking for a level
-    public struct ChkpntData
+    // CheckpointData describes the player progression tracking for a level
+    public struct CheckpointData
     {
         // a checkpoint simply consists of a location and layer (no rotation)
         public HexLocus locus;
         public int layer;
 
         // simple constructor
-        public ChkpntData(HexLocus inLocus, int inLayer)
+        public CheckpointData(HexLocus inLocus, int inLayer)
         {
             locus = inLocus;
             layer = inLayer;
@@ -596,7 +583,7 @@ namespace circleXsquares
                 layer = 0;
         }
 
-        // Serialize turns this ChkpntData into strings separated by spaces
+        // Serialize turns this CheckpointData into strings separated by spaces
         public string Serialize()
         {
             string s = locus.Serialize();
@@ -604,12 +591,12 @@ namespace circleXsquares
             return s;
         }
 
-        public static bool operator ==(ChkpntData a, ChkpntData b)
+        public static bool operator ==(CheckpointData a, CheckpointData b)
         {
             return (a.locus == b.locus) && (a.layer == b.layer);
         }
 
-        public static bool operator !=(ChkpntData a, ChkpntData b)
+        public static bool operator !=(CheckpointData a, CheckpointData b)
         {
             return !(a == b);
         }
@@ -617,7 +604,7 @@ namespace circleXsquares
         // .NET expects this behavior to be overridden when overriding ==/!= operators
         public override bool Equals(System.Object obj)
         {
-            ChkpntData? inCD = obj as ChkpntData?;
+            CheckpointData? inCD = obj as CheckpointData?;
             if (!inCD.HasValue)
                 return false;
             else
@@ -713,16 +700,12 @@ namespace circleXsquares
 
         public static bool operator ==(WarpData wd1, WarpData wd2)
         {
-            bool b = true;
-            if (wd1.isVictory != wd2.isVictory)
-                b = false;
-            if (wd1.isTwoWay != wd2.isTwoWay)
-                b = false;
-            if (wd1.orient != wd2.orient)
-                b = false;
-            if (wd1.targetLayer != wd2.targetLayer)
-                b = false;
-            return b;
+            return (
+                (wd1.isVictory != wd2.isVictory)
+                && (wd1.isTwoWay != wd2.isTwoWay)
+                && (wd1.orient != wd2.orient)
+                && (wd1.targetLayer != wd2.targetLayer)
+            );
         }
 
         public static bool operator !=(WarpData wd1, WarpData wd2)
@@ -752,14 +735,14 @@ namespace circleXsquares
     {
         // a level consists of a set of tiles, checkpoints, and warps
         public List<TileData> tileSet;
-        public List<ChkpntData> chkpntSet;
+        public List<CheckpointData> chkpntSet;
         public List<VictoryData> victorySet;
         public List<WarpData> warpSet;
 
         // simple constructor
         public LevelData(
             List<TileData> inTiles,
-            List<ChkpntData> inChkpnts,
+            List<CheckpointData> inChkpnts,
             List<VictoryData> inVictories,
             List<WarpData> inWarps
         )
@@ -784,7 +767,7 @@ namespace circleXsquares
                 returnStrings.Add(td.Serialize());
 
             returnStrings.AddRange(new string[] { "-- End Tiles --", " ", "-- Checkpoints --" });
-            foreach (ChkpntData cd in chkpntSet)
+            foreach (CheckpointData cd in chkpntSet)
                 returnStrings.Add(cd.Serialize());
 
             returnStrings.AddRange(
@@ -821,7 +804,7 @@ namespace circleXsquares
             }
 
             List<TileData> tileList = new List<TileData>();
-            List<ChkpntData> chkpntList = new List<ChkpntData>();
+            List<CheckpointData> chkpntList = new List<CheckpointData>();
             List<VictoryData> victoryList = new List<VictoryData>();
             List<WarpData> warpList = new List<WarpData>();
             bool canReadTile = false,
@@ -941,8 +924,8 @@ namespace circleXsquares
             );
         }
 
-        // parses a string to construct a ChkpntData
-        public static ChkpntData ReadChkpnt(string lineIn)
+        // parses a string to construct a CheckpointData
+        public static CheckpointData ReadChkpnt(string lineIn)
         {
             // split the line into individual items first
             string[] s = lineIn.Split(splitChar);
@@ -951,7 +934,7 @@ namespace circleXsquares
             if (s.Length < 7)
             {
                 Debug.LogError("Line for checkpoint data is formatted incorrectly.");
-                return new ChkpntData();
+                return new CheckpointData();
             }
 
             // proceeds to read the line items
@@ -965,7 +948,7 @@ namespace circleXsquares
             );
             int y = Int32.Parse(s[6]);
 
-            return new ChkpntData(hl, y);
+            return new CheckpointData(hl, y);
         }
 
         // parses a string to construct a VictoryData

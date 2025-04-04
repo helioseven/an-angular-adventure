@@ -85,7 +85,7 @@ public partial class EditGM : MonoBehaviour
     private const int INACTIVE_LAYER = 9;
 
     // private variables
-    private Dictionary<GameObject, ChkpntData> _chkpntLookup;
+    private Dictionary<GameObject, CheckpointData> _chkpntLookup;
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentMode;
     private GameObject _currentTool;
@@ -116,7 +116,7 @@ public partial class EditGM : MonoBehaviour
             _selectedItem = new SelectedItem(td);
             _warpTool = warpTool.GetComponent<SpecialCreator>();
             _tileLookup = new Dictionary<GameObject, TileData>();
-            _chkpntLookup = new Dictionary<GameObject, ChkpntData>();
+            _chkpntLookup = new Dictionary<GameObject, CheckpointData>();
             _warpLookup = new Dictionary<GameObject, WarpData>();
             _victoryLookup = new Dictionary<GameObject, VictoryData>();
 

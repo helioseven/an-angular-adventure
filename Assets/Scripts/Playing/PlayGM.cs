@@ -33,7 +33,7 @@ public partial class PlayGM : MonoBehaviour
     // public read-accessibility state variables
     public GameObject activeCheckpoint { get; private set; }
 
-    public ChkpntData activeCheckpointData { get; private set; }
+    public CheckpointData activeCheckpointData { get; private set; }
     public int activeLayer { get; private set; }
     public GravityDirection gravDirection
     {
