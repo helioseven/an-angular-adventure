@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using circleXsquares;
+﻿using circleXsquares;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -174,16 +170,50 @@ public class ObjectInfoControl : MonoBehaviour
         EditGM.SelectedItem selectedItem = _editGM.selectedItem;
         _isAnyItemSelected = selectedItem != EditGM.SelectedItem.noSelection;
         _isInstanceNull = selectedItem.instance == null;
+
+        // type will be set below
         int type = 0;
+
+        // the rest might not be set for special tiles since they don't need them
         int color = 0;
         int spec = 0;
         int rot = 0;
         HexLocus locus = new HexLocus();
         int doorId = 0;
 
-        // TODO: rewrite this whole function to use _currentTool based on creation vs seletion mode
-
-        if (_isAnyItemSelected)
+        if (_editGM.isEditorInCreateMode)
+        {
+            // Create mode - update object panel InfoPack based on creator status
+            if (_tileCreator.isActiveAndEnabled)
+            {
+                type = _tileCreator.tileType;
+                color = _tileCreator.tileColor;
+                spec = _tileCreator.tileSpecial;
+                rot = _tileCreator.tileOrient.rotation;
+                locus = _tileCreator.tileOrient.locus;
+                doorId = _tileCreator.tileDoorId;
+            }
+            else if (_checkpointCreator.isActiveAndEnabled)
+            {
+                type = 6;
+                locus = _checkpointCreator.specOrient.locus;
+            }
+            else if (_warpCreator.isActiveAndEnabled)
+            {
+                type = 7;
+                locus = _warpCreator.specOrient.locus;
+            }
+            else if (_victoryCreator.isActiveAndEnabled)
+            {
+                type = 8;
+                locus = _victoryCreator.specOrient.locus;
+            }
+            else
+            {
+                return _lastFrameInfoPack;
+            }
+        }
+        else if (_isAnyItemSelected)
         {
             if (selectedItem.tileData.HasValue)
             {
@@ -260,47 +290,9 @@ public class ObjectInfoControl : MonoBehaviour
             }
         }
 
-        // replace based on create tool (possibly a hack?)
         InfoPack infoPack = new InfoPack(type, color, spec, rot, locus, doorId);
-        InfoPack infoPackReplaced = ReplaceInfoToDesiredItem(infoPack);
 
-        return infoPackReplaced;
-    }
-
-    private InfoPack ReplaceInfoToDesiredItem(InfoPack infoPack)
-    {
-        EditGM.SelectedItem selectedItem = _editGM.selectedItem;
-        _isAnyItemSelected = selectedItem != EditGM.SelectedItem.noSelection;
-        _isInstanceNull = selectedItem.instance == null;
-        int type = infoPack.type;
-        int color = infoPack.color;
-        int spec = infoPack.spec;
-        int rot = infoPack.rot;
-        HexLocus locus = infoPack.locus;
-        int doorId = infoPack.doorId;
-        if (_tileCreator.isActiveAndEnabled)
-        {
-            type = _tileCreator.tileType;
-            color = _tileCreator.tileColor;
-            spec = _tileCreator.tileSpecial;
-            rot = _tileCreator.tileOrient.rotation;
-            locus = _tileCreator.tileOrient.locus;
-            doorId = _tileCreator.tileDoorId;
-        }
-        if (_checkpointCreator.isActiveAndEnabled)
-        {
-            type = 6;
-        }
-        if (_warpCreator.isActiveAndEnabled)
-        {
-            type = 7;
-        }
-        if (_victoryCreator.isActiveAndEnabled)
-        {
-            type = 8;
-        }
-
-        return new InfoPack(type, color, spec, rot, locus, doorId);
+        return infoPack;
     }
 
     // updates the display image
@@ -357,7 +349,6 @@ public class ObjectInfoControl : MonoBehaviour
                 _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
         if (infoPack.type >= 6)
         {
-            Debug.Log("infoPack.type: " + infoPack.type);
             // special switch
             switch (infoPack.type)
             {

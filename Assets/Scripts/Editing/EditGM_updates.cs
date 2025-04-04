@@ -106,31 +106,31 @@ public partial class EditGM
 
         if (hoveringHUD || paletteMode)
         {
-            // whenever palette activates, _currentTool is turned off
-            _currentTool.SetActive(false);
+            // whenever palette activates, _currentCreatorToolGameObject is turned off
+            _currentCreatorToolGameObject.SetActive(false);
         }
         else
         {
-            // when palette deactivates, determine desired _currentTool activity
+            // when palette deactivates, determine desired _currentCreatorToolGameObject activity
             bool b = false;
-            if (createMode)
+            if (isEditorInCreateMode)
                 b = true;
-            if (editMode && _selectedItem != SelectedItem.noSelection)
+            if (isEditorInEditMode && _selectedItem != SelectedItem.noSelection)
                 b = true;
             if (paintMode)
                 b = true;
 
-            // turn _currentTool back on if necessary
+            // turn _currentCreatorToolGameObject back on if necessary
             if (b)
-                _currentTool.SetActive(true);
+                _currentCreatorToolGameObject.SetActive(true);
         }
     }
 
-    // makes changes associated with being in createMode
+    // makes changes associated with being in isEditorInCreateMode
     private void updateCreate()
     {
         // break if eraser is active, because it shouldn't be (for now)
-        if (_toolMode == EditTools.Eraser)
+        if (_currentCreatorTool == EditCreatorTool.Eraser)
             return;
 
         // process input for tool and update active tool accordingly
@@ -139,20 +139,20 @@ public partial class EditGM
         // C, V, and B activate the checkpoint, victory, and warp tools, respectively
         if (CheckInputDown(InputKeys.Checkpoint))
         {
-            _currentTool.SetActive(false);
-            setTool(EditTools.Checkpoint);
+            _currentCreatorToolGameObject.SetActive(false);
+            setTool(EditCreatorTool.Checkpoint);
             soundManager.Play("checkpoint");
         }
         if (CheckInputDown(InputKeys.Victory))
         {
-            _currentTool.SetActive(false);
-            setTool(EditTools.Victory);
+            _currentCreatorToolGameObject.SetActive(false);
+            setTool(EditCreatorTool.Victory);
             soundManager.Play("victory");
         }
         if (CheckInputDown(InputKeys.Warp))
         {
-            _currentTool.SetActive(false);
-            setTool(EditTools.Warp);
+            _currentCreatorToolGameObject.SetActive(false);
+            setTool(EditCreatorTool.Warp);
             soundManager.Play("warp");
         }
 
@@ -166,22 +166,22 @@ public partial class EditGM
         nums &= getInputDowns;
         if (nums != InputKeys.None)
         {
-            _currentTool.SetActive(false);
+            _currentCreatorToolGameObject.SetActive(false);
             updateTileProperties();
-            setTool(EditTools.Tile);
+            setTool(EditCreatorTool.Tile);
         }
 
         // whichever tool is being used should always be active
-        _currentTool.SetActive(true);
+        _currentCreatorToolGameObject.SetActive(true);
     }
 
-    // makes changes associated with being in editMode
+    // makes changes associated with being in isEditorInEditMode
     private void updateEdit()
     {
         // first, handle the case where an item is currently selected
         if (_selectedItem != SelectedItem.noSelection)
         {
-            if (_toolMode == EditTools.Eraser)
+            if (_currentCreatorTool == EditCreatorTool.Eraser)
                 // break if eraser is active, because it shouldn't be (for now)
                 return;
 
@@ -191,7 +191,7 @@ public partial class EditGM
             if (CheckInputDown(InputKeys.ClickMain))
             {
                 // if tool has been used, clean up
-                _currentTool.SetActive(false);
+                _currentCreatorToolGameObject.SetActive(false);
                 _selectedItem = SelectedItem.noSelection;
                 return;
             }
@@ -201,7 +201,7 @@ public partial class EditGM
             {
                 soundManager.Play("delete");
 
-                _currentTool.SetActive(false);
+                _currentCreatorToolGameObject.SetActive(false);
                 Destroy(_selectedItem.instance);
                 _selectedItem = SelectedItem.noSelection;
             }
@@ -228,7 +228,7 @@ public partial class EditGM
                 _selectedItem = new SelectedItem(null, td);
                 // use tileData to populate selected item and tool properties
                 tileCreator.SetProperties(td);
-                setTool(EditTools.Tile);
+                setTool(EditCreatorTool.Tile);
 
                 // when done using data, remove and destroy GameObject
                 removeTile(go);
@@ -243,22 +243,22 @@ public partial class EditGM
                 if (IsMappedCheckpoint(go, out cd))
                 {
                     _selectedItem = new SelectedItem(null, cd);
-                    setTool(EditTools.Checkpoint);
+                    setTool(EditCreatorTool.Checkpoint);
                 }
                 if (IsMappedWarp(go, out wd))
                 {
                     _selectedItem = new SelectedItem(null, wd);
-                    setTool(EditTools.Warp);
+                    setTool(EditCreatorTool.Warp);
                 }
                 if (IsMappedVictory(go, out vd))
                 {
                     _selectedItem = new SelectedItem(null, vd);
-                    setTool(EditTools.Victory);
+                    setTool(EditCreatorTool.Victory);
                 }
                 removeSpecial(go);
                 Destroy(go);
             }
-            _currentTool.SetActive(true);
+            _currentCreatorToolGameObject.SetActive(true);
         }
     }
 
@@ -372,10 +372,10 @@ public partial class EditGM
     private void updateTool()
     {
         bool isMainClick = CheckInputDown(InputKeys.ClickMain);
-        switch (_toolMode)
+        switch (_currentCreatorTool)
         {
             // when using tile tool, always update tile creator properties first
-            case EditTools.Tile:
+            case EditCreatorTool.Tile:
                 updateTileProperties();
                 // if main click, add relevant tool's item to the level
                 if (isMainClick)
@@ -388,7 +388,7 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(go, _tileLookup[go]);
                 }
                 break;
-            case EditTools.Checkpoint:
+            case EditCreatorTool.Checkpoint:
                 // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
@@ -399,7 +399,7 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(go, cd);
                 }
                 break;
-            case EditTools.Warp:
+            case EditCreatorTool.Warp:
                 // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
@@ -411,7 +411,7 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(go, wd);
                 }
                 break;
-            case EditTools.Victory:
+            case EditCreatorTool.Victory:
                 // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {

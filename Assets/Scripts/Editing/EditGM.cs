@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public partial class EditGM : MonoBehaviour
@@ -31,20 +27,18 @@ public partial class EditGM : MonoBehaviour
     public GameObject warpMap;
     public GameObject warpTool;
     public GameObject playLoader;
-
-    // Level Info
     public LevelInfo levelInfo;
 
     // public read-accessibility state variables
     public int activeLayer { get; private set; }
-    public bool createMode
+    public bool isEditorInCreateMode
     {
-        get { return _currentMode == EditorMode.Create; }
+        get { return _currentEditorMode == EditorMode.Create; }
         set { }
     }
-    public bool editMode
+    public bool isEditorInEditMode
     {
-        get { return _currentMode == EditorMode.Edit; }
+        get { return _currentEditorMode == EditorMode.Edit; }
         set { }
     }
     public InputKeys getInputs { get; private set; }
@@ -56,15 +50,21 @@ public partial class EditGM : MonoBehaviour
         get { return _selectedItem; }
         set { }
     }
+
+    public EditCreatorTool currentCreatorTool
+    {
+        get { return _currentCreatorTool; }
+        set { }
+    }
     public bool paintMode
     {
-        get { return _currentMode == EditorMode.Paint; }
+        get { return _currentEditorMode == EditorMode.Paint; }
         set { }
     }
     public bool paletteMode { get; private set; }
     public bool selectMode
     {
-        get { return _currentMode == EditorMode.Select; }
+        get { return _currentEditorMode == EditorMode.Select; }
         set { }
     }
 
@@ -87,16 +87,22 @@ public partial class EditGM : MonoBehaviour
     // private variables
     private Dictionary<GameObject, CheckpointData> _chkpntLookup;
     private List<RaycastResult> _currentHUDhover;
-    private EditorMode _currentMode;
-    private GameObject _currentTool;
+    private EditorMode _currentEditorMode;
+    private GameObject _currentCreatorToolGameObject;
     private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
+
+    // Selected item is the one that was last placed or just clicked on from select mode
+    // Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
     private SelectedItem _selectedItem;
+
+    // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
+    private EditCreatorTool _currentCreatorTool;
+
+    // tile lookups
     private Dictionary<GameObject, TileData> _tileLookup;
-    private EditTools _toolMode;
     private Dictionary<GameObject, WarpData> _warpLookup;
-    private SpecialCreator _warpTool;
     private Dictionary<GameObject, VictoryData> _victoryLookup;
 
     void Awake()
@@ -109,12 +115,11 @@ public partial class EditGM : MonoBehaviour
             // initializations for private state variables
             _currentHUDhover = new List<RaycastResult>();
             _inputMode = false;
-            _currentMode = EditorMode.Create;
-            _toolMode = EditTools.Tile;
-            _currentTool = tileCreator.gameObject;
+            _currentEditorMode = EditorMode.Create;
+            _currentCreatorTool = EditCreatorTool.Tile;
+            _currentCreatorToolGameObject = tileCreator.gameObject;
             TileData td = new TileData(0, 0, 0, new HexOrient());
             _selectedItem = new SelectedItem(td);
-            _warpTool = warpTool.GetComponent<SpecialCreator>();
             _tileLookup = new Dictionary<GameObject, TileData>();
             _chkpntLookup = new Dictionary<GameObject, CheckpointData>();
             _warpLookup = new Dictionary<GameObject, WarpData>();
@@ -169,11 +174,11 @@ public partial class EditGM : MonoBehaviour
         // current tool is updated for selectMode
         if (selectMode)
             updateSelect();
-        // current tool is updated for editMode
-        if (editMode)
+        // current tool is updated for isEditorInEditMode
+        if (isEditorInEditMode)
             updateEdit();
-        // current tool is updated for createMode
-        if (createMode)
+        // current tool is updated for isEditorInCreateMode
+        if (isEditorInCreateMode)
             updateCreate();
         // current tool is updated for paintMode
         if (paintMode)

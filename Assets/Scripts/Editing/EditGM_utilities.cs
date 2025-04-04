@@ -1,12 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class EditGM
 {
@@ -21,8 +16,8 @@ public partial class EditGM
         Paint,
     }
 
-    // EditTools establishes the different tools usable in the editor
-    public enum EditTools
+    // EditCreatorTool establishes the different tools usable in the editor
+    public enum EditCreatorTool
     {
         Tile,
         Checkpoint,
@@ -122,7 +117,7 @@ public partial class EditGM
         }
     }
 
-    // used when leaving editMode, places _selectedItem where it indicates it belongs
+    // used when leaving isEditorInEditMode, places _selectedItem where it indicates it belongs
     private void addSelectedItem()
     {
         // if nothing is selected, escape
@@ -339,7 +334,7 @@ public partial class EditGM
         return true;
     }
 
-    // used when entering editMode with an item selected, which removes it
+    // used when entering isEditorInEditMode with an item selected, which removes it
     private void removeSelectedItem()
     {
         if (_selectedItem.instance == null)
@@ -350,25 +345,25 @@ public partial class EditGM
             // if _selectedItem is a tile, use tileData to set tileCreator
             tileCreator.SetProperties(_selectedItem.tileData.Value);
             // remove _selectedItem from level and set tile
-            setTool(EditTools.Tile);
+            setTool(EditCreatorTool.Tile);
         }
         else if (_selectedItem.CheckpointData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set checkpoint
-            setTool(EditTools.Checkpoint);
+            setTool(EditCreatorTool.Checkpoint);
         }
         else if (_selectedItem.victoryData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set victory
-            setTool(EditTools.Victory);
+            setTool(EditCreatorTool.Victory);
         }
         else if (_selectedItem.warpData.HasValue)
         {
             removeSpecial(_selectedItem.instance);
             // remove _selectedItem from level and set warp
-            setTool(EditTools.Warp);
+            setTool(EditCreatorTool.Warp);
         }
     }
 
@@ -382,7 +377,7 @@ public partial class EditGM
         {
             // if the given item is a checkpoint
             _selectedItem = new SelectedItem(inSpecial, cData);
-            setTool(EditTools.Checkpoint);
+            setTool(EditCreatorTool.Checkpoint);
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.chkpntSet.Remove(cData);
@@ -392,7 +387,7 @@ public partial class EditGM
         {
             // if the given item is a warp
             _selectedItem = new SelectedItem(inSpecial, wData);
-            setTool(EditTools.Warp);
+            setTool(EditCreatorTool.Warp);
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.warpSet.Remove(wData);
@@ -402,7 +397,7 @@ public partial class EditGM
         {
             // must be victory, eh?
             _selectedItem = new SelectedItem(inSpecial, vData);
-            setTool(EditTools.Victory);
+            setTool(EditCreatorTool.Victory);
 
             //set _selectedItem and tool then remove item from level and lookup
             levelData.victorySet.Remove(vData);
@@ -474,33 +469,31 @@ public partial class EditGM
     }
 
     // sets the currently active tool
-    private void setTool(EditTools inTool)
+    private void setTool(EditCreatorTool inTool)
     {
         switch (inTool)
         {
-            case EditTools.Tile:
-                _currentTool = tileCreator.gameObject;
+            case EditCreatorTool.Tile:
+                _currentCreatorToolGameObject = tileCreator.gameObject;
                 break;
-            case EditTools.Checkpoint:
-                _currentTool = checkpointTool;
+            case EditCreatorTool.Checkpoint:
+                _currentCreatorToolGameObject = checkpointTool;
                 break;
-            case EditTools.Warp:
-                _currentTool = warpTool;
+            case EditCreatorTool.Warp:
+                _currentCreatorToolGameObject = warpTool;
                 break;
-            case EditTools.Victory:
-                _currentTool = victoryTool;
+            case EditCreatorTool.Victory:
+                _currentCreatorToolGameObject = victoryTool;
                 break;
-            case EditTools.Eraser:
+            case EditCreatorTool.Eraser:
                 // missing implementation
-                _currentTool = null;
+                _currentCreatorToolGameObject = null;
                 break;
             default:
                 break;
         }
 
-        _toolMode = inTool;
-
-        // Seems like we need to force update the object panel HUD UI to dislpay the current tool
+        _currentCreatorTool = inTool;
     }
 
     /* Public Utilities */

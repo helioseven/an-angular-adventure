@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class PlayGM
 {
@@ -164,6 +160,8 @@ public partial class PlayGM
 
             // Lose door icon if non doorId tile
             Transform icon = go.transform.GetChild(0).GetChild(0);
+
+            // TODO: 0 should represent "not a door" (right now it doesn't - update in Tile_Green.cs)
             if (td.doorId == 0)
                 icon.gameObject.SetActive(false);
             else
@@ -207,7 +205,6 @@ public partial class PlayGM
         // populate warp map
         foreach (WarpData wd in inLevel.warpSet)
         {
-            Debug.Log("warp generation: " + wd.layer);
             Vector3 v3 = wd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(wd.layer).position.z;
             GameObject go = Instantiate(warpRef, v3, Quaternion.identity) as GameObject;

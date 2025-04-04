@@ -118,32 +118,32 @@ public partial class EditGM
         addLayers(tileMap.transform.childCount);
     }
 
-    // switches into createMode
+    // switches into isEditorInCreateMode
     public void EnterCreate()
     {
-        // if already in createMode, simply escape
-        if (createMode)
+        // if already in isEditorInCreateMode, simply escape
+        if (isEditorInCreateMode)
             return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
-            // if exiting editMode, add _selectedItem back to the level
-            if (editMode)
+            // if exiting isEditorInEditMode, add _selectedItem back to the level
+            if (isEditorInEditMode)
                 addSelectedItem();
 
             if (_selectedItem.tileData.HasValue)
             {
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
-                setTool(EditTools.Tile);
+                setTool(EditCreatorTool.Tile);
             }
             // set tool to checkpoint or warp tool as appropriate
             if (_selectedItem.CheckpointData.HasValue)
-                setTool(EditTools.Checkpoint);
+                setTool(EditCreatorTool.Checkpoint);
             if (_selectedItem.warpData.HasValue)
-                setTool(EditTools.Warp);
+                setTool(EditCreatorTool.Warp);
             if (_selectedItem.victoryData.HasValue)
-                setTool(EditTools.Victory);
+                setTool(EditCreatorTool.Victory);
 
             // null out SelectedItem's instance to instead refer to creation tool
             _selectedItem.instance = null;
@@ -153,17 +153,17 @@ public partial class EditGM
             // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
             _selectedItem = new SelectedItem(td);
-            setTool(EditTools.Tile);
+            setTool(EditCreatorTool.Tile);
         }
 
-        _currentMode = EditorMode.Create;
+        _currentEditorMode = EditorMode.Create;
     }
 
-    // switches into editMode
+    // switches into isEditorInEditMode
     public void EnterEdit()
     {
-        // if already in editMode, simply escape
-        if (editMode)
+        // if already in isEditorInEditMode, simply escape
+        if (isEditorInEditMode)
             return;
 
         if (_selectedItem != SelectedItem.noSelection)
@@ -181,11 +181,11 @@ public partial class EditGM
                 _selectedItem = SelectedItem.noSelection;
             }
             if (_selectedItem.CheckpointData.HasValue)
-                setTool(EditTools.Checkpoint);
+                setTool(EditCreatorTool.Checkpoint);
             if (_selectedItem.warpData.HasValue)
-                setTool(EditTools.Warp);
+                setTool(EditCreatorTool.Warp);
             if (_selectedItem.victoryData.HasValue)
-                setTool(EditTools.Victory);
+                setTool(EditCreatorTool.Victory);
 
             // regardless of item selected, unselect it
             removeSelectedItem();
@@ -195,10 +195,10 @@ public partial class EditGM
         else
         {
             // if no _selectedItem, default to tile tool
-            setTool(EditTools.Tile);
+            setTool(EditCreatorTool.Tile);
         }
 
-        _currentMode = EditorMode.Edit;
+        _currentEditorMode = EditorMode.Edit;
     }
 
     // switches into paintMode
@@ -213,17 +213,17 @@ public partial class EditGM
             if (_selectedItem.tileData.HasValue)
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
-            if (editMode)
-                // if in editMode, add _selectedItem back to the level
+            if (isEditorInEditMode)
+                // if in isEditorInEditMode, add _selectedItem back to the level
                 addSelectedItem();
             else
-                // if not in editMode, unselect _selectedItem
+                // if not in isEditorInEditMode, unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
         }
 
         // always enter paintMode with tile tool enabled
-        setTool(EditTools.Tile);
-        _currentMode = EditorMode.Paint;
+        setTool(EditCreatorTool.Tile);
+        _currentEditorMode = EditorMode.Paint;
     }
 
     // switches into selectMode
@@ -233,16 +233,16 @@ public partial class EditGM
         if (selectMode)
             return;
 
-        if (editMode && _selectedItem != SelectedItem.noSelection)
-            // if in editMode while an object is selected, place the object
+        if (isEditorInEditMode && _selectedItem != SelectedItem.noSelection)
+            // if in isEditorInEditMode while an object is selected, place the object
             addSelectedItem();
         if (!_selectedItem.instance)
             // if no object is selected, unselect _selectedItem
             _selectedItem = SelectedItem.noSelection;
 
-        // _currentTool should always be disabled in selectMode
-        _currentTool.SetActive(false);
-        _currentMode = EditorMode.Select;
+        // _currentCreatorToolGameObject should always be disabled in selectMode
+        _currentCreatorToolGameObject.SetActive(false);
+        _currentEditorMode = EditorMode.Select;
     }
 
     // moves focus down to the next layer

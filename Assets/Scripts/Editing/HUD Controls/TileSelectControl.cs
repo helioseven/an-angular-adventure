@@ -27,7 +27,7 @@ public class TileSelectControl : MonoBehaviour
             updateType();
         if (_activeColor != _tcRef.tileColor)
             updateColor();
-        if (_isActive == _gmRef.editMode)
+        if (_isActive == _gmRef.isEditorInEditMode)
             updateActive();
     }
 

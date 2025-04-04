@@ -10,7 +10,7 @@ public class SpecialCreator : MonoBehaviour
     public HexOrient specOrient { get; private set; }
 
     // public variables
-    public EditTools toolType = EditTools.Warp;
+    public EditCreatorTool toolType = EditCreatorTool.Warp;
 
     // private variables
     private EditGM _gmRef;
@@ -30,7 +30,7 @@ public class SpecialCreator : MonoBehaviour
     {
         // when active, the special will follow the focus
         HexLocus f = _anchorRef.focus;
-        int r = toolType == EditTools.Warp ? specOrient.rotation : 0;
+        int r = toolType == EditCreatorTool.Warp ? specOrient.rotation : 0;
         int l = _gmRef.activeLayer;
         specOrient = new HexOrient(f, r, l);
 
