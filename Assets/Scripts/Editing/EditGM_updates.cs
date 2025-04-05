@@ -82,7 +82,7 @@ public partial class EditGM
             return;
 
         bool isHUD = CheckInputDown(InputKeys.HUD);
-        bool isPal = CheckInput(InputKeys.Palette);
+        // bool isPal = CheckInput(InputKeys.Palette);
 
         // UI is toggled whenever spacebar is pressed
         if (isHUD)
@@ -91,11 +91,11 @@ public partial class EditGM
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
         // palette is toggled on whenever tab key is held down
-        if (paletteMode != isPal)
-        {
-            paletteMode = isPal;
-            palettePanel.TogglePalette();
-        }
+        // if (paletteMode != isPal)
+        // {
+        //     paletteMode = isPal;
+        //     palettePanel.TogglePalette();
+        // }
 
         if (hoveringHUD || paletteMode)
         {

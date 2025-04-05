@@ -58,7 +58,8 @@ public class ObjectInfoControl : MonoBehaviour
         _isAnyItemSelected = false;
         _lastFrameInfoPack = new InfoPack();
 
-        transform.GetChild(2).gameObject.SetActive(false);
+        // turn off the special number (only green/orange have this value but black tri is default)
+        transform.GetChild(3).gameObject.SetActive(false);
     }
 
     void Start()
@@ -72,7 +73,7 @@ public class ObjectInfoControl : MonoBehaviour
         _objectDisplay = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
 
-        _combinedNameDisplay = transform.GetChild(0).GetChild(1).GetComponent<TMP_Text>();
+        _combinedNameDisplay = transform.GetChild(4).GetComponent<TMP_Text>();
 
         Transform t = transform.GetChild(1);
         _typeDisplay = t.GetChild(1).GetComponent<TMP_Text>();
@@ -413,10 +414,10 @@ public class ObjectInfoControl : MonoBehaviour
 
         // Door ID
         // Only show door id tiles
-        transform.GetChild(3).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
+        transform.GetChild(2).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
         _doorIdDisplay.text = infoPack.doorId.ToString();
 
         // Only show special attributes for green and orange tiles
-        transform.GetChild(2).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
+        transform.GetChild(3).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
     }
 }
