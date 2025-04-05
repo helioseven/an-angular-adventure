@@ -12,6 +12,7 @@
 ## Current Goal ##
 
 *  Release on Steam (Playtest only)
+  *  April 2025
 
 ## Notes ##
 
