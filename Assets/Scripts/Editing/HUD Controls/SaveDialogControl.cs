@@ -40,7 +40,7 @@ public class SaveDialogControl : MonoBehaviour
     // confirms the file save by passing the entered filename to the EditGM
     public void confirmSave()
     {
-        EditGM.instance.SaveFile(_pathField.text);
+        EditGM.instance.SaveLevelLocal(_pathField.text);
         EditGM.instance.levelName = _pathField.text;
         cancelDialog();
     }

@@ -142,6 +142,8 @@ public partial class EditGM : MonoBehaviour
             levelName = string.IsNullOrEmpty(_lvlLoad.levelName)
                 ? LevelNameGenerator.GenerateLevelName()
                 : _lvlLoad.levelName;
+            // TODO: Only do this when coming from playing mode
+            levelName = CleanAutosaveName(levelName);
             levelInfo = _lvlLoad.levelInfo;
             levelData = _lvlLoad.supplyLevel();
             buildLevel(levelData);

@@ -529,6 +529,16 @@ public partial class EditGM
         return tileMap.transform.GetChild(inLayer).position.z;
     }
 
+    public static string CleanAutosaveName(string levelName)
+    {
+        const string suffix = " (autosave)";
+        if (levelName.EndsWith(suffix))
+        {
+            return levelName.Substring(0, levelName.Length - suffix.Length);
+        }
+        return levelName;
+    }
+
     // returns first collider hit on active layer under click
     public Collider2D GetObjectClicked()
     {
