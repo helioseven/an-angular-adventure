@@ -541,11 +541,11 @@ namespace circleXsquares
         public static bool operator ==(TileData td1, TileData td2)
         {
             return (
-                (td1.type != td2.type)
-                && (td1.color != td2.color)
-                && (td1.special != td2.special)
-                && (td1.orient != td2.orient)
-                && (td1.doorId != td2.doorId)
+                (td1.type == td2.type)
+                && (td1.color == td2.color)
+                && (td1.special == td2.special)
+                && (td1.orient == td2.orient)
+                && (td1.doorId == td2.doorId)
             );
         }
 

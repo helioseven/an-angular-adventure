@@ -273,8 +273,7 @@ public partial class EditGM
             if (CheckInputDown(InputKeys.Delete))
             {
                 soundManager.Play("delete");
-
-                _currentCreatorToolGameObject.SetActive(false);
+                removeSelectedItem();
                 Destroy(_selectedItem.instance);
                 _selectedItem = SelectedItem.noSelection;
             }
