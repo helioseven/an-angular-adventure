@@ -86,7 +86,6 @@ public partial class EditGM : MonoBehaviour
     private const int INACTIVE_LAYER = 9;
 
     // private variables
-    private Dictionary<GameObject, CheckpointData> _chkpntLookup;
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentEditorMode;
     private GameObject _currentCreatorToolGameObject;
@@ -101,10 +100,12 @@ public partial class EditGM : MonoBehaviour
     // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
     private EditCreatorTool _currentCreatorTool;
 
-    // tile lookups
+    // Item lookups
     private Dictionary<GameObject, TileData> _tileLookup;
+    private Dictionary<GameObject, CheckpointData> _checkpointLookup;
     private Dictionary<GameObject, WarpData> _warpLookup;
     private Dictionary<GameObject, VictoryData> _victoryLookup;
+    private bool _suppressClickThisFrame = false;
 
     void Awake()
     {
@@ -122,7 +123,7 @@ public partial class EditGM : MonoBehaviour
             TileData td = new TileData(0, 0, 0, new HexOrient());
             _selectedItem = new SelectedItem(td);
             _tileLookup = new Dictionary<GameObject, TileData>();
-            _chkpntLookup = new Dictionary<GameObject, CheckpointData>();
+            _checkpointLookup = new Dictionary<GameObject, CheckpointData>();
             _warpLookup = new Dictionary<GameObject, WarpData>();
             _victoryLookup = new Dictionary<GameObject, VictoryData>();
 

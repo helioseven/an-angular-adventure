@@ -160,7 +160,7 @@ public partial class EditGM
         go.transform.SetParent(checkpointMap.transform);
 
         // resulting gameObject is added to lookup dictionary and returned
-        _chkpntLookup[go] = inChkpnt;
+        _checkpointLookup[go] = inChkpnt;
         return go;
     }
 
@@ -276,8 +276,8 @@ public partial class EditGM
             go.transform.SetParent(checkpointMap.transform);
             go.SetActive(true);
             go.GetComponent<SpecialCreator>().enabled = false;
-            // add the (GameObject,CheckpointData) pair to _chkpntLookup
-            _chkpntLookup.Add(go, cd);
+            // add the (GameObject,CheckpointData) pair to _checkpointLookup
+            _checkpointLookup.Add(go, cd);
         }
 
         // build each warp in the level
@@ -388,7 +388,7 @@ public partial class EditGM
 
             // set _selectedItem and tool then remove item from level and lookup
             levelData.chkpntSet.Remove(cData);
-            _chkpntLookup.Remove(inSpecial);
+            _checkpointLookup.Remove(inSpecial);
         }
         else if (IsMappedWarp(inSpecial, out wData))
         {
@@ -579,14 +579,14 @@ public partial class EditGM
     public bool IsMappedCheckpoint(GameObject inChkpnt, out CheckpointData outData)
     {
         outData = new CheckpointData();
-        if (!inChkpnt || !_chkpntLookup.ContainsKey(inChkpnt))
+        if (!inChkpnt || !_checkpointLookup.ContainsKey(inChkpnt))
         {
             return false;
             // if it is, output the CheckpointData and return true
         }
         else
         {
-            outData = _chkpntLookup[inChkpnt];
+            outData = _checkpointLookup[inChkpnt];
             return true;
         }
     }

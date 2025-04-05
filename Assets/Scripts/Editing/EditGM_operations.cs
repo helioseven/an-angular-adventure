@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +5,6 @@ using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class EditGM
 {
@@ -73,17 +70,11 @@ public partial class EditGM
 
         public static bool operator ==(SelectedItem si1, SelectedItem si2)
         {
-            if (si1.instance != si2.instance)
-                return false;
-            if (si1.tileData != si2.tileData)
-                return false;
-            if (si1.checkpointData != si2.checkpointData)
-                return false;
-            if (si1.warpData != si2.warpData)
-                return false;
-            if (si1.victoryData != si2.victoryData)
-                return false;
-            return true;
+            return si1.instance == si2.instance
+                && si1.tileData == si2.tileData
+                && si1.checkpointData == si2.checkpointData
+                && si1.warpData == si2.warpData
+                && si1.victoryData == si2.victoryData;
         }
 
         public static SelectedItem noSelection = new SelectedItem();
@@ -121,16 +112,13 @@ public partial class EditGM
     // switches into isEditorInCreateMode
     public void EnterCreate()
     {
+        _suppressClickThisFrame = true;
         // if already in isEditorInCreateMode, simply escape
         if (isEditorInCreateMode)
             return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
-            // if exiting isEditorInEditMode, add _selectedItem back to the level
-            if (isEditorInEditMode)
-                addSelectedItem();
-
             if (_selectedItem.tileData.HasValue)
             {
                 // if _selectedItem is a tile, use its tileData to set tile tool
@@ -159,45 +147,17 @@ public partial class EditGM
         _currentEditorMode = EditorMode.Create;
     }
 
-    // switches into isEditorInEditMode
+    // switches into Edit Mode
     public void EnterEdit()
     {
-        // if already in isEditorInEditMode, simply escape
+        // if already in Edit Mode, simply escape
         if (isEditorInEditMode)
             return;
 
-        if (_selectedItem != SelectedItem.noSelection)
-        {
-            if (_selectedItem.instance)
-            {
-                // if an object is selected, destroy it and activate relevant tool
-                removeSelectedItem();
-                Destroy(_selectedItem.instance);
-                _selectedItem.instance = null;
-            }
-            else
-            {
-                // otherwise, simply unselect _selectedItem
-                _selectedItem = SelectedItem.noSelection;
-            }
-            if (_selectedItem.checkpointData.HasValue)
-                setTool(EditCreatorTool.Checkpoint);
-            if (_selectedItem.warpData.HasValue)
-                setTool(EditCreatorTool.Warp);
-            if (_selectedItem.victoryData.HasValue)
-                setTool(EditCreatorTool.Victory);
+        // no selected item at first
+        _selectedItem = SelectedItem.noSelection;
 
-            // regardless of item selected, unselect it
-            removeSelectedItem();
-            Destroy(_selectedItem.instance);
-            _selectedItem.instance = null;
-        }
-        else
-        {
-            // if no _selectedItem, default to tile tool
-            setTool(EditCreatorTool.Tile);
-        }
-
+        // update editor mode to Edit Mode
         _currentEditorMode = EditorMode.Edit;
     }
 

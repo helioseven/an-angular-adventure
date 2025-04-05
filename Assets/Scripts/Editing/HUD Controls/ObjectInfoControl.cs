@@ -218,8 +218,7 @@ public class ObjectInfoControl : MonoBehaviour
                 return _lastFrameInfoPack;
             }
         }
-        // Otherwise - In this case the editor is not in create mode
-        //   ie it's in edit / paint mode
+        // Otherwise - In this case the editor is in edit mode
         else if (_isAnyItemSelected)
         {
             if (selectedItem.tileData.HasValue)

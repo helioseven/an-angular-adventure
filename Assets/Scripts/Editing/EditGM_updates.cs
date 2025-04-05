@@ -1,12 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using circleXsquares;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class EditGM
 {
@@ -112,29 +105,24 @@ public partial class EditGM
         else
         {
             // when palette deactivates, determine desired _currentCreatorToolGameObject activity
-            bool b = false;
-            if (isEditorInCreateMode)
-                b = true;
-            if (isEditorInEditMode && _selectedItem != SelectedItem.noSelection)
-                b = true;
-            if (paintMode)
-                b = true;
-
-            // turn _currentCreatorToolGameObject back on if necessary
-            if (b)
-                _currentCreatorToolGameObject.SetActive(true);
+            // and turn _currentCreatorToolGameObject back on if necessary
+            _currentCreatorToolGameObject.SetActive(isEditorInCreateMode);
         }
     }
 
     // makes changes associated with being in isEditorInCreateMode
     private void updateCreate()
     {
-        // break if eraser is active, because it shouldn't be (for now)
-        if (_currentCreatorTool == EditCreatorTool.Eraser)
+        if (_suppressClickThisFrame)
+        {
+            _suppressClickThisFrame = false;
             return;
-
-        // process input for tool and update active tool accordingly
-        updateTool();
+        }
+        else
+        {
+            // process input for tool and update active tool accordingly
+            UpdateTool();
+        }
 
         // C, V, and B activate the checkpoint, victory, and warp tools, respectively
         if (CheckInputDown(InputKeys.Checkpoint))
@@ -175,25 +163,110 @@ public partial class EditGM
         _currentCreatorToolGameObject.SetActive(true);
     }
 
+    public void SetSelectedItemSpecial(string s)
+    {
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData tileDataModified = new TileData(
+                _selectedItem.tileData.Value.type,
+                _selectedItem.tileData.Value.color,
+                int.Parse(s),
+                _selectedItem.tileData.Value.orient,
+                _selectedItem.tileData.Value.doorId
+            );
+            removeTile(_selectedItem.instance);
+            Destroy(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem.instance = newTile;
+        }
+    }
+
+    public void SetSelectedItemDoorId(string s)
+    {
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData tileDataModified = new TileData(
+                _selectedItem.tileData.Value.type,
+                _selectedItem.tileData.Value.color,
+                _selectedItem.tileData.Value.special,
+                _selectedItem.tileData.Value.orient,
+                int.Parse(s)
+            );
+            removeTile(_selectedItem.instance);
+            Destroy(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem.instance = newTile;
+        }
+    }
+
     // makes changes associated with being in isEditorInEditMode
     private void updateEdit()
     {
+        bool noItemCurrentlySelected =
+            !_selectedItem.instance || _selectedItem == SelectedItem.noSelection;
+        bool isDoubleClick = false;
+        GameObject go;
+        TileData td;
+
         // first, handle the case where an item is currently selected
-        if (_selectedItem != SelectedItem.noSelection)
+        if (!noItemCurrentlySelected)
         {
-            if (_currentCreatorTool == EditCreatorTool.Eraser)
-                // break if eraser is active, because it shouldn't be (for now)
-                return;
-
-            // make updates associated with active tool according to input
-            updateTool();
-
             if (CheckInputDown(InputKeys.ClickMain))
             {
-                // if tool has been used, clean up
-                _currentCreatorToolGameObject.SetActive(false);
-                _selectedItem = SelectedItem.noSelection;
-                return;
+                // check if you clicked the same thing
+                Collider2D c2d = GetObjectClicked();
+
+                // if nothing is clicked on
+                if (!c2d)
+                {
+                    _selectedItem = SelectedItem.noSelection;
+                    return;
+                }
+                // otherwise if the same item is clicked on
+                else if (_selectedItem.instance == c2d.gameObject)
+                {
+                    isDoubleClick = true;
+                }
+                // single click on new item
+                else if (!isDoubleClick)
+                {
+                    // Debug.Log(
+                    //     " ----SINGLE CLICK HANDLER---- a different item has been selected"
+                    // );
+                    go = c2d.gameObject;
+                    if (IsMappedTile(go, out td))
+                        _selectedItem = new SelectedItem(go, td);
+                    CheckpointData cd;
+                    if (IsMappedCheckpoint(go, out cd))
+                        _selectedItem = new SelectedItem(go, cd);
+                    WarpData wd;
+                    if (IsMappedWarp(go, out wd))
+                        _selectedItem = new SelectedItem(go, wd);
+                    VictoryData vd;
+                    if (IsMappedVictory(go, out vd))
+                        _selectedItem = new SelectedItem(go, vd);
+                }
+
+                // +++ double click handler +++
+                if (isDoubleClick)
+                {
+                    // Debug.Log("++++ DOUBLE CLICK HANDLER+++++");
+
+                    go = c2d.gameObject;
+                    if (IsMappedTile(go, out td))
+                    {
+                        removeTile(go);
+                        Destroy(go);
+                    }
+                    else
+                    {
+                        removeSpecial(go);
+                        Destroy(go);
+                    }
+
+                    // Kick it over to create mode
+                    EnterCreate();
+                }
             }
 
             // Delete key will destroy instance and forget _selectedItem
@@ -206,33 +279,28 @@ public partial class EditGM
                 _selectedItem = SelectedItem.noSelection;
             }
         }
-        else if (CheckInputDown(InputKeys.ClickMain))
+        // single click handler (no previously selected item)
+        if (CheckInputDown(InputKeys.ClickMain) && noItemCurrentlySelected && !isDoubleClick)
         {
-            // next, handle the case where there is no selected tile
+            // Debug.Log(
+            //     "[updateEdit] SINGLE CLICK noItemCurrentlySelected: " + noItemCurrentlySelected
+            // );
             Collider2D c2d = GetObjectClicked();
             if (!c2d)
             {
-                // left-click selects a tile, if click misses then break
+                // left-click selects a item, if click misses then break
                 _selectedItem = SelectedItem.noSelection;
                 return;
             }
 
-            GameObject go = c2d.gameObject;
-            TileData td;
+            go = c2d.gameObject;
             // check if clicked object is a mapped tile
             if (IsMappedTile(go, out td))
             {
                 // if clicked tile isn't a part of activeLayer, ignore it
                 if (td.orient.layer != activeLayer)
                     return;
-                _selectedItem = new SelectedItem(null, td);
-                // use tileData to populate selected item and tool properties
-                tileCreator.SetProperties(td);
-                setTool(EditCreatorTool.Tile);
-
-                // when done using data, remove and destroy GameObject
-                removeTile(go);
-                Destroy(go);
+                _selectedItem = new SelectedItem(go, td);
             }
             else
             {
@@ -242,23 +310,17 @@ public partial class EditGM
                 VictoryData vd;
                 if (IsMappedCheckpoint(go, out cd))
                 {
-                    _selectedItem = new SelectedItem(null, cd);
-                    setTool(EditCreatorTool.Checkpoint);
+                    _selectedItem = new SelectedItem(go, cd);
                 }
                 if (IsMappedWarp(go, out wd))
                 {
-                    _selectedItem = new SelectedItem(null, wd);
-                    setTool(EditCreatorTool.Warp);
+                    _selectedItem = new SelectedItem(go, wd);
                 }
                 if (IsMappedVictory(go, out vd))
                 {
-                    _selectedItem = new SelectedItem(null, vd);
-                    setTool(EditCreatorTool.Victory);
+                    _selectedItem = new SelectedItem(go, vd);
                 }
-                removeSpecial(go);
-                Destroy(go);
             }
-            _currentCreatorToolGameObject.SetActive(true);
         }
     }
 
@@ -369,7 +431,7 @@ public partial class EditGM
     }
 
     // handles input relating to the current tool
-    private void updateTool()
+    private void UpdateTool()
     {
         bool isMainClick = CheckInputDown(InputKeys.ClickMain);
         switch (_currentCreatorTool)
