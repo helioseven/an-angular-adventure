@@ -1,10 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class PlayGM
 {
@@ -93,7 +89,7 @@ public partial class PlayGM
         }
 
         // update opacity and physics for all checkpoints
-        foreach (Transform checkpoint in chkpntMap.transform)
+        foreach (Transform checkpoint in checkpointMap.transform)
         {
             int layerNumber = checkpoint.gameObject.GetComponent<Checkpoint>().data.layer;
             int distance = Math.Abs(layerNumber - activeLayer);
@@ -133,8 +129,8 @@ public partial class PlayGM
                 prefab_refs[tileType.GetSiblingIndex(), tile.GetSiblingIndex()] = tile.gameObject;
         }
 
-        // create level layers (hard-coded amount for now)
-        for (int i = 0; i < DEFAULT_NUM_LAYERS; i++)
+        // create default number of level layers
+        for (int i = 0; i < Constants.DEFAULT_NUM_LAYERS; i++)
         {
             GameObject tileLayer = new GameObject();
             tileLayer.name = "Layer #" + i;
@@ -164,6 +160,8 @@ public partial class PlayGM
 
             // Lose door icon if non doorId tile
             Transform icon = go.transform.GetChild(0).GetChild(0);
+
+            // TODO: 0 should represent "not a door" (right now it doesn't - update in Tile_Green.cs)
             if (td.doorId == 0)
                 icon.gameObject.SetActive(false);
             else
@@ -171,7 +169,7 @@ public partial class PlayGM
         }
 
         // populate checkpoint map
-        foreach (ChkpntData cd in inLevel.chkpntSet)
+        foreach (CheckpointData cd in inLevel.chkpntSet)
         {
             Vector3 v3 = cd.locus.ToUnitySpace();
             v3.z = tileMap.transform.GetChild(cd.layer).position.z;
@@ -184,7 +182,7 @@ public partial class PlayGM
             }
 
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[cd.layer]);
-            go.transform.SetParent(chkpntMap.transform);
+            go.transform.SetParent(checkpointMap.transform);
         }
 
         // populate victory map
@@ -202,12 +200,13 @@ public partial class PlayGM
         }
 
         // get starting checkpoing to set warp data physics layer
-        ChkpntData start = inLevel.chkpntSet[0];
+        CheckpointData start = inLevel.chkpntSet[0];
 
         // populate warp map
         foreach (WarpData wd in inLevel.warpSet)
         {
             Vector3 v3 = wd.locus.ToUnitySpace();
+            v3.z = tileMap.transform.GetChild(wd.layer).position.z;
             GameObject go = Instantiate(warpRef, v3, Quaternion.identity) as GameObject;
             int baseLayer = wd.layer;
             int targetLayer = wd.targetLayer;

@@ -33,7 +33,8 @@ public class LevelInfoControl : MonoBehaviour
 
     private int _activeLayer;
     private HexLocus _anchorLocus;
-    private int _layerCount;
+
+    // private int _layerCount;
     private int _layerTiles;
     private string _levelName;
     private int _levelTiles;
@@ -42,7 +43,7 @@ public class LevelInfoControl : MonoBehaviour
     {
         _levelName = "";
         _activeLayer = 0;
-        _layerCount = 1;
+        // _layerCount = Constants.DEFAULT_NUM_LAYERS;
         _layerTiles = 0;
         _levelTiles = 0;
         _anchorLocus = new HexLocus();
@@ -78,9 +79,9 @@ public class LevelInfoControl : MonoBehaviour
         _nameDisplay.text = _levelName;
 
         _currentLayerDisplay.text = (_activeLayer + 1).ToString();
-        _totalLayersDisplay.text = _layerCount.ToString();
-        _layerTilesDisplay.text = _layerTiles.ToString();
-        _totalTilesDisplay.text = _levelTiles.ToString();
+        // _totalLayersDisplay.text = _layerCount.ToString();
+        // _layerTilesDisplay.text = _layerTiles.ToString();
+        // _totalTilesDisplay.text = _levelTiles.ToString();
         _anchorDisplay.text = _anchorLocus.PrettyPrint();
     }
 
@@ -102,11 +103,6 @@ public class LevelInfoControl : MonoBehaviour
         if (_activeLayer != al)
         {
             _activeLayer = al;
-            b = true;
-        }
-        if (_layerCount != _tmRef.childCount)
-        {
-            _layerCount = _tmRef.childCount;
             b = true;
         }
         if (_layerTiles != _tmRef.GetChild(al).childCount)

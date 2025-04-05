@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +5,6 @@ using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public partial class EditGM
 {
@@ -17,16 +14,16 @@ public partial class EditGM
     // particularly when switching modes and/or tools
     public struct SelectedItem
     {
-        public ChkpntData? chkpntData;
         public GameObject instance;
         public TileData? tileData;
+        public CheckpointData? checkpointData;
         public WarpData? warpData;
         public VictoryData? victoryData;
 
         public SelectedItem(TileData inTile)
             : this(null, inTile) { }
 
-        public SelectedItem(ChkpntData inChkpnt)
+        public SelectedItem(CheckpointData inChkpnt)
             : this(null, inChkpnt) { }
 
         public SelectedItem(WarpData inWarp)
@@ -39,16 +36,16 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = inTile;
-            chkpntData = null;
+            checkpointData = null;
             warpData = null;
             victoryData = null;
         }
 
-        public SelectedItem(GameObject inInstance, ChkpntData inChkpnt)
+        public SelectedItem(GameObject inInstance, CheckpointData inChkpnt)
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = inChkpnt;
+            checkpointData = inChkpnt;
             warpData = null;
             victoryData = null;
         }
@@ -57,7 +54,7 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = null;
+            checkpointData = null;
             warpData = inWarp;
             victoryData = null;
         }
@@ -66,24 +63,18 @@ public partial class EditGM
         {
             instance = inInstance;
             tileData = null;
-            chkpntData = null;
+            checkpointData = null;
             warpData = null;
             victoryData = inVictory;
         }
 
         public static bool operator ==(SelectedItem si1, SelectedItem si2)
         {
-            if (si1.instance != si2.instance)
-                return false;
-            if (si1.tileData != si2.tileData)
-                return false;
-            if (si1.chkpntData != si2.chkpntData)
-                return false;
-            if (si1.warpData != si2.warpData)
-                return false;
-            if (si1.victoryData != si2.victoryData)
-                return false;
-            return true;
+            return si1.instance == si2.instance
+                && si1.tileData == si2.tileData
+                && si1.checkpointData == si2.checkpointData
+                && si1.warpData == si2.warpData
+                && si1.victoryData == si2.victoryData;
         }
 
         public static SelectedItem noSelection = new SelectedItem();
@@ -118,32 +109,29 @@ public partial class EditGM
         addLayers(tileMap.transform.childCount);
     }
 
-    // switches into createMode
+    // switches into isEditorInCreateMode
     public void EnterCreate()
     {
-        // if already in createMode, simply escape
-        if (createMode)
+        _suppressClickThisFrame = true;
+        // if already in isEditorInCreateMode, simply escape
+        if (isEditorInCreateMode)
             return;
 
         if (_selectedItem != SelectedItem.noSelection)
         {
-            // if exiting editMode, add _selectedItem back to the level
-            if (editMode)
-                addSelectedItem();
-
             if (_selectedItem.tileData.HasValue)
             {
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
-                setTool(EditTools.Tile);
+                setTool(EditCreatorTool.Tile);
             }
-            // set tool to chkpnt or warp tool as appropriate
-            if (_selectedItem.chkpntData.HasValue)
-                setTool(EditTools.Chkpnt);
+            // set tool to checkpoint or warp tool as appropriate
+            if (_selectedItem.checkpointData.HasValue)
+                setTool(EditCreatorTool.Checkpoint);
             if (_selectedItem.warpData.HasValue)
-                setTool(EditTools.Warp);
+                setTool(EditCreatorTool.Warp);
             if (_selectedItem.victoryData.HasValue)
-                setTool(EditTools.Victory);
+                setTool(EditCreatorTool.Victory);
 
             // null out SelectedItem's instance to instead refer to creation tool
             _selectedItem.instance = null;
@@ -153,52 +141,24 @@ public partial class EditGM
             // if no _selectedItem, default to tile tool
             TileData td = tileCreator.GetTileData();
             _selectedItem = new SelectedItem(td);
-            setTool(EditTools.Tile);
+            setTool(EditCreatorTool.Tile);
         }
 
-        _currentMode = EditorMode.Create;
+        _currentEditorMode = EditorMode.Create;
     }
 
-    // switches into editMode
+    // switches into Edit Mode
     public void EnterEdit()
     {
-        // if already in editMode, simply escape
-        if (editMode)
+        // if already in Edit Mode, simply escape
+        if (isEditorInEditMode)
             return;
 
-        if (_selectedItem != SelectedItem.noSelection)
-        {
-            if (_selectedItem.instance)
-            {
-                // if an object is selected, destroy it and activate relevant tool
-                removeSelectedItem();
-                Destroy(_selectedItem.instance);
-                _selectedItem.instance = null;
-            }
-            else
-            {
-                // otherwise, simply unselect _selectedItem
-                _selectedItem = SelectedItem.noSelection;
-            }
-            if (_selectedItem.victoryData.HasValue)
-                setTool(EditTools.Victory);
-            if (_selectedItem.chkpntData.HasValue)
-                setTool(EditTools.Chkpnt);
-            if (_selectedItem.warpData.HasValue)
-                setTool(EditTools.Warp);
+        // no selected item at first
+        _selectedItem = SelectedItem.noSelection;
 
-            // regardless of item selected, unselect it
-            removeSelectedItem();
-            Destroy(_selectedItem.instance);
-            _selectedItem.instance = null;
-        }
-        else
-        {
-            // if no _selectedItem, default to tile tool
-            setTool(EditTools.Tile);
-        }
-
-        _currentMode = EditorMode.Edit;
+        // update editor mode to Edit Mode
+        _currentEditorMode = EditorMode.Edit;
     }
 
     // switches into paintMode
@@ -213,17 +173,17 @@ public partial class EditGM
             if (_selectedItem.tileData.HasValue)
                 // if _selectedItem is a tile, use its tileData to set tile tool
                 tileCreator.SetProperties(_selectedItem.tileData.Value);
-            if (editMode)
-                // if in editMode, add _selectedItem back to the level
+            if (isEditorInEditMode)
+                // if in isEditorInEditMode, add _selectedItem back to the level
                 addSelectedItem();
             else
-                // if not in editMode, unselect _selectedItem
+                // if not in isEditorInEditMode, unselect _selectedItem
                 _selectedItem = SelectedItem.noSelection;
         }
 
         // always enter paintMode with tile tool enabled
-        setTool(EditTools.Tile);
-        _currentMode = EditorMode.Paint;
+        setTool(EditCreatorTool.Tile);
+        _currentEditorMode = EditorMode.Paint;
     }
 
     // switches into selectMode
@@ -233,16 +193,16 @@ public partial class EditGM
         if (selectMode)
             return;
 
-        if (editMode && _selectedItem != SelectedItem.noSelection)
-            // if in editMode while an object is selected, place the object
+        if (isEditorInEditMode && _selectedItem != SelectedItem.noSelection)
+            // if in isEditorInEditMode while an object is selected, place the object
             addSelectedItem();
         if (!_selectedItem.instance)
             // if no object is selected, unselect _selectedItem
             _selectedItem = SelectedItem.noSelection;
 
-        // _currentTool should always be disabled in selectMode
-        _currentTool.SetActive(false);
-        _currentMode = EditorMode.Select;
+        // _currentCreatorToolGameObject should always be disabled in selectMode
+        _currentCreatorToolGameObject.SetActive(false);
+        _currentEditorMode = EditorMode.Select;
     }
 
     // moves focus down to the next layer

@@ -15,7 +15,7 @@ public partial class PlayGM : MonoBehaviour
     public Boundary boundaryRight;
     public Boundary boundaryUp;
     public GameObject chkpntRef;
-    public GameObject chkpntMap;
+    public GameObject checkpointMap;
     public GameObject deathParticles;
     public Player_Controller player;
     public SoundManager soundManager;
@@ -33,7 +33,7 @@ public partial class PlayGM : MonoBehaviour
     // public read-accessibility state variables
     public GameObject activeCheckpoint { get; private set; }
 
-    public ChkpntData activeCheckpointData { get; private set; }
+    public CheckpointData activeCheckpointData { get; private set; }
     public int activeLayer { get; private set; }
     public GravityDirection gravDirection
     {
@@ -48,7 +48,6 @@ public partial class PlayGM : MonoBehaviour
 
     // private constants
     private const int DEFAULT_LAYER = 0;
-    private const int DEFAULT_NUM_LAYERS = 10;
     private const int INACTIVE_LAYER = 9;
     public static readonly string[] INT_TO_NAME =
     {
@@ -122,7 +121,7 @@ public partial class PlayGM : MonoBehaviour
             b.SetBoundary();
 
         // set first checkpoint
-        GameObject checkpoint = chkpntMap.transform.GetChild(0).gameObject;
+        GameObject checkpoint = checkpointMap.transform.GetChild(0).gameObject;
         SetCheckpoint(checkpoint);
         SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
 
@@ -144,6 +143,17 @@ public partial class PlayGM : MonoBehaviour
     {
         // escape key bails to MainMenu, for now
         if (Input.GetKeyDown(KeyCode.Escape))
-            SceneManager.LoadScene(0);
+        {
+            if (playModeContext == PlayModeContext.FromEditor)
+            {
+                var loaderGO = Instantiate(editLoader);
+                var loader = loaderGO.GetComponent<EditLoader>();
+                loader.levelInfo = levelInfo;
+            }
+            else
+            {
+                SceneManager.LoadScene("MainMenu");
+            }
+        }
     }
 }
