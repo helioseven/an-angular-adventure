@@ -81,11 +81,11 @@ public class ObjectInfoControl : MonoBehaviour
         _rotationDisplay = t.GetChild(5).GetComponent<TMP_Text>();
         _locusDisplay = t.GetChild(7).GetComponent<TMP_Text>();
 
-        t = transform.GetChild(2);
+        t = transform.GetChild(3);
         _specialLabel = t.GetChild(0).GetComponent<TMP_Text>();
         _specialDisplay = t.GetChild(1).GetComponent<TMP_Text>();
 
-        t = transform.GetChild(3);
+        t = transform.GetChild(2);
         _doorIdLabel = t.GetChild(0).GetComponent<TMP_Text>();
         _doorIdDisplay = t.GetChild(1).GetComponent<TMP_Text>();
     }
