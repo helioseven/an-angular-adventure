@@ -228,7 +228,7 @@ public partial class EditGM
     private void buildLevel(LevelData inLevel)
     {
         // first, prefab references are arrayed for indexed access
-        GameObject[,] prefab_refs = new GameObject[6, 8];
+        GameObject[,] prefab_refs = new GameObject[Constants.NUM_SHAPES, Constants.NUM_COLORS];
         foreach (Transform tileGroup in tileCreator.transform)
         {
             foreach (Transform tile in tileGroup)

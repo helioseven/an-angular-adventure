@@ -47,7 +47,6 @@ public class SaveDialogControl : MonoBehaviour
         string path = Path.Combine(LevelStorage.LevelsFolder, $"{name}.json");
 
         string levelNameIncremented = GetIncrementedName(name);
-        Debug.Log("levelNameIncremented: " + levelNameIncremented);
 
         // if there's no overwite, save the file outright
         if (!File.Exists(path))
@@ -63,11 +62,7 @@ public class SaveDialogControl : MonoBehaviour
                 levelNameIncremented,
                 onCancel: () => invokeDialog(),
                 onOverwrite: () => ForceSaveLocalLevel(name),
-                onIncrement: () =>
-                {
-                    Debug.Log("inside: " + levelNameIncremented);
-                    ForceSaveLocalLevel(levelNameIncremented);
-                }
+                onIncrement: () => ForceSaveLocalLevel(levelNameIncremented)
             );
 
             // close the save dialog
@@ -78,7 +73,6 @@ public class SaveDialogControl : MonoBehaviour
     // Saves the level locally with no safeguards
     public void ForceSaveLocalLevel(string name)
     {
-        Debug.Log("ForceSaveLocalLevel: " + name);
         EditGM.instance.SaveLevelLocal(name);
         EditGM.instance.levelName = name;
     }
@@ -89,12 +83,12 @@ public class SaveDialogControl : MonoBehaviour
         int i = 1;
         string newName = baseName;
         string path = Path.Combine(LevelStorage.LevelsFolder, $"{baseName}.json");
+
+        // increment i until the path doesn't exist anymore
         while (File.Exists(path))
         {
             newName = $"{baseName} ({i++})";
             path = Path.Combine(LevelStorage.LevelsFolder, $"{newName}.json");
-            Debug.Log("path: " + path);
-            Debug.Log("exists: " + File.Exists(path));
         }
 
         return newName;

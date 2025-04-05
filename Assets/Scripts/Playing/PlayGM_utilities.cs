@@ -122,7 +122,7 @@ public partial class PlayGM
     private void buildLevel(LevelData inLevel)
     {
         // prefab references to tiles are arrayed for easy access
-        GameObject[,] prefab_refs = new GameObject[6, 8];
+        GameObject[,] prefab_refs = new GameObject[Constants.NUM_SHAPES, Constants.NUM_COLORS];
         foreach (Transform tileType in tileCreator.transform)
         {
             foreach (Transform tile in tileType)
