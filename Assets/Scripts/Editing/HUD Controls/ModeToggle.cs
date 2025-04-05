@@ -72,9 +72,8 @@ public class ModeToggleUI : MonoBehaviour
         createModeButton.interactable = !isCreate;
         editModeButton.interactable = isCreate;
 
-        if (isCreate)
-            modeDescriptionText.text = isCreate
-                ? "Create Mode: Place new elements"
-                : "Edit Mode: Modify existing layout";
+        modeDescriptionText.text = isCreate
+            ? "Create Mode: Place new elements"
+            : "Edit Mode: Modify existing layout";
     }
 }
