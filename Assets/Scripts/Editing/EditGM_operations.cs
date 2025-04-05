@@ -243,8 +243,9 @@ public partial class EditGM
     }
 
     // Save to disk in json
-    public void SaveLevelLocal(string levelName)
+    public void SaveLevelLocal(string tessellationName)
     {
+        Debug.Log("tessellationName: " + tessellationName);
         string[] lines = levelData.Serialize();
         string levelsFolder = LevelStorage.LevelsFolder;
 
@@ -253,10 +254,10 @@ public partial class EditGM
             Directory.CreateDirectory(levelsFolder);
         }
 
-        SupabaseLevelDTO level = new SupabaseLevelDTO { name = levelName, data = lines };
+        SupabaseLevelDTO level = new SupabaseLevelDTO { name = tessellationName, data = lines };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
 
-        string path = Path.Combine(levelsFolder, $"{levelName}.json");
+        string path = Path.Combine(levelsFolder, $"{tessellationName}.json");
         path = path.Replace("\\", "/");
 
         Debug.Log($"[SAVE] Saving to: {path}");
