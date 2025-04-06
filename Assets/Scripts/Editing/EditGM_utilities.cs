@@ -228,7 +228,7 @@ public partial class EditGM
     private void buildLevel(LevelData inLevel)
     {
         // first, prefab references are arrayed for indexed access
-        GameObject[,] prefab_refs = new GameObject[6, 8];
+        GameObject[,] prefab_refs = new GameObject[Constants.NUM_SHAPES, Constants.NUM_COLORS];
         foreach (Transform tileGroup in tileCreator.transform)
         {
             foreach (Transform tile in tileGroup)
@@ -527,6 +527,16 @@ public partial class EditGM
     public float GetLayerDepth(int inLayer)
     {
         return tileMap.transform.GetChild(inLayer).position.z;
+    }
+
+    public static string CleanAutosaveName(string levelName)
+    {
+        const string suffix = " (autosave)";
+        if (levelName.EndsWith(suffix))
+        {
+            return levelName.Substring(0, levelName.Length - suffix.Length);
+        }
+        return levelName;
     }
 
     // returns first collider hit on active layer under click

@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -56,16 +55,13 @@ public class TileSelectControl : MonoBehaviour
     private void updateColor()
     {
         int newColor = _tcRef.tileColor;
-        foreach (Transform selector in transform)
+
+        for (int i = 0; i < Constants.NUM_SHAPES; i++)
         {
-            // gets the appropriate transform in the tileCreator hierarchy
-            Transform t = _tcRef
-                .transform.GetChild(selector.GetSiblingIndex())
-                .GetChild(newColor)
-                .GetChild(0);
-            // gets the sprite from that that transform
+            Transform selector = transform.GetChild(i);
+            Transform t = _tcRef.transform.GetChild(i).GetChild(newColor).GetChild(0);
+
             Sprite newSprite = t.GetComponent<SpriteRenderer>().sprite;
-            // assigns that sprite to the appropriate selector
             selector.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite;
         }
     }

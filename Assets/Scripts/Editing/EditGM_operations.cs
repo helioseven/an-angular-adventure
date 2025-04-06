@@ -243,8 +243,9 @@ public partial class EditGM
     }
 
     // Save to disk in json
-    public void SaveFile(string levelName)
+    public void SaveLevelLocal(string tessellationName)
     {
+        Debug.Log("tessellationName: " + tessellationName);
         string[] lines = levelData.Serialize();
         string levelsFolder = LevelStorage.LevelsFolder;
 
@@ -253,10 +254,10 @@ public partial class EditGM
             Directory.CreateDirectory(levelsFolder);
         }
 
-        SupabaseLevelDTO level = new SupabaseLevelDTO { name = levelName, data = lines };
+        SupabaseLevelDTO level = new SupabaseLevelDTO { name = tessellationName, data = lines };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
 
-        string path = Path.Combine(levelsFolder, $"{levelName}.json");
+        string path = Path.Combine(levelsFolder, $"{tessellationName}.json");
         path = path.Replace("\\", "/");
 
         Debug.Log($"[SAVE] Saving to: {path}");
@@ -265,15 +266,19 @@ public partial class EditGM
 
     public void TestLevel()
     {
-        // first save a copy to disk
-        SaveFile(levelName);
+        string autosaveName = $"{levelName} (autosave)";
+        SaveLevelLocal(autosaveName);
+        StartPlaytest(autosaveName);
+    }
 
+    private void StartPlaytest(string autosaveName)
+    {
         // start the play scene and set the levelName to current levelName
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
 
         // overwrite the levelname with most recent
-        levelInfo.name = levelName;
+        levelInfo.name = autosaveName;
         // even if this level was loaded from supabase, its all local from here baby
         levelInfo.isLocal = true;
         // set the level info in the loader (this is the passoff)

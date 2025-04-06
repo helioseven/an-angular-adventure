@@ -61,17 +61,22 @@ public class LevelCompletePanel : MonoBehaviour
         switch (playModeContext)
         {
             case PlayModeContext.FromEditor:
-                var loaderGO = Instantiate(PlayGM.instance.editLoader);
-                var loader = loaderGO.GetComponent<EditLoader>();
-                loader.levelInfo = PlayGM.instance.levelInfo;
-                loader.levelInfo.isLocal = true;
-                SceneManager.LoadScene("Editing");
+                LoadEditing();
                 break;
             case PlayModeContext.FromBrowser:
             case PlayModeContext.FromMainMenuPlayButton:
                 SceneManager.LoadScene("MainMenu");
                 break;
         }
+    }
+
+    private void LoadEditing()
+    {
+        var loaderGO = Instantiate(PlayGM.instance.editLoader);
+        var loader = loaderGO.GetComponent<EditLoader>();
+        loader.levelInfo = PlayGM.instance.levelInfo;
+        loader.levelInfo.isLocal = true;
+        SceneManager.LoadScene("Editing");
     }
 
     void Update()
