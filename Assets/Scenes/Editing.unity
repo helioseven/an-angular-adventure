@@ -845,7 +845,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b12b88da0681a2a1ab2d4e42b1f6f9fd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 708206c9c87a840c29e015f6044456d4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -3635,7 +3635,7 @@ Canvas:
   m_GameObject: {fileID: 313801216}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 1757285508}
   m_PlaneDistance: 0.5
   m_PixelPerfect: 0
@@ -4937,7 +4937,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ff6fb1e4b9a69c8479fdc1089e8dbc10, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c1bcfda28156042b7b72e269d7781f80, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -16285,7 +16285,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ff6fb1e4b9a69c8479fdc1089e8dbc10, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c1bcfda28156042b7b72e269d7781f80, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -17526,7 +17526,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c445ee617c1852c468c4c773852f2bfd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 789ace39b3f64445fa9c1ee1a513fa39, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -18296,6 +18296,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 357c1f7ec2f37d5468623b9778c0a8cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dragSpeed: 500
+  zoomSpeed: 10
+  minZ: -20
+  maxZ: -5
 --- !u!1 &1762229581
 GameObject:
   m_ObjectHideFlags: 0
@@ -18509,12 +18513,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: c445ee617c1852c468c4c773852f2bfd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 789ace39b3f64445fa9c1ee1a513fa39, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 6, y: 6}
+  m_Size: {x: 1.28, y: 1.28}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -21836,6 +21840,27 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615647473712588039, guid: 25125b2fe552f4480881f8bae1522f9a,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 2.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615647473712588039, guid: 25125b2fe552f4480881f8bae1522f9a,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 2.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 6615647473712588039, guid: 25125b2fe552f4480881f8bae1522f9a,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 708206c9c87a840c29e015f6044456d4,
+        type: 3}
+    - target: {fileID: 6615647473712588039, guid: 25125b2fe552f4480881f8bae1522f9a,
+        type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
