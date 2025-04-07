@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c1bcfda28156042b7b72e269d7781f80
+guid: 4c4272eadea774bce9b7c1c1447409a7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8797647932012791624
-    second: Arrow_Handdrawn_v7_0
+      213: -3172359444441199082
+    second: Locked_In_Handdrawn_v3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Arrow_Handdrawn_v7_0
+      name: Locked_In_Handdrawn_v3_0
       rect:
         serializedVersion: 2
-        x: 29
-        y: 84
-        width: 461
-        height: 364
+        x: 85
+        y: 92
+        width: 359
+        height: 344
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8478296ae26871a70800000000000000
-      internalID: 8797647932012791624
+      spriteID: 61e0a36a4e389f3d0800000000000000
+      internalID: -3172359444441199082
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Arrow_Handdrawn_v7_0: 8797647932012791624
+      Locked_In_Handdrawn_v3_0: -3172359444441199082
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
