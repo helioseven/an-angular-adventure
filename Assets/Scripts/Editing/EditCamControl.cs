@@ -5,14 +5,15 @@ public class EditCamControl : MonoBehaviour
 {
     public float dragSpeed = 500f;
     public float zoomSpeed = 10f;
-    public float minZ = -20f;
-    public float maxZ = -5f;
+    public float minZoomAmount = -25f;
+    public float maxZoomAmount = 5f;
 
     // private variables
     private InputKeys _camInputs;
     private InputKeys _keyMask;
     private EditGM _gmRef;
     private Vector3 dragOrigin;
+    private float zoomAmount = 0;
 
     void Start()
     {
@@ -86,9 +87,13 @@ public class EditCamControl : MonoBehaviour
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            Vector3 pos = Camera.main.transform.position;
-            pos.z = Mathf.Clamp(pos.z + scroll * zoomSpeed, minZ, maxZ);
-            Camera.main.transform.position = pos;
+            zoomAmount = Mathf.Clamp(zoomAmount + scroll * zoomSpeed, minZoomAmount, maxZoomAmount);
         }
+
+        // Set the camera back and use the zoom amount
+        Vector3 finalCameraPosition = transform.position;
+        //  get active layer depth and set temp position back 8 units from it
+        finalCameraPosition.z = _gmRef.GetLayerDepth() - 8f + zoomAmount;
+        transform.position = finalCameraPosition;
     }
 }
