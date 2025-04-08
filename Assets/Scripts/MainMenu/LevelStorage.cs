@@ -5,12 +5,11 @@ using UnityEngine;
 
 public static class LevelStorage
 {
-    public static string LevelsFolder =>
-        Path.Combine(Application.persistentDataPath, "levels").Replace("\\", "/");
+    public static string LevelsFolder => Path.Combine(Application.persistentDataPath, "levels");
 
     public static List<LevelInfo> LoadLocalLevelMetadata()
     {
-        Debug.Log(LevelsFolder);
+        // Debug.Log(LevelsFolder);
 
         var levelInfos = new List<LevelInfo>();
 
@@ -45,6 +44,12 @@ public static class LevelStorage
 
     public static void DeleteLevel(string name)
     {
+        // first, check to see whether the folder exists.  If it doesn't even exist, return early
+        if (!Directory.Exists(LevelsFolder))
+        {
+            return;
+        }
+
         string path = Path.Combine(LevelsFolder, $"{name}.json");
         if (File.Exists(path))
         {

@@ -258,7 +258,6 @@ public partial class EditGM
         string json = JsonUtility.ToJson(level, true); // true = pretty print
 
         string path = Path.Combine(levelsFolder, $"{tessellationName}.json");
-        path = path.Replace("\\", "/");
 
         Debug.Log($"[SAVE] Saving to: {path}");
         File.WriteAllText(path, json);

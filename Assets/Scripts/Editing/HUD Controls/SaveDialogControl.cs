@@ -43,7 +43,12 @@ public class SaveDialogControl : MonoBehaviour
     public void confirmSave()
     {
         string name = _inputField.text;
-        // first, check to see whether the file exists
+
+        // first, check to see whether the folder exists
+        if (!Directory.Exists(LevelStorage.LevelsFolder))
+            Directory.CreateDirectory(LevelStorage.LevelsFolder);
+
+        // then, check to see whether the file exists
         string path = Path.Combine(LevelStorage.LevelsFolder, $"{name}.json");
 
         string levelNameIncremented = GetIncrementedName(name);

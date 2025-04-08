@@ -238,8 +238,9 @@ public class Player_Controller : MonoBehaviour
         // toggle God Mode on G key press
         if (Input.GetKeyDown(KeyCode.G))
         {
-            _gmRef.soundManager.Play("gravity");
-            _godMode = !_godMode;
+            // God Mode toggle turned off for playtesters
+            // _gmRef.soundManager.Play("gravity");
+            // _godMode = !_godMode;
         }
     }
 

@@ -77,9 +77,11 @@ public class EditLoader : MonoBehaviour
             return;
         }
 
+        // first, check to see whether the folder exists
+        if (!Directory.Exists(LevelStorage.LevelsFolder))
+            Directory.CreateDirectory(LevelStorage.LevelsFolder);
         // set the path
-        string levelsFolder = LevelStorage.LevelsFolder;
-        path = Path.Combine(levelsFolder, $"{levelName}.json");
+        path = Path.Combine(LevelStorage.LevelsFolder, $"{levelName}.json");
 
         if (loadFromSupabase)
         {
@@ -89,7 +91,7 @@ public class EditLoader : MonoBehaviour
         }
         else
         {
-            // first, check to see whether the file exists
+            // then, check to see whether the file exists
             bool file_exists = File.Exists(path);
 
             if (file_exists)
