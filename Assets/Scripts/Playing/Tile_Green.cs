@@ -1,9 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using circleXsquares;
 using UnityEngine;
 
 public class Tile_Green : Tile
@@ -52,6 +49,8 @@ public class Tile_Green : Tile
         {
             if (!hasUnlocked)
             {
+                SoundManager.instance.Play("key");
+
                 // update the state of the tile to note that is has been unlocked
                 hasUnlocked = true;
 
@@ -71,6 +70,7 @@ public class Tile_Green : Tile
     private void openDoor(Tile doorTile)
     {
         // TODO: flash locked tile before disappearing
+        SoundManager.instance.Play("door");
         doorTile.gameObject.SetActive(false);
     }
 

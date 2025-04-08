@@ -43,15 +43,18 @@ public class JumpProximityZone : MonoBehaviour
                 .GetComponentInParent<Player_Controller>()
                 .recentlyTouchedPurpleTiles.Remove(other);
 
-            if (
-                gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch
-                == true
-            )
-            {
-                Debug.Log("[JumpProximityZone] [OnTriggerExit2D] CANCELLING---superjump---");
-            }
-            gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch =
-                false;
+            // This logs when we decide to cancel superjump
+            //   (when we enter the expetent purple incoming state but the purple never comes before leaving the area of the player purple collider)
+            // if (
+            //     gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch
+            //     == true
+            // )
+            // {
+            //     Debug.Log("[JumpProximityZone] [OnTriggerExit2D] CANCELLING---superjump---");
+            // }
+            gameObject
+                .GetComponentInParent<Player_Controller>()
+                .queueSuperJumpOnPurpleTouch = false;
         }
     }
 }

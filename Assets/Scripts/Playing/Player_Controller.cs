@@ -75,7 +75,8 @@ public class Player_Controller : MonoBehaviour
             recentlyTouchedPurpleTiles.Add(other.collider);
             if (queueSuperJumpOnPurpleTouch)
             {
-                Debug.Log("SUPERJUMP");
+                // Debug.Log("SUPERJUMP");
+                _gmRef.soundManager.Play("superJump");
                 queueSuperJumpOnPurpleTouch = false;
                 _jumpNow = true;
             }
@@ -207,7 +208,7 @@ public class Player_Controller : MonoBehaviour
             && Input.GetKeyDown(KeyCode.Space)
         )
         {
-            Debug.Log("queueSuperJumpOnTouch");
+            // Debug.Log("queueSuperJumpOnTouch");
             queueSuperJumpOnPurpleTouch = true;
         }
 
