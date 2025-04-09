@@ -71,17 +71,7 @@ public class MenuGM : MonoBehaviour
     private void StartPlay()
     {
         // start the play scene and set the levelName to default
-        var loaderGO = Instantiate(playLoader);
-        var loader = loaderGO.GetComponent<PlayLoader>();
-
-        // use dummy default level info to load us into the default level
-        loader.levelInfo = new LevelInfo
-        {
-            id = "",
-            name = "default",
-            isLocal = true,
-            created_at = DateTime.MinValue,
-        };
+        Instantiate(playLoader);
     }
 
     private void StartEdit()

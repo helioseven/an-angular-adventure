@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -40,19 +41,145 @@ public class PlayLoader : MonoBehaviour
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
         loadFromSupabase = !levelInfo.isLocal;
 
+        // this loader stays awake when next scene is loaded
+        DontDestroyOnLoad(gameObject);
+
+        if (string.IsNullOrEmpty(levelName))
+        {
+            Debug.Log(
+                "[PlayLoader] No level Name set! - Will load defaultPlayTesselationFromMainMenu"
+            );
+
+            string[] defaultPlayTesselationFromMainMenu = new string[]
+            {
+                "-- level comments goes here --",
+                "-- player start info goes here --",
+                " ",
+                "-- Tiles --",
+                "5 3 222 -2 0 0 0 0 2 11 0 0",
+                "1 4 3 2 2 0 0 0 -2 7 0 0",
+                "1 4 0 2 4 0 -2 0 0 7 0 0",
+                "2 6 0 2 2 0 -4 0 0 7 0 0",
+                "4 1 0 4 2 0 -4 0 0 6 0 0",
+                "4 1 0 4 2 0 -4 0 0 9 0 0",
+                "0 1 0 2 4 0 -2 0 0 0 0 0",
+                "5 1 0 2 2 0 -2 0 0 1 0 0",
+                "2 0 0 6 2 0 -8 0 0 5 0 0",
+                "5 0 0 8 2 0 -8 0 0 5 0 0",
+                "0 0 0 -2 0 0 0 0 0 7 0 0",
+                "4 2 0 -2 0 2 0 0 0 7 0 0",
+                "4 6 0 0 0 0 -2 0 2 6 0 0",
+                "0 6 0 0 0 0 -2 0 4 6 0 0",
+                "0 6 0 2 0 0 -2 0 4 10 0 0",
+                "1 2 0 2 0 -2 -2 0 4 0 0 0",
+                "4 3 444 4 0 -2 -4 0 4 2 0 0",
+                "5 0 0 -2 0 0 0 0 2 11 1 0",
+                "4 0 0 -2 0 0 0 0 0 9 1 0",
+                "1 4 1 4 0 -2 -4 0 4 0 0 0",
+                "3 2 0 6 0 -4 -4 0 4 0 0 0",
+                "4 1 0 10 0 0 -4 0 4 10 0 0",
+                "1 1 0 10 0 0 -6 0 2 10 0 0",
+                "0 5 0 12 0 0 -6 0 2 10 0 0",
+                "5 5 0 14 0 0 -8 0 0 7 0 0",
+                "2 6 0 14 2 0 -4 0 0 9 0 0",
+                "2 0 0 4 0 -2 -4 0 4 0 1 0",
+                "2 5 0 2 0 0 -4 -2 4 10 1 0",
+                "4 6 0 8 0 -2 -4 0 6 0 1 0",
+                "3 5 0 0 0 -2 -4 0 4 0 1 0",
+                "3 1 0 0 0 -2 -2 2 4 0 0 0",
+                "4 6 0 6 0 -2 -4 0 4 9 1 0",
+                "5 6 0 0 0 0 -2 0 4 2 1 0",
+                "4 4 2 0 0 0 -2 0 4 11 1 0",
+                "4 5 0 0 0 0 -2 0 2 6 1 0",
+                "0 2 0 12 2 0 -4 -2 0 10 0 0",
+                "4 5 0 14 2 0 -4 -2 0 3 0 0",
+                "4 6 0 14 2 0 -6 0 0 2 0 0",
+                "5 0 0 -2 0 0 0 0 2 11 2 0",
+                "5 0 0 -2 0 0 0 0 2 11 3 0",
+                "1 0 0 -2 -2 0 0 0 2 11 2 0",
+                "5 5 0 -2 0 0 0 0 2 6 2 0",
+                "2 0 0 -4 0 0 2 0 0 9 2 0",
+                "1 6 0 -4 0 0 4 0 0 9 2 0",
+                "1 1 0 -2 0 0 -2 0 2 10 2 0",
+                "2 1 0 0 0 -2 -2 2 2 0 2 0",
+                "0 1 0 0 0 0 -2 2 2 10 2 0",
+                "0 1 0 2 0 -4 -2 0 2 2 2 0",
+                "1 1 0 2 0 -2 -2 0 2 0 2 0",
+                "3 0 0 2 0 -4 -2 0 2 0 3 0",
+                "2 0 0 4 0 0 -2 0 2 6 3 0",
+                "1 0 0 0 0 -2 -2 0 2 4 3 0",
+                "0 7 0 -2 0 4 0 0 -2 10 0 0",
+                "4 0 0 0 0 0 -4 -2 2 0 1 0",
+                "1 0 0 2 0 0 -4 -2 2 1 1 0",
+                "0 0 0 2 0 0 -6 -2 0 1 1 0",
+                "4 0 0 0 0 0 -4 -2 0 0 1 0",
+                "5 0 0 0 2 0 0 -2 0 11 1 0",
+                "2 4 0 2 2 0 0 -2 0 4 1 0",
+                "3 0 0 0 -2 0 6 0 0 0 0 0",
+                "3 0 222 2 0 0 0 0 0 9 0 222",
+                "1 0 444 2 4 0 -2 -2 0 10 0 444",
+                "4 0 0 -2 0 0 0 0 0 9 0 222",
+                "0 0 0 -2 -2 0 0 0 0 9 3 0",
+                "0 0 0 -2 -2 0 2 0 0 9 3 0",
+                "0 0 0 -2 -2 0 4 0 0 9 3 0",
+                "0 0 0 0 -2 2 4 0 0 6 3 0",
+                "0 0 0 0 -2 2 4 -2 0 6 3 0",
+                "0 0 0 0 -2 2 2 -2 0 3 3 0",
+                "0 0 0 0 -2 2 0 -2 0 3 3 0",
+                "0 0 0 0 0 2 0 -2 2 3 3 0",
+                "0 0 0 0 0 2 -2 -2 2 3 3 0",
+                "0 0 0 0 0 2 -4 -2 2 3 3 0",
+                "0 0 0 0 0 0 -4 -4 2 4 3 0",
+                "0 0 0 2 0 0 -4 -4 2 4 3 0",
+                "0 0 0 4 0 0 -4 -2 2 2 3 0",
+                "0 0 0 4 0 0 -4 -2 4 1 3 0",
+                "5 0 0 2 0 0 -4 -4 2 9 3 0",
+                "-- End Tiles --",
+                " ",
+                "-- Checkpoints --",
+                "-1 0 0 0 0 -2 0",
+                "10 0 0 0 0 0 0",
+                "0 0 1 0 -1 0 1",
+                "-- End Checkpoints --",
+                " ",
+                "-- Victories --",
+                "-4 1 0 0 0 -1 3",
+                "-- End Victories --",
+                " ",
+                "-- Warps --",
+                "0 1 0 -11 0 0 0",
+                "-3 0 0 0 0 0 1",
+                "0 2 0 -6 0 0 2",
+                "-- End Warps --",
+            };
+
+            Debug.Log("defaultPlayTesselationFromMainMenu: " + defaultPlayTesselationFromMainMenu);
+            levelData = LevelLoader.LoadLevel(defaultPlayTesselationFromMainMenu);
+
+            // set level info to dummy default level info
+            levelInfo = new LevelInfo
+            {
+                id = "",
+                name = "defaultPlayTesselationFromMainMenu",
+                isLocal = true,
+                created_at = DateTime.MinValue,
+            };
+
+            levelReady = true;
+            return;
+        }
+
         if (string.IsNullOrEmpty(levelInfo.name))
         {
             Debug.LogError("[PlayLoader] No level Name in Level Info!");
             return;
         }
 
+        // first, check to see whether the folder exists
+        if (!Directory.Exists(LevelStorage.LevelsFolder))
+            Directory.CreateDirectory(LevelStorage.LevelsFolder);
         // set the path
-        string levelsFolder = LevelStorage.LevelsFolder;
-        path = Path.Combine(levelsFolder, $"{levelName}.json");
-        path = path.Replace("\\", "/");
-
-        // this loader stays awake when next scene is loaded
-        DontDestroyOnLoad(gameObject);
+        path = Path.Combine(LevelStorage.LevelsFolder, $"{levelName}.json");
 
         if (loadFromSupabase)
         {
@@ -78,7 +205,7 @@ public class PlayLoader : MonoBehaviour
             else
             {
                 // if file doesn't exist, empty level is created
-                Debug.LogError("File not found :(");
+                Debug.LogError("[PlayLoader] File not found :(");
             }
         }
     }
