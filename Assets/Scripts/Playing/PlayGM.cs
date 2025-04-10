@@ -97,9 +97,14 @@ public partial class PlayGM : MonoBehaviour
     void Start()
     {
         // load the level
-        Debug.Log("PlayGM Start levelid: " + levelLoader.levelName);
+        Debug.Log("[PlayGM] [Start()] levelLoader.levelName: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
         playModeContext = levelLoader.playModeContext;
+        if (playModeContext == PlayModeContext.FromEditor)
+        {
+            levelName = EditGM.CleanAutosaveName(levelName);
+            Debug.Log("[PlayGM] [Start()] Name Cleaned: " + levelName);
+        }
         levelInfo = levelLoader.levelInfo;
         levelData = levelLoader.supplyLevel();
         buildLevel(levelData);

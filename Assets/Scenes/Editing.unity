@@ -14415,7 +14415,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41
+  m_fontSize: 48.4
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -17035,7 +17035,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23.55
+  m_fontSize: 27.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -18298,8 +18298,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dragSpeed: 500
   zoomSpeed: 10
-  minZ: -20
-  maxZ: -5
+  minZoomAmount: -25
+  maxZoomAmount: 5
 --- !u!1 &1762229581
 GameObject:
   m_ObjectHideFlags: 0
@@ -21534,7 +21534,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "[Q] / [E] - Rotate Tessel\n    [W]\n [A][S][D]  - Move Screen\n  [Z]/[X]
-    - Cycle Color\n[F] / [R] - Layer Up / Down\n[       Space       ] - Toggle Display"
+    - Cycle Color\n[F] / [R] - Layer Up / Down\n[       Space       ] - Toggle Display\n[
+    Right Click] - Set Anchor"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -21562,7 +21563,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
+  m_fontSize: 21.15
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
