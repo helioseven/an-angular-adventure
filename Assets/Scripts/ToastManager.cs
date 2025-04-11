@@ -19,14 +19,11 @@ public class ToastManager : MonoBehaviour
         }
     }
 
-    public void ShowToast(string message)
+    public void ShowToast(string message, float duration = 2f)
     {
         GameObject toast = Instantiate(toastPrefab, transform);
         toast.GetComponentInChildren<TMP_Text>().text = message;
 
-        Animator animator = toast.GetComponentInChildren<Animator>();
-        float totalAnimTime = animator.GetCurrentAnimatorStateInfo(0).length;
-
-        Destroy(toast, totalAnimTime);
+        Destroy(toast, duration);
     }
 }
