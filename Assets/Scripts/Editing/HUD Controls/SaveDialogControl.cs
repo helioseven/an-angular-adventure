@@ -66,7 +66,7 @@ public class SaveDialogControl : MonoBehaviour
                 name,
                 levelNameIncremented,
                 onCancel: () => invokeDialog(),
-                onOverwrite: () => ForceSaveLocalLevel(name),
+                onOverwrite: () => ForceSaveLocalLevel(name, true),
                 onIncrement: () => ForceSaveLocalLevel(levelNameIncremented)
             );
 
@@ -76,10 +76,13 @@ public class SaveDialogControl : MonoBehaviour
     }
 
     // Saves the level locally with no safeguards
-    public void ForceSaveLocalLevel(string name)
+    public void ForceSaveLocalLevel(string name, bool updateName = false)
     {
         EditGM.instance.SaveLevelLocal(name);
-        EditGM.instance.levelName = name;
+
+        // Optional - set the level name to the (possibly) new-ish (overwritten) name
+        if (updateName)
+            EditGM.instance.levelName = name;
     }
 
     private string GetIncrementedName(string name)

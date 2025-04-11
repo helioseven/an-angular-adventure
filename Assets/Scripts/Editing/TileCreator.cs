@@ -38,8 +38,8 @@ public class TileCreator : MonoBehaviour
         tileDoorId = 0;
         tileOrient = new HexOrient(new HexLocus(), 0, 0);
 
-        int nTypes = transform.childCount;
-        int nColors = transform.GetChild(0).childCount;
+        int nTypes = Constants.NUM_SHAPES;
+        int nColors = Constants.NUM_COLORS;
         _tileRenderers = new SpriteRenderer[nTypes, nColors];
 
         for (int i = 0; i < nTypes; i++)

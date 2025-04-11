@@ -10,6 +10,7 @@ public class LevelCompletePanel : MonoBehaviour
 {
     public PlayLoader levelLoader = null;
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
+    public TMP_Text levelCompleteNameText;
     public GameObject playtestButtons;
     public GameObject standardButtons;
     private bool uploadComplete = false;
@@ -36,6 +37,9 @@ public class LevelCompletePanel : MonoBehaviour
                 standardButtons.SetActive(true);
                 break;
         }
+
+        // set level name
+        levelCompleteNameText.text = PlayGM.instance.levelName;
 
         gameObject.SetActive(true);
         StartCoroutine(EnableUIAfterFade());
@@ -128,13 +132,14 @@ public class LevelCompletePanel : MonoBehaviour
 
     public void PublishToSupabase()
     {
+        // get the data we need
         string[] lines = PlayGM.instance.levelData.Serialize();
+        string levelName = PlayGM.instance.levelName;
 
-        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO
-        {
-            name = PlayGM.instance.levelName,
-            data = lines,
-        };
+        // create the data transfer object to send up
+        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+
+        // Upload the level to supabase
         SupabaseController.Instance.StartCoroutine(
             SupabaseController.Instance.SaveLevel(levelDTO, SaveLevelCallback)
         );
