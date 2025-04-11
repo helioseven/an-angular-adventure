@@ -48,10 +48,15 @@ public class SupabaseController : MonoBehaviour
         {
             Debug.Log("Level saved to Supabase!");
             Debug.Log("Calling on success - request.ToString(): " + request.ToString());
+
+            ToastManager.Instance.ShowToast($"Uploaded {level.name}!");
+
             onSuccess(request.ToString());
         }
         else
         {
+            // TODO: error variant for toast
+            ToastManager.Instance.ShowToast($"Failed upload :(");
             Debug.LogError(
                 "Error saving level: " + request.error + "\n" + request.downloadHandler.text
             );

@@ -55,6 +55,7 @@ public class TileSelectControl : MonoBehaviour
     private void updateColor()
     {
         int newColor = _tcRef.tileColor;
+        _activeColor = newColor;
 
         for (int i = 0; i < Constants.NUM_SHAPES; i++)
         {

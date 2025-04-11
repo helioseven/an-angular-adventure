@@ -27,6 +27,7 @@ public partial class PlayGM : MonoBehaviour
     public GameObject warpMap;
     public EditLoader editLoader;
     public GameObject playtestWatermark;
+    public TMP_Text levelNameText;
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
     public LevelInfo levelInfo;
 
@@ -129,6 +130,9 @@ public partial class PlayGM : MonoBehaviour
         GameObject checkpoint = checkpointMap.transform.GetChild(0).gameObject;
         SetCheckpoint(checkpoint);
         SetCheckpointData(checkpoint.GetComponent<Checkpoint>().data);
+
+        // always show the name of the level
+        levelNameText.text = levelName;
 
         // if it's a playtest enable the watermark (default disabled)
         playtestWatermark.SetActive(false);

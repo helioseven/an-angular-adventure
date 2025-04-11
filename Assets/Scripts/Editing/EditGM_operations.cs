@@ -261,6 +261,8 @@ public partial class EditGM
 
         Debug.Log($"[SAVE] Saving to: {path}");
         File.WriteAllText(path, json);
+
+        ToastManager.Instance.ShowToast($"Saved {tessellationName}!");
     }
 
     public void TestLevel()

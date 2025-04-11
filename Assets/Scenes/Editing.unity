@@ -2241,6 +2241,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 172805043}
   m_CullTransparentMesh: 0
+--- !u!1001 &175631744
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1164
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 120.125
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7073053612544327856, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_Name
+      value: Toast Manager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d5eeb23a6add340acaccdcec5ffb0017, type: 3}
 --- !u!1 &181325386
 GameObject:
   m_ObjectHideFlags: 0
@@ -14415,7 +14483,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48.4
+  m_fontSize: 48.05
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -17035,7 +17103,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.25
+  m_fontSize: 27.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -21535,7 +21603,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "[Q] / [E] - Rotate Tessel\n    [W]\n [A][S][D]  - Move Screen\n  [Z]/[X]
     - Cycle Color\n[F] / [R] - Layer Up / Down\n[       Space       ] - Toggle Display\n[
-    Right Click] - Set Anchor"
+    Right Click ] - Set Anchor"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -21563,7 +21631,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.15
+  m_fontSize: 19.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -21964,3 +22032,4 @@ SceneRoots:
   - {fileID: 1383965840}
   - {fileID: 485511163}
   - {fileID: 1746927272}
+  - {fileID: 175631744}
