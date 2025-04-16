@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 3b9f7d864be8941fd88a97f3aba5874a
+guid: 58615751b542841cda1e32c98c70ea4b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 490874267270013696
-    second: Ball_Lost_Rainbow_TessleRun_512_v2_0
+      213: 3737829951686201028
+    second: Ball_Lost_Rainbow_TessleRun_512_v2_Transparent_filtered_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ball_Lost_Rainbow_TessleRun_512_v2_0
+      name: Ball_Lost_Rainbow_TessleRun_512_v2_Transparent_filtered_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 003620a9b8fefc600800000000000000
-      internalID: 490874267270013696
+      spriteID: 4ce421589807fd330800000000000000
+      internalID: 3737829951686201028
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ball_Lost_Rainbow_TessleRun_512_v2_0: 490874267270013696
+      Ball_Lost_Rainbow_TessleRun_512_v2_Transparent_filtered_0: 3737829951686201028
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

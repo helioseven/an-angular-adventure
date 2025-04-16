@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Ball_Orange_Hive_0: 7024762574065681456
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
