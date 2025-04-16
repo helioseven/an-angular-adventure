@@ -10,8 +10,10 @@ public class Player_Controller : MonoBehaviour
     public bool isIceScalingBlockingJump;
     public Collider2D purpleGroundCheckCollider;
     public bool queueSuperJumpOnPurpleTouch = false;
+    public BallSkinDatabase skinDB;
 
     // private references
+    private SpriteRenderer _spriteRenderer;
     private AudioSource _audioSource;
     private PlayGM _gmRef;
     private Collider2D _groundCheckCollider;
@@ -33,11 +35,14 @@ public class Player_Controller : MonoBehaviour
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = gameObject.GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
+        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void Start()
     {
         _gmRef = PlayGM.instance;
+        int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
+        _spriteRenderer.sprite = skinDB.skins[index];
     }
 
     void Update()
