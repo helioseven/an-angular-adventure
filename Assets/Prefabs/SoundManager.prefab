@@ -24,12 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9003061505592303762}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9003061505592303763
 MonoBehaviour:
@@ -43,58 +44,62 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db427ae629d2ee4f8bb0cfd4b2d48e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioMixer: {fileID: 0}
+  masterGroup: {fileID: 0}
+  musicGroup: {fileID: 0}
+  sfxGroup: {fileID: 0}
   sounds:
-  - name: main-theme
-    clip: {fileID: 8300000, guid: 7b614806cd6f28e44be074fe5dfde3d6, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: 7b614806cd6f28e44be074fe5dfde3d6, type: 3}
     loop: 1
-    source: {fileID: 0}
-  - name: bounce
-    clip: {fileID: 8300000, guid: 1fd06a4daf65912479fce27633680a2e, type: 3}
-    volume: 0.219
     pitch: 1
-    loop: 0
-    source: {fileID: 0}
-  - name: jump
-    clip: {fileID: 8300000, guid: 8f9dab9b70a260e4f8a44996f9e24e97, type: 3}
+    name: main-theme
     volume: 0.219
-    pitch: 1
-    loop: 0
     source: {fileID: 0}
-  - name: death
-    clip: {fileID: 8300000, guid: 4c529a0e57768c14085947337ec4adab, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: 1fd06a4daf65912479fce27633680a2e, type: 3}
     loop: 0
+    pitch: 1
+    name: bounce
+    volume: 0.219
     source: {fileID: 0}
-  - name: warp
-    clip: {fileID: 8300000, guid: cb3397a34f8d9da4c941718139a1f2a6, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: 8f9dab9b70a260e4f8a44996f9e24e97, type: 3}
     loop: 0
+    pitch: 1
+    name: jump
+    volume: 0.219
     source: {fileID: 0}
-  - name: checkpoint
-    clip: {fileID: 8300000, guid: f8690910750175b47b3438d4e01532a5, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: 4c529a0e57768c14085947337ec4adab, type: 3}
     loop: 0
+    pitch: 1
+    name: death
+    volume: 0.219
     source: {fileID: 0}
-  - name: gravity
-    clip: {fileID: 8300000, guid: b0bdf9cbcec53544f8bc611d43a45b91, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: cb3397a34f8d9da4c941718139a1f2a6, type: 3}
     loop: 0
+    pitch: 1
+    name: warp
+    volume: 0.219
     source: {fileID: 0}
-  - name: ice
-    clip: {fileID: 8300000, guid: cdfd196980451494db145a31ad70d0fc, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: f8690910750175b47b3438d4e01532a5, type: 3}
     loop: 0
+    pitch: 1
+    name: checkpoint
+    volume: 0.219
     source: {fileID: 0}
-  - name: victory
-    clip: {fileID: 8300000, guid: 54afb4fbb294d0e4f88ceaca32371322, type: 3}
-    volume: 0.219
-    pitch: 1
+  - clip: {fileID: 8300000, guid: b0bdf9cbcec53544f8bc611d43a45b91, type: 3}
     loop: 0
+    pitch: 1
+    name: gravity
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: cdfd196980451494db145a31ad70d0fc, type: 3}
+    loop: 0
+    pitch: 1
+    name: ice
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 47332e5ed93fa4efaa234412659baf6a, type: 3}
+    loop: 0
+    pitch: 1
+    name: victory
+    volume: 0.219
     source: {fileID: 0}

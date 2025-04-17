@@ -53,7 +53,7 @@ public partial class EditGM
         // then same as above for regular input flags
         k = 0;
         now = InputKeys.None;
-        for (int i = 1; i <= 0x400000; i = i * 2)
+        for (int i = 1; i <= 0x800000; i = i * 2)
             if (b[k++])
                 now = now | (InputKeys)i;
         getInputs = now;
@@ -442,7 +442,7 @@ public partial class EditGM
                 if (isMainClick)
                 {
                     // play random drawing sound
-                    int variant = UnityEngine.Random.Range(1, 10);
+                    int variant = UnityEngine.Random.Range(3, 10);
                     soundManager.Play($"drawing-{variant}");
 
                     GameObject go = addTile();
