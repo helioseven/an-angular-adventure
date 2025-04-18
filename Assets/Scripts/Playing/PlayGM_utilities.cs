@@ -161,7 +161,6 @@ public partial class PlayGM
             // Lose door icon if non doorId tile
             Transform icon = go.transform.GetChild(0).GetChild(0);
 
-            // TODO: 0 should represent "not a door" (right now it doesn't - update in Tile_Green.cs)
             if (td.doorId == 0)
                 icon.gameObject.SetActive(false);
             else
