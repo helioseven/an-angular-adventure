@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LevelBrowser : MonoBehaviour
 {
     public GameObject levelListItemPrefab;
     public Transform levelListContent;
-    public InputField filterInput;
+    public TMP_InputField filterInput;
     public GameObject playLoader;
     public GameObject editLoader;
     public SupabaseController supabase;
@@ -70,6 +70,8 @@ public class LevelBrowser : MonoBehaviour
                     var loaderGO = Instantiate(playLoader);
                     var loader = loaderGO.GetComponent<PlayLoader>();
                     loader.levelInfo = level;
+                    // let the play loader know it's coming from the browser
+                    loader.playModeContext = PlayGM.PlayModeContext.FromBrowser;
                 },
                 onEditOrRemix: () =>
                 {
