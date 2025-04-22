@@ -121,11 +121,16 @@ public class LevelCompletePanel : MonoBehaviour
                 PublishToSupabase();
                 break;
             case PlayModeContext.FromBrowser:
-            case PlayModeContext.FromMainMenuPlayButton:
-                // start the play scene and set the levelName to default
+                // In this case the user clicked "retry level"
+                // start the play scene and set the level info based on current level / context
                 PlayLoader playLoaderGO = Instantiate(levelLoader);
                 var playLoader = playLoaderGO.GetComponent<PlayLoader>();
                 playLoader.levelInfo = PlayGM.instance.levelInfo;
+                playLoader.playModeContext = PlayGM.PlayModeContext.FromBrowser;
+                break;
+            case PlayModeContext.FromMainMenuPlayButton:
+                // start the play scene without any extra info - it will load default level
+                Instantiate(levelLoader);
                 break;
         }
     }
