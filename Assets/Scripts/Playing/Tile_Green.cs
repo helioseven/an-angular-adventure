@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +11,21 @@ public class Tile_Green : Tile
 
     void Start()
     {
+        keyIcon = transform.GetChild(0).GetChild(0);
+        Vector3 rotation = Vector3.forward;
+        keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+
+        int myKeyId = gameObject.GetComponent<Tile>().data.special;
+
+        // 0 (or negative) is special - represents no key for this lock
+        if (myKeyId <= 0)
+        {
+            // hide by setting to inactive and skip looking for doors by returning
+            keyIcon.gameObject.SetActive(false);
+            hasUnlocked = true;
+            return;
+        }
+
         // get the grandparent tilemap
         Transform tileMap = transform.parent?.parent;
 
@@ -25,8 +39,9 @@ public class Tile_Green : Tile
                     Tile tileComp = otherTile.GetComponent<Tile>();
                     bool isCorrespondingSpecialNumber =
                         tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
+                    bool isSelf = tileComp.Equals(gameObject.GetComponent<Tile>());
 
-                    if (tileComp != null && isCorrespondingSpecialNumber)
+                    if (tileComp != null && isCorrespondingSpecialNumber && !isSelf)
                     {
                         // add to list of connected door tiles
                         connectedDoorTiles.Add(tileComp);
@@ -34,10 +49,6 @@ public class Tile_Green : Tile
                 }
             }
         }
-
-        keyIcon = transform.GetChild(0).GetChild(0);
-        Vector3 rotation = Vector3.forward;
-        keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
     }
 
     /* Override Functions */
