@@ -17,7 +17,6 @@ public class BallSkinSelector : MonoBehaviour
 
     public void CycleSkin()
     {
-        Debug.Log("Cyle");
         currentIndex = (currentIndex + 1) % skinDB.skins.Length;
         PlayerPrefs.SetInt(SkinPrefKey, currentIndex);
         UpdatePreview();
