@@ -6396,6 +6396,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  supabaseUrl: https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner
+  supabaseRestBase: https://nswnjhegifaudsgjyrwf.supabase.co/rest/v1
+  anonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM
+  editorBearerToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdGVhbTo3NjU2MTE5ODA3MTA0NzEyMSIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwic3RlYW1pZCI6Ijc2NTYxMTk4MDcxMDQ3MTIxIiwiaWF0IjoxNzYwNDc0NjUzLCJleHAiOjE3NjA0NzgyNTN9.pZVbyNGSkf61XkvbhScPpw5Hn7AXJ6rVmTMLL8hm8MY
+  testSteamId: 76561198023511402
 --- !u!114 &1715284021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6408,11 +6413,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7669dcf6a20cc954caa53c5fd0740961, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  steamAppId: 3661660
-  config: {fileID: 11400000, guid: 7eed0ddb8659e1a44ba2f1163c52f414, type: 2}
   nameTMP: {fileID: 618332440}
   idTMP: {fileID: 1582111436}
   avatarImage: {fileID: 1031321220}
+  avatarSize: {x: 128, y: 128}
+  fallbackAvatar: {fileID: 0}
 --- !u!1 &1719783437
 GameObject:
   m_ObjectHideFlags: 0
