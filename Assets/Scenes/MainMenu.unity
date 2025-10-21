@@ -794,7 +794,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ea8b39652cc535b44b8c04ec50dfbf76, type: 3}
+  m_Sprite: {fileID: 21300000, guid: af4b216abf7af494f8332e62770cef73, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1866,8 +1866,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 924.65125, y: -315.15167}
-  m_SizeDelta: {x: 1016, y: 630.30334}
+  m_AnchoredPosition: {x: 949.26483, y: -214.36674}
+  m_SizeDelta: {x: 1016, y: 142.91116}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &618332439
 CanvasRenderer:
@@ -1897,7 +1897,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Account
+  m_text: Name
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -3346,7 +3346,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 28.1
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3698,10 +3698,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2041747360}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 949.26483, y: -461.18408}
+  m_SizeDelta: {x: 100, y: 64.90116}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1059377432
 GameObject:
@@ -5737,8 +5737,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 924.65125, y: -315.15167}
-  m_SizeDelta: {x: 1016, y: 630.30334}
+  m_AnchoredPosition: {x: 949.26483, y: -357.2779}
+  m_SizeDelta: {x: 1016, y: 142.91116}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1582111435
 CanvasRenderer:
@@ -5768,7 +5768,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Account
+  m_text: Steam Id
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -6086,8 +6086,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 924.65125, y: -315.15167}
-  m_SizeDelta: {x: 1016, y: 630.30334}
+  m_AnchoredPosition: {x: 949.26483, y: -71.45558}
+  m_SizeDelta: {x: 1016, y: 142.91116}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1619111740
 MonoBehaviour:
@@ -6396,11 +6396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  supabaseUrl: https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner
-  supabaseRestBase: https://nswnjhegifaudsgjyrwf.supabase.co/rest/v1
-  anonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM
-  editorBearerToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdGVhbTo3NjU2MTE5ODA3MTA0NzEyMSIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwic3RlYW1pZCI6Ijc2NTYxMTk4MDcxMDQ3MTIxIiwiaWF0IjoxNzYwNDc0NjUzLCJleHAiOjE3NjA0NzgyNTN9.pZVbyNGSkf61XkvbhScPpw5Hn7AXJ6rVmTMLL8hm8MY
-  testSteamId: 76561198023511402
+  testSteamId: 76561198071047121
 --- !u!114 &1715284021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7595,7 +7591,7 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 4
   m_Spacing: 0
-  m_ChildForceExpandWidth: 1
+  m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 1

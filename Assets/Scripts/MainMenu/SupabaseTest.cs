@@ -6,30 +6,16 @@ using UnityEngine.Networking;
 
 public class SupabaseTest : MonoBehaviour
 {
-    [Header("Supabase Edge Function")]
-    [SerializeField]
-    private string supabaseUrl =
-        "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
-
-    [Header("Supabase REST base (for /rest/v1/users)")]
-    [SerializeField]
-    private string supabaseRestBase = "https://nswnjhegifaudsgjyrwf.supabase.co/rest/v1";
-
-    [Header("Anon Key (for REST upsert)")]
-    [TextArea]
-    [SerializeField]
-    private string anonKey = "";
-
-#if UNITY_EDITOR
-    [Header("DEV ONLY - Editor Bearer Token  (Unity Editor Development)")]
-    [TextArea]
-    [SerializeField]
-    private string editorBearerToken = "";
-#endif
-
     [Header("DEV ONLY - Test SteamID (used if none provided elsewhere)")]
     [SerializeField]
     private string testSteamId = "";
+    private string supabaseBaseUrl = "https://nswnjhegifaudsgjyrwf.supabase.co";
+    private string supabaseSteamPartnerEdgeFunctionUrl =
+        "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
+
+    private string supabaseRestBase = "https://nswnjhegifaudsgjyrwf.supabase.co/rest/v1";
+    private string supabasePublicAnonAPIKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
 
     // ===== DTOs that match both shapes =====
     [Serializable]
@@ -92,17 +78,20 @@ public class SupabaseTest : MonoBehaviour
         var body = new SteamRequest { steamid = sid };
         var json = JsonUtility.ToJson(body);
 
-        using var req = new UnityWebRequest(supabaseUrl, UnityWebRequest.kHttpVerbPOST)
+        using var req = new UnityWebRequest(
+            supabaseSteamPartnerEdgeFunctionUrl,
+            UnityWebRequest.kHttpVerbPOST
+        )
         {
             uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json)),
             downloadHandler = new DownloadHandlerBuffer(),
         };
         req.SetRequestHeader("Content-Type", "application/json");
 
-#if UNITY_EDITOR
-        if (!string.IsNullOrWhiteSpace(editorBearerToken))
-            req.SetRequestHeader("Authorization", $"Bearer {editorBearerToken}");
-#endif
+        req.SetRequestHeader(
+            "Authorization",
+            $"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM"
+        );
 
         yield return req.SendWebRequest();
 
@@ -128,6 +117,28 @@ public class SupabaseTest : MonoBehaviour
             yield break;
         }
 
+        if (
+            resp != null
+            && resp.data != null
+            && resp.data.response != null
+            && resp.data.response.players != null
+        )
+        {
+            Debug.Log(
+                $"[steam-partner] Got {resp.data.response.players.Length} player(s) back from Steam API."
+            );
+            foreach (var pl in resp.data.response.players)
+            {
+                Debug.Log(
+                    $"Player: {pl.personaname} ({pl.steamid})\nAvatar: {pl.avatarfull}\nProfile: {pl.profileurl}"
+                );
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[steam-partner] No players returned in data.response.players");
+        }
+
         if (resp == null || !resp.ok)
         {
             Debug.LogError($"steam-partner not ok. error={resp?.error} details={resp?.details}");
@@ -137,13 +148,15 @@ public class SupabaseTest : MonoBehaviour
         if (!string.IsNullOrEmpty(resp.steamid))
             AuthState.SteamId = resp.steamid;
         if (!string.IsNullOrEmpty(resp.token))
-            PlayerPrefs.SetString("steam.jwt", resp.token);
+            AuthState.SetJwt(resp.token);
 
         var players =
             resp.data != null && resp.data.response != null ? resp.data.response.players : null;
         if (players != null && players.Length > 0)
         {
             var p = players[0];
+
+            Debug.Log(p);
             AuthState.SteamId = string.IsNullOrEmpty(AuthState.SteamId)
                 ? p.steamid
                 : AuthState.SteamId;
@@ -171,6 +184,7 @@ public class SupabaseTest : MonoBehaviour
         // ===== Call upsert after Steam success =====
         if (!string.IsNullOrEmpty(resp.token))
         {
+            Debug.Log("About to shoot off the upsert after succccuess:))))");
             yield return StartCoroutine(UpsertUser(resp.token));
         }
         else
@@ -199,7 +213,7 @@ public class SupabaseTest : MonoBehaviour
         };
 
         req.SetRequestHeader("Content-Type", "application/json");
-        req.SetRequestHeader("apikey", anonKey);
+        req.SetRequestHeader("apikey", supabasePublicAnonAPIKey);
         req.SetRequestHeader("Authorization", $"Bearer {jwt}");
         req.SetRequestHeader("Prefer", "resolution=merge-duplicates");
 
@@ -228,6 +242,7 @@ public static class AuthState
     public static string SteamId { get; set; } = "";
     public static string PersonaName { get; set; } = "";
     public static string AvatarUrl { get; set; } = "";
+    public static string Jwt { get; set; } = "";
 
     public static event Action OnChanged;
 
@@ -240,11 +255,20 @@ public static class AuthState
         RaiseChanged();
     }
 
+    public static void SetJwt(string token)
+    {
+        Jwt = token;
+        PlayerPrefs.SetString("steam.jwt", token);
+        PlayerPrefs.Save();
+        RaiseChanged();
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void InitFromPrefs()
     {
         SteamId = PlayerPrefs.GetString("steam.steamid", SteamId);
         PersonaName = PlayerPrefs.GetString("steam.name", PersonaName);
         AvatarUrl = PlayerPrefs.GetString("steam.avatar", AvatarUrl);
+        Jwt = PlayerPrefs.GetString("steam.jwt", "");
     }
 }
