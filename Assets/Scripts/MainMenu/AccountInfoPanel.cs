@@ -46,7 +46,7 @@ public class AccountInfoPanel : MonoBehaviour
             if (!string.IsNullOrEmpty(avatarUrl))
                 avatarCo = StartCoroutine(LoadAvatar(avatarUrl));
             else
-                ApplyFallback();
+                ApplyFallbackAvatar();
         }
 
         Debug.Log(
@@ -69,11 +69,11 @@ public class AccountInfoPanel : MonoBehaviour
         else
         {
             Debug.LogWarning($"Avatar load failed: {req.error}");
-            ApplyFallback();
+            ApplyFallbackAvatar();
         }
     }
 
-    private void ApplyFallback()
+    private void ApplyFallbackAvatar()
     {
         if (avatarImage && fallbackAvatar)
         {
