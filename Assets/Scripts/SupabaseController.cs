@@ -27,18 +27,32 @@ public class SupabaseController : MonoBehaviour
     private const string SUPABASE_URL = "https://nswnjhegifaudsgjyrwf.supabase.co";
     private const string SUPABASE_API_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
+    private const string STEAM_FN_URL = SUPABASE_URL + "/functions/v1/steam-partner"; // your edge fn
+    private const string USERS_REST_URL = SUPABASE_URL + "/rest/v1/users";
+    private const string LEVELS_REST_URL = SUPABASE_URL + "/rest/v1/levels";
+    const string SUPABASE_ANON = SUPABASE_API_KEY;
 
     public IEnumerator SaveLevel(SupabaseLevelDTO level, System.Action<string> onSuccess)
     {
+        // Authentication
+        var jwt = AuthState.Jwt;
+        if (string.IsNullOrEmpty(jwt))
+        {
+            Debug.LogError("Missing JWT — user not authenticated yet.");
+            yield break;
+        }
+
+        // prepare the level payload
         string jsonBody = JsonUtility.ToJson(level);
 
-        UnityWebRequest request = new UnityWebRequest($"{SUPABASE_URL}/rest/v1/levels", "POST");
+        UnityWebRequest request = new UnityWebRequest(LEVELS_REST_URL, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
 
+        request.SetRequestHeader("Authorization", $"Bearer {jwt}");
         request.SetRequestHeader("apikey", SUPABASE_API_KEY);
-        request.SetRequestHeader("Authorization", "Bearer " + SUPABASE_API_KEY);
+        // request.SetRequestHeader("Authorization", "Bearer " + SUPABASE_API_KEY);
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Prefer", "return=minimal");
 

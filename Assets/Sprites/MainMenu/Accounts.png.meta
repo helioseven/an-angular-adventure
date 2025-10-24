@@ -1,7 +1,10 @@
 fileFormatVersion: 2
-guid: 9ef6f22ee67ab4d31a330b07006bfbaf
+guid: af4b216abf7af494f8332e62770cef73
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 2597869361461396800
+    second: Accounts_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -50,10 +53,10 @@ TextureImporter:
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 0
+  spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
-  spriteTessellationDetail: 0
+  spriteTessellationDetail: -1
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
@@ -63,9 +66,9 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 1
+  applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
@@ -95,19 +98,35 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
-    outline:
-    - - {x: 200, y: 0}
-      - {x: 101, y: 174}
-      - {x: -101, y: 174}
-      - {x: -201, y: 0}
-      - {x: -102, y: -174}
-      - {x: 100, y: -174}
+    sprites:
+    - serializedVersion: 2
+      name: Accounts_0
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 74
+        width: 373
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04507ce8b6c7d0420800000000000000
+      internalID: 2597869361461396800
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a6e4d6a8591d6cf6ab2875bcb72957ad
-    internalID: 527006726
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -115,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Accounts_0: 2597869361461396800
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

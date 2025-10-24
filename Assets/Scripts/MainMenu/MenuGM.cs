@@ -23,12 +23,14 @@ public class MenuGM : MonoBehaviour
     public Button browseButton;
     public Button quitButton;
     public Button settingsButton;
+    public Button accountButton;
     public GameObject Logo;
 
     // Panels
     public GameObject browsePanel;
     public GameObject mainMenuPanel;
     public GameObject settingsPanel;
+    public GameObject accountPanel;
 
     // private variables
     private GameObject[] menuPanels;
@@ -40,7 +42,8 @@ public class MenuGM : MonoBehaviour
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
         settingsButton.onClick.AddListener(OpenSettingsMenu);
-        menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel };
+        accountButton.onClick.AddListener(OpenAccountMenu);
+        menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
         OpenMainMenu();
     }
 
@@ -65,6 +68,11 @@ public class MenuGM : MonoBehaviour
     public void OpenSettingsMenu()
     {
         SwitchToMenu(settingsPanel);
+    }
+
+    public void OpenAccountMenu()
+    {
+        SwitchToMenu(accountPanel);
     }
 
     /* Private Functions */
