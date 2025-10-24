@@ -9,7 +9,8 @@ public class SupabaseTest : MonoBehaviour
     [Header("DEV ONLY - Test SteamID (used if none provided elsewhere)")]
     [SerializeField]
     private string testSteamId = "";
-    private string supabaseBaseUrl = "https://nswnjhegifaudsgjyrwf.supabase.co";
+
+    // private string supabaseBaseUrl = "https://nswnjhegifaudsgjyrwf.supabase.co";
     private string supabaseSteamPartnerEdgeFunctionUrl =
         "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
