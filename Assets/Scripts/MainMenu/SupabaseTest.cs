@@ -10,7 +10,6 @@ public class SupabaseTest : MonoBehaviour
     [SerializeField]
     private string testSteamId = "";
 
-    // private string supabaseBaseUrl = "https://nswnjhegifaudsgjyrwf.supabase.co";
     private string supabaseSteamPartnerEdgeFunctionUrl =
         "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
@@ -18,7 +17,22 @@ public class SupabaseTest : MonoBehaviour
     private string supabasePublicAnonAPIKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
 
-    // ===== DTOs that match both shapes =====
+    // === Singleton setup ===
+    public static SupabaseTest Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    // ===== DTOs =====
     [Serializable]
     private class SteamRequest
     {
@@ -59,7 +73,6 @@ public class SupabaseTest : MonoBehaviour
         public string details;
     }
 
-    // ===== DTO for user upsert =====
     [Serializable]
     private class UserUpsert
     {
@@ -68,9 +81,10 @@ public class SupabaseTest : MonoBehaviour
         public string avatar_url;
     }
 
-    private void Start()
+    // === Public controller entry points ===
+    public void BeginPostSteamId(string steamId)
     {
-        StartCoroutine(PostSteamId(testSteamId));
+        StartCoroutine(PostSteamId(steamId));
     }
 
     public IEnumerator PostSteamId(string steamId)
@@ -114,83 +128,78 @@ public class SupabaseTest : MonoBehaviour
             yield break;
         }
 
-        if (
-            resp != null
-            && resp.data != null
-            && resp.data.response != null
-            && resp.data.response.players != null
-        )
+        if (resp == null)
         {
-            Debug.Log(
-                $"[steam-partner] Got {resp.data.response.players.Length} player(s) back from Steam API."
-            );
+            Debug.LogError("[steam-partner] Response was null");
+            yield break;
+        }
+
+        if (resp.data?.response?.players != null)
+        {
             foreach (var pl in resp.data.response.players)
             {
-                Debug.Log(
-                    $"Player: {pl.personaname} ({pl.steamid})\nAvatar: {pl.avatarfull}\nProfile: {pl.profileurl}"
-                );
+                Debug.Log($"Player: {pl.personaname} ({pl.steamid})\nAvatar: {pl.avatarfull}");
             }
-        }
-        else
-        {
-            Debug.LogWarning("[steam-partner] No players returned in data.response.players");
         }
 
         if (resp == null || !resp.ok)
         {
-            Debug.LogError($"steam-partner not ok. error={resp?.error} details={resp?.details}");
+            Debug.LogError($"[steam-partner] not ok. error={resp?.error} details={resp?.details}");
             yield break;
         }
 
-        if (!string.IsNullOrEmpty(resp.steamid))
-            AuthState.SteamId = resp.steamid;
+        // --- Update JWT if present ---
         if (!string.IsNullOrEmpty(resp.token))
+        {
             AuthState.SetJwt(resp.token);
 
-        var players =
-            resp.data != null && resp.data.response != null ? resp.data.response.players : null;
+            // Sneak peek for debugging (shows start & end only)
+            string jwt = resp.token;
+            string preview =
+                jwt.Length > 20 ? $"{jwt.Substring(0, 10)}...{jwt.Substring(jwt.Length - 8)}" : jwt;
+
+            Debug.Log($"[JWT OK] {preview}");
+        }
+
+        // --- Extract Steam player info ---
+        var players = resp.data?.response?.players;
         if (players != null && players.Length > 0)
         {
             var p = players[0];
-
-            Debug.Log(p);
-            AuthState.SteamId = string.IsNullOrEmpty(AuthState.SteamId)
-                ? p.steamid
-                : AuthState.SteamId;
-            AuthState.PersonaName = string.IsNullOrEmpty(p.personaname)
-                ? AuthState.PersonaName
-                : p.personaname;
-            AuthState.AvatarUrl =
+            string avatar =
                 !string.IsNullOrEmpty(p.avatarfull) ? p.avatarfull
                 : !string.IsNullOrEmpty(p.avatarmedium) ? p.avatarmedium
                 : !string.IsNullOrEmpty(p.avatar) ? p.avatar
-                : AuthState.AvatarUrl;
-        }
+                : "";
 
-        PlayerPrefs.SetString("steam.steamid", AuthState.SteamId ?? "");
-        PlayerPrefs.SetString("steam.name", AuthState.PersonaName ?? "");
-        PlayerPrefs.SetString("steam.avatar", AuthState.AvatarUrl ?? "");
-        PlayerPrefs.Save();
-
-        AuthState.RaiseChanged();
-        var who = string.IsNullOrEmpty(AuthState.PersonaName)
-            ? "(no persona yet)"
-            : AuthState.PersonaName;
-        Debug.Log($"Steam OK → {who} ({AuthState.SteamId})");
-
-        // ===== Call upsert after Steam success =====
-        if (!string.IsNullOrEmpty(resp.token))
-        {
-            Debug.Log("About to shoot off the upsert after succccuess:))))");
-            yield return StartCoroutine(UpsertUser(resp.token));
+            AuthState.SetSteamProfile(p.steamid, p.personaname, avatar);
+            Debug.Log($"[SupabaseTest] Updated AuthState → {p.personaname} ({p.steamid})");
         }
         else
         {
-            Debug.LogWarning("[users upsert] Skipped — no JWT present.");
+            Debug.LogWarning("[SupabaseTest] No players returned from Steam data.");
         }
+
+        // --- Sanity check ---
+        Debug.Log($"[SupabaseTest] Steam OK → {AuthState.PersonaName} ({AuthState.SteamId})");
+
+        // --- Continue with upsert if JWT present ---
+        if (!string.IsNullOrEmpty(AuthState.Jwt))
+        {
+            Debug.Log("[SupabaseTest] Upserting user...");
+            yield return StartCoroutine(UpsertUser(AuthState.Jwt));
+        }
+        else
+        {
+            Debug.LogWarning("[SupabaseTest] Skipped upsert — no JWT present.");
+        }
+
+        if (!string.IsNullOrEmpty(resp.token))
+            yield return StartCoroutine(UpsertUser(resp.token));
+        else
+            Debug.LogWarning("[users upsert] Skipped — no JWT present.");
     }
 
-    // ====== Upsert coroutine ======
     private IEnumerator UpsertUser(string jwt)
     {
         var user = new UserUpsert
@@ -215,13 +224,7 @@ public class SupabaseTest : MonoBehaviour
         req.SetRequestHeader("Prefer", "resolution=merge-duplicates");
 
         Debug.Log("[users upsert] Sending user info to Supabase...");
-        Debug.Log("[users upsert] URL: " + url);
-        Debug.Log("[users upsert] Body: " + json);
-
         yield return req.SendWebRequest();
-
-        Debug.Log($"[users upsert] Response: {req.responseCode} {req.result}");
-        Debug.Log($"[users upsert] Text: {req.downloadHandler.text}");
 
         if (req.result != UnityWebRequest.Result.Success)
         {

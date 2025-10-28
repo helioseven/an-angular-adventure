@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+/// <summary>
+/// Displays the authenticated user's Steam info from AuthState.
+/// Automatically updates when AuthState changes and rebuilds from saved prefs if needed.
+/// </summary>
 public class AccountInfoPanel : MonoBehaviour
 {
     [Header("UI")]
@@ -17,8 +21,9 @@ public class AccountInfoPanel : MonoBehaviour
 
     private void OnEnable()
     {
+        // Subscribe to updates and draw immediately
         AuthState.OnChanged += Refresh;
-        Refresh();
+        LoadFromAuthOrPrefs();
     }
 
     private void OnDisable()
@@ -26,32 +31,57 @@ public class AccountInfoPanel : MonoBehaviour
         AuthState.OnChanged -= Refresh;
     }
 
+    /// <summary>
+    /// Rebuilds state from AuthState (or PlayerPrefs if AuthState is empty).
+    /// </summary>
+    private void LoadFromAuthOrPrefs()
+    {
+        // Pull latest known data
+        string steamId = AuthState.SteamId;
+        string persona = AuthState.PersonaName;
+        string avatar = AuthState.AvatarUrl;
+
+        // If nothing in memory, restore from saved prefs
+        if (string.IsNullOrEmpty(steamId))
+            steamId = PlayerPrefs.GetString("steam.steamid", "(no id)");
+        if (string.IsNullOrEmpty(persona))
+            persona = PlayerPrefs.GetString("steam.name", "(unknown)");
+        if (string.IsNullOrEmpty(avatar))
+            avatar = PlayerPrefs.GetString("steam.avatar", "");
+
+        // Update AuthState so everything else stays consistent
+        if (string.IsNullOrEmpty(AuthState.SteamId) && !string.IsNullOrEmpty(steamId))
+            AuthState.SetSteamProfile(steamId, persona, avatar);
+
+        // Draw UI now
+        Refresh();
+    }
+
     private void Refresh()
     {
-        var displayName = string.IsNullOrEmpty(AuthState.PersonaName)
+        string name = string.IsNullOrEmpty(AuthState.PersonaName)
             ? "(unknown)"
             : AuthState.PersonaName;
-        var sid = string.IsNullOrEmpty(AuthState.SteamId) ? "—" : AuthState.SteamId;
-        var avatarUrl = AuthState.AvatarUrl;
+        string id = string.IsNullOrEmpty(AuthState.SteamId) ? "(no id)" : AuthState.SteamId;
+        string avatarUrl = AuthState.AvatarUrl;
 
         if (nameTMP)
-            nameTMP.SetText(displayName);
+            nameTMP.SetText(name);
         if (idTMP)
-            idTMP.SetText(sid);
+            idTMP.SetText(id);
 
         if (avatarImage)
         {
             if (avatarCo != null)
                 StopCoroutine(avatarCo);
+
             if (!string.IsNullOrEmpty(avatarUrl))
                 avatarCo = StartCoroutine(LoadAvatar(avatarUrl));
             else
                 ApplyFallbackAvatar();
         }
 
-        Debug.Log(
-            $"[AccountInfoPanel] UI set → name='{displayName}', id='{sid}', avatar='{avatarUrl}'"
-        );
+        Debug.Log($"[AccountInfoPanel] Updated from AuthState → {name} ({id})");
     }
 
     private IEnumerator LoadAvatar(string url)
@@ -65,10 +95,11 @@ public class AccountInfoPanel : MonoBehaviour
             avatarImage.texture = tex;
             avatarImage.SetNativeSize();
             avatarImage.rectTransform.sizeDelta = avatarSize;
+            Debug.Log("[AccountInfoPanel] Avatar loaded from URL.");
         }
         else
         {
-            Debug.LogWarning($"Avatar load failed: {req.error}");
+            Debug.LogWarning($"[AccountInfoPanel] Avatar load failed: {req.error}");
             ApplyFallbackAvatar();
         }
     }

@@ -6,13 +6,49 @@ NonRepo/
 # VisualStudio-related ignores
 .vscode/*
 
+# Steam local testing
+steam_appid.txt
+
+# Extra Unity ignores
+UserSettings/
+.obj/
+
+# Steamworks SDK artifacts
+Assets/Plugins/Steamworks.NET/Plugins/
+Assets/Plugins/Steamworks.NET/Redist/
+Assets/Plugins/x86*
+Assets/Plugins/x64*
+Assets/Plugins/Android/
+# keep only the .cs API wrappers and meta files you edit
+
+# Audio or native plugin binaries
+Assets/Plugins/*.dll
+Assets/Plugins/*.so
+Assets/Plugins/*.dylib
+Assets/Plugins/*.bundle
+Assets/Plugins/*.a
+
+# Supabase local / Edge function build artifacts
+supabase/.branches/
+supabase/.temp/
+supabase/functions/**/node_modules/
+supabase/functions/**/dist/
+.supabase/
+
+# VS / Rider / VSCode
+.vs/
+.idea/
+.vscode/
+*.sln.DotSettings.user
+
 # Mac OS related ignores
+.DS_Store
+*.DS_Store
 */.DS_Store
+Thumbs.db
 
 # Unity-related ignores
-
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
-
 .utmp/
 /[Ll]ibrary/
 /[Tt]emp/
