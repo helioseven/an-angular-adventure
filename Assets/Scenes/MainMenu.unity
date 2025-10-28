@@ -1036,7 +1036,7 @@ GameObject:
   - component: {fileID: 275920920}
   - component: {fileID: 275920921}
   m_Layer: 0
-  m_Name: TopLevelAuth
+  m_Name: StartupManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1066,15 +1066,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 275920919}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c4e8903b474c40aaa315397bd2f428d, type: 3}
+  m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StartupChecklist
-  stepSteamInit: {fileID: 2012603232}
-  stepSessionTicket: {fileID: 1342316214}
-  stepEdgeAuth: {fileID: 725651682}
-  stepJWTVerified: {fileID: 1419606001}
-  finalUserInfo: {fileID: 957925189}
-  avatarImage: {fileID: 355320464}
+  m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
+  testSteamId: 76561198071047121
 --- !u!1 &355320462
 GameObject:
   m_ObjectHideFlags: 0
@@ -2659,7 +2654,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Step 3
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -3714,7 +3709,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Final Player Info
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -4915,9 +4910,8 @@ GameObject:
   - component: {fileID: 1223213124}
   - component: {fileID: 1223213123}
   - component: {fileID: 1223213122}
-  - component: {fileID: 1223213126}
   m_Layer: 5
-  m_Name: StartupChecklist
+  m_Name: StartupChecklistPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4942,8 +4936,8 @@ RectTransform:
   - {fileID: 1437487054}
   m_Father: {fileID: 1420793537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.3, y: 1}
+  m_AnchorMin: {x: 0.7, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 8, y: 8}
   m_SizeDelta: {x: -16, y: -16}
   m_Pivot: {x: 0, y: 0}
@@ -5029,19 +5023,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1223213120}
   m_CullTransparentMesh: 1
---- !u!114 &1223213126
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1223213120}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  testSteamId: 76561198071047121
 --- !u!1 &1228412888
 GameObject:
   m_ObjectHideFlags: 0
@@ -5454,7 +5435,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Step 2
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -5545,7 +5526,7 @@ GameObject:
   - component: {fileID: 1399648874}
   - component: {fileID: 1399648873}
   m_Layer: 0
-  m_Name: SupabaseLoader
+  m_Name: SupabaseController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5635,7 +5616,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Step 4
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -7177,7 +7158,6 @@ GameObject:
   - component: {fileID: 1715284019}
   - component: {fileID: 1715284018}
   - component: {fileID: 1715284017}
-  - component: {fileID: 1715284020}
   - component: {fileID: 1715284021}
   m_Layer: 5
   m_Name: AccountPanel
@@ -7259,19 +7239,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715284015}
   m_CullTransparentMesh: 1
---- !u!114 &1715284020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1715284015}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  testSteamId: 76561198071047121
 --- !u!114 &1715284021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8464,7 +8431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: Step 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,

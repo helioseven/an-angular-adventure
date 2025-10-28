@@ -140,7 +140,9 @@ public class StartupChecklist : MonoBehaviour
     private IEnumerator AuthenticateAndFetchUser()
     {
         bool edgeOk = false;
-        string steamIdText = isEditor ? "76561198071047121" : SteamUser.GetSteamID().ToString();
+        string steamIdText = isEditor
+            ? SupabaseTest.Instance.testSteamId
+            : SteamUser.GetSteamID().ToString();
 
         // In Editor, bypass edge auth entirely.
         if (isEditor)
@@ -151,7 +153,12 @@ public class StartupChecklist : MonoBehaviour
         else
         {
             yield return StartCoroutine(
-                SteamAuthHelper.AuthenticateWithEdge(steamIdText, false, ok => edgeOk = ok)
+                SteamAuthHelper.AuthenticateWithEdge(
+                    steamIdText,
+                    ticketHex,
+                    isEditor,
+                    ok => edgeOk = ok
+                )
             );
             stepEdgeAuth.text = edgeOk ? "Edge Auth: y" : "Edge Auth: x";
         }

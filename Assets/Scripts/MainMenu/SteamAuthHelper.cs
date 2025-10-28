@@ -1,39 +1,34 @@
+using System;
 using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
 /// <summary>
-/// Helper to call your Supabase Edge Function to validate Steam session tickets.
-/// - Bypasses in the Editor (immediately returns success)
-/// - Sends Authorization header for non-editor calls
-///
-/// NOTE: SupabaseTest is responsible for PostSteamId / upsert flows. This helper only
-/// verifies the ticket with the edge function and returns a boolean result via the callback.
+/// Calls the Supabase Edge Function that verifies a Steam session ticket
+/// and returns a signed JWT. Works both in Editor and runtime builds.
 /// </summary>
 public static class SteamAuthHelper
 {
-    // Dev-time anon key (dev convenience). In production prefer injecting from config.
-    private const string supabasePublicAnonAPIKey =
+    // Public anon key (safe to embed for client-side access)
+    private const string SupabaseAnonKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7zB_CV4swO4sM";
 
     /// <summary>
-    /// Authenticate the Steam session ticket with the configured Edge Function.
-    /// - ticketHex: hex string of the Steam session ticket
-    /// - isDev: if true, will target the local edge function URL (useful for local testing)
-    /// - onComplete: callback invoked with true if edge accepted the ticket, false otherwise
-    ///
-    /// Behavior:
-    /// - If running inside the Unity Editor, this function immediately calls onComplete(true) and exits.
-    /// - Otherwise it POSTs to the Edge Function with Content-Type: application/json and Authorization header.
+    /// Authenticate the Steam session ticket with the configured Supabase Edge Function.
     /// </summary>
+    /// <param name="steamId">SteamID64 from Steamworks.</param>
+    /// <param name="ticketHex">Hex string of the Steam session ticket.</param>
+    /// <param name="isDev">If true, call localhost instead of production Supabase URL.</param>
+    /// <param name="onComplete">Callback invoked with true if auth succeeds, false otherwise.</param>
     public static IEnumerator AuthenticateWithEdge(
+        string steamId,
         string ticketHex,
         bool isDev,
-        System.Action<bool> onComplete
+        Action<bool> onComplete
     )
     {
-        // Editor bypass: immediately succeed (SupabaseTest will handle the PostSteamId upsert flow)
+        // 🧩 1. Editor bypass
         if (Application.isEditor)
         {
             Debug.Log("[SteamAuthHelper] Editor bypass: treating edge auth as successful.");
@@ -41,42 +36,40 @@ public static class SteamAuthHelper
             yield break;
         }
 
+        // 🧩 2. Target URL
         string url = isDev
             ? "http://localhost:54321/functions/v1/steam-partner"
             : "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
-        var jsonBody = $"{{\"ticket\":\"{ticketHex}\"}}";
+        // 🧠 send both steamid and ticket (ticket optional for now)
+        var jsonBody = $"{{\"steamid\":\"{steamId}\",\"ticket\":\"{ticketHex}\"}}";
         var body = Encoding.UTF8.GetBytes(jsonBody);
 
-        using (var req = new UnityWebRequest(url, "POST"))
+        using var req = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST)
         {
-            req.uploadHandler = new UploadHandlerRaw(body);
-            req.downloadHandler = new DownloadHandlerBuffer();
-            req.SetRequestHeader("Content-Type", "application/json");
+            uploadHandler = new UploadHandlerRaw(body),
+            downloadHandler = new DownloadHandlerBuffer(),
+        };
 
-            // Required by Supabase Edge functions – include the anon API key for now.
-            req.SetRequestHeader("Authorization", $"Bearer {supabasePublicAnonAPIKey}");
-            req.SetRequestHeader("apikey", supabasePublicAnonAPIKey);
+        req.SetRequestHeader("Content-Type", "application/json");
+        req.SetRequestHeader("apikey", SupabaseAnonKey);
 
-            Debug.Log($"[SteamAuthHelper] Sending edge auth request to: {url}");
-            yield return req.SendWebRequest();
+        Debug.Log($"[SteamAuthHelper] Sending edge auth request to: {url}");
+        yield return req.SendWebRequest();
 
-            bool ok = req.result == UnityWebRequest.Result.Success;
-            string responseText = req.downloadHandler != null ? req.downloadHandler.text : "";
+        string responseText = req.downloadHandler?.text ?? string.Empty;
+        Debug.Log($"[EdgeAuth] {req.responseCode}: {responseText}");
 
-            Debug.Log($"[EdgeAuth] {req.responseCode}: {responseText}");
-
-            if (!ok)
-            {
-                Debug.LogWarning(
-                    $"[SteamAuthHelper] Edge auth failed. code={req.responseCode} result={req.result}."
-                );
-                onComplete?.Invoke(false);
-                yield break;
-            }
-
-            // If the edge returned success (200), we consider it OK.
-            onComplete?.Invoke(true);
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogWarning(
+                $"[SteamAuthHelper] Edge auth failed. code={req.responseCode} result={req.result}."
+            );
+            onComplete?.Invoke(false);
+            yield break;
         }
+
+        // 🧩 3. Success
+        onComplete?.Invoke(true);
     }
 }
