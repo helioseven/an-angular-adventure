@@ -24,7 +24,6 @@ public static class SteamAuthHelper
     public static IEnumerator AuthenticateWithEdge(
         string steamId,
         string ticketHex,
-        bool isDev,
         Action<bool> onComplete
     )
     {
@@ -36,10 +35,10 @@ public static class SteamAuthHelper
             yield break;
         }
 
+        // in the future we could set up local edge functions for fully local development and jwt minting without any supabase
+        // example url = "http://localhost:54321/functions/v1/steam-partner"
         // 🧩 2. Target URL
-        string url = isDev
-            ? "http://localhost:54321/functions/v1/steam-partner"
-            : "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
+        string url = "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
         // 🧠 send both steamid and ticket (ticket optional for now)
         var jsonBody = $"{{\"steamid\":\"{steamId}\",\"ticket\":\"{ticketHex}\"}}";

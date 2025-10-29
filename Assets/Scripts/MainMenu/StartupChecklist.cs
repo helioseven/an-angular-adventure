@@ -153,12 +153,7 @@ public class StartupChecklist : MonoBehaviour
         else
         {
             yield return StartCoroutine(
-                SteamAuthHelper.AuthenticateWithEdge(
-                    steamIdText,
-                    ticketHex,
-                    isEditor,
-                    ok => edgeOk = ok
-                )
+                SteamAuthHelper.AuthenticateWithEdge(steamIdText, ticketHex, ok => edgeOk = ok)
             );
             stepEdgeAuth.text = edgeOk ? "Edge Auth: y" : "Edge Auth: x";
         }
