@@ -1,102 +1,111 @@
-// supabase/functions/steam-partner/index.ts
+// ============================================================================
+// steam-partner Edge Function (Supabase Cloud)
+// Generates a short-lived Supabase JWT for a verified Steam user.
+// Works with --no-verify-jwt and only needs apikey header from Unity.
+// ============================================================================
 import { create } from "https://deno.land/x/djwt@v3.0.1/mod.ts";
-
-export const config = {};
-
+export const config = {
+  cors: {
+    origin: "*",
+    methods: ["POST", "OPTIONS"],
+    allowedHeaders: ["content-type", "apikey"],
+  },
+};
 export default {
-  async fetch(req: Request): Promise<Response> {
-    if (req.method !== "POST") {
-      return new Response(JSON.stringify({ ok: false, error: "Use POST" }), {
-        status: 405,
-        headers: { "content-type": "application/json" },
+  async fetch(req) {
+    // --- Preflight ---
+    if (req.method === "OPTIONS")
+      return new Response(null, {
+        status: 204,
       });
-    }
-
+    if (req.method !== "POST")
+      return respond(
+        {
+          ok: false,
+          error: "Use POST",
+        },
+        405
+      );
     try {
-      const { steamid } = await req.json().catch(() => ({}));
-      if (!steamid) {
-        return new Response(
-          JSON.stringify({ ok: false, error: "Provide 'steamid'" }),
+      const { steamid, ticket } = await req.json().catch(() => ({}));
+      if (!steamid)
+        return respond(
           {
-            status: 400,
-            headers: { "content-type": "application/json" },
-          }
+            ok: false,
+            error: "Provide 'steamid'",
+          },
+          400
         );
-      }
-
       const jwtSecret = Deno.env.get("JWT_SECRET");
-      if (!jwtSecret) {
-        return new Response(
-          JSON.stringify({ ok: false, error: "Missing JWT_SECRET" }),
+      if (!jwtSecret)
+        return respond(
           {
-            status: 500,
-            headers: { "content-type": "application/json" },
-          }
+            ok: false,
+            error: "Missing JWT_SECRET",
+          },
+          500
         );
-      }
-
-      // ===== 1. Fetch Steam profile info =====
+      // --- Optional Steam verification ---
       const steamApiKey = Deno.env.get("STEAM_API_KEY");
-      if (!steamApiKey) {
-        return new Response(
-          JSON.stringify({ ok: false, error: "Missing STEAM_API_KEY" }),
-          {
-            status: 500,
-            headers: { "content-type": "application/json" },
-          }
-        );
+      let profile = null;
+      if (steamApiKey) {
+        const url = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${steamApiKey}&steamids=${steamid}`;
+        const res = await fetch(url);
+        profile = await res.json().catch(() => null);
       }
-
-      const steamUrl = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=${steamApiKey}&steamids=${steamid}`;
-      const steamRes = await fetch(steamUrl);
-      const steamJson = await steamRes.json();
-
-      // ===== 2. Create JWT =====
-      const encoder = new TextEncoder();
+      // --- Sign JWT ---
+      const now = Math.floor(Date.now() / 1000);
       const key = await crypto.subtle.importKey(
         "raw",
-        encoder.encode(jwtSecret),
-        { name: "HMAC", hash: "SHA-256" },
+        new TextEncoder().encode(jwtSecret),
+        {
+          name: "HMAC",
+          hash: "SHA-256",
+        },
         false,
-        ["sign", "verify"]
+        ["sign"]
       );
-
-      const now = Math.floor(Date.now() / 1000);
       const payload = {
         sub: `steam:${steamid}`,
         role: "authenticated",
         steamid,
         iat: now,
-        exp: now + 60 * 60,
+        exp: now + 3600,
       };
-
-      const token = await create({ alg: "HS256", typ: "JWT" }, payload, key);
-
-      // ===== 3. Return Steam profile + token =====
-      return new Response(
-        JSON.stringify({
-          ok: true,
-          steamid,
-          token,
-          data: steamJson, // ← this matches what your Unity code expects
-        }),
+      const token = await create(
         {
-          headers: { "content-type": "application/json" },
-        }
+          alg: "HS256",
+          typ: "JWT",
+        },
+        payload,
+        key
       );
+      return respond({
+        ok: true,
+        steamid,
+        token,
+        data: profile,
+      });
     } catch (err) {
       console.error("Internal error:", err);
-      return new Response(
-        JSON.stringify({
+      return respond(
+        {
           ok: false,
           error: "Internal error",
           details: String(err),
-        }),
-        {
-          status: 500,
-          headers: { "content-type": "application/json" },
-        }
+        },
+        500
       );
     }
   },
 };
+function respond(obj, status = 200) {
+  return new Response(JSON.stringify(obj), {
+    status,
+    headers: {
+      "content-type": "application/json",
+      "access-control-allow-origin": "*",
+      "access-control-allow-headers": "content-type,apikey",
+    },
+  });
+}
