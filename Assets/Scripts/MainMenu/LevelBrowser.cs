@@ -18,14 +18,13 @@ public class LevelBrowser : MonoBehaviour
     [Header("Tabs")]
     public Button communityTabButton;
     public Button myTessellationsButton;
-    public Color activeTabColor = new(0.8f, 0.8f, 1f);
-    public Color inactiveTabColor = new(0.6f, 0.6f, 0.6f);
 
     [Header("Controllers")]
     public SupabaseController supabase;
     public MenuGM menuGM;
 
     private List<LevelInfo> allLevels = new();
+    private bool showingMyLevels = false;
 
     void OnEnable()
     {
@@ -66,6 +65,8 @@ public class LevelBrowser : MonoBehaviour
         // Clear current levels
         allLevels.Clear();
         RefreshUI();
+
+        showingMyLevels = showMine;
 
         // Fetch new data
         if (showMine)
@@ -121,8 +122,14 @@ public class LevelBrowser : MonoBehaviour
                     var loaderGO = Instantiate(editLoader);
                     var loader = loaderGO.GetComponent<EditLoader>();
                     loader.levelInfo = level;
-                }
+                },
+                browser: this
             );
         }
+    }
+
+    public void RefreshList()
+    {
+        SwitchTab(showingMyLevels);
     }
 }

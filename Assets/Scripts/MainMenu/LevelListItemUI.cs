@@ -9,11 +9,19 @@ public class LevelListItemUI : MonoBehaviour
     public Button editOrRemixButton;
     public TMP_Text editOrRemixButtonText;
     public Button deleteButton;
+    public LevelBrowser parent;
 
-    public void Setup(LevelInfo info, System.Action onPlay, System.Action onEditOrRemix)
+    public void Setup(
+        LevelInfo info,
+        System.Action onPlay,
+        System.Action onEditOrRemix,
+        LevelBrowser browser
+    )
     {
         levelNameText.text = info.name + (info.isLocal ? " (Draft)" : "");
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
+
+        parent = browser;
 
         playButton.onClick.RemoveAllListeners();
         playButton.onClick.AddListener(() => onPlay());
@@ -34,5 +42,6 @@ public class LevelListItemUI : MonoBehaviour
     public void callback(bool success)
     {
         Debug.Log("Delete successful: " + success);
+        parent.RefreshList();
     }
 }
