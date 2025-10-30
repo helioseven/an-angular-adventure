@@ -8,6 +8,7 @@ public class LevelListItemUI : MonoBehaviour
     public Button playButton;
     public Button editOrRemixButton;
     public TMP_Text editOrRemixButtonText;
+    public Button deleteButton;
 
     public void Setup(LevelInfo info, System.Action onPlay, System.Action onEditOrRemix)
     {
@@ -19,5 +20,19 @@ public class LevelListItemUI : MonoBehaviour
 
         editOrRemixButton.onClick.RemoveAllListeners();
         editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
+
+        deleteButton.onClick.RemoveAllListeners();
+        deleteButton.onClick.AddListener(() =>
+        {
+            SupabaseController.Instance.StartCoroutine(
+                SupabaseController.Instance.SoftDeleteLevelById(info.id, callback)
+            );
+        });
+    }
+
+    // Supabase - callback function after deleting
+    public void callback(bool success)
+    {
+        Debug.Log("Delete successful: " + success);
     }
 }
