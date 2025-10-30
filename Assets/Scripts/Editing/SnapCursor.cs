@@ -87,21 +87,23 @@ public class SnapCursor : MonoBehaviour
                     locusSnaps.Add(newPoint);
                     tHL = newPoint;
                 }
+
+                // if our hit found a pc2d, it won't find a special
+                continue;
             }
 
             // check for special hits next
             CircleCollider2D cc2d = c2d as CircleCollider2D;
             if (cc2d)
             {
+                // gets special's locus and adds it to possible snaps
                 CheckpointData cData;
-                WarpData wData;
-                VictoryData vData;
-
-                // adds the special's locus to list of possible snaps
                 if (_gmRef.IsMappedCheckpoint(cc2d.gameObject, out cData))
                     locusSnaps.Add(cData.locus);
+                WarpData wData;
                 if (_gmRef.IsMappedWarp(cc2d.gameObject, out wData))
                     locusSnaps.Add(wData.locus);
+                VictoryData vData;
                 if (_gmRef.IsMappedVictory(cc2d.gameObject, out vData))
                     locusSnaps.Add(vData.locus);
             }
