@@ -66,12 +66,12 @@ public class SnapCursor : MonoBehaviour
 
         foreach (Collider2D c2d in hitCols)
         {
-            // confirm collider hit is a tile by fetching PolygonCollider2D
+            // check tile hits first by casting as PolygonCollider2D
             PolygonCollider2D pc2d = c2d as PolygonCollider2D;
             if (pc2d)
             {
                 TileData tData;
-                bool b = _gmRef.IsMappedTile(c2d.gameObject, out tData);
+                bool b = _gmRef.IsMappedTile(pc2d.gameObject, out tData);
                 // if the collision is not from a tile in the map, it is skipped
                 if (!b)
                     continue;
@@ -83,14 +83,31 @@ public class SnapCursor : MonoBehaviour
                     Vector2 v2 = c2d.transform.TransformPoint(subPoint);
                     HexLocus newPoint = new HexLocus(v2 - tHL.ToUnitySpace());
                     newPoint += tHL;
-                    // adds translated vertex to list of possible snap points
+                    // adds translated vertex to list of possible snaps
                     locusSnaps.Add(newPoint);
                     tHL = newPoint;
                 }
             }
+
+            // check for special hits next
+            CircleCollider2D cc2d = c2d as CircleCollider2D;
+            if (cc2d)
+            {
+                CheckpointData cData;
+                WarpData wData;
+                VictoryData vData;
+
+                // adds the special's locus to list of possible snaps
+                if (_gmRef.IsMappedCheckpoint(cc2d.gameObject, out cData))
+                    locusSnaps.Add(cData.locus);
+                if (_gmRef.IsMappedWarp(cc2d.gameObject, out wData))
+                    locusSnaps.Add(wData.locus);
+                if (_gmRef.IsMappedVictory(cc2d.gameObject, out vData))
+                    locusSnaps.Add(vData.locus);
+            }
         }
 
-        // finds the HexLocus with the smallest offset from original input position
+        // finds the snap point with the smallest offset from original input position
         HexLocus newAnchor = new HexLocus();
         foreach (HexLocus hL in locusSnaps)
         {
