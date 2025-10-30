@@ -248,7 +248,8 @@ public class PlayLoader : MonoBehaviour
                 id = "",
                 name = "defaultPlayTesselationFromMainMenu",
                 isLocal = true,
-                created_at = DateTime.MinValue,
+                uploaderId = "tesseldevz",
+                createdAt = DateTime.MinValue,
             };
 
             levelReady = true;

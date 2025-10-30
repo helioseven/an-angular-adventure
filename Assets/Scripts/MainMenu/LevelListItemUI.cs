@@ -29,13 +29,19 @@ public class LevelListItemUI : MonoBehaviour
         editOrRemixButton.onClick.RemoveAllListeners();
         editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
 
-        deleteButton.onClick.RemoveAllListeners();
-        deleteButton.onClick.AddListener(() =>
+        // Only show delete for owned levels
+        bool isOwner = info.uploaderId == AuthState.SteamId;
+
+        deleteButton.gameObject.SetActive(isOwner);
+
+        if (isOwner)
         {
-            SupabaseController.Instance.StartCoroutine(
-                SupabaseController.Instance.SoftDeleteLevelById(info.id, callback)
-            );
-        });
+            deleteButton.onClick.RemoveAllListeners();
+            deleteButton.onClick.AddListener(() =>
+            {
+                parent.ShowConfirmDelete(info.id, info.name);
+            });
+        }
     }
 
     // Supabase - callback function after deleting

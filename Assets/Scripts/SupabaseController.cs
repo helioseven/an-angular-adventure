@@ -79,7 +79,7 @@ public class SupabaseController : MonoBehaviour
 
     public IEnumerator FetchPublishedLevels(Action<List<LevelInfo>> onComplete)
     {
-        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at";
+        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -106,7 +106,8 @@ public class SupabaseController : MonoBehaviour
                             id = entry["id"]?.ToString(),
                             name = entry["name"]?.ToString(),
                             isLocal = false,
-                            created_at = DateTime.Parse(entry["created_at"]?.ToString()),
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
                 }
@@ -130,7 +131,7 @@ public class SupabaseController : MonoBehaviour
     )
     {
         string url =
-            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at&uploader_id=eq.{uploaderId}&order=created_at.desc";
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=eq.{uploaderId}&order=created_at.desc";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -157,7 +158,8 @@ public class SupabaseController : MonoBehaviour
                             id = entry["id"]?.ToString(),
                             name = entry["name"]?.ToString(),
                             isLocal = false,
-                            created_at = DateTime.Parse(entry["created_at"]?.ToString()),
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
                 }

@@ -29,7 +29,8 @@ public static class LevelStorage
                     id = Path.GetFileNameWithoutExtension(file),
                     name = levelData.name,
                     isLocal = true,
-                    created_at = File.GetLastWriteTime(file),
+                    uploaderId = "you, sucka!",
+                    createdAt = File.GetLastWriteTime(file),
                 };
                 levelInfos.Add(info);
             }

@@ -14,6 +14,7 @@ public class LevelBrowser : MonoBehaviour
     public TMP_InputField filterInput;
     public GameObject playLoader;
     public GameObject editLoader;
+    public ConfirmModal confirmModal;
 
     [Header("Tabs")]
     public Button communityTabButton;
@@ -93,6 +94,27 @@ public class LevelBrowser : MonoBehaviour
                 })
             );
         }
+    }
+
+    public void ShowConfirmDelete(string levelId, string levelName)
+    {
+        confirmModal.Show(
+            header: "Delete Tessellation?",
+            body: $"Are you sure you want to delete “{levelName}”?",
+            confirmAction: async () =>
+            {
+                SupabaseController.Instance.StartCoroutine(
+                    SupabaseController.Instance.SoftDeleteLevelById(levelId, callback)
+                );
+            }
+        );
+    }
+
+    // Supabase - callback function after deleting
+    public void callback(bool success)
+    {
+        Debug.Log("Delete via modal successful: " + success);
+        RefreshList();
     }
 
     void RefreshUI()
