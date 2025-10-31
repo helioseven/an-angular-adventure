@@ -1,5 +1,5 @@
 
-# [Play the Demo!](https://play.unity.com/en/games/272f39a2-dafd-4ab3-b45a-d0bd734b4ff9/aaa) #
+# [Join the Playtest on Steam!](https://store.steampowered.com/app/3661660/Tessel_Run/) #
 
 ## Quickstart ##
 
@@ -8,11 +8,13 @@
 + Install Git
 + Clone this Repo
     * Main branch is `origin/master`
++ Install Steamworks.NET
+    * [Read installation instructions.](https://steamworks.github.io/installation/)
+    * Current build is using `2025.162.1`
 
-## Current Goal ##
+## Next Milestone ##
 
-*  Release on Steam (Playtest only)
-  *  April 2025
+*  Full Steam Release (April 20, 2026)
 
 ## Notes ##
 
@@ -25,10 +27,11 @@
 * Words of Wisdom
     * Don't accidentally the whole repo. 💣
  
-## Version History ##
+## Unity Version History ##
 
-* Current Version - `6000.0.41f1`
-* Alpha (Playable Demo Phase) - `2019.4.11f1`
+* Current - `6000.2.9f1`
+* Steam Playtest Release - `6000.0.41f1`
+* Alpha ([Legacy Playable Demo](https://play.unity.com/en/games/272f39a2-dafd-4ab3-b45a-d0bd734b4ff9/aaa)) - `2019.4.11f1`
 * Oldest Version Recalled - `5.6.0f3`
 
 ## Who do I talk to? ##
