@@ -35,6 +35,7 @@ public partial class PlayGM : MonoBehaviour
     public GameObject activeCheckpoint { get; private set; }
 
     public CheckpointData activeCheckpointData { get; private set; }
+    public GravityDirection activeCheckpointGravity { get; private set; }
     public int activeLayer { get; private set; }
     public GravityDirection gravDirection
     {
@@ -75,7 +76,7 @@ public partial class PlayGM : MonoBehaviour
     public PlayLoader levelLoader = null;
 
     // private variables
-    public GravityDirection _gravDir;
+    private GravityDirection _gravDir;
     private HexOrient _playerStart;
     private Clock clock;
 
