@@ -4,21 +4,48 @@ using UnityEngine;
 /// <summary>
 /// Shared authentication state for the entire app.
 /// Holds current Steam ID, persona name, avatar URL, and Supabase JWT.
-/// Persists between sessions using PlayerPrefs.
+/// Persists between sessions using PlayerPrefs, and remains alive across scenes.
 /// </summary>
-public static class AuthState
+public class AuthState : MonoBehaviour
 {
-    public static string SteamId { get; private set; } = "";
-    public static string PersonaName { get; private set; } = "";
-    public static string AvatarUrl { get; private set; } = "";
-    public static string Jwt { get; private set; } = "";
+    public static AuthState Instance { get; private set; }
 
-    public static event Action OnChanged;
+    public string SteamId { get; private set; } = "";
+    public string PersonaName { get; private set; } = "";
+    public string AvatarUrl { get; private set; } = "";
+    public string Jwt { get; private set; } = "";
 
-    public static void RaiseChanged() => OnChanged?.Invoke();
+    public event Action OnChanged;
+
+    // jwt token expiry helper
+    public double TokenExpiryUnix { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Load everything *except* JWT
+        SteamId = PlayerPrefs.GetString("steam.steamid", "");
+        PersonaName = PlayerPrefs.GetString("steam.name", "");
+        AvatarUrl = PlayerPrefs.GetString("steam.avatar", "");
+
+        // Forget old JWT so we always reauth on fresh launch
+        Jwt = "";
+
+        Debug.Log("[AuthState] Initialized (JWT cleared for fresh session)");
+    }
+
+    private void RaiseChanged() => OnChanged?.Invoke();
 
     // --- Setters that also persist ---
-    public static void SetSteamId(string value)
+    public void SetSteamId(string value)
     {
         SteamId = value;
         PlayerPrefs.SetString("steam.steamid", value);
@@ -26,7 +53,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    public static void SetPersonaName(string value)
+    public void SetPersonaName(string value)
     {
         PersonaName = value;
         PlayerPrefs.SetString("steam.name", value);
@@ -34,7 +61,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    public static void SetAvatarUrl(string value)
+    public void SetAvatarUrl(string value)
     {
         AvatarUrl = value;
         PlayerPrefs.SetString("steam.avatar", value);
@@ -42,7 +69,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    public static void SetJwt(string token)
+    public void SetJwt(string token)
     {
         Jwt = token;
         PlayerPrefs.SetString("steam.jwt", token);
@@ -50,10 +77,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    /// <summary>
-    /// Allows grouped updates (avoids multiple RaiseChanged() calls)
-    /// </summary>
-    public static void SetSteamProfile(string steamId, string personaName, string avatarUrl)
+    public void SetSteamProfile(string steamId, string personaName, string avatarUrl)
     {
         SteamId = steamId ?? SteamId;
         PersonaName = personaName ?? PersonaName;
@@ -67,9 +91,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    // --- Initialization from PlayerPrefs ---
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitFromPrefs()
+    private void InitFromPrefs()
     {
         SteamId = PlayerPrefs.GetString("steam.steamid", "");
         PersonaName = PlayerPrefs.GetString("steam.name", "");
@@ -82,10 +104,7 @@ public static class AuthState
         RaiseChanged();
     }
 
-    /// <summary>
-    /// Clears stored data (useful for testing/logout).
-    /// </summary>
-    public static void Clear()
+    public void Clear()
     {
         SteamId = "";
         PersonaName = "";
@@ -99,5 +118,12 @@ public static class AuthState
         PlayerPrefs.Save();
 
         RaiseChanged();
+    }
+
+    public bool IsTokenExpired()
+    {
+        if (TokenExpiryUnix <= 0)
+            return false;
+        return DateTimeOffset.UtcNow.ToUnixTimeSeconds() > TokenExpiryUnix;
     }
 }

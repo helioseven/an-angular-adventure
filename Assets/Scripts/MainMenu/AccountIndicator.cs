@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Steamworks;
 using TMPro;
@@ -24,14 +25,26 @@ public class AccountIndicator : MonoBehaviour
 
     private void Start()
     {
-        // Subscribe to updates and run sequence
-        AuthState.OnChanged += RefreshUI;
-        StartCoroutine(RunStartupSequence());
+        AuthState.Instance.OnChanged += RefreshUI;
+
+        if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
+        {
+            Debug.Log("[AccountIndicator] JWT present in memory — same session, skipping re-auth.");
+
+            // Skip login, but still finalize the display
+            StartCoroutine(FinalizeUserDisplay());
+            isLoading = false;
+        }
+        else
+        {
+            // Fresh boot → run full Steam → Edge → Supabase sequence
+            StartCoroutine(RunStartupSequence());
+        }
     }
 
     private void OnDestroy()
     {
-        AuthState.OnChanged -= RefreshUI;
+        AuthState.Instance.OnChanged -= RefreshUI;
     }
 
     private void Update()
@@ -61,7 +74,7 @@ public class AccountIndicator : MonoBehaviour
         isLoading = false;
         avatarImage.transform.rotation = Quaternion.identity;
 
-        string name = AuthState.PersonaName ?? "(unknown)";
+        string name = AuthState.Instance.PersonaName ?? "(unknown)";
         SetStatus(name);
     }
 
@@ -159,9 +172,9 @@ public class AccountIndicator : MonoBehaviour
     {
         RefreshUI();
 
-        if (!string.IsNullOrEmpty(AuthState.AvatarUrl))
+        if (!string.IsNullOrEmpty(AuthState.Instance.AvatarUrl))
         {
-            yield return StartCoroutine(LoadAvatarFromUrl(AuthState.AvatarUrl));
+            yield return StartCoroutine(LoadAvatarFromUrl(AuthState.Instance.AvatarUrl));
         }
         else if (!isEditor && steamInitialized)
         {
@@ -206,9 +219,7 @@ public class AccountIndicator : MonoBehaviour
 
     private void RefreshUI()
     {
-        string name = AuthState.PersonaName ?? "(unknown)";
-        string id = AuthState.SteamId ?? "(no id)";
-        accountIndicatorText.text = $"{name} ({id})";
+        accountIndicatorText.text = AuthState.Instance.PersonaName ?? "(unknown)";
     }
 
     private void SetStatus(string msg)

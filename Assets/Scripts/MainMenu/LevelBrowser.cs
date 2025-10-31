@@ -90,7 +90,7 @@ public class LevelBrowser : MonoBehaviour
         {
             case LevelBrowserTab.MyRemote:
             {
-                string steamId = AuthState.SteamId;
+                string steamId = AuthState.Instance.SteamId;
                 StartCoroutine(
                     supabase.FetchPublishedLevelsBySteamId(
                         steamId,
@@ -122,7 +122,7 @@ public class LevelBrowser : MonoBehaviour
             }
             case LevelBrowserTab.DeveloperLevels:
             {
-                string steamId = AuthState.SteamId;
+                string steamId = AuthState.Instance.SteamId;
                 StartCoroutine(
                     supabase.FetchPublishedLevelsFromDevelopers(levels =>
                     {
