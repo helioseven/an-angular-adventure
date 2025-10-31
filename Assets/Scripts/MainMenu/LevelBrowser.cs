@@ -6,6 +6,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+public enum LevelBrowserTab
+{
+    Local = 0,
+    DeveloperLevels,
+    MyRemote,
+    Community,
+}
+
 public class LevelBrowser : MonoBehaviour
 {
     [Header("UI References")]
@@ -17,6 +25,8 @@ public class LevelBrowser : MonoBehaviour
     public ConfirmModal confirmModal;
 
     [Header("Tabs")]
+    public Button localTabButton;
+    public Button developerTabButton;
     public Button communityTabButton;
     public Button myTessellationsButton;
 
@@ -24,33 +34,39 @@ public class LevelBrowser : MonoBehaviour
     public SupabaseController supabase;
     public MenuGM menuGM;
 
+    public LevelBrowserTab currTab = LevelBrowserTab.Local;
+
     private List<LevelInfo> allLevels = new();
-    private bool showingMyLevels = false;
 
     void OnEnable()
     {
         filterInput.onValueChanged.AddListener(_ => RefreshUI());
 
-        communityTabButton.onClick.AddListener(() => SwitchTab(false));
-        myTessellationsButton.onClick.AddListener(() => SwitchTab(true));
+        localTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Local));
 
-        // Default tab = Community
-        SwitchTab(false);
+        developerTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.DeveloperLevels));
+        communityTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Community));
+        myTessellationsButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.MyRemote));
+
+        // Default tab = DeveloperLevels
+        SwitchTab(LevelBrowserTab.DeveloperLevels);
 
         // Wait a frame, then select to ensure EventSystem is active
-        StartCoroutine(SelectCommunityTabNextFrame());
+        StartCoroutine(SelectStartingTabNextFrame());
     }
 
-    IEnumerator SelectCommunityTabNextFrame()
+    IEnumerator SelectStartingTabNextFrame()
     {
         yield return null; // wait one frame
         if (EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(communityTabButton.gameObject);
+            EventSystem.current.SetSelectedGameObject(developerTabButton.gameObject);
     }
 
     void OnDisable()
     {
         filterInput.onValueChanged.RemoveAllListeners();
+        localTabButton.onClick.RemoveAllListeners();
+        developerTabButton.onClick.RemoveAllListeners();
         communityTabButton.onClick.RemoveAllListeners();
         myTessellationsButton.onClick.RemoveAllListeners();
     }
@@ -61,38 +77,65 @@ public class LevelBrowser : MonoBehaviour
             menuGM.OpenMainMenu();
     }
 
-    void SwitchTab(bool showMine)
+    void SwitchTab(LevelBrowserTab tab)
     {
+        currTab = tab;
+
         // Clear current levels
         allLevels.Clear();
         RefreshUI();
 
-        showingMyLevels = showMine;
-
         // Fetch new data
-        if (showMine)
+        switch (tab)
         {
-            string steamId = AuthState.SteamId;
-            StartCoroutine(
-                supabase.FetchPublishedLevelsBySteamId(
-                    steamId,
-                    levels =>
+            case LevelBrowserTab.MyRemote:
+            {
+                string steamId = AuthState.SteamId;
+                StartCoroutine(
+                    supabase.FetchPublishedLevelsBySteamId(
+                        steamId,
+                        levels =>
+                        {
+                            allLevels = levels;
+                            RefreshUI();
+                        }
+                    )
+                );
+                break;
+            }
+            case LevelBrowserTab.Community:
+            {
+                StartCoroutine(
+                    supabase.FetchPublishedLevels(levels =>
                     {
                         allLevels = levels;
                         RefreshUI();
-                    }
-                )
-            );
-        }
-        else
-        {
-            StartCoroutine(
-                supabase.FetchPublishedLevels(levels =>
-                {
-                    allLevels = levels;
-                    RefreshUI();
-                })
-            );
+                    })
+                );
+                break;
+            }
+            case LevelBrowserTab.Local:
+            {
+                allLevels = LevelStorage.LoadLocalLevelMetadata();
+                RefreshUI();
+                break;
+            }
+            case LevelBrowserTab.DeveloperLevels:
+            {
+                string steamId = AuthState.SteamId;
+                StartCoroutine(
+                    supabase.FetchPublishedLevelsFromDevelopers(levels =>
+                    {
+                        allLevels = levels;
+                        RefreshUI();
+                    })
+                );
+                break;
+            }
+            default:
+            {
+                break;
+            }
         }
     }
 
@@ -101,20 +144,28 @@ public class LevelBrowser : MonoBehaviour
         confirmModal.Show(
             header: "Delete Tessellation?",
             body: $"Are you sure you want to delete “{levelName}”?",
-            confirmAction: async () =>
+            confirmAction: () =>
             {
                 SupabaseController.Instance.StartCoroutine(
-                    SupabaseController.Instance.SoftDeleteLevelById(levelId, callback)
+                    SupabaseController.Instance.SoftDeleteLevelById(levelId, DeleteCallback)
                 );
             }
         );
     }
 
-    // Supabase - callback function after deleting
-    public void callback(bool success)
+    // Supabase - DeleteCallback function after deleting
+    public void DeleteCallback(bool success)
     {
-        Debug.Log("Delete via modal successful: " + success);
-        RefreshList();
+        if (success)
+        {
+            Debug.Log("Delete via modal successful :)");
+            RefreshList();
+        }
+        else
+        {
+            // TODO: popup failure snackbar (and success one for that matter!)
+            Debug.LogError("[LevelBrowser] [DeleteCallback] f-f-f-failure");
+        }
     }
 
     void RefreshUI()
@@ -152,6 +203,6 @@ public class LevelBrowser : MonoBehaviour
 
     public void RefreshList()
     {
-        SwitchTab(showingMyLevels);
+        SwitchTab(currTab);
     }
 }

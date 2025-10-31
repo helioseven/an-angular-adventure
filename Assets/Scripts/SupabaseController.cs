@@ -125,6 +125,55 @@ public class SupabaseController : MonoBehaviour
         onComplete?.Invoke(results);
     }
 
+    public IEnumerator FetchPublishedLevelsFromDevelopers(Action<List<LevelInfo>> onComplete)
+    {
+        string url =
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=is.null&order=created_at.desc";
+
+        Debug.Log("Fetching Published Levels: " + url);
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", $"Bearer {SUPABASE_API_KEY}");
+
+        yield return request.SendWebRequest();
+
+        var results = new List<LevelInfo>();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                var json = request.downloadHandler.text;
+                var array = JArray.Parse(json);
+
+                foreach (var entry in array)
+                {
+                    results.Add(
+                        new LevelInfo
+                        {
+                            id = entry["id"]?.ToString(),
+                            name = entry["name"]?.ToString(),
+                            isLocal = false,
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
+                        }
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SupabaseController] JSON parse error: {e.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"[SupabaseController] Fetch failed: {request.error}");
+        }
+
+        onComplete?.Invoke(results);
+    }
+
     public IEnumerator FetchPublishedLevelsBySteamId(
         string uploaderId,
         Action<List<LevelInfo>> onComplete
