@@ -79,7 +79,7 @@ public class SupabaseController : MonoBehaviour
 
     public IEnumerator FetchPublishedLevels(Action<List<LevelInfo>> onComplete)
     {
-        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at";
+        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -106,7 +106,109 @@ public class SupabaseController : MonoBehaviour
                             id = entry["id"]?.ToString(),
                             name = entry["name"]?.ToString(),
                             isLocal = false,
-                            created_at = DateTime.Parse(entry["created_at"]?.ToString()),
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
+                        }
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SupabaseController] JSON parse error: {e.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"[SupabaseController] Fetch failed: {request.error}");
+        }
+
+        onComplete?.Invoke(results);
+    }
+
+    public IEnumerator FetchPublishedLevelsFromDevelopers(Action<List<LevelInfo>> onComplete)
+    {
+        string url =
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=is.null&order=created_at.desc";
+
+        Debug.Log("Fetching Published Levels: " + url);
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", $"Bearer {SUPABASE_API_KEY}");
+
+        yield return request.SendWebRequest();
+
+        var results = new List<LevelInfo>();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                var json = request.downloadHandler.text;
+                var array = JArray.Parse(json);
+
+                foreach (var entry in array)
+                {
+                    results.Add(
+                        new LevelInfo
+                        {
+                            id = entry["id"]?.ToString(),
+                            name = entry["name"]?.ToString(),
+                            isLocal = false,
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
+                        }
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[SupabaseController] JSON parse error: {e.Message}");
+            }
+        }
+        else
+        {
+            Debug.LogError($"[SupabaseController] Fetch failed: {request.error}");
+        }
+
+        onComplete?.Invoke(results);
+    }
+
+    public IEnumerator FetchPublishedLevelsBySteamId(
+        string uploaderId,
+        Action<List<LevelInfo>> onComplete
+    )
+    {
+        string url =
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=eq.{uploaderId}&order=created_at.desc";
+
+        Debug.Log("Fetching Published Levels: " + url);
+
+        UnityWebRequest request = UnityWebRequest.Get(url);
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", $"Bearer {SUPABASE_API_KEY}");
+
+        yield return request.SendWebRequest();
+
+        var results = new List<LevelInfo>();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            try
+            {
+                var json = request.downloadHandler.text;
+                var array = JArray.Parse(json);
+
+                foreach (var entry in array)
+                {
+                    results.Add(
+                        new LevelInfo
+                        {
+                            id = entry["id"]?.ToString(),
+                            name = entry["name"]?.ToString(),
+                            isLocal = false,
+                            uploaderId = entry["uploader_id"]?.ToString(),
+                            createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
                 }
@@ -159,6 +261,42 @@ public class SupabaseController : MonoBehaviour
             Debug.LogError(
                 "Error loading level: " + request.error + "\n" + request.downloadHandler.text
             );
+        }
+    }
+
+    public IEnumerator SoftDeleteLevelById(string levelId, Action<bool> onComplete)
+    {
+        string url = $"{SUPABASE_URL}/rest/v1/levels?id=eq.{levelId}";
+        Debug.Log("Soft-deleting Level: " + url);
+
+        var body = "{\"is_deleted\":true}";
+        using UnityWebRequest request = new UnityWebRequest(url, "PATCH");
+        byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(body);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.uploadHandler.contentType = "application/json";
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        request.SetRequestHeader("Authorization", $"Bearer {AuthState.Jwt}");
+        Debug.Log(AuthState.Jwt);
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Prefer", "return=representation");
+        Debug.Log($"PATCH body: {System.Text.Encoding.UTF8.GetString(bodyRaw)}");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success || request.responseCode == 204)
+        {
+            Debug.Log($"Level {levelId} marked deleted.");
+            Debug.Log($"Response: {request.downloadHandler.text}");
+
+            onComplete?.Invoke(true);
+        }
+        else
+        {
+            Debug.LogError(
+                $"[SupabaseController] Soft delete failed: {request.error} ({request.responseCode}) ({request.downloadHandler.text})"
+            );
+            onComplete?.Invoke(false);
         }
     }
 }
