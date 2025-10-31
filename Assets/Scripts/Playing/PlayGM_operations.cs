@@ -61,7 +61,9 @@ public partial class PlayGM
     // updates last-touched checkpoint
     public void SetCheckpoint(GameObject checkpointGO)
     {
+        // set active checkpoint variables
         activeCheckpoint = checkpointGO;
+        activeCheckpointGravity = gravDirection;
 
         // update opacity for all checkpoints
         foreach (Transform checkpoint in checkpointMap.transform)
@@ -118,6 +120,9 @@ public partial class PlayGM
         // Freeze physics
         var rb2d = player.gameObject.GetComponent<Rigidbody2D>();
         rb2d.bodyType = RigidbodyType2D.Kinematic;
+
+        // reset gravity direction
+        SetGravity(activeCheckpointGravity);
 
         // reset player
         Vector3 v3 = activeCheckpointData.locus.ToUnitySpace();
