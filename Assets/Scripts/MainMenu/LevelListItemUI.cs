@@ -30,7 +30,7 @@ public class LevelListItemUI : MonoBehaviour
         editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
 
         // Only show delete for owned levels
-        bool isOwner = info.uploaderId == AuthState.SteamId;
+        bool isOwner = info.uploaderId == AuthState.Instance.SteamId;
 
         deleteButton.gameObject.SetActive(isOwner);
 

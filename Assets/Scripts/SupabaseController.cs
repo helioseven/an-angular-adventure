@@ -35,7 +35,7 @@ public class SupabaseController : MonoBehaviour
     public IEnumerator SaveLevel(SupabaseLevelDTO level, System.Action<string> onSuccess)
     {
         // Authentication
-        var jwt = AuthState.Jwt;
+        var jwt = AuthState.Instance.Jwt;
         if (string.IsNullOrEmpty(jwt))
         {
             Debug.LogError("Missing JWT — user not authenticated yet.");
@@ -276,8 +276,8 @@ public class SupabaseController : MonoBehaviour
         request.uploadHandler.contentType = "application/json";
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("apikey", SUPABASE_API_KEY);
-        request.SetRequestHeader("Authorization", $"Bearer {AuthState.Jwt}");
-        Debug.Log(AuthState.Jwt);
+        request.SetRequestHeader("Authorization", $"Bearer {AuthState.Instance.Jwt}");
+        Debug.Log(AuthState.Instance.Jwt);
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Prefer", "return=representation");
         Debug.Log($"PATCH body: {System.Text.Encoding.UTF8.GetString(bodyRaw)}");

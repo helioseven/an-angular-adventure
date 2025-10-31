@@ -151,7 +151,7 @@ public class SupabaseTest : MonoBehaviour
         // --- Update JWT if present ---
         if (!string.IsNullOrEmpty(resp.token))
         {
-            AuthState.SetJwt(resp.token);
+            AuthState.Instance.SetJwt(resp.token);
 
             // Sneak peek for debugging (shows start & end only)
             string jwt = resp.token;
@@ -172,7 +172,7 @@ public class SupabaseTest : MonoBehaviour
                 : !string.IsNullOrEmpty(p.avatar) ? p.avatar
                 : "";
 
-            AuthState.SetSteamProfile(p.steamid, p.personaname, avatar);
+            AuthState.Instance.SetSteamProfile(p.steamid, p.personaname, avatar);
             Debug.Log($"[SupabaseTest] Updated AuthState → {p.personaname} ({p.steamid})");
         }
         else
@@ -181,13 +181,15 @@ public class SupabaseTest : MonoBehaviour
         }
 
         // --- Sanity check ---
-        Debug.Log($"[SupabaseTest] Steam OK → {AuthState.PersonaName} ({AuthState.SteamId})");
+        Debug.Log(
+            $"[SupabaseTest] Steam OK → {AuthState.Instance.PersonaName} ({AuthState.Instance.SteamId})"
+        );
 
         // --- Continue with upsert if JWT present ---
-        if (!string.IsNullOrEmpty(AuthState.Jwt))
+        if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
         {
             Debug.Log("[SupabaseTest] Upserting user...");
-            yield return StartCoroutine(UpsertUser(AuthState.Jwt));
+            yield return StartCoroutine(UpsertUser(AuthState.Instance.Jwt));
         }
         else
         {
@@ -204,9 +206,9 @@ public class SupabaseTest : MonoBehaviour
     {
         var user = new UserUpsert
         {
-            steam_id = AuthState.SteamId,
-            display_name = AuthState.PersonaName,
-            avatar_url = AuthState.AvatarUrl,
+            steam_id = AuthState.Instance.SteamId,
+            display_name = AuthState.Instance.PersonaName,
+            avatar_url = AuthState.Instance.AvatarUrl,
         };
 
         var json = JsonUtility.ToJson(user);

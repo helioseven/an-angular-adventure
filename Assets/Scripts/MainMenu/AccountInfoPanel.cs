@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 /// <summary>
-/// Displays the authenticated user's Steam info from AuthState.
+/// Displays the authenticated user's Steam info from AuthState.Instance.
 /// Automatically updates when AuthState changes and rebuilds from saved prefs if needed.
 /// </summary>
 public class AccountInfoPanel : MonoBehaviour
@@ -22,13 +22,13 @@ public class AccountInfoPanel : MonoBehaviour
     private void OnEnable()
     {
         // Subscribe to updates and draw immediately
-        AuthState.OnChanged += Refresh;
+        AuthState.Instance.OnChanged += Refresh;
         LoadFromAuthOrPrefs();
     }
 
     private void OnDisable()
     {
-        AuthState.OnChanged -= Refresh;
+        AuthState.Instance.OnChanged -= Refresh;
     }
 
     /// <summary>
@@ -37,9 +37,9 @@ public class AccountInfoPanel : MonoBehaviour
     private void LoadFromAuthOrPrefs()
     {
         // Pull latest known data
-        string steamId = AuthState.SteamId;
-        string persona = AuthState.PersonaName;
-        string avatar = AuthState.AvatarUrl;
+        string steamId = AuthState.Instance.SteamId;
+        string persona = AuthState.Instance.PersonaName;
+        string avatar = AuthState.Instance.AvatarUrl;
 
         // If nothing in memory, restore from saved prefs
         if (string.IsNullOrEmpty(steamId))
@@ -50,8 +50,8 @@ public class AccountInfoPanel : MonoBehaviour
             avatar = PlayerPrefs.GetString("steam.avatar", "");
 
         // Update AuthState so everything else stays consistent
-        if (string.IsNullOrEmpty(AuthState.SteamId) && !string.IsNullOrEmpty(steamId))
-            AuthState.SetSteamProfile(steamId, persona, avatar);
+        if (string.IsNullOrEmpty(AuthState.Instance.SteamId) && !string.IsNullOrEmpty(steamId))
+            AuthState.Instance.SetSteamProfile(steamId, persona, avatar);
 
         // Draw UI now
         Refresh();
@@ -59,11 +59,13 @@ public class AccountInfoPanel : MonoBehaviour
 
     private void Refresh()
     {
-        string name = string.IsNullOrEmpty(AuthState.PersonaName)
+        string name = string.IsNullOrEmpty(AuthState.Instance.PersonaName)
             ? "(unknown)"
-            : AuthState.PersonaName;
-        string id = string.IsNullOrEmpty(AuthState.SteamId) ? "(no id)" : AuthState.SteamId;
-        string avatarUrl = AuthState.AvatarUrl;
+            : AuthState.Instance.PersonaName;
+        string id = string.IsNullOrEmpty(AuthState.Instance.SteamId)
+            ? "(no id)"
+            : AuthState.Instance.SteamId;
+        string avatarUrl = AuthState.Instance.AvatarUrl;
 
         if (nameTMP)
             nameTMP.SetText(name);
