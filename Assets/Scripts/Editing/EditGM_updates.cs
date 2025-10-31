@@ -230,9 +230,6 @@ public partial class EditGM
                 // single click on new item
                 else if (!isDoubleClick)
                 {
-                    // Debug.Log(
-                    //     " ----SINGLE CLICK HANDLER---- a different item has been selected"
-                    // );
                     go = c2d.gameObject;
                     if (IsMappedTile(go, out td))
                         _selectedItem = new SelectedItem(go, td);
@@ -247,11 +244,9 @@ public partial class EditGM
                         _selectedItem = new SelectedItem(go, vd);
                 }
 
-                // +++ double click handler +++
+                // double click on the same item
                 if (isDoubleClick)
                 {
-                    // Debug.Log("++++ DOUBLE CLICK HANDLER+++++");
-
                     go = c2d.gameObject;
                     if (IsMappedTile(go, out td))
                     {
@@ -264,7 +259,7 @@ public partial class EditGM
                         Destroy(go);
                     }
 
-                    // Kick it over to create mode
+                    // kick it over to create mode
                     EnterCreate();
                 }
             }

@@ -78,21 +78,59 @@ public partial class EditGM
             // dim layers in front of active layer by an extra amount
             if (activeLayer > layerNumber)
                 distance += 2;
-            setLayerOpacity(layer, distance);
+            setTileLayerOpacity(layer, distance);
         }
 
         // update opacity for all checkpoints
         foreach (Transform checkpoint in checkpointMap.transform)
         {
             CheckpointData cd;
-            bool ok = IsMappedCheckpoint(checkpoint.gameObject, out cd);
             int layerNumber = INACTIVE_LAYER;
-            if (ok)
+            if (IsMappedCheckpoint(checkpoint.gameObject, out cd))
                 layerNumber = cd.layer;
+            else
+                continue;
             int distance = Math.Abs(layerNumber - activeLayer);
+            // dim checkpoints in front of active layer by an extra amount
             if (activeLayer > layerNumber)
                 distance += 2;
-            setCheckpointOpacity(checkpoint, distance);
+            setSpecialOpacity(checkpoint, distance);
+        }
+
+        // update opacity for all warps
+        foreach (Transform warp in warpMap.transform)
+        {
+            WarpData wd;
+            int layerNumber = INACTIVE_LAYER;
+            if (IsMappedWarp(warp.gameObject, out wd))
+                layerNumber = wd.layer;
+            else
+                continue;
+            // warps do additional logic to figure out which
+            // end of the warp is closer to the active layer
+            int d1 = Math.Abs(layerNumber - activeLayer);
+            int d2 = Math.Abs(wd.targetLayer - activeLayer);
+            int distance = d1 <= d2 ? d1 : d2;
+            // dim warps fully in front of active layer by an extra amount
+            if ((activeLayer > layerNumber) && (activeLayer > wd.targetLayer))
+                distance += 2;
+            setSpecialOpacity(warp, distance);
+        }
+
+        // update opacity for all victories
+        foreach (Transform victory in victoryMap.transform)
+        {
+            VictoryData vd;
+            int layerNumber = INACTIVE_LAYER;
+            if (IsMappedVictory(victory.gameObject, out vd))
+                layerNumber = vd.layer;
+            else
+                continue;
+            int distance = Math.Abs(layerNumber - activeLayer);
+            // dim victories in front of active layer by an extra amount
+            if (activeLayer > layerNumber)
+                distance += 2;
+            setSpecialOpacity(victory, distance);
         }
 
         // add active layer depth and move the snap cursor to the new location
@@ -435,7 +473,7 @@ public partial class EditGM
     }
 
     // sets the opacity of all tiles within a layer using ordinal distance from activeLayer
-    private void setLayerOpacity(Transform tileLayer, int distance)
+    private void setTileLayerOpacity(Transform tileLayer, int distance)
     {
         // opacity and layer are calculated for non-active layers
         float alpha = 1f;
@@ -456,8 +494,8 @@ public partial class EditGM
         }
     }
 
-    // set opacity and physics by given distance for given checkpoint
-    private void setCheckpointOpacity(Transform checkpoint, int distance)
+    // set opacity and physics by given distance for given special
+    private void setSpecialOpacity(Transform special, int distance)
     {
         // opacity and layer are calculated for non-active layers
         float alpha = 1f;
@@ -468,11 +506,88 @@ public partial class EditGM
             alpha = (float)Math.Pow(0.5, (double)distance);
             layer = INACTIVE_LAYER;
         }
-        Color color = new Color(1f, 1f, 1f, alpha);
 
-        // each checkpoint's sprite is colored appropriately
-        checkpoint.gameObject.layer = layer;
-        checkpoint.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+        // first, just set the gameObject's layer
+        special.gameObject.layer = layer;
+
+        // then, each special's animation is colored appropriately
+        CheckpointData cd;
+        if (IsMappedCheckpoint(special.gameObject, out cd))
+        {
+            // copies a whole module to modify one value
+            ParticleSystem.ColorOverLifetimeModule colm = special
+                .GetChild(1)
+                .GetComponent<ParticleSystem>()
+                .colorOverLifetime;
+            Gradient oldGradient = colm.color.gradient;
+            Gradient newGradient = new Gradient();
+            GradientColorKey[] colorKeys = oldGradient.colorKeys;
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[oldGradient.alphaKeys.Length];
+
+            for (int i = 0; i < oldGradient.alphaKeys.Length; i++)
+            {
+                alphaKeys[i].time = oldGradient.alphaKeys[i].time;
+                // we just modify the alpha of the first key, since the
+                // checkpoint particles already fade to alpha=0 by time=1
+                alphaKeys[i].alpha = i == 0 ? alpha : oldGradient.alphaKeys[i].alpha;
+            }
+
+            newGradient.SetKeys(colorKeys, alphaKeys);
+            colm.color = new ParticleSystem.MinMaxGradient(newGradient);
+
+            return;
+        }
+
+        WarpData wd;
+        if (IsMappedWarp(special.gameObject, out wd))
+        {
+            // first, warps have two sprites to dim
+            Color color = new Color(1f, 1f, 1f, alpha);
+
+            special.GetChild(1).GetComponent<SpriteRenderer>().color = color;
+            special.GetChild(2).GetComponent<SpriteRenderer>().color = color;
+
+            // then, warps' particles are easier to dim, because
+            // they don't have an existing opacity gradient that
+            // otherwise needs to be preserved
+            ParticleSystem.ColorOverLifetimeModule colm = special
+                .GetChild(3)
+                .GetComponent<ParticleSystem>()
+                .colorOverLifetime;
+            colm.enabled = true;
+            colm.color = new ParticleSystem.MinMaxGradient(color);
+
+            return;
+        }
+
+        VictoryData vd;
+        if (IsMappedVictory(special.gameObject, out vd))
+        {
+            // victories work very similarly to checkpoints
+            ParticleSystem.ColorOverLifetimeModule colm = special
+                .GetChild(1)
+                .GetComponent<ParticleSystem>()
+                .colorOverLifetime;
+            Gradient oldGradient = colm.color.gradient;
+            Gradient newGradient = new Gradient();
+            GradientColorKey[] colorKeys = oldGradient.colorKeys;
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[oldGradient.alphaKeys.Length];
+
+            for (int i = 0; i < oldGradient.alphaKeys.Length; i++)
+            {
+                alphaKeys[i].time = oldGradient.alphaKeys[i].time;
+                // victory particles also eventually fade like checkpoint
+                // particles, but have more intervening keys; we only
+                // preserve the (zero) alpha of the last key
+                alphaKeys[i].alpha =
+                    i < oldGradient.alphaKeys.Length ? alpha : oldGradient.alphaKeys[i].alpha;
+            }
+
+            newGradient.SetKeys(colorKeys, alphaKeys);
+            colm.color = new ParticleSystem.MinMaxGradient(newGradient);
+
+            return;
+        }
     }
 
     // sets the currently active tool
