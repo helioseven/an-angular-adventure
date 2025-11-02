@@ -29,11 +29,12 @@ public class Player_Controller : MonoBehaviour
     public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
 
-    // ✅ new Input System
+    // New Input System
     private PlayerControls _controls;
     private Vector2 _moveInput;
     private bool _jumpPressed;
-    private bool _jumpHeld;
+
+    // private bool _jumpHeld;
 
     void Awake()
     {
@@ -43,14 +44,14 @@ public class Player_Controller : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // ✅ setup input
+        // setup input
         _controls = new PlayerControls();
         _controls.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
         _controls.Player.Move.canceled += _ => _moveInput = Vector2.zero;
         _controls.Player.Jump.started += _ => _jumpPressed = true;
         _controls.Player.Jump.canceled += _ => _jumpPressed = false;
-        _controls.Player.Jump.performed += _ => _jumpHeld = true;
-        _controls.Player.Jump.canceled += _ => _jumpHeld = false;
+        // _controls.Player.Jump.performed += _ => _jumpHeld = true;
+        // _controls.Player.Jump.canceled += _ => _jumpHeld = false;
     }
 
     void OnEnable() => _controls.Enable();

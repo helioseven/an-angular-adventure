@@ -1,8 +1,10 @@
 // conditionally add steamworks to desktop only (must be unity native define symbols - the user defined STEAMWORKS_NET will not work)
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
-#if !UNITY_IOS && !UNITY_ANDROID
+#if !UNITY_IOS
 using Steamworks;
 #endif
 
@@ -23,7 +25,7 @@ public class AccountIndicator : MonoBehaviour
     private string ticketHex = "";
     private bool isLoading = true;
 
-#if !STEAMWORKS_NET
+#if !UNITY_IOS
     private void Start()
     {
         AuthState.Instance.OnChanged += RefreshUI;
