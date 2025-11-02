@@ -67,25 +67,34 @@ public class TiltAwareStick : OnScreenStick
         if (IsJoystickBeingTouched())
             return;
 
-        Vector3 accel = Vector3.zero;
-        if (Accelerometer.current != null)
-            accel = Accelerometer.current.acceleration.ReadValue();
-        else
-            accel = Input.acceleration; // fallback for older APIs
+        // Read accelerometer from the new Input System
+        Vector3 accel = Accelerometer.current.acceleration.ReadValue();
 
-        // Apply calibration and smoothing
+        // Apply calibration offset
         Vector3 adjusted = accel - calibrationOffset;
-        Vector2 tilt = new(adjusted.x, -adjusted.z);
+
+        // Flat-on-table, Landscape Left mapping:
+        //  - Tilt left/right → adjusted.x
+        //  - Tilt toward/away → adjusted.y (toward = down → invert Y)
+        float x = adjusted.x; // left/right
+        float y = adjusted.y; // forward/back (toward user = down)
+
+        Vector2 tilt = new(x, y);
+
+        // Apply smoothing and sensitivity
         tiltSmoothed = Vector2.Lerp(
             tiltSmoothed,
             tilt * tiltSensitivity,
             Time.deltaTime * tiltSmoothing
         );
+
+        // Clamp to unit circle
         Vector2 clamped = Vector2.ClampMagnitude(tiltSmoothed, 1f);
 
         // Send to the underlying control
         sendValueVector2?.Invoke(this, new object[] { clamped });
 
+        // Tilt controls visual handle unless handle is being touched
         UpdateVisualHandle(clamped);
 #endif
     }

@@ -1,15 +1,13 @@
 ﻿using circleXsquares;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem; // ✅ new input system
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public partial class PlayGM : MonoBehaviour
 {
     [HideInInspector]
     public static PlayGM instance = null;
-
-    // public references
     public Boundary boundaryDown;
     public Boundary boundaryLeft;
     public Boundary boundaryRight;
@@ -31,7 +29,7 @@ public partial class PlayGM : MonoBehaviour
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
     public LevelInfo levelInfo;
 
-    // public read-accessibility state variables
+    // public read-accessibile state variables
     public GameObject activeCheckpoint { get; private set; }
     public CheckpointData activeCheckpointData { get; private set; }
     public GravityDirection activeCheckpointGravity { get; private set; }
@@ -69,15 +67,12 @@ public partial class PlayGM : MonoBehaviour
         FromMainMenuPlayButton,
     }
 
-    // private references
     public PlayLoader levelLoader = null;
 
-    // private variables
     private GravityDirection _gravDir;
     private HexOrient _playerStart;
     private Clock clock;
 
-    // ✅ new Input System instance
     private PlayerControls _controls;
 
     void Awake()
@@ -96,7 +91,7 @@ public partial class PlayGM : MonoBehaviour
             return;
         }
 
-        // ✅ Initialize controls
+        // Initialize controls
         _controls = new PlayerControls();
         _controls.Enable();
 
@@ -153,7 +148,6 @@ public partial class PlayGM : MonoBehaviour
         StartCoroutine(ResetToCheckpoint(rb2d, isIntroSpawn));
     }
 
-    // ✅ replaced legacy Input.GetKeyDown
     private void OnEscapePressed()
     {
         if (playModeContext == PlayModeContext.FromEditor)
