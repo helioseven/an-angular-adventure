@@ -2,6 +2,7 @@
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public partial class EditGM : MonoBehaviour
@@ -167,7 +168,7 @@ public partial class EditGM : MonoBehaviour
     void Update()
     {
         // Check for escape key and pop up the quit (exit to main menu) dialog
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             quitDialogPanel.gameObject.SetActive(true);
         }

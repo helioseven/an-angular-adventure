@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player_Controller : MonoBehaviour
 {
@@ -21,7 +22,6 @@ public class Player_Controller : MonoBehaviour
 
     // private variables
     private const float JUMP_FORCE_DEFAULT_VALUE = 420f;
-    private bool _godMode = false;
     private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
     private int _maxJumps = 1;
@@ -29,14 +29,33 @@ public class Player_Controller : MonoBehaviour
     public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
 
+    // ✅ new Input System
+    private PlayerControls _controls;
+    private Vector2 _moveInput;
+    private bool _jumpPressed;
+    private bool _jumpHeld;
+
     void Awake()
     {
-        _rb2d = gameObject.GetComponent<Rigidbody2D>();
+        _rb2d = GetComponent<Rigidbody2D>();
         _jumpForceVec = new Vector2(0.0f, jumpForce);
-        _groundCheckCollider = gameObject.GetComponent<Collider2D>();
+        _groundCheckCollider = GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+
+        // ✅ setup input
+        _controls = new PlayerControls();
+        _controls.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        _controls.Player.Move.canceled += _ => _moveInput = Vector2.zero;
+        _controls.Player.Jump.started += _ => _jumpPressed = true;
+        _controls.Player.Jump.canceled += _ => _jumpPressed = false;
+        _controls.Player.Jump.performed += _ => _jumpHeld = true;
+        _controls.Player.Jump.canceled += _ => _jumpHeld = false;
     }
+
+    void OnEnable() => _controls.Enable();
+
+    void OnDisable() => _controls.Disable();
 
     void Start()
     {
@@ -48,8 +67,7 @@ public class Player_Controller : MonoBehaviour
     void Update()
     {
         UpdateJumping();
-        UpdateGravity();
-        UpdateGodMode();
+        UnityEditorGodMode();
         UpdateRollingSound();
         UpdateJumpForce();
     }
@@ -60,27 +78,15 @@ public class Player_Controller : MonoBehaviour
         Jump();
     }
 
-    /* Override Functions */
-
     void OnCollisionEnter2D(Collision2D other)
     {
         _numJumps = 0;
-
-        // Debug.Log(
-        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name: " + other.collider.name
-        // );
-
-        // Debug.Log(
-        //     "[Player_Controller] [OnCollisionEnter2D] other.collider.name.Contains(\"Purple\"): "
-        //         + other.collider.name.Contains("Purple")
-        // );
 
         if (other.collider.name.Contains("Purple"))
         {
             recentlyTouchedPurpleTiles.Add(other.collider);
             if (queueSuperJumpOnPurpleTouch)
             {
-                // Debug.Log("SUPERJUMP");
                 _gmRef.soundManager.Play("superJump");
                 queueSuperJumpOnPurpleTouch = false;
                 _jumpNow = true;
@@ -88,44 +94,85 @@ public class Player_Controller : MonoBehaviour
         }
     }
 
-    /* Public Functions */
+    /* Input System–based replacements */
+
+    public void Move()
+    {
+        // read input
+        Vector2 movement = _moveInput;
+        Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
+        _rb2d.AddForce(upwardDragForcedMovement * speed * Time.deltaTime);
+    }
 
     public void Jump()
     {
         if (_jumpNow)
         {
-            // jump by force (acceleration)
             _rb2d.AddForce(_jumpForceVec);
-
-            // jump logic
             _jumpNow = false;
         }
     }
 
-    public void Move()
+    public void UpdateJumping()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        bool canJump = _numJumps < _maxJumps;
+        if (_numJumps == 0)
+        {
+            canJump = canJump && _groundCheckCollider.IsTouchingLayers();
+        }
 
-        Vector2 movement = new Vector2(moveHorizontal, moveVertical);
+        canJump =
+            canJump
+            || (
+                purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
+                && purpTucher
+            );
 
-        Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
+        if (
+            purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
+            && !purpTucher
+            && _jumpPressed
+        )
+        {
+            queueSuperJumpOnPurpleTouch = true;
+        }
 
-        // reduce force in oppsite direction of gravity
-        _rb2d.AddForce(upwardDragForcedMovement * speed * Time.deltaTime);
+        if (canJump && _jumpPressed)
+        {
+            _numJumps++;
+            _jumpNow = true;
+            _gmRef.soundManager.Play("jump");
+        }
     }
 
-    public PlayGM.GravityDirection GetGravityDirection()
+    public void UpdateJumpForce()
     {
-        return _gmRef.gravDirection;
+        jumpForce = isIceScalingBlockingJump ? 0f : JUMP_FORCE_DEFAULT_VALUE;
+        UpdateJumpForceVector(PlayGM.instance.gravDirection);
     }
 
-    // update "upward drag" force based on current gravity direction
-    // this is to prevent hovering while allowing a higher speed (original 420 -> target: 600+)
+    public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
+    {
+        switch (gd)
+        {
+            case PlayGM.GravityDirection.Down:
+                _jumpForceVec = new Vector2(0.0f, jumpForce);
+                break;
+            case PlayGM.GravityDirection.Left:
+                _jumpForceVec = new Vector2(jumpForce, 0.0f);
+                break;
+            case PlayGM.GravityDirection.Up:
+                _jumpForceVec = new Vector2(0.0f, -jumpForce);
+                break;
+            case PlayGM.GravityDirection.Right:
+                _jumpForceVec = new Vector2(-jumpForce, 0.0f);
+                break;
+        }
+    }
+
     public Vector2 UpdateUpwardDragForce(Vector2 inMovement)
     {
-        float dragForce = 0.2f; // 0 would be no upward mobility, 1 would be full upward mobility.
-
+        float dragForce = 0.2f;
         Vector2 outMovement = inMovement;
 
         switch (PlayGM.instance.gravDirection)
@@ -159,141 +206,37 @@ public class Player_Controller : MonoBehaviour
         return outMovement;
     }
 
-    // update jump force based on current gravity direction
-    public void UpdateJumpForce()
+    public void UnityEditorGodMode()
     {
-        // update the jumpForce value based on ice block toggle to 0 or default
-        jumpForce = isIceScalingBlockingJump ? 0f : JUMP_FORCE_DEFAULT_VALUE;
-        // use the udpated value in the jump force vector
-        UpdateJumpForceVector(PlayGM.instance.gravDirection);
-    }
-
-    // update jump force vector based on current gravity direction
-    public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
-    {
-        switch (gd)
-        {
-            case PlayGM.GravityDirection.Down:
-                _jumpForceVec = new Vector2(0.0f, jumpForce);
-                break;
-            case PlayGM.GravityDirection.Left:
-                _jumpForceVec = new Vector2(jumpForce, 0.0f);
-                break;
-            case PlayGM.GravityDirection.Up:
-                _jumpForceVec = new Vector2(0.0f, -jumpForce);
-                break;
-            case PlayGM.GravityDirection.Right:
-                _jumpForceVec = new Vector2(-jumpForce, 0.0f);
-                break;
-            default:
-                return;
-        }
-    }
-
-    // update jumping state and number of jumps
-    public void UpdateJumping()
-    {
-        bool canJump = _numJumps < _maxJumps;
-        if (_numJumps == 0)
-        {
-            canJump = canJump && _groundCheckCollider.IsTouchingLayers();
-        }
-
-        // purpleGroundCheck override
-        canJump =
-            canJump
-            || (
-                purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
-                && purpTucher
-            );
-
-        if (
-            purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
-            && !purpTucher
-            && Input.GetKeyDown(KeyCode.Space)
-        )
-        {
-            // Debug.Log("queueSuperJumpOnTouch");
-            queueSuperJumpOnPurpleTouch = true;
-        }
-
-        if (
-            purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
-            && purpTucher
-            && Input.GetKeyDown(KeyCode.Space)
-        )
-        {
-            Debug.Log("JUST after");
-        }
-
-        if (canJump && Input.GetKeyDown(KeyCode.Space))
-        {
-            // increment numJumps
-            _numJumps++;
-            // jump now!
-            _jumpNow = true;
-            // play sound
-            _gmRef.soundManager.Play("jump");
-        }
-    }
-
-    // activates/deactivates God Mode itself
-    public void UpdateGodMode()
-    {
-        // toggle God Mode on G key press
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            // God Mode toggle turned off for playtesters
-            // _gmRef.soundManager.Play("gravity");
-            // _godMode = !_godMode;
-        }
-    }
-
-    // update gravity force with God Mode if activated
-    public void UpdateGravity()
-    {
-        // God Mode gravity control
-        if (!_godMode)
-            return;
-
-        // K sets gravity down
-        if (Input.GetKeyDown(KeyCode.K))
-        {
+        // Gravity debug keys kept for editor desktop testing
+#if UNITY_EDITOR
+        if (Keyboard.current.kKey.wasPressedThisFrame)
             _gmRef.SetGravity(PlayGM.GravityDirection.Down);
-        }
-
-        // J sets gravity left
-        if (Input.GetKeyDown(KeyCode.J))
-        {
+        if (Keyboard.current.jKey.wasPressedThisFrame)
             _gmRef.SetGravity(PlayGM.GravityDirection.Left);
-        }
-
-        // I sets gravity up
-        if (Input.GetKeyDown(KeyCode.I))
-        {
+        if (Keyboard.current.iKey.wasPressedThisFrame)
             _gmRef.SetGravity(PlayGM.GravityDirection.Up);
-        }
-
-        // L sets gravity right
-        if (Input.GetKeyDown(KeyCode.L))
-        {
+        if (Keyboard.current.lKey.wasPressedThisFrame)
             _gmRef.SetGravity(PlayGM.GravityDirection.Right);
-        }
+#endif
     }
 
-    // update sound affects for player rolling on surfaces
     public void UpdateRollingSound()
     {
-        // disable rolling sounds once victory is achieved
         if (_gmRef.victoryAchieved)
         {
             _audioSource.volume = 0f;
             return;
         }
-        // use player velocity to set sound intensity
+
         float volume = _gmRef.SlideIntensityToVolume(_rb2d.linearVelocity, Physics2D.gravity);
         if (!_groundCheckCollider.IsTouchingLayers())
             volume = 0.0f;
         _audioSource.volume = volume;
+    }
+
+    public PlayGM.GravityDirection GetGravityDirection()
+    {
+        return _gmRef.gravDirection;
     }
 }
