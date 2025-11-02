@@ -230,6 +230,6 @@ public class AccountIndicator : MonoBehaviour
         accountIndicatorText.text = msg;
         Debug.Log($"[AccountIndicator] {msg}");
     }
-    // #endif for #if STEAMWORKS_NET
+    // #endif for #if UNITY_IOS
 #endif
 }

@@ -73,8 +73,6 @@ public partial class PlayGM : MonoBehaviour
     private HexOrient _playerStart;
     private Clock clock;
 
-    private PlayerControls _controls;
-
     void Awake()
     {
         if (!instance)
@@ -91,18 +89,11 @@ public partial class PlayGM : MonoBehaviour
             return;
         }
 
-        // Initialize controls
-        _controls = new PlayerControls();
-        _controls.Enable();
-
         // turn off mobile controls on non mobile
 #if !UNITY_IOS
         if (mobileControlsLayer != null)
             mobileControlsLayer.SetActive(false);
 #endif
-
-        // Escape listener
-        _controls.Player.Escape.performed += ctx => OnEscapePressed();
     }
 
     void Start()
@@ -146,6 +137,12 @@ public partial class PlayGM : MonoBehaviour
         Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
         bool isIntroSpawn = true;
         StartCoroutine(ResetToCheckpoint(rb2d, isIntroSpawn));
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            OnEscapePressed();
     }
 
     private void OnEscapePressed()

@@ -147,18 +147,4 @@ public class TiltAwareStick : OnScreenStick
         // Move handle relative to stick center
         handle.anchoredPosition = clampedValue * range;
     }
-
-    /// <summary>
-    /// Re-calibrates the neutral tilt position.
-    /// </summary>
-    public void CalibrateNeutral()
-    {
-#if UNITY_IOS && !UNITY_EDITOR
-        calibrationOffset =
-            Accelerometer.current != null
-                ? Accelerometer.current.acceleration.ReadValue()
-                : Input.acceleration;
-        Debug.Log($"[PublicOnScreenStick] Calibrated neutral tilt: {calibrationOffset}");
-#endif
-    }
 }
