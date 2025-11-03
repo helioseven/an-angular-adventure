@@ -4,6 +4,7 @@ using System.Linq;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public partial class EditGM
@@ -309,7 +310,7 @@ public partial class EditGM
     private List<RaycastResult> raycastAllHUD()
     {
         PointerEventData ped = new PointerEventData(eventSystem);
-        ped.position = Input.mousePosition;
+        ped.position = Mouse.current.position.ReadValue();
 
         List<RaycastResult> results = new List<RaycastResult>();
         uiRaycaster.Raycast(ped, results);

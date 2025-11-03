@@ -1,77 +1,23 @@
 using circleXsquares;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public partial class EditGM
 {
-    /* Update() Sub-Routines */
-
-    // updates getInputs and getInputDowns with appropriate InputKeys
-    private void updateInputs()
-    {
-        // get inputs from InputManager
-        bool[] b =
-        {
-            Input.GetButton("Jump"),
-            Input.GetButton("Palette"),
-            Input.GetButton("Delete"),
-            Input.GetButton("Mouse ButtonLeft"),
-            Input.GetButton("Mouse ButtonRight"),
-            Input.GetButton("CheckpointTool"),
-            Input.GetButton("WarpTool"),
-            Input.GetButton("Tile1"),
-            Input.GetButton("Tile2"),
-            Input.GetButton("Tile3"),
-            Input.GetButton("Tile4"),
-            Input.GetButton("Tile5"),
-            Input.GetButton("Tile6"),
-            Input.GetAxis("Rotate") < 0,
-            Input.GetAxis("Vertical") > 0,
-            Input.GetAxis("Rotate") > 0,
-            Input.GetAxis("Depth") > 0,
-            Input.GetAxis("Horizontal") < 0,
-            Input.GetAxis("Vertical") < 0,
-            Input.GetAxis("Horizontal") > 0,
-            Input.GetAxis("Depth") < 0,
-            Input.GetAxis("CycleColor") < 0,
-            Input.GetAxis("CycleColor") > 0,
-            Input.GetButton("VictoryTool"),
-        };
-
-        int k = 0;
-        InputKeys now = InputKeys.None;
-        // enum bit flags are assigned by powers of 2
-        for (int i = 1; i <= 0x800000; i = i * 2)
-        {
-            InputKeys ik = (InputKeys)i;
-            // CheckInput relies on last frame data before its been updated
-            if (b[k++] && !CheckInput(ik))
-                now = now | (InputKeys)i;
-        }
-        // assign public member for inputdown flags
-        getInputDowns = now;
-
-        // then same as above for regular input flags
-        k = 0;
-        now = InputKeys.None;
-        for (int i = 1; i <= 0x800000; i = i * 2)
-            if (b[k++])
-                now = now | (InputKeys)i;
-        getInputs = now;
-
-        // get raycast results for this frame's mouse position
-        _currentHUDhover = raycastAllHUD();
-    }
-
-    // makes changes associated with anchorIcon and layer changes
+    // Makes changes associated with anchorIcon and layer changes
     private void updateLevel()
     {
-        // right-click will update snap cursor location
-        if (CheckInputDown(InputKeys.ClickAlt))
+        var edit = InputManager.Instance.Controls.Edit;
+
+        // --- Right-click or alternate click updates snap cursor location ---
+        if (edit.ClickAlt.WasPressedThisFrame())
             anchorIcon.FindNewAnchor();
-        // F and R will change active layer
-        if (CheckInputDown(InputKeys.Out))
+
+        // --- Layer change inputs ---
+        if (edit.LayerUp.WasPressedThisFrame())
             MoveUpLayer();
-        if (CheckInputDown(InputKeys.In))
+
+        if (edit.LayerDown.WasPressedThisFrame())
             MoveDownLayer();
     }
 
@@ -81,22 +27,25 @@ public partial class EditGM
         if (_inputMode)
             return;
 
-        bool isHUD = CheckInputDown(InputKeys.HUD);
-        // bool isPal = CheckInput(InputKeys.Palette);
+        var edit = InputManager.Instance.Controls.Edit;
 
-        // UI is toggled whenever spacebar is pressed
-        if (isHUD)
+        // --- HUD toggle (was spacebar before) ---
+        if (edit.Palette.WasPressedThisFrame())
             hudPanel.SetActive(!hudPanel.activeSelf);
-        // check for HUD hover only when HUD panel is active, otherwise false
+
+        // --- Palette toggle (Tab key hold style) ---
+        bool isPalHeld = edit.Palette.IsPressed();
+
+        if (paletteMode != isPalHeld)
+        {
+            paletteMode = isPalHeld;
+            palettePanel.TogglePalette();
+        }
+
+        // --- HUD hover logic ---
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 
-        // palette is toggled on whenever tab key is held down
-        // if (paletteMode != isPal)
-        // {
-        //     paletteMode = isPal;
-        //     palettePanel.TogglePalette();
-        // }
-
+        // --- Show/hide current creator tool based on palette/HUD state ---
         if (hoveringHUD || paletteMode)
         {
             // whenever palette activates, _currentCreatorToolGameObject is turned off
@@ -105,7 +54,6 @@ public partial class EditGM
         else
         {
             // when palette deactivates, determine desired _currentCreatorToolGameObject activity
-            // and turn _currentCreatorToolGameObject back on if necessary
             _currentCreatorToolGameObject.SetActive(isEditorInCreateMode);
         }
     }
@@ -123,36 +71,39 @@ public partial class EditGM
             // process input for tool and update active tool accordingly
             UpdateTool();
         }
+        var edit = InputManager.Instance.Controls.Edit;
 
-        // C, V, and B activate the checkpoint, victory, and warp tools, respectively
-        if (CheckInputDown(InputKeys.Checkpoint))
+        // --- C, V, and B activate checkpoint, victory, and warp tools ---
+        if (edit.CheckpointTool.WasPressedThisFrame())
         {
             _currentCreatorToolGameObject.SetActive(false);
             setTool(EditCreatorTool.Checkpoint);
             soundManager.Play("checkpoint");
         }
-        if (CheckInputDown(InputKeys.Victory))
+
+        if (edit.VictoryTool.WasPressedThisFrame())
         {
             _currentCreatorToolGameObject.SetActive(false);
             setTool(EditCreatorTool.Victory);
             soundManager.Play("victory");
         }
-        if (CheckInputDown(InputKeys.Warp))
+
+        if (edit.WarpTool.WasPressedThisFrame())
         {
             _currentCreatorToolGameObject.SetActive(false);
             setTool(EditCreatorTool.Warp);
             soundManager.Play("warp");
         }
 
-        // if numeric key was pressed, set tileCreator as tool
-        InputKeys nums = InputKeys.One;
-        nums |= InputKeys.Two;
-        nums |= InputKeys.Three;
-        nums |= InputKeys.Four;
-        nums |= InputKeys.Five;
-        nums |= InputKeys.Six;
-        nums &= getInputDowns;
-        if (nums != InputKeys.None)
+        // --- Number keys 1–6 activate Tile tool and update tile properties ---
+        if (
+            edit.Triangle.WasPressedThisFrame()
+            || edit.Diamond.WasPressedThisFrame()
+            || edit.Trapezoid.WasPressedThisFrame()
+            || edit.Hexagon.WasPressedThisFrame()
+            || edit.Square.WasPressedThisFrame()
+            || edit.Wedge.WasPressedThisFrame()
+        )
         {
             _currentCreatorToolGameObject.SetActive(false);
             updateTileProperties();
@@ -199,52 +150,57 @@ public partial class EditGM
         }
     }
 
-    // makes changes associated with being in isEditorInEditMode
+    // Makes changes associated with being in isEditorInEditMode
     private void updateEdit()
     {
+        if (ShouldBlockWorldClick())
+            return; // skip world interaction this frame
+
+        var edit = InputManager.Instance.Controls.Edit;
+
         bool noItemCurrentlySelected =
             !_selectedItem.instance || _selectedItem == SelectedItem.noSelection;
         bool isDoubleClick = false;
         GameObject go;
         TileData td;
 
+        // --- Primary click  ---
+        bool clickMain = edit.Click.WasPressedThisFrame();
+        // --- Delete key ---
+        bool deletePressed = edit.Delete.WasPressedThisFrame();
+
         // first, handle the case where an item is currently selected
         if (!noItemCurrentlySelected)
         {
-            if (CheckInputDown(InputKeys.ClickMain))
+            if (clickMain)
             {
-                // check if you clicked the same thing
                 Collider2D c2d = GetObjectClicked();
 
-                // if nothing is clicked on
                 if (!c2d)
                 {
                     _selectedItem = SelectedItem.noSelection;
                     return;
                 }
-                // otherwise if the same item is clicked on
                 else if (_selectedItem.instance == c2d.gameObject)
                 {
                     isDoubleClick = true;
                 }
-                // single click on new item
                 else if (!isDoubleClick)
                 {
                     go = c2d.gameObject;
                     if (IsMappedTile(go, out td))
                         _selectedItem = new SelectedItem(go, td);
-                    CheckpointData cd;
-                    if (IsMappedCheckpoint(go, out cd))
+
+                    if (IsMappedCheckpoint(go, out CheckpointData cd))
                         _selectedItem = new SelectedItem(go, cd);
-                    WarpData wd;
-                    if (IsMappedWarp(go, out wd))
+
+                    if (IsMappedWarp(go, out WarpData wd))
                         _selectedItem = new SelectedItem(go, wd);
-                    VictoryData vd;
-                    if (IsMappedVictory(go, out vd))
+
+                    if (IsMappedVictory(go, out VictoryData vd))
                         _selectedItem = new SelectedItem(go, vd);
                 }
 
-                // double click on the same item
                 if (isDoubleClick)
                 {
                     go = c2d.gameObject;
@@ -264,8 +220,8 @@ public partial class EditGM
                 }
             }
 
-            // Delete key will destroy instance and forget _selectedItem
-            if (CheckInputDown(InputKeys.Delete))
+            // Delete key destroys instance and clears selection
+            if (deletePressed)
             {
                 soundManager.Play("delete");
                 removeSelectedItem();
@@ -273,47 +229,32 @@ public partial class EditGM
                 _selectedItem = SelectedItem.noSelection;
             }
         }
+
         // single click handler (no previously selected item)
-        if (CheckInputDown(InputKeys.ClickMain) && noItemCurrentlySelected && !isDoubleClick)
+        if (clickMain && noItemCurrentlySelected && !isDoubleClick)
         {
-            // Debug.Log(
-            //     "[updateEdit] SINGLE CLICK noItemCurrentlySelected: " + noItemCurrentlySelected
-            // );
             Collider2D c2d = GetObjectClicked();
             if (!c2d)
             {
-                // left-click selects a item, if click misses then break
                 _selectedItem = SelectedItem.noSelection;
                 return;
             }
 
             go = c2d.gameObject;
-            // check if clicked object is a mapped tile
             if (IsMappedTile(go, out td))
             {
-                // if clicked tile isn't a part of activeLayer, ignore it
                 if (td.orient.layer != activeLayer)
                     return;
                 _selectedItem = new SelectedItem(go, td);
             }
             else
             {
-                // if special is clicked, same as above with extra checks
-                CheckpointData cd;
-                WarpData wd;
-                VictoryData vd;
-                if (IsMappedCheckpoint(go, out cd))
-                {
+                if (IsMappedCheckpoint(go, out CheckpointData cd))
                     _selectedItem = new SelectedItem(go, cd);
-                }
-                if (IsMappedWarp(go, out wd))
-                {
+                if (IsMappedWarp(go, out WarpData wd))
                     _selectedItem = new SelectedItem(go, wd);
-                }
-                if (IsMappedVictory(go, out vd))
-                {
+                if (IsMappedVictory(go, out VictoryData vd))
                     _selectedItem = new SelectedItem(go, vd);
-                }
             }
         }
     }
@@ -324,119 +265,117 @@ public partial class EditGM
         // stub
     }
 
-    // makes changes associated with being in selectMode
+    // Makes changes associated with being in selectMode
     private void updateSelect()
     {
-        // in select mode, clicking is the only function
-        if (CheckInputDown(InputKeys.ClickMain))
+        if (ShouldBlockWorldClick())
+            return; // skip world interaction this frame
+
+        var edit = InputManager.Instance.Controls.Edit;
+
+        // In select mode, clicking is the only function
+        if (edit.Click.WasPressedThisFrame())
         {
-            // first find out what (if anything) was clicked on
+            // First find out what (if anything) was clicked on
             Collider2D c2d = GetObjectClicked();
             GameObject si = _selectedItem.instance;
 
-            // Debug.Log("[updates] [updateSelect] c2d.gameObject.name: " + c2d.gameObject.name);
-
-            if (!c2d || (si && (si == c2d.gameObject)))
+            if (!c2d || (si && si == c2d.gameObject))
             {
-                // if nothing or selected tile is clicked on, deselect and return
+                // If nothing or the same tile is clicked, deselect and return
                 _selectedItem = SelectedItem.noSelection;
                 return;
             }
-            else
-            {
-                // otherwise select according to what was clicked on
-                GameObject go = c2d.gameObject;
-                TileData td;
-                if (IsMappedTile(go, out td))
-                    _selectedItem = new SelectedItem(go, td);
-                CheckpointData cd;
-                if (IsMappedCheckpoint(go, out cd))
-                    _selectedItem = new SelectedItem(go, cd);
-                WarpData wd;
-                if (IsMappedWarp(go, out wd))
-                    _selectedItem = new SelectedItem(go, wd);
-                VictoryData vd;
-                if (IsMappedVictory(go, out vd))
-                    _selectedItem = new SelectedItem(go, vd);
-            }
+
+            // Otherwise select according to what was clicked on
+            GameObject go = c2d.gameObject;
+            if (IsMappedTile(go, out TileData td))
+                _selectedItem = new SelectedItem(go, td);
+            if (IsMappedCheckpoint(go, out CheckpointData cd))
+                _selectedItem = new SelectedItem(go, cd);
+            if (IsMappedWarp(go, out WarpData wd))
+                _selectedItem = new SelectedItem(go, wd);
+            if (IsMappedVictory(go, out VictoryData vd))
+                _selectedItem = new SelectedItem(go, vd);
         }
     }
 
-    // handles input that modifies the tile creator tool
+    // Handles input that modifies the tile creator tool
     private void updateTileProperties()
     {
-        // update tile rotation
+        var edit = InputManager.Instance.Controls.Edit;
+
+        // --- Update tile rotation ---
         int rot = tileCreator.tileOrient.rotation;
         int oldRot = rot;
-        if (CheckInputDown(InputKeys.CCW))
+
+        if (edit.RotateLeft.WasPressedThisFrame())
             rot++;
-        if (CheckInputDown(InputKeys.CW))
+        if (edit.RotateRight.WasPressedThisFrame())
             rot--;
+
         if (rot != oldRot)
         {
-            // play a sound for rotation
             soundManager.Play("bounce");
-
             tileCreator.SetRotation(rot);
         }
 
-        // update tile color
-        if (CheckInputDown(InputKeys.ColorCCW))
+        // --- Update tile color ---
+        if (edit.CycleColorPrev.WasPressedThisFrame())
         {
-            // play a sound for color Change
             soundManager.Play("bounce");
-
             tileCreator.CycleColor(false);
         }
-        if (CheckInputDown(InputKeys.ColorCW))
-        {
-            // play a sound for color Change
-            soundManager.Play("bounce");
 
+        if (edit.CycleColorNext.WasPressedThisFrame())
+        {
+            soundManager.Play("bounce");
             tileCreator.CycleColor(true);
         }
 
-        // update tile type
-        if (CheckInputDown(InputKeys.One))
+        // --- Update tile type (1–6) ---
+        if (edit.Triangle.WasPressedThisFrame())
             tileCreator.SelectType(0);
-        if (CheckInputDown(InputKeys.Two))
+        if (edit.Diamond.WasPressedThisFrame())
             tileCreator.SelectType(1);
-        if (CheckInputDown(InputKeys.Three))
+        if (edit.Trapezoid.WasPressedThisFrame())
             tileCreator.SelectType(2);
-        if (CheckInputDown(InputKeys.Four))
+        if (edit.Hexagon.WasPressedThisFrame())
             tileCreator.SelectType(3);
-        if (CheckInputDown(InputKeys.Five))
+        if (edit.Square.WasPressedThisFrame())
             tileCreator.SelectType(4);
-        if (CheckInputDown(InputKeys.Six))
+        if (edit.Wedge.WasPressedThisFrame())
             tileCreator.SelectType(5);
 
         if (
-            CheckInputDown(InputKeys.One)
-            || CheckInputDown(InputKeys.Two)
-            || CheckInputDown(InputKeys.Three)
-            || CheckInputDown(InputKeys.Four)
-            || CheckInputDown(InputKeys.Five)
-            || CheckInputDown(InputKeys.Six)
+            edit.Triangle.WasPressedThisFrame()
+            || edit.Diamond.WasPressedThisFrame()
+            || edit.Trapezoid.WasPressedThisFrame()
+            || edit.Hexagon.WasPressedThisFrame()
+            || edit.Square.WasPressedThisFrame()
+            || edit.Wedge.WasPressedThisFrame()
         )
         {
-            // Play the sound for any tile type selected
             soundManager.Play("bounce");
         }
     }
 
-    // handles input relating to the current tool
+    // Handles input relating to the current tool
     private void UpdateTool()
     {
-        bool isMainClick = CheckInputDown(InputKeys.ClickMain);
+        if (ShouldBlockWorldClick())
+            return; // skip world interaction this frame
+
+        var edit = InputManager.Instance.Controls.Edit;
+        bool isMainClick = edit.Click.WasPressedThisFrame();
+
         switch (_currentCreatorTool)
         {
-            // when using tile tool, always update tile creator properties first
+            // --- Tile Tool ---
             case EditCreatorTool.Tile:
                 updateTileProperties();
-                // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
-                    // play random drawing sound
                     int variant = UnityEngine.Random.Range(3, 10);
                     soundManager.Play($"drawing-{variant}");
 
@@ -444,40 +383,40 @@ public partial class EditGM
                     _selectedItem = new SelectedItem(go, _tileLookup[go]);
                 }
                 break;
+
+            // --- Checkpoint Tool ---
             case EditCreatorTool.Checkpoint:
-                // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
-                    // play warp sound
                     soundManager.Play("checkpoint");
                     CheckpointData cd = new CheckpointData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(cd);
                     _selectedItem = new SelectedItem(go, cd);
                 }
                 break;
+
+            // --- Warp Tool ---
             case EditCreatorTool.Warp:
-                // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
-                    // play warp sound
                     soundManager.Play("warp");
-
                     WarpData wd = new WarpData(anchorIcon.focus, activeLayer);
                     GameObject go = addSpecial(wd);
                     _selectedItem = new SelectedItem(go, wd);
                 }
                 break;
+
+            // --- Victory Tool ---
             case EditCreatorTool.Victory:
-                // if main click, add relevant tool's item to the level
                 if (isMainClick)
                 {
-                    // play victory sound
                     soundManager.Play("victory");
-                    VictoryData victoryData = new VictoryData(anchorIcon.focus, activeLayer);
-                    GameObject go = addSpecial(victoryData);
-                    _selectedItem = new SelectedItem(go, victoryData);
+                    VictoryData vd = new VictoryData(anchorIcon.focus, activeLayer);
+                    GameObject go = addSpecial(vd);
+                    _selectedItem = new SelectedItem(go, vd);
                 }
                 break;
+
             default:
                 break;
         }
