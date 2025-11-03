@@ -34,7 +34,7 @@ public class TileSelectControl : MonoBehaviour
         {
             // if the current tool is TileCreator, selected should == tileType
             if (_activeSelected != _tcRef.tileType)
-                updateSelected(_tcRef.tileType);
+                updateHighlightedTool(_tcRef.tileType);
             if (_activeColor != _tcRef.tileColor)
                 updateTileColors();
         }
@@ -63,7 +63,7 @@ public class TileSelectControl : MonoBehaviour
     }
 
     // updates active state for old and new selected
-    private void updateSelected(int inSelected)
+    private void updateHighlightedTool(int inSelected)
     {
         // turn off the image renderer for the previous selected
         transform.GetChild(_activeSelected).GetComponent<Image>().enabled = false;
@@ -77,11 +77,11 @@ public class TileSelectControl : MonoBehaviour
     private void updateSpecialTool()
     {
         if (_gmTool == EditCreatorTool.Checkpoint)
-            updateSelected(6);
+            updateHighlightedTool(6);
         else if (_gmTool == EditCreatorTool.Victory)
-            updateSelected(7);
+            updateHighlightedTool(7);
         else if (_gmTool == EditCreatorTool.Warp)
-            updateSelected(8);
+            updateHighlightedTool(8);
     }
 
     // updates the color of each selected's tile
