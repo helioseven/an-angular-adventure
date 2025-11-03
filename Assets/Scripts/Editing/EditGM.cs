@@ -2,6 +2,7 @@
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public partial class EditGM : MonoBehaviour
@@ -42,8 +43,6 @@ public partial class EditGM : MonoBehaviour
         get { return _currentEditorMode == EditorMode.Edit; }
         set { }
     }
-    public InputKeys getInputs { get; private set; }
-    public InputKeys getInputDowns { get; private set; }
     public bool hoveringHUD { get; private set; }
     public LevelData levelData { get; private set; }
     public SelectedItem selectedItem
@@ -130,9 +129,6 @@ public partial class EditGM : MonoBehaviour
             // initializations for connected state variables
             hudPanel.SetActive(true);
 
-            // initializations for public state variables
-            getInputs = InputKeys.None;
-            getInputDowns = InputKeys.None;
             activeLayer = 0;
             hoveringHUD = false;
             paletteMode = false;
@@ -164,16 +160,20 @@ public partial class EditGM : MonoBehaviour
         }
     }
 
+    void Start()
+    {
+        InputManager.Instance.SetSceneInputs("Editing");
+    }
+
     void Update()
     {
         // Check for escape key and pop up the quit (exit to main menu) dialog
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             quitDialogPanel.gameObject.SetActive(true);
         }
-
-        // getInputs and getInputDowns are updated
-        updateInputs();
+        // get raycast results for this frame's mouse position
+        _currentHUDhover = raycastAllHUD();
         // hudPanel and palettePanel are updated
         updateUI();
         // if the palette is active, skip the rest

@@ -1,78 +1,80 @@
 ﻿using UnityEngine;
-using InputKeys = EditGM.InputKeys;
+using UnityEngine.InputSystem;
 
 public class EditCamControl : MonoBehaviour
 {
+    [Header("Camera Settings")]
     public float dragSpeed = 500f;
-    public float zoomSpeed = 10f;
+    public float zoomSpeed = 100f;
     public float minZoomAmount = -25f;
     public float maxZoomAmount = 5f;
 
     // private variables
-    private InputKeys _camInputs;
-    private InputKeys _keyMask;
     private EditGM _gmRef;
-    private Vector3 dragOrigin;
-    private float zoomAmount = 0;
+    private Vector2 _moveInput;
+    private Vector2 _dragOrigin;
+    private float _zoomAmount = 0f;
+
+    // input references
+    private InputControls _controls;
 
     void Start()
     {
         _gmRef = EditGM.instance;
-        _keyMask = (InputKeys.Up | InputKeys.Left | InputKeys.Down | InputKeys.Right);
+        _controls = InputManager.Instance.Controls;
 
-        // move our camera back
+        // enable Editing map
+        var edit = _controls.Edit;
+
+        // WASD / Arrow movement
+        edit.MoveCamera.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        edit.MoveCamera.canceled += _ => _moveInput = Vector2.zero;
+
+        // Scroll wheel zoom
+        edit.ZoomCamera.performed += ctx =>
+        {
+            float scroll = ctx.ReadValue<float>();
+            _zoomAmount = Mathf.Clamp(
+                _zoomAmount + scroll * zoomSpeed * Time.deltaTime,
+                minZoomAmount,
+                maxZoomAmount
+            );
+        };
+
+        // initial position: back from active layer
         Vector3 v3 = transform.position;
-        //  get active layer depth and set temp position back 8 units from it
         v3.z = _gmRef.GetLayerDepth() - 8f;
         transform.position = v3;
     }
 
     void Update()
     {
-        // mask identifying the keys relevant to the camera control (WASD)
-        _camInputs = _gmRef.getInputs;
-        _camInputs &= _keyMask;
+        var mouse = Mouse.current;
+        if (mouse == null)
+            return;
 
-        // WASD movement - (when not in input mode from level name input)
-        if (!_gmRef.inputMode)
+        // --- Keyboard camera movement ---
+        if (!_gmRef.inputMode && _moveInput != Vector2.zero)
         {
             Vector3 v3 = transform.position;
-            if ((_camInputs & InputKeys.Up) == InputKeys.Up)
-                v3.y += (5.0f * Time.deltaTime);
-            if ((_camInputs & InputKeys.Left) == InputKeys.Left)
-                v3.x -= (5.0f * Time.deltaTime);
-            if ((_camInputs & InputKeys.Down) == InputKeys.Down)
-                v3.y -= (5.0f * Time.deltaTime);
-            if ((_camInputs & InputKeys.Right) == InputKeys.Right)
-                v3.x += (5.0f * Time.deltaTime);
-
+            v3.x += _moveInput.x * 5f * Time.deltaTime;
+            v3.y += _moveInput.y * 5f * Time.deltaTime;
             transform.position = v3;
         }
 
-        // Optional - uncomment to block scroll wheel behaviors when over UI elements
-        // if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        // {
-        //     Debug.Log("Ignoring Wheel Click inputs - pointer is over UI");
-        //     return;
-        // }
+        // --- Middle mouse drag (pan) ---
+        if (mouse.middleButton.wasPressedThisFrame)
+            _dragOrigin = mouse.position.ReadValue();
 
-        // Wheel mouse button pressed: capture origin
-        if (Input.GetMouseButtonDown(2))
+        if (mouse.middleButton.isPressed)
         {
-            dragOrigin = Input.mousePosition;
-        }
-
-        // Wheel mouse button held: calculate and move
-        if (Input.GetMouseButton(2))
-        {
-            Vector3 currentPos = Input.mousePosition;
-            Vector3 delta = currentPos - dragOrigin;
+            Vector2 currentPos = mouse.position.ReadValue();
+            Vector2 delta = currentPos - _dragOrigin;
 
             Camera cam = Camera.main;
             float camHeight = cam.orthographicSize * 2f;
             float camWidth = camHeight * cam.aspect;
 
-            // Convert pixel delta to world delta
             Vector3 move = new Vector3(
                 -delta.x / Screen.width * camWidth,
                 -delta.y / Screen.height * camHeight,
@@ -80,20 +82,23 @@ public class EditCamControl : MonoBehaviour
             );
 
             cam.transform.Translate(move * dragSpeed * Time.deltaTime, Space.World);
-            dragOrigin = currentPos;
+            _dragOrigin = currentPos;
         }
 
-        // Wheel Scroll - Zoom Zoom
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        // --- Hardware scroll wheel (for fallback / legacy mice) ---
+        float scroll = mouse.scroll.ReadValue().y;
         if (Mathf.Abs(scroll) > 0.01f)
         {
-            zoomAmount = Mathf.Clamp(zoomAmount + scroll * zoomSpeed, minZoomAmount, maxZoomAmount);
+            _zoomAmount = Mathf.Clamp(
+                _zoomAmount + scroll * zoomSpeed * Time.deltaTime,
+                minZoomAmount,
+                maxZoomAmount
+            );
         }
 
-        // Set the camera back and use the zoom amount
-        Vector3 finalCameraPosition = transform.position;
-        //  get active layer depth and set temp position back 8 units from it
-        finalCameraPosition.z = _gmRef.GetLayerDepth() - 8f + zoomAmount;
-        transform.position = finalCameraPosition;
+        // --- Apply zoom ---
+        Vector3 pos = transform.position;
+        pos.z = _gmRef.GetLayerDepth() - 8f + _zoomAmount;
+        transform.position = pos;
     }
 }

@@ -1,10 +1,12 @@
-using System;
+// conditionally add steamworks to desktop only (must be unity native define symbols - the user defined STEAMWORKS_NET will not work)
 using System.Collections;
-using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+#if !UNITY_IOS
+using Steamworks;
+#endif
 
 public class AccountIndicator : MonoBehaviour
 {
@@ -23,6 +25,7 @@ public class AccountIndicator : MonoBehaviour
     private string ticketHex = "";
     private bool isLoading = true;
 
+#if !UNITY_IOS
     private void Start()
     {
         AuthState.Instance.OnChanged += RefreshUI;
@@ -227,4 +230,6 @@ public class AccountIndicator : MonoBehaviour
         accountIndicatorText.text = msg;
         Debug.Log($"[AccountIndicator] {msg}");
     }
+    // #endif for #if UNITY_IOS
+#endif
 }

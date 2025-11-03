@@ -2,6 +2,7 @@ using System;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public partial class EditGM
 {
@@ -24,37 +25,6 @@ public partial class EditGM
         Warp,
         Victory,
         Eraser,
-    }
-
-    // InputKeys wraps keyboard input into a bit-flag enum
-    [Flags]
-    public enum InputKeys
-    {
-        None = 0x0,
-        HUD = 0x1,
-        Palette = 0x2,
-        Delete = 0x4,
-        ClickMain = 0x8,
-        ClickAlt = 0x10,
-        Checkpoint = 0x20,
-        Warp = 0x40,
-        One = 0x80,
-        Two = 0x100,
-        Three = 0x200,
-        Four = 0x400,
-        Five = 0x800,
-        Six = 0x1000,
-        CCW = 0x2000,
-        Up = 0x4000,
-        CW = 0x8000,
-        In = 0x10000,
-        Left = 0x20000,
-        Down = 0x40000,
-        Right = 0x80000,
-        Out = 0x100000,
-        ColorCCW = 0x200000,
-        ColorCW = 0x400000,
-        Victory = 0x800000,
     }
 
     /* Private Utilities */
@@ -620,25 +590,14 @@ public partial class EditGM
 
     /* Public Utilities */
 
-    // simply returns whether the given keys were being held during this frame
-    public bool CheckInput(InputKeys inKeys)
-    {
-        return (getInputs & inKeys) == inKeys;
-    }
 
-    // simply returns whether the given keys were pressed on this frame
-    public bool CheckInputDown(InputKeys inKeys)
-    {
-        return (getInputDowns & inKeys) == inKeys;
-    }
-
-    // simply returns the z value of the current layer's transform
+    // returns the z value of the current layer's transform
     public float GetLayerDepth()
     {
         return GetLayerDepth(activeLayer);
     }
 
-    // simply returns the z value of the given layer's transform
+    // returns the z value of the given layer's transform
     public float GetLayerDepth(int inLayer)
     {
         return tileMap.transform.GetChild(inLayer).position.z;
@@ -654,20 +613,38 @@ public partial class EditGM
         return levelName;
     }
 
-    // returns first collider hit on active layer under click
+    public bool ShouldBlockWorldClick()
+    {
+        // palette open, typing into an input, or pointer over UI element
+        return paletteMode
+            || hoveringHUD
+            || inputMode
+            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
+    }
+
     public Collider2D GetObjectClicked()
     {
-        // use plane at active layer depth to calculate mouse intersection
-        Ray r = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Plane p = new Plane(Vector3.forward, -2f * activeLayer);
-        // get point of intersection with active layer plane
-        float f;
-        p.Raycast(r, out f);
-        // cast an orthogonal ray through layer at intersection point
-        Vector3 v3 = r.GetPoint(f);
-        v3.z -= 1f;
-        r = new Ray(v3, Vector3.forward);
-        return Physics2D.GetRayIntersection(r, 2f).collider;
+        // get mouse position from new Input System
+        Vector2 screenPos = Mouse.current.position.ReadValue();
+
+        // convert screen position to ray
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+
+        // calculate intersection with plane at active layer
+        Plane plane = new Plane(Vector3.forward, -2f * activeLayer);
+        if (!plane.Raycast(ray, out float distance))
+            return null;
+
+        // get world point of intersection
+        Vector3 intersection = ray.GetPoint(distance);
+
+        // cast an orthogonal ray through the layer at intersection point
+        intersection.z -= 1f;
+        Ray layerRay = new Ray(intersection, Vector3.forward);
+
+        // perform 2D physics raycast
+        RaycastHit2D hit = Physics2D.GetRayIntersection(layerRay, 2f);
+        return hit.collider;
     }
 
     // returns true if the given element is mouse hovered

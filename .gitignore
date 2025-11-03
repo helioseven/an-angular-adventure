@@ -12,6 +12,9 @@ steam_appid.txt
 # Extra Unity ignores
 UserSettings/
 .obj/
+# Ignore auto-generated TMP default fonts
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset
+Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
 
 # Steamworks SDK artifacts
 Assets/Plugins/Steamworks.NET/Plugins/
