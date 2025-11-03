@@ -1,9 +1,9 @@
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.UI;
-using EditCreatorTool = EditGM.EditCreatorTool;
+using static EditGM;
 
-public class TileSelectControl : MonoBehaviour
+public class ToolSelectControl : MonoBehaviour
 {
     // private variables
     private int _activeColor;
