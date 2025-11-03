@@ -1,6 +1,7 @@
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.UI;
+using EditCreatorTool = EditGM.EditCreatorTool;
 
 public class TileSelectControl : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class TileSelectControl : MonoBehaviour
     private int _activeSelected;
     private int _activeTile;
     private EditGM _gmRef;
-    private EditGM.EditCreatorTool _gmTool;
+    private EditCreatorTool _gmTool;
     private bool _isActive;
     private TileCreator _tcRef;
 
@@ -18,7 +19,7 @@ public class TileSelectControl : MonoBehaviour
         _gmRef = EditGM.instance;
         _tcRef = _gmRef.tileCreator;
 
-        _gmTool = EditGM.EditCreatorTool.Tile;
+        _gmTool = EditCreatorTool.Tile;
         _isActive = true;
         _activeSelected = 0;
         _activeColor = 0;
@@ -29,7 +30,7 @@ public class TileSelectControl : MonoBehaviour
         // first update currently active tool
         _gmTool = _gmRef.currentCreatorTool;
 
-        if (_gmTool == EditGM.EditCreatorTool.Tile)
+        if (_gmTool == EditCreatorTool.Tile)
         {
             // if the current tool is TileCreator, selected should == tileType
             if (_activeSelected != _tcRef.tileType)
@@ -37,7 +38,7 @@ public class TileSelectControl : MonoBehaviour
             if (_activeColor != _tcRef.tileColor)
                 updateTileColors();
         }
-        else if (_gmTool == EditGM.EditCreatorTool.Eraser)
+        else if (_gmTool == EditCreatorTool.Eraser)
         {
             // stub, eraser not implemented yet
         }
@@ -75,11 +76,11 @@ public class TileSelectControl : MonoBehaviour
     // updates selected based on which currently active tool
     private void updateSpecialTool()
     {
-        if (_gmTool == EditGM.EditCreatorTool.Checkpoint)
+        if (_gmTool == EditCreatorTool.Checkpoint)
             updateSelected(6);
-        else if (_gmTool == EditGM.EditCreatorTool.Victory)
+        else if (_gmTool == EditCreatorTool.Victory)
             updateSelected(7);
-        else if (_gmTool == EditGM.EditCreatorTool.Warp)
+        else if (_gmTool == EditCreatorTool.Warp)
             updateSelected(8);
     }
 
