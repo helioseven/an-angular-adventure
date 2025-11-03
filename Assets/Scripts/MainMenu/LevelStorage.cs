@@ -9,8 +9,6 @@ public static class LevelStorage
 
     public static List<LevelInfo> LoadLocalLevelMetadata()
     {
-        // Debug.Log(LevelsFolder);
-
         var levelInfos = new List<LevelInfo>();
 
         if (!Directory.Exists(LevelsFolder))
@@ -43,18 +41,27 @@ public static class LevelStorage
         return levelInfos;
     }
 
-    public static void DeleteLevel(string name)
+    public static bool DeleteLocalLevel(string levelName)
     {
-        // first, check to see whether the folder exists.  If it doesn't even exist, return early
-        if (!Directory.Exists(LevelsFolder))
+        try
         {
-            return;
+            string path = Path.Combine(LevelStorage.LevelsFolder, $"{levelName}.json");
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                Debug.Log($"[LevelStorage] Deleted local level: {levelName}");
+                return true;
+            }
+            else
+            {
+                Debug.LogWarning($"[LevelStorage] Tried to delete missing level: {levelName}");
+                return false;
+            }
         }
-
-        string path = Path.Combine(LevelsFolder, $"{name}.json");
-        if (File.Exists(path))
+        catch (IOException e)
         {
-            File.Delete(path);
+            Debug.LogError($"[LevelStorage] Error deleting level {levelName}: {e.Message}");
+            return false;
         }
     }
 }
