@@ -3,7 +3,7 @@ using UnityEngine;
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
-    public PlayerControls Controls { get; private set; }
+    public InputControls Controls { get; private set; }
 
     void Awake()
     {
@@ -16,7 +16,7 @@ public class InputManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        Controls = new PlayerControls();
+        Controls = new InputControls();
 
         // Enable UI by default (main menu)
         Controls.UI.Enable();

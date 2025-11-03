@@ -30,7 +30,7 @@ public class Player_Controller : MonoBehaviour
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
 
     // New Input System
-    private PlayerControls _controls;
+    private InputControls _controls;
     private Vector2 _moveInput;
     private bool _jumpPressed;
 
@@ -47,7 +47,7 @@ public class Player_Controller : MonoBehaviour
         // use the global InputManager’s shared controls
         _controls = InputManager.Instance.Controls;
 
-        PlayerControls.PlayerActions player = _controls.Player;
+        InputControls.PlayerActions player = _controls.Player;
 
         player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
         player.Move.canceled += _ => _moveInput = Vector2.zero;

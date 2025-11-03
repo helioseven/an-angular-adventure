@@ -16,7 +16,7 @@ public class EditCamControl : MonoBehaviour
     private float _zoomAmount = 0f;
 
     // input references
-    private PlayerControls _controls;
+    private InputControls _controls;
 
     void Start()
     {

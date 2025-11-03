@@ -172,7 +172,8 @@ public partial class EditGM : MonoBehaviour
         {
             quitDialogPanel.gameObject.SetActive(true);
         }
-
+        // get raycast results for this frame's mouse position
+        _currentHUDhover = raycastAllHUD();
         // hudPanel and palettePanel are updated
         updateUI();
         // if the palette is active, skip the rest
