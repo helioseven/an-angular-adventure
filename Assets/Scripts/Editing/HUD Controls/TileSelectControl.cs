@@ -6,8 +6,10 @@ public class TileSelectControl : MonoBehaviour
 {
     // private variables
     private int _activeColor;
+    private int _activeSelected;
     private int _activeTile;
     private EditGM _gmRef;
+    private EditGM.EditCreatorTool _gmTool;
     private bool _isActive;
     private TileCreator _tcRef;
 
@@ -15,55 +17,84 @@ public class TileSelectControl : MonoBehaviour
     {
         _gmRef = EditGM.instance;
         _tcRef = _gmRef.tileCreator;
+
+        _gmTool = EditGM.EditCreatorTool.Tile;
         _isActive = true;
-        _activeTile = 0;
+        _activeSelected = 0;
         _activeColor = 0;
     }
 
     void Update()
     {
-        if (_activeTile != _tcRef.tileType)
-            updateType();
-        if (_activeColor != _tcRef.tileColor)
-            updateColor();
+        // first update currently active tool
+        _gmTool = _gmRef.currentCreatorTool;
+
+        if (_gmTool == EditGM.EditCreatorTool.Tile)
+        {
+            // if the current tool is TileCreator, selected should == tileType
+            if (_activeSelected != _tcRef.tileType)
+                updateSelected(_tcRef.tileType);
+            if (_activeColor != _tcRef.tileColor)
+                updateTileColors();
+        }
+        else if (_gmTool == EditGM.EditCreatorTool.Eraser)
+        {
+            // stub, eraser not implemented yet
+        }
+        else
+        {
+            updateSpecialTool();
+        }
+
+        // after all other state variables updated, activate or not
         if (_isActive == _gmRef.isEditorInEditMode)
             updateActive();
     }
 
     /* Private Functions */
 
-    // updates active state for current selector
+    // updates active state for current selected
     private void updateActive()
     {
         _isActive = !_isActive;
-        // the active selector is only turned on if _isActive
+        // the active selected is only turned on if _isActive
         transform.GetChild(_activeTile).GetComponent<Image>().enabled = _isActive;
     }
 
-    // updates which selector is active
-    private void updateType()
+    // updates active state for old and new selected
+    private void updateSelected(int inSelected)
     {
-        // turn off the image renderer for the previous selector
-        transform.GetChild(_activeTile).GetComponent<Image>().enabled = false;
-        _activeTile = _tcRef.tileType;
-        // turn on the image renderer for the newly active selector
-        if (_isActive)
-            transform.GetChild(_activeTile).GetComponent<Image>().enabled = true;
+        // turn off the image renderer for the previous selected
+        transform.GetChild(_activeSelected).GetComponent<Image>().enabled = false;
+        // turn on the image renderer for the now selected
+        transform.GetChild(inSelected).GetComponent<Image>().enabled = true;
+        // update selected
+        _activeSelected = inSelected;
     }
 
-    // updates the color of each selector's tile
-    private void updateColor()
+    // updates selected based on which currently active tool
+    private void updateSpecialTool()
     {
-        int newColor = _tcRef.tileColor;
-        _activeColor = newColor;
+        if (_gmTool == EditGM.EditCreatorTool.Checkpoint)
+            updateSelected(6);
+        else if (_gmTool == EditGM.EditCreatorTool.Victory)
+            updateSelected(7);
+        else if (_gmTool == EditGM.EditCreatorTool.Warp)
+            updateSelected(8);
+    }
+
+    // updates the color of each selected's tile
+    private void updateTileColors()
+    {
+        _activeColor = _tcRef.tileColor;
 
         for (int i = 0; i < Constants.NUM_SHAPES; i++)
         {
-            Transform selector = transform.GetChild(i);
-            Transform t = _tcRef.transform.GetChild(i).GetChild(newColor).GetChild(0);
+            Transform selected = transform.GetChild(i);
+            Transform t = _tcRef.transform.GetChild(i).GetChild(_activeColor).GetChild(0);
 
             Sprite newSprite = t.GetComponent<SpriteRenderer>().sprite;
-            selector.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite;
+            selected.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite;
         }
     }
 }
