@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SnapCursor : MonoBehaviour
 {
@@ -129,6 +130,7 @@ public class SnapCursor : MonoBehaviour
     /* Private Functions */
 
     // uses mouse position ray's intersection with current level plane to generate a 2D coordinate
+    // Uses pointer position (mouse or touch) ray intersection with current layer plane
     private Vector2 findPointOnPlane()
     {
         // set plane's distance from origin according to layer depth
@@ -136,15 +138,24 @@ public class SnapCursor : MonoBehaviour
         _layerPlane.distance = _depth;
 
         float distance;
-        Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // --- get pointer position from new Input System ---
+        Vector2 screenPos =
+            Touchscreen.current?.primaryTouch.position.ReadValue()
+            ?? Mouse.current.position.ReadValue();
+
+        // --- build ray from camera ---
+        Ray inputRay = Camera.main.ScreenPointToRay(screenPos);
+
+        // --- intersect with current layer plane ---
         if (!_layerPlane.Raycast(inputRay, out distance))
         {
-            // if the raycast doesn't hit our plane, something is very wrong
-            Debug.LogError("Screen click ray did not intersect with layer plane.");
-            return new Vector2();
+            Debug.LogError("Pointer ray did not intersect with layer plane.");
+            return Vector2.zero;
         }
-        else
-            // simply return the point along ray at distance from origin
-            return inputRay.GetPoint(distance);
+
+        // --- return world-space 2D coordinate ---
+        Vector3 worldPoint = inputRay.GetPoint(distance);
+        return new Vector2(worldPoint.x, worldPoint.y);
     }
 }

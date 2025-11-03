@@ -98,6 +98,8 @@ public partial class PlayGM : MonoBehaviour
 
     void Start()
     {
+        InputManager.Instance.SetSceneInputs("Playing");
+
         Debug.Log("[PlayGM] [Start()] levelLoader.levelName: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
         playModeContext = levelLoader.playModeContext;

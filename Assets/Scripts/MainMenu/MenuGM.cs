@@ -57,6 +57,11 @@ public class MenuGM : MonoBehaviour
         OpenMainMenu();
     }
 
+    void Start()
+    {
+        InputManager.Instance.SetSceneInputs("MainMenu");
+    }
+
     public void SwitchToMenu(GameObject targetPanel)
     {
         foreach (GameObject panel in menuPanels)

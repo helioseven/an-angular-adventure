@@ -44,19 +44,17 @@ public class Player_Controller : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // setup input
-        _controls = new PlayerControls();
-        _controls.Player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
-        _controls.Player.Move.canceled += _ => _moveInput = Vector2.zero;
-        _controls.Player.Jump.started += _ => _jumpPressed = true;
-        _controls.Player.Jump.canceled += _ => _jumpPressed = false;
-        // _controls.Player.Jump.performed += _ => _jumpHeld = true;
-        // _controls.Player.Jump.canceled += _ => _jumpHeld = false;
+        // use the global InputManager’s shared controls
+        _controls = InputManager.Instance.Controls;
+
+        PlayerControls.PlayerActions player = _controls.Player;
+
+        player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
+        player.Move.canceled += _ => _moveInput = Vector2.zero;
+
+        player.Jump.started += _ => _jumpPressed = true;
+        player.Jump.canceled += _ => _jumpPressed = false;
     }
-
-    void OnEnable() => _controls.Enable();
-
-    void OnDisable() => _controls.Disable();
 
     void Start()
     {
@@ -77,6 +75,15 @@ public class Player_Controller : MonoBehaviour
     {
         Move();
         Jump();
+    }
+
+    void OnDestroy()
+    {
+        var player = _controls.Player;
+        player.Move.performed -= ctx => _moveInput = ctx.ReadValue<Vector2>();
+        player.Move.canceled -= _ => _moveInput = Vector2.zero;
+        player.Jump.started -= _ => _jumpPressed = true;
+        player.Jump.canceled -= _ => _jumpPressed = false;
     }
 
     void OnCollisionEnter2D(Collision2D other)

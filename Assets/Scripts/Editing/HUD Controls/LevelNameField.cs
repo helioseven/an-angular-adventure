@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class LevelNameField : MonoBehaviour
@@ -39,7 +40,12 @@ public class LevelNameField : MonoBehaviour
 
     void Update()
     {
-        bool click = _gmRef.CheckInputDown(EditGM.InputKeys.ClickMain);
+        // TODO - this does not seem to be working
+        // read left-click (or primary tap) from new Input System
+        bool click =
+            (Mouse.current?.leftButton.wasPressedThisFrame ?? false)
+            || (Touchscreen.current?.primaryTouch.press.wasPressedThisFrame ?? false);
+
         if (_gmRef.IsLevelNameFieldHovered(this) && click)
             ActivateField();
     }
