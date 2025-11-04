@@ -140,16 +140,33 @@ public class LevelBrowser : MonoBehaviour
         }
     }
 
-    public void ShowConfirmDelete(string levelId, string levelName)
+    public void ShowConfirmDelete(string levelIdOrName, string levelName, bool isLocal = false)
     {
+        string header = "Delete Tessellation?";
+        string body = isLocal
+            ? $"Are you sure you want to permanently delete your local draft “{levelName}”? This cannot be undone."
+            : $"Are you sure you want to delete “{levelName}”?";
+
         confirmModal.Show(
-            header: "Delete Tessellation?",
-            body: $"Are you sure you want to delete “{levelName}”?",
+            header: header,
+            body: body,
             confirmAction: () =>
             {
-                SupabaseController.Instance.StartCoroutine(
-                    SupabaseController.Instance.SoftDeleteLevelById(levelId, DeleteCallback)
-                );
+                if (isLocal)
+                {
+                    bool deleted = LevelStorage.DeleteLocalLevel(levelIdOrName);
+                    Debug.Log($"[LevelBrowser] Local level delete result: {deleted}");
+                    RefreshList();
+                }
+                else
+                {
+                    SupabaseController.Instance.StartCoroutine(
+                        SupabaseController.Instance.SoftDeleteLevelById(
+                            levelIdOrName,
+                            DeleteCallback
+                        )
+                    );
+                }
             }
         );
     }
