@@ -12,10 +12,11 @@ public class Player_Controller : MonoBehaviour
     public Collider2D purpleGroundCheckCollider;
     public bool queueSuperJumpOnPurpleTouch = false;
     public BallSkinDatabase skinDB;
-    public float groundProbeDistance = 0.2f;
-    public float torqueStrength = 8f;
-    public float iceControlMultiplier = 0.5f;
-    public float iceSlideBoost = 6f;
+    // Tweakables (feels good around these defaults; push slightly to taste)
+    public float groundProbeDistance = 0.2f; // 0.15–0.3 typical
+    public float torqueStrength = 8f; // 6–10 feels controlled
+    public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35–0.6)
+    public float iceSlideBoost = 6f; // add carry on ice (4–8 range)
 
     // private references
     private SpriteRenderer _spriteRenderer;
@@ -171,6 +172,7 @@ public class Player_Controller : MonoBehaviour
         Vector2 movement = _moveInput;
         Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
+        // Less input authority on ice; add a bit of carry to keep skidding
         _rb2d.AddForce(upwardDragForcedMovement * speed * controlScale * Time.deltaTime);
         if (isOnIce && _rb2d.linearVelocity.sqrMagnitude > 0.001f)
         {
@@ -236,6 +238,7 @@ public class Player_Controller : MonoBehaviour
 
     private void UpdateJumpForceMagnitude()
     {
+        // If we have real ground under us, override ice jump block
         bool jumpBlocked = isIceScalingBlockingJump && !_groundOverrideJumpBlock;
         jumpForce = jumpBlocked ? 0f : _baseJumpForce;
     }
@@ -349,7 +352,7 @@ public class Player_Controller : MonoBehaviour
                 continue;
             if (hit.collider.isTrigger)
                 continue;
-            if (hit.collider.GetComponent<Tile_Blue>() != null)
+            if (hit.collider.GetComponent<Tile_Blue>() != null) // ignore ice for the override
                 continue;
             return true;
         }
@@ -370,7 +373,7 @@ public class Player_Controller : MonoBehaviour
                 Vector2 vel = _rb2d.linearVelocity;
                 Vector2 proj = _jumpHoldDirection * alongJump;
                 Vector2 tangent = vel - proj;
-                _rb2d.linearVelocity = tangent + proj * SHORT_HOP_RELEASE_DAMP;
+                _rb2d.linearVelocity = tangent + proj * SHORT_HOP_RELEASE_DAMP; // short-hop cut
             }
             _jumpHoldActive = false;
             return;
@@ -389,7 +392,7 @@ public class Player_Controller : MonoBehaviour
     {
         float perpendicularSpeed = GetPerpendicularSpeed();
         float t = Mathf.Clamp01(perpendicularSpeed / SPEED_FOR_MAX_BONUS);
-        return 1f + t * MAX_SPEED_JUMP_BONUS;
+        return 1f + t * MAX_SPEED_JUMP_BONUS; // modest speed-to-jump bonus
     }
 
     private void ApplyTorqueForMovement(Vector2 movement)
@@ -399,7 +402,7 @@ public class Player_Controller : MonoBehaviour
             return;
 
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
-        float torque = -rollInput * torqueStrength * controlScale;
+        float torque = -rollInput * torqueStrength * controlScale; // negative keeps spin matching roll
         _rb2d.AddTorque(torque, ForceMode2D.Force);
         _rb2d.angularVelocity = Mathf.Clamp(_rb2d.angularVelocity, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
     }
@@ -476,6 +479,6 @@ public class Player_Controller : MonoBehaviour
         float castDistance = _groundCheckCollider != null ? GetProbeDistance(dir) : groundProbeDistance;
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(origin, origin + dir * castDistance);
+        Gizmos.DrawLine(origin, origin + dir * castDistance); // shows ground override ray
     }
 }
