@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class LevelListItemUI : MonoBehaviour
 {
     public TMP_Text levelNameText;
+    public TMP_Text creatorNameText;
     public Button playButton;
     public Button editOrRemixButton;
     public TMP_Text editOrRemixButtonText;
@@ -19,6 +20,16 @@ public class LevelListItemUI : MonoBehaviour
     )
     {
         levelNameText.text = info.name + (info.isLocal ? " (Draft)" : "");
+        string creatorLabel = info.uploaderDisplayName;
+
+        // attempt to fall back to uploader id if no creatorLabel present
+        if (string.IsNullOrEmpty(creatorLabel))
+            creatorLabel = string.IsNullOrEmpty(info.uploaderId)
+                ? "Unknown creator"
+                : info.uploaderId;
+
+        creatorNameText.text = creatorLabel;
+
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 
         parent = browser;

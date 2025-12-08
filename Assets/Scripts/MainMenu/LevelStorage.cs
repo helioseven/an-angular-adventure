@@ -28,6 +28,7 @@ public static class LevelStorage
                     name = levelData.name,
                     isLocal = true,
                     uploaderId = "you, sucka!",
+                    uploaderDisplayName = "You",
                     createdAt = File.GetLastWriteTime(file),
                 };
                 levelInfos.Add(info);
