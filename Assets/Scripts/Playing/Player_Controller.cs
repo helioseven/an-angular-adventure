@@ -12,6 +12,7 @@ public class Player_Controller : MonoBehaviour
     public Collider2D purpleGroundCheckCollider;
     public bool queueSuperJumpOnPurpleTouch = false;
     public BallSkinDatabase skinDB;
+    public float groundProbeDistance = 0.2f;
 
     // private references
     private SpriteRenderer _spriteRenderer;
@@ -29,7 +30,19 @@ public class Player_Controller : MonoBehaviour
     public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
     private readonly Dictionary<Collider2D, float> _purpleTouchTimes = new();
     private const float PURPLE_TOUCH_TIMEOUT = 0.75f;
+    private const float MAX_SPEED_JUMP_BONUS = 0.33f;
+    private const float SPEED_FOR_MAX_BONUS = 10f;
+    private const float JUMP_HOLD_FORCE_SCALE = 0.4f;
+    private const float SHORT_HOP_RELEASE_DAMP = 0.55f;
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
+    private float _pendingJumpMultiplier = 1f;
+    private bool _jumpHoldActive;
+    private float _jumpHoldForce;
+    private Vector2 _jumpHoldDirection;
+    private bool _jumpTriggered;
+    private float _baseJumpForce;
+    private bool _groundOverrideJumpBlock;
+    private const float PROBE_SKIN = 0.01f;
 
     // New Input System
     private InputControls _controls;
@@ -45,6 +58,7 @@ public class Player_Controller : MonoBehaviour
     void Awake()
     {
         _rb2d = GetComponent<Rigidbody2D>();
+        _baseJumpForce = jumpForce <= 0f ? JUMP_FORCE_DEFAULT_VALUE : jumpForce;
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
@@ -57,8 +71,16 @@ public class Player_Controller : MonoBehaviour
 
         _onMove = ctx => _moveInput = ctx.ReadValue<Vector2>();
         _onMoveCanceled = _ => _moveInput = Vector2.zero;
-        _onJump = _ => _jumpPressed = true;
-        _onJumpCanceled = _ => _jumpPressed = false;
+        _onJump = _ =>
+        {
+            _jumpPressed = true;
+            _jumpTriggered = true;
+        };
+        _onJumpCanceled = _ =>
+        {
+            _jumpPressed = false;
+            _jumpHoldActive = false;
+        };
 
         player.Move.performed += _onMove;
         player.Move.canceled += _onMoveCanceled;
@@ -72,6 +94,7 @@ public class Player_Controller : MonoBehaviour
         _gmRef = PlayGM.instance;
         int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
         _spriteRenderer.sprite = skinDB.skins[index];
+        UpdateJumpForce();
     }
 
     void Update()
@@ -80,13 +103,16 @@ public class Player_Controller : MonoBehaviour
         UpdateJumping();
         UnityEditorGodMode();
         UpdateRollingSound();
-        UpdateJumpForce();
+        _groundOverrideJumpBlock = ProbeForNonIceGround();
+        UpdateJumpForceMagnitude();
+        UpdateJumpForceVector(PlayGM.instance.gravDirection);
     }
 
     void FixedUpdate()
     {
         Move();
         Jump();
+        ApplyJumpHoldForce();
     }
 
     void OnDestroy()
@@ -147,7 +173,12 @@ public class Player_Controller : MonoBehaviour
     {
         if (_jumpNow)
         {
-            _rb2d.AddForce(_jumpForceVec);
+            Vector2 jumpVec = _jumpForceVec * _pendingJumpMultiplier;
+            _rb2d.AddForce(jumpVec);
+            _jumpHoldDirection = jumpVec.normalized;
+            _jumpHoldForce = _jumpForceVec.magnitude * JUMP_HOLD_FORCE_SCALE;
+            _jumpHoldActive = _jumpPressed;
+            _pendingJumpMultiplier = 1f;
             _jumpNow = false;
         }
     }
@@ -170,24 +201,33 @@ public class Player_Controller : MonoBehaviour
         if (
             purpleGroundCheckCollider.GetComponent<JumpProximityZone>().IsNearPurple
             && !purpTucher
-            && _jumpPressed
+            && _jumpTriggered
         )
         {
             queueSuperJumpOnPurpleTouch = true;
         }
 
-        if (canJump && _jumpPressed)
+        if (canJump && _jumpTriggered)
         {
             _numJumps++;
             _jumpNow = true;
+            _pendingJumpMultiplier = ComputeJumpSpeedMultiplier();
             _gmRef.soundManager.Play("jump");
         }
+
+        _jumpTriggered = false;
     }
 
     public void UpdateJumpForce()
     {
-        jumpForce = isIceScalingBlockingJump ? 0f : JUMP_FORCE_DEFAULT_VALUE;
+        UpdateJumpForceMagnitude();
         UpdateJumpForceVector(PlayGM.instance.gravDirection);
+    }
+
+    private void UpdateJumpForceMagnitude()
+    {
+        bool jumpBlocked = isIceScalingBlockingJump && !_groundOverrideJumpBlock;
+        jumpForce = jumpBlocked ? 0f : _baseJumpForce;
     }
 
     public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
@@ -211,38 +251,20 @@ public class Player_Controller : MonoBehaviour
 
     public Vector2 UpdateUpwardDragForce(Vector2 inMovement)
     {
-        float dragForce = 0.2f;
-        Vector2 outMovement = inMovement;
-
+        // Ignore input along the gravity axis so movement is only perpendicular to gravity
         switch (PlayGM.instance.gravDirection)
         {
             case PlayGM.GravityDirection.Down:
-                outMovement = new Vector2(
-                    inMovement.x,
-                    inMovement.y > 0f ? (inMovement.y * dragForce) : inMovement.y
-                );
+            case PlayGM.GravityDirection.Up:
+                inMovement.y = 0f;
                 break;
             case PlayGM.GravityDirection.Left:
-                outMovement = new Vector2(
-                    inMovement.x > 0f ? (inMovement.x * dragForce) : inMovement.x,
-                    inMovement.y
-                );
-                break;
-            case PlayGM.GravityDirection.Up:
-                outMovement = new Vector2(
-                    inMovement.x,
-                    inMovement.y < 0f ? (inMovement.y * dragForce) : inMovement.y
-                );
-                break;
             case PlayGM.GravityDirection.Right:
-                outMovement = new Vector2(
-                    inMovement.x < 0f ? (inMovement.x * dragForce) : inMovement.x,
-                    inMovement.y
-                );
+                inMovement.x = 0f;
                 break;
         }
 
-        return outMovement;
+        return inMovement;
     }
 
     public void UnityEditorGodMode()
@@ -301,8 +323,122 @@ public class Player_Controller : MonoBehaviour
         }
     }
 
+    private bool ProbeForNonIceGround()
+    {
+        if (groundProbeDistance <= 0f || _groundCheckCollider == null)
+            return false;
+
+        Vector2 origin = _groundCheckCollider.bounds.center;
+        Vector2 dir = GravityDirectionVector();
+        float castDistance = GetProbeDistance(dir);
+        RaycastHit2D[] hits = Physics2D.RaycastAll(origin, dir, castDistance);
+
+        foreach (RaycastHit2D hit in hits)
+        {
+            if (hit.collider == null || hit.collider == _groundCheckCollider)
+                continue;
+            if (hit.collider.isTrigger)
+                continue;
+            if (hit.collider.GetComponent<Tile_Blue>() != null)
+                continue;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void ApplyJumpHoldForce()
+    {
+        if (!_jumpHoldActive)
+            return;
+
+        float alongJump = Vector2.Dot(_rb2d.linearVelocity, _jumpHoldDirection);
+        if (!_jumpPressed)
+        {
+            if (alongJump > 0f)
+            {
+                Vector2 vel = _rb2d.linearVelocity;
+                Vector2 proj = _jumpHoldDirection * alongJump;
+                Vector2 tangent = vel - proj;
+                _rb2d.linearVelocity = tangent + proj * SHORT_HOP_RELEASE_DAMP;
+            }
+            _jumpHoldActive = false;
+            return;
+        }
+
+        if (alongJump <= 0f)
+        {
+            _jumpHoldActive = false;
+            return;
+        }
+
+        _rb2d.AddForce(_jumpHoldDirection * _jumpHoldForce * Time.fixedDeltaTime);
+    }
+
+    private float ComputeJumpSpeedMultiplier()
+    {
+        float perpendicularSpeed = GetPerpendicularSpeed();
+        float t = Mathf.Clamp01(perpendicularSpeed / SPEED_FOR_MAX_BONUS);
+        return 1f + t * MAX_SPEED_JUMP_BONUS;
+    }
+
+    private float GetProbeDistance(Vector2 dir)
+    {
+        Bounds b = _groundCheckCollider.bounds;
+        float extent = Mathf.Abs(dir.x) > 0.5f ? b.extents.x : b.extents.y;
+        return extent + groundProbeDistance + PROBE_SKIN;
+    }
+
+    private Vector2 GravityDirectionVector()
+    {
+        switch (PlayGM.instance.gravDirection)
+        {
+            case PlayGM.GravityDirection.Down:
+                return Vector2.down;
+            case PlayGM.GravityDirection.Left:
+                return Vector2.left;
+            case PlayGM.GravityDirection.Up:
+                return Vector2.up;
+            case PlayGM.GravityDirection.Right:
+                return Vector2.right;
+            default:
+                return Vector2.down;
+        }
+    }
+
+    private float GetPerpendicularSpeed()
+    {
+        Vector2 v = _rb2d.linearVelocity;
+        switch (PlayGM.instance.gravDirection)
+        {
+            case PlayGM.GravityDirection.Down:
+            case PlayGM.GravityDirection.Up:
+                v.y = 0f;
+                break;
+            case PlayGM.GravityDirection.Left:
+            case PlayGM.GravityDirection.Right:
+                v.x = 0f;
+                break;
+        }
+
+        return v.magnitude;
+    }
+
     public PlayGM.GravityDirection GetGravityDirection()
     {
         return _gmRef.gravDirection;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (_groundCheckCollider == null)
+            return;
+
+        Vector2 origin = _groundCheckCollider.bounds.center;
+        Vector2 dir = GravityDirectionVector();
+        float castDistance = _groundCheckCollider != null ? GetProbeDistance(dir) : groundProbeDistance;
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(origin, origin + dir * castDistance);
     }
 }
