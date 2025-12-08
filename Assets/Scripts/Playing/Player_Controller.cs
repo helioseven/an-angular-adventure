@@ -13,6 +13,9 @@ public class Player_Controller : MonoBehaviour
     public bool queueSuperJumpOnPurpleTouch = false;
     public BallSkinDatabase skinDB;
     public float groundProbeDistance = 0.2f;
+    public float torqueStrength = 8f;
+    public float iceControlMultiplier = 0.5f;
+    public float iceSlideBoost = 6f;
 
     // private references
     private SpriteRenderer _spriteRenderer;
@@ -22,7 +25,7 @@ public class Player_Controller : MonoBehaviour
     private Rigidbody2D _rb2d;
 
     // private variables
-    private const float JUMP_FORCE_DEFAULT_VALUE = 420f;
+    private const float JUMP_FORCE_DEFAULT_VALUE = 300f;
     private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
     private int _maxJumps = 1;
@@ -30,10 +33,11 @@ public class Player_Controller : MonoBehaviour
     public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
     private readonly Dictionary<Collider2D, float> _purpleTouchTimes = new();
     private const float PURPLE_TOUCH_TIMEOUT = 0.75f;
-    private const float MAX_SPEED_JUMP_BONUS = 0.33f;
+    private const float MAX_SPEED_JUMP_BONUS = 0.15f;
     private const float SPEED_FOR_MAX_BONUS = 10f;
-    private const float JUMP_HOLD_FORCE_SCALE = 0.4f;
+    private const float JUMP_HOLD_FORCE_SCALE = 0.25f;
     private const float SHORT_HOP_RELEASE_DAMP = 0.55f;
+    private const float MAX_ANGULAR_VELOCITY = 380f;
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
     private float _pendingJumpMultiplier = 1f;
     private bool _jumpHoldActive;
@@ -166,7 +170,13 @@ public class Player_Controller : MonoBehaviour
         // read input
         Vector2 movement = _moveInput;
         Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
-        _rb2d.AddForce(upwardDragForcedMovement * speed * Time.deltaTime);
+        float controlScale = isOnIce ? iceControlMultiplier : 1f;
+        _rb2d.AddForce(upwardDragForcedMovement * speed * controlScale * Time.deltaTime);
+        if (isOnIce && _rb2d.linearVelocity.sqrMagnitude > 0.001f)
+        {
+            _rb2d.AddForce(_rb2d.linearVelocity.normalized * iceSlideBoost * Time.deltaTime);
+        }
+        ApplyTorqueForMovement(upwardDragForcedMovement);
     }
 
     public void Jump()
@@ -382,6 +392,18 @@ public class Player_Controller : MonoBehaviour
         return 1f + t * MAX_SPEED_JUMP_BONUS;
     }
 
+    private void ApplyTorqueForMovement(Vector2 movement)
+    {
+        float rollInput = GetPerpendicularComponent(movement);
+        if (Mathf.Approximately(rollInput, 0f))
+            return;
+
+        float controlScale = isOnIce ? iceControlMultiplier : 1f;
+        float torque = -rollInput * torqueStrength * controlScale;
+        _rb2d.AddTorque(torque, ForceMode2D.Force);
+        _rb2d.angularVelocity = Mathf.Clamp(_rb2d.angularVelocity, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+    }
+
     private float GetProbeDistance(Vector2 dir)
     {
         Bounds b = _groundCheckCollider.bounds;
@@ -403,6 +425,21 @@ public class Player_Controller : MonoBehaviour
                 return Vector2.right;
             default:
                 return Vector2.down;
+        }
+    }
+
+    private float GetPerpendicularComponent(Vector2 v)
+    {
+        switch (PlayGM.instance.gravDirection)
+        {
+            case PlayGM.GravityDirection.Down:
+            case PlayGM.GravityDirection.Up:
+                return v.x;
+            case PlayGM.GravityDirection.Left:
+            case PlayGM.GravityDirection.Right:
+                return v.y;
+            default:
+                return 0f;
         }
     }
 
