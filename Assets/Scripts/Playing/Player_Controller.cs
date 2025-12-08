@@ -27,12 +27,18 @@ public class Player_Controller : MonoBehaviour
     private int _maxJumps = 1;
     private int _numJumps;
     public HashSet<Collider2D> recentlyTouchedPurpleTiles = new();
+    private readonly Dictionary<Collider2D, float> _purpleTouchTimes = new();
+    private const float PURPLE_TOUCH_TIMEOUT = 0.75f;
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
 
     // New Input System
     private InputControls _controls;
     private Vector2 _moveInput;
     private bool _jumpPressed;
+    private System.Action<InputAction.CallbackContext> _onMove;
+    private System.Action<InputAction.CallbackContext> _onMoveCanceled;
+    private System.Action<InputAction.CallbackContext> _onJump;
+    private System.Action<InputAction.CallbackContext> _onJumpCanceled;
 
     // private bool _jumpHeld;
 
@@ -44,16 +50,21 @@ public class Player_Controller : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // use the global InputManager’s shared controls
+        // use the global InputManager's shared controls
         _controls = InputManager.Instance.Controls;
 
         InputControls.PlayerActions player = _controls.Player;
 
-        player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
-        player.Move.canceled += _ => _moveInput = Vector2.zero;
+        _onMove = ctx => _moveInput = ctx.ReadValue<Vector2>();
+        _onMoveCanceled = _ => _moveInput = Vector2.zero;
+        _onJump = _ => _jumpPressed = true;
+        _onJumpCanceled = _ => _jumpPressed = false;
 
-        player.Jump.started += _ => _jumpPressed = true;
-        player.Jump.canceled += _ => _jumpPressed = false;
+        player.Move.performed += _onMove;
+        player.Move.canceled += _onMoveCanceled;
+
+        player.Jump.started += _onJump;
+        player.Jump.canceled += _onJumpCanceled;
     }
 
     void Start()
@@ -65,6 +76,7 @@ public class Player_Controller : MonoBehaviour
 
     void Update()
     {
+        CleanupStalePurpleTouches();
         UpdateJumping();
         UnityEditorGodMode();
         UpdateRollingSound();
@@ -80,10 +92,10 @@ public class Player_Controller : MonoBehaviour
     void OnDestroy()
     {
         var player = _controls.Player;
-        player.Move.performed -= ctx => _moveInput = ctx.ReadValue<Vector2>();
-        player.Move.canceled -= _ => _moveInput = Vector2.zero;
-        player.Jump.started -= _ => _jumpPressed = true;
-        player.Jump.canceled -= _ => _jumpPressed = false;
+        player.Move.performed -= _onMove;
+        player.Move.canceled -= _onMoveCanceled;
+        player.Jump.started -= _onJump;
+        player.Jump.canceled -= _onJumpCanceled;
     }
 
     void OnCollisionEnter2D(Collision2D other)
@@ -93,6 +105,7 @@ public class Player_Controller : MonoBehaviour
         if (other.collider.name.Contains("Purple"))
         {
             recentlyTouchedPurpleTiles.Add(other.collider);
+            _purpleTouchTimes[other.collider] = Time.time;
             if (queueSuperJumpOnPurpleTouch)
             {
                 _gmRef.soundManager.Play("superJump");
@@ -102,7 +115,25 @@ public class Player_Controller : MonoBehaviour
         }
     }
 
-    /* Input System–based replacements */
+    void OnCollisionStay2D(Collision2D other)
+    {
+        if (other.collider.name.Contains("Purple"))
+        {
+            recentlyTouchedPurpleTiles.Add(other.collider);
+            _purpleTouchTimes[other.collider] = Time.time;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.collider.name.Contains("Purple"))
+        {
+            recentlyTouchedPurpleTiles.Remove(other.collider);
+            _purpleTouchTimes.Remove(other.collider);
+        }
+    }
+
+    /* Input System-based replacements */
 
     public void Move()
     {
@@ -241,6 +272,33 @@ public class Player_Controller : MonoBehaviour
         if (!_groundCheckCollider.IsTouchingLayers())
             volume = 0.0f;
         _audioSource.volume = volume;
+    }
+
+    private void CleanupStalePurpleTouches()
+    {
+        if (_purpleTouchTimes.Count == 0)
+            return;
+
+        float now = Time.time;
+        List<Collider2D> toRemove = null;
+
+        foreach (KeyValuePair<Collider2D, float> entry in _purpleTouchTimes)
+        {
+            if (now - entry.Value > PURPLE_TOUCH_TIMEOUT)
+            {
+                toRemove ??= new List<Collider2D>();
+                toRemove.Add(entry.Key);
+            }
+        }
+
+        if (toRemove == null)
+            return;
+
+        foreach (Collider2D col in toRemove)
+        {
+            _purpleTouchTimes.Remove(col);
+            recentlyTouchedPurpleTiles.Remove(col);
+        }
     }
 
     public PlayGM.GravityDirection GetGravityDirection()
