@@ -163,8 +163,7 @@ public partial class EditGM
         // corresponding checkpoint object is added to checkpointMap
         Vector3 v3 = inChkpnt.locus.ToUnitySpace();
         v3.z = GetLayerDepth(inChkpnt.layer);
-        GameObject go = Instantiate(checkpointTool, v3, Quaternion.identity) as GameObject;
-        go.GetComponent<SpecialCreator>().enabled = false;
+        GameObject go = Instantiate(_checkpointTool, v3, Quaternion.identity) as GameObject;
         go.transform.SetParent(checkpointMap.transform);
 
         // resulting gameObject is added to lookup dictionary and returned
@@ -181,8 +180,7 @@ public partial class EditGM
         // corresponding checkpoint object is added to chkpntMap
         Vector3 v3 = inWarp.locus.ToUnitySpace();
         v3.z = GetLayerDepth(inWarp.layer);
-        GameObject go = Instantiate(warpTool, v3, Quaternion.identity) as GameObject;
-        go.GetComponent<SpecialCreator>().enabled = false;
+        GameObject go = Instantiate(_warpTool, v3, Quaternion.identity) as GameObject;
         go.transform.SetParent(warpMap.transform); // <2>
 
         // resulting gameObject is added to lookup dictionary and returned
@@ -199,8 +197,7 @@ public partial class EditGM
         // corresponding victory object is added to victoryMap
         Vector3 v3 = inVictory.locus.ToUnitySpace();
         v3.z = GetLayerDepth(inVictory.layer);
-        GameObject go = Instantiate(victoryTool, v3, Quaternion.identity) as GameObject;
-        go.GetComponent<SpecialCreator>().enabled = false;
+        GameObject go = Instantiate(_victoryTool, v3, Quaternion.identity) as GameObject;
         go.transform.SetParent(victoryMap.transform);
 
         // resulting gameObject is added to lookup dictionary and returned
@@ -280,27 +277,11 @@ public partial class EditGM
             Vector3 v3 = cd.locus.ToUnitySpace();
             // checkpoints' z positions are assigned by corresponding tileMap layer
             v3.z = GetLayerDepth(cd.layer);
-            GameObject go = Instantiate(checkpointTool, v3, Quaternion.identity);
+            GameObject go = Instantiate(_checkpointTool, v3, Quaternion.identity);
             go.transform.SetParent(checkpointMap.transform);
             go.SetActive(true);
-            go.GetComponent<SpecialCreator>().enabled = false;
             // add the (GameObject,CheckpointData) pair to _checkpointLookup
             _checkpointLookup.Add(go, cd);
-        }
-
-        // build each warp in the level
-        foreach (WarpData wd in inLevel.warpSet)
-        {
-            // make sure there are enough layers for the new warp
-            addLayers(wd.targetLayer); // targetLayer is layer + 1
-            Vector3 v3 = wd.locus.ToUnitySpace();
-            v3.z = GetLayerDepth(wd.layer);
-            GameObject go = Instantiate(warpTool, v3, Quaternion.identity);
-            go.transform.SetParent(warpMap.transform);
-            go.SetActive(true);
-            go.GetComponent<SpecialCreator>().enabled = false;
-            // add the (GameObject,WarpData) pair to _warpLookup
-            _warpLookup.Add(go, wd);
         }
 
         // build each victory in the level
@@ -310,12 +291,25 @@ public partial class EditGM
             addLayers(victoryData.layer);
             Vector3 v3 = victoryData.locus.ToUnitySpace();
             v3.z = GetLayerDepth(victoryData.layer);
-            GameObject go = Instantiate(victoryTool, v3, Quaternion.identity);
+            GameObject go = Instantiate(_victoryTool, v3, Quaternion.identity);
             go.transform.SetParent(victoryMap.transform);
             go.SetActive(true);
-            go.GetComponent<SpecialCreator>().enabled = false;
             // add the GameObject,VictoryData pair to _victoryLookup
             _victoryLookup.Add(go, victoryData);
+        }
+
+        // build each warp in the level
+        foreach (WarpData wd in inLevel.warpSet)
+        {
+            // make sure there are enough layers for the new warp
+            addLayers(wd.targetLayer); // targetLayer is layer + 1
+            Vector3 v3 = wd.locus.ToUnitySpace();
+            v3.z = GetLayerDepth(wd.layer);
+            GameObject go = Instantiate(_warpTool, v3, Quaternion.identity);
+            go.transform.SetParent(warpMap.transform);
+            go.SetActive(true);
+            // add the (GameObject,WarpData) pair to _warpLookup
+            _warpLookup.Add(go, wd);
         }
     }
 
@@ -508,28 +502,6 @@ public partial class EditGM
             return;
         }
 
-        WarpData wd;
-        if (IsMappedWarp(special.gameObject, out wd))
-        {
-            // first, warps have two sprites to dim
-            Color color = new Color(1f, 1f, 1f, alpha);
-
-            special.GetChild(1).GetComponent<SpriteRenderer>().color = color;
-            special.GetChild(2).GetComponent<SpriteRenderer>().color = color;
-
-            // then, warps' particles are easier to dim, because
-            // they don't have an existing opacity gradient that
-            // otherwise needs to be preserved
-            ParticleSystem.ColorOverLifetimeModule colm = special
-                .GetChild(3)
-                .GetComponent<ParticleSystem>()
-                .colorOverLifetime;
-            colm.enabled = true;
-            colm.color = new ParticleSystem.MinMaxGradient(color);
-
-            return;
-        }
-
         VictoryData vd;
         if (IsMappedVictory(special.gameObject, out vd))
         {
@@ -558,6 +530,28 @@ public partial class EditGM
 
             return;
         }
+
+        WarpData wd;
+        if (IsMappedWarp(special.gameObject, out wd))
+        {
+            // first, warps have two sprites to dim
+            Color color = new Color(1f, 1f, 1f, alpha);
+
+            special.GetChild(1).GetComponent<SpriteRenderer>().color = color;
+            special.GetChild(2).GetComponent<SpriteRenderer>().color = color;
+
+            // then, warps' particles are easier to dim, because
+            // they don't have an existing opacity gradient that
+            // otherwise needs to be preserved
+            ParticleSystem.ColorOverLifetimeModule colm = special
+                .GetChild(3)
+                .GetComponent<ParticleSystem>()
+                .colorOverLifetime;
+            colm.enabled = true;
+            colm.color = new ParticleSystem.MinMaxGradient(color);
+
+            return;
+        }
     }
 
     // sets the currently active tool
@@ -569,13 +563,10 @@ public partial class EditGM
                 _currentCreatorToolGameObject = tileCreator.gameObject;
                 break;
             case EditCreatorTool.Checkpoint:
-                _currentCreatorToolGameObject = checkpointTool;
-                break;
-            case EditCreatorTool.Warp:
-                _currentCreatorToolGameObject = warpTool;
-                break;
             case EditCreatorTool.Victory:
-                _currentCreatorToolGameObject = victoryTool;
+            case EditCreatorTool.Warp:
+                _currentCreatorToolGameObject = specialTool;
+                _specialCreator.ActivateTool(inTool);
                 break;
             case EditCreatorTool.Eraser:
                 // missing implementation
@@ -589,7 +580,6 @@ public partial class EditGM
     }
 
     /* Public Utilities */
-
 
     // returns the z value of the current layer's transform
     public float GetLayerDepth()

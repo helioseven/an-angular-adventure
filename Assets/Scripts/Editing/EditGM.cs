@@ -15,18 +15,16 @@ public partial class EditGM : MonoBehaviour
     // checkpoint tool, warp tool, and tile hierarchy
     public SnapCursor anchorIcon;
     public GameObject checkpointMap;
-    public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
     public PaletteControl palettePanel;
     public SoundManager soundManager;
+    public GameObject specialTool;
     public TileCreator tileCreator;
     public GameObject tileMap;
     public GraphicRaycaster uiRaycaster;
     public GameObject victoryMap;
-    public GameObject victoryTool;
     public GameObject warpMap;
-    public GameObject warpTool;
     public GameObject playLoader;
     public LevelInfo levelInfo;
     public GameObject quitDialogPanel;
@@ -88,6 +86,10 @@ public partial class EditGM : MonoBehaviour
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentEditorMode;
     private GameObject _currentCreatorToolGameObject;
+    private SpecialCreator _specialCreator;
+    private GameObject _checkpointTool;
+    private GameObject _victoryTool;
+    private GameObject _warpTool;
     private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
@@ -119,6 +121,10 @@ public partial class EditGM : MonoBehaviour
             _currentEditorMode = EditorMode.Create;
             _currentCreatorTool = EditCreatorTool.Tile;
             _currentCreatorToolGameObject = tileCreator.gameObject;
+            _specialCreator = specialTool.GetComponent<SpecialCreator>();
+            _checkpointTool = specialTool.transform.GetChild(0).gameObject;
+            _victoryTool = specialTool.transform.GetChild(1).gameObject;
+            _warpTool = specialTool.transform.GetChild(2).gameObject;
             TileData td = new TileData(0, 0, 0, new HexOrient());
             _selectedItem = new SelectedItem(td);
             _tileLookup = new Dictionary<GameObject, TileData>();

@@ -15243,24 +15243,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anchorIcon: {fileID: 1740795237}
   checkpointMap: {fileID: 1861951792}
-  checkpointTool: {fileID: 0}
   eventSystem: {fileID: 355242748}
   hudPanel: {fileID: 1249965603}
   palettePanel: {fileID: 765649599}
   soundManager: {fileID: 0}
+  specialTool: {fileID: 8141129068349930122}
   tileCreator: {fileID: 1136852627}
   tileMap: {fileID: 1833171069}
   uiRaycaster: {fileID: 313801217}
   victoryMap: {fileID: 1383965839}
-  victoryTool: {fileID: 0}
   warpMap: {fileID: 485511162}
-  warpTool: {fileID: 0}
   playLoader: {fileID: 1131004099238000, guid: bbac2f3309ace634a8fa5422c3c1047c, type: 3}
   levelInfo:
     id: 
     name: 
     isLocal: 0
     uploaderId: 
+    uploaderDisplayName: 
   quitDialogPanel: {fileID: 897251555}
 --- !u!4 &1421947833
 Transform:
@@ -21765,6 +21764,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfe674191d76ed1a5a78a10d84cdd403, type: 3}
+--- !u!1 &8141129068349930122 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8390584632376187658, guid: dfe674191d76ed1a5a78a10d84cdd403,
+    type: 3}
+  m_PrefabInstance: {fileID: 8141129068349930121}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -2,15 +2,14 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static EditGM;
 
 public class ObjectInfoControl : MonoBehaviour
 {
     /* Private References */
     private EditGM _editGM;
     private TileCreator _tileCreator;
-    private SpecialCreator _checkpointCreator;
-    private SpecialCreator _warpCreator;
-    private SpecialCreator _victoryCreator;
+    private SpecialCreator _specialCreator;
     private TMP_Text _colorDisplay;
     private InfoPack _lastFrameInfoPack;
     private TMP_Text _locusDisplay;
@@ -66,9 +65,7 @@ public class ObjectInfoControl : MonoBehaviour
     {
         _editGM = EditGM.instance;
         _tileCreator = _editGM.tileCreator;
-        _checkpointCreator = _editGM.checkpointTool.GetComponent<SpecialCreator>();
-        _warpCreator = _editGM.warpTool.GetComponent<SpecialCreator>();
-        _victoryCreator = _editGM.victoryTool.GetComponent<SpecialCreator>();
+        _specialCreator = _editGM.specialTool.GetComponent<SpecialCreator>();
 
         _objectDisplay = transform.GetChild(0).GetChild(0).GetComponent<Image>();
         _objectDisplayARF = _objectDisplay.GetComponent<AspectRatioFitter>();
@@ -196,20 +193,22 @@ public class ObjectInfoControl : MonoBehaviour
                 locus = _tileCreator.tileOrient.locus;
                 doorId = _tileCreator.tileDoorId;
             }
-            else if (_checkpointCreator.isActiveAndEnabled)
+            else if (_specialCreator.isActiveAndEnabled)
             {
-                type = 6;
-                locus = _checkpointCreator.specOrient.locus;
-            }
-            else if (_warpCreator.isActiveAndEnabled)
-            {
-                type = 7;
-                locus = _warpCreator.specOrient.locus;
-            }
-            else if (_victoryCreator.isActiveAndEnabled)
-            {
-                type = 8;
-                locus = _victoryCreator.specOrient.locus;
+                switch (_specialCreator.toolType)
+                {
+                    case EditCreatorTool.Checkpoint:
+                    default:
+                        type = 6;
+                        break;
+                    case EditCreatorTool.Victory:
+                        type = 7;
+                        break;
+                    case EditCreatorTool.Warp:
+                        type = 8;
+                        break;
+                }
+                locus = _specialCreator.specOrient.locus;
             }
             else
             {
@@ -248,42 +247,34 @@ public class ObjectInfoControl : MonoBehaviour
             }
             if (selectedItem.checkpointData.HasValue)
             {
-                CheckpointData cd = selectedItem.checkpointData.Value;
                 type = 6;
                 if (_isInstanceNull)
                     // if instance is null, gather info from correct creator tool
-                    locus = _checkpointCreator.specOrient.locus;
+                    locus = _specialCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
                     locus = selectedItem.checkpointData.Value.locus;
             }
-            if (selectedItem.warpData.HasValue)
-            {
-                WarpData wd = selectedItem.warpData.Value;
-                type = 7;
-                if (_isInstanceNull)
-                {
-                    // if instance is null, gather info from correct creator tool
-                    rot = _warpCreator.specOrient.rotation;
-                    locus = _warpCreator.specOrient.locus;
-                }
-                else
-                {
-                    // if instance is non-null, gather info from object data
-                    locus = wd.locus;
-                }
-            }
             if (selectedItem.victoryData.HasValue)
             {
-                VictoryData vd = selectedItem.victoryData.Value;
-                type = 8;
+                type = 7;
 
                 if (_isInstanceNull)
                     // if instance is null, gather info from correct creator tool
-                    locus = _victoryCreator.specOrient.locus;
+                    locus = _specialCreator.specOrient.locus;
                 else
                     // if instance is non-null, gather info from object data
-                    locus = vd.locus;
+                    locus = selectedItem.victoryData.Value.locus;
+            }
+            if (selectedItem.warpData.HasValue)
+            {
+                type = 8;
+                if (_isInstanceNull)
+                    // if instance is null, gather info from correct creator tool
+                    locus = _specialCreator.specOrient.locus;
+                else
+                    // if instance is non-null, gather info from object data
+                    locus = selectedItem.warpData.Value.locus;
             }
         }
 
@@ -311,17 +302,17 @@ public class ObjectInfoControl : MonoBehaviour
             // Specials
             if (infoPack.type == 6)
             {
-                t = _checkpointCreator.transform.GetChild(0);
+                t = _specialCreator.transform.GetChild(0).GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
             if (infoPack.type == 7)
             {
-                t = _warpCreator.transform.GetChild(1);
+                t = _specialCreator.transform.GetChild(1).GetChild(0);
                 _objectDisplayARF.aspectRatio = 1f;
             }
             if (infoPack.type == 8)
             {
-                t = _victoryCreator.transform.GetChild(0);
+                t = _specialCreator.transform.GetChild(2).GetChild(1);
                 _objectDisplayARF.aspectRatio = 1f;
             }
 
@@ -357,10 +348,10 @@ public class ObjectInfoControl : MonoBehaviour
                         _combinedNameDisplay.text = "Checkpoint";
                         break;
                     case 7:
-                        _combinedNameDisplay.text = "Warp";
+                        _combinedNameDisplay.text = "Victory";
                         break;
                     case 8:
-                        _combinedNameDisplay.text = "Victory";
+                        _combinedNameDisplay.text = "Warp";
                         break;
                     default:
                         _combinedNameDisplay.text = "Unknown Special Type";

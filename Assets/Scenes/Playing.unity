@@ -274,7 +274,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 69.65
+  m_fontSize: 51.2
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -439,7 +439,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 31.5
+  m_fontSize: 22.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1267,7 +1267,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
+  m_fontSize: 23.4
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1352,7 +1352,7 @@ MonoBehaviour:
   boundaryLeft: {fileID: 1936284901}
   boundaryRight: {fileID: 1324976630}
   boundaryUp: {fileID: 2129861610}
-  chkpntRef: {fileID: 1062829363493185305, guid: 12ece76b552c94fc29d2dca852d6db3a,
+  chkpntRef: {fileID: 6345438035876711431, guid: 5f0cccaba8a0c03d9b2fb84b24a8e08e,
     type: 3}
   checkpointMap: {fileID: 943682854}
   deathParticles: {fileID: 103838, guid: 70d99a2ce40bb49eaab5bcd9930bd33d, type: 3}
@@ -1361,10 +1361,10 @@ MonoBehaviour:
   tileCreator: {fileID: 8784740274246360473, guid: cf09975b7ea66812eb859c91a71e47f0,
     type: 3}
   tileMap: {fileID: 112465030}
-  victoryRef: {fileID: 4182274300101568089, guid: 2a733a19e587947b3bb123a08ed53edb,
+  victoryRef: {fileID: 4099728833047487597, guid: 1a05d3617c27b37a4b36ddb797fc8787,
     type: 3}
   victoryMap: {fileID: 783210878}
-  warpRef: {fileID: 3179061033308198932, guid: 052957c2d161649e0a9a6db9fc1e336a, type: 3}
+  warpRef: {fileID: 6760063573640546394, guid: 8515babb80bf6a08aa1e2c23324d9424, type: 3}
   warpMap: {fileID: 485554455}
   editLoader: {fileID: 114185690794912292, guid: 7d6f9632f31fbae46a039d65cf9a3e96,
     type: 3}
@@ -1376,6 +1376,7 @@ MonoBehaviour:
     name: 
     isLocal: 0
     uploaderId: 
+    uploaderDisplayName: 
   levelCompletePanel: {fileID: 1441810843}
   victoryTimeText: {fileID: 1123289766}
   mobileControlsLayer: {fileID: 1605720977}
@@ -2049,7 +2050,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.65
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2186,7 +2187,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
+  m_fontSize: 23.4
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2323,7 +2324,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 69.65
+  m_fontSize: 51.2
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2460,7 +2461,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
+  m_fontSize: 23.4
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3064,7 +3065,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 56.25
   m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3569,7 +3570,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.65
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3811,7 +3812,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32
+  m_fontSize: 23.4
   m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4133,7 +4134,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 91.5
+  m_fontSize: 60.75
   m_fontSizeBase: 72
   m_fontWeight: 400
   m_enableAutoSizing: 1
