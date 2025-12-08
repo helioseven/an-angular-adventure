@@ -79,7 +79,8 @@ public class SupabaseController : MonoBehaviour
 
     public IEnumerator FetchPublishedLevels(Action<List<LevelInfo>> onComplete)
     {
-        string url = $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id";
+        string url =
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id,users:users!uploader_id(display_name,steam_id)";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -107,6 +108,7 @@ public class SupabaseController : MonoBehaviour
                             name = entry["name"]?.ToString(),
                             isLocal = false,
                             uploaderId = entry["uploader_id"]?.ToString(),
+                            uploaderDisplayName = ExtractDisplayName(entry),
                             createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
@@ -128,7 +130,7 @@ public class SupabaseController : MonoBehaviour
     public IEnumerator FetchPublishedLevelsFromDevelopers(Action<List<LevelInfo>> onComplete)
     {
         string url =
-            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=is.null&order=created_at.desc";
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id,users:users!uploader_id(display_name,steam_id)&uploader_id=eq.dev&order=created_at.desc";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -156,6 +158,7 @@ public class SupabaseController : MonoBehaviour
                             name = entry["name"]?.ToString(),
                             isLocal = false,
                             uploaderId = entry["uploader_id"]?.ToString(),
+                            uploaderDisplayName = ExtractDisplayName(entry),
                             createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
@@ -180,7 +183,7 @@ public class SupabaseController : MonoBehaviour
     )
     {
         string url =
-            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id&uploader_id=eq.{uploaderId}&order=created_at.desc";
+            $"{SUPABASE_URL}/rest/v1/levels?select=id,name,created_at,uploader_id,users:users!uploader_id(display_name,steam_id)&uploader_id=eq.{uploaderId}&order=created_at.desc";
 
         Debug.Log("Fetching Published Levels: " + url);
 
@@ -208,6 +211,7 @@ public class SupabaseController : MonoBehaviour
                             name = entry["name"]?.ToString(),
                             isLocal = false,
                             uploaderId = entry["uploader_id"]?.ToString(),
+                            uploaderDisplayName = ExtractDisplayName(entry),
                             createdAt = DateTime.Parse(entry["created_at"]?.ToString()),
                         }
                     );
@@ -298,5 +302,27 @@ public class SupabaseController : MonoBehaviour
             );
             onComplete?.Invoke(false);
         }
+    }
+
+    private string ExtractDisplayName(JToken entry)
+    {
+        var usersToken = entry["users"];
+        if (usersToken == null || usersToken.Type == JTokenType.Null)
+            return null;
+
+        if (usersToken.Type == JTokenType.Array)
+        {
+            var first = usersToken.First;
+            if (first != null && first.Type == JTokenType.Object)
+                return first["display_name"]?.ToString();
+
+            return first?.ToString();
+        }
+
+        if (usersToken.Type == JTokenType.Object)
+            return usersToken["display_name"]?.ToString();
+
+        // fallback to raw string
+        return usersToken.ToString();
     }
 }

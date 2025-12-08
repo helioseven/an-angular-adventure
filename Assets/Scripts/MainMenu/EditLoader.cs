@@ -71,6 +71,7 @@ public class EditLoader : MonoBehaviour
                 name = "defaultCreateLevelFromMainMenu",
                 isLocal = true,
                 uploaderId = "",
+                uploaderDisplayName = "You",
                 createdAt = DateTime.MinValue,
             };
 
