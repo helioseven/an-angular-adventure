@@ -48,9 +48,6 @@ public class PlayCam_Controller : MonoBehaviour
         if (!player)
             return;
 
-        if (_isWarping)
-            return;
-
         Vector2 moveAxis = GetMovementAxis();
         float signedSpeed = GetSignedMovementSpeed(moveAxis);
         float absSpeed = Mathf.Abs(signedSpeed);
@@ -82,47 +79,32 @@ public class PlayCam_Controller : MonoBehaviour
             transform.position,
             target,
             ref _cameraVelocity,
-            followSmoothTime
+            _warpFollowActive
+                ? Mathf.Max(0.05f, Mathf.Min(followSmoothTime, _warpFollowDuration))
+                : followSmoothTime
         );
         transform.position = next;
+
+        if (_warpFollowActive)
+        {
+            _warpFollowTimer += Time.deltaTime;
+            if (_warpFollowTimer >= _warpFollowDuration)
+            {
+                _warpFollowActive = false;
+                _isWarping = false;
+            }
+        }
     }
 
-    public void PlayWarpTransition(Vector3 playerPos)
-    {
-        if (_warpRoutine != null)
-            StopCoroutine(_warpRoutine);
-        _warpRoutine = StartCoroutine(WarpTransition(playerPos));
-    }
-
-    private IEnumerator WarpTransition(Vector3 playerPos)
+    public void PlayWarpTransition(Vector3 playerPos, float duration)
     {
         _isWarping = true;
+        _warpFollowTimer = 0f;
+        _warpFollowDuration = duration;
+        _warpFollowActive = true;
         _cameraVelocity = Vector3.zero;
         _lookAheadDirection = 0f;
-
-        Vector2 moveAxis = GetMovementAxis();
-        float startLook = _currentLookAhead;
-        float targetLook = warpFocusLookAhead;
-        Vector3 start = transform.position;
-
-        Vector3 target = playerPos;
-        target += (Vector3)(moveAxis * targetLook);
-        target.y += verticalOffset;
-        target.z = playerPos.z + zOffset;
-
-        float t = 0f;
-        while (t < warpDuration)
-        {
-            float lerpT = Mathf.SmoothStep(0f, 1f, t / warpDuration);
-            _currentLookAhead = Mathf.Lerp(startLook, targetLook, lerpT);
-            transform.position = Vector3.Lerp(start, target, lerpT);
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        _currentLookAhead = targetLook;
-        transform.position = target;
-        _isWarping = false;
+        _currentLookAhead = 0f;
     }
 
     private Vector2 GetMovementAxis()
@@ -146,4 +128,9 @@ public class PlayCam_Controller : MonoBehaviour
             return 0f;
         return Vector2.Dot(playerBody.linearVelocity, moveAxis);
     }
+
+    // warp follow state
+    private bool _warpFollowActive;
+    private float _warpFollowTimer;
+    private float _warpFollowDuration;
 }
