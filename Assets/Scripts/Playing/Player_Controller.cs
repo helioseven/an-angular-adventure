@@ -5,15 +5,16 @@ using UnityEngine.InputSystem;
 public class Player_Controller : MonoBehaviour
 {
     // public variables
-    public int speed;
-    public float jumpForce;
+    public int speed = 420;
+    public float jumpForce = 600;
     public bool isOnIce;
     public bool isIceScalingBlockingJump;
     public Collider2D purpleGroundCheckCollider;
     public bool queueSuperJumpOnPurpleTouch = false;
     public BallSkinDatabase skinDB;
+
     // Tweakables (feels good around these defaults; push slightly to taste)
-    public float groundProbeDistance = 0.2f; // 0.15–0.3 typical
+    public float groundProbeDistance = 0.02f; // 0.2 was too long
     public float torqueStrength = 8f; // 6–10 feels controlled
     public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35–0.6)
     public float iceSlideBoost = 6f; // add carry on ice (4–8 range)
@@ -26,7 +27,6 @@ public class Player_Controller : MonoBehaviour
     private Rigidbody2D _rb2d;
 
     // private variables
-    private const float JUMP_FORCE_DEFAULT_VALUE = 300f;
     private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
     private int _maxJumps = 1;
@@ -36,7 +36,7 @@ public class Player_Controller : MonoBehaviour
     private const float PURPLE_TOUCH_TIMEOUT = 0.75f;
     private const float MAX_SPEED_JUMP_BONUS = 0.15f;
     private const float SPEED_FOR_MAX_BONUS = 10f;
-    private const float JUMP_HOLD_FORCE_SCALE = 0.25f;
+    private const float JUMP_HOLD_FORCE_SCALE = 0.33f;
     private const float SHORT_HOP_RELEASE_DAMP = 0.55f;
     private const float MAX_ANGULAR_VELOCITY = 380f;
     private bool purpTucher => recentlyTouchedPurpleTiles.Count > 0;
@@ -45,7 +45,6 @@ public class Player_Controller : MonoBehaviour
     private float _jumpHoldForce;
     private Vector2 _jumpHoldDirection;
     private bool _jumpTriggered;
-    private float _baseJumpForce;
     private bool _groundOverrideJumpBlock;
     private const float PROBE_SKIN = 0.01f;
 
@@ -58,12 +57,9 @@ public class Player_Controller : MonoBehaviour
     private System.Action<InputAction.CallbackContext> _onJump;
     private System.Action<InputAction.CallbackContext> _onJumpCanceled;
 
-    // private bool _jumpHeld;
-
     void Awake()
     {
         _rb2d = GetComponent<Rigidbody2D>();
-        _baseJumpForce = jumpForce <= 0f ? JUMP_FORCE_DEFAULT_VALUE : jumpForce;
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
@@ -104,13 +100,12 @@ public class Player_Controller : MonoBehaviour
 
     void Update()
     {
+        _groundOverrideJumpBlock = ProbeForNonIceGround(); // only used to override ice blocking
+        UpdateJumpForce();
         CleanupStalePurpleTouches();
         UpdateJumping();
         UnityEditorGodMode();
         UpdateRollingSound();
-        _groundOverrideJumpBlock = ProbeForNonIceGround();
-        UpdateJumpForceMagnitude();
-        UpdateJumpForceVector(PlayGM.instance.gravDirection);
     }
 
     void FixedUpdate()
@@ -219,6 +214,11 @@ public class Player_Controller : MonoBehaviour
             queueSuperJumpOnPurpleTouch = true;
         }
 
+        if (isIceScalingBlockingJump && !_groundOverrideJumpBlock)
+        {
+            canJump = false;
+        }
+
         if (canJump && _jumpTriggered)
         {
             _numJumps++;
@@ -232,15 +232,7 @@ public class Player_Controller : MonoBehaviour
 
     public void UpdateJumpForce()
     {
-        UpdateJumpForceMagnitude();
         UpdateJumpForceVector(PlayGM.instance.gravDirection);
-    }
-
-    private void UpdateJumpForceMagnitude()
-    {
-        // If we have real ground under us, override ice jump block
-        bool jumpBlocked = isIceScalingBlockingJump && !_groundOverrideJumpBlock;
-        jumpForce = jumpBlocked ? 0f : _baseJumpForce;
     }
 
     public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
@@ -404,7 +396,11 @@ public class Player_Controller : MonoBehaviour
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
         float torque = -rollInput * torqueStrength * controlScale; // negative keeps spin matching roll
         _rb2d.AddTorque(torque, ForceMode2D.Force);
-        _rb2d.angularVelocity = Mathf.Clamp(_rb2d.angularVelocity, -MAX_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY);
+        _rb2d.angularVelocity = Mathf.Clamp(
+            _rb2d.angularVelocity,
+            -MAX_ANGULAR_VELOCITY,
+            MAX_ANGULAR_VELOCITY
+        );
     }
 
     private float GetProbeDistance(Vector2 dir)
@@ -476,7 +472,8 @@ public class Player_Controller : MonoBehaviour
 
         Vector2 origin = _groundCheckCollider.bounds.center;
         Vector2 dir = GravityDirectionVector();
-        float castDistance = _groundCheckCollider != null ? GetProbeDistance(dir) : groundProbeDistance;
+        float castDistance =
+            _groundCheckCollider != null ? GetProbeDistance(dir) : groundProbeDistance;
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(origin, origin + dir * castDistance); // shows ground override ray

@@ -56,6 +56,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -77,6 +79,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 1615293027
   m_SortingLayer: 3
   m_SortingOrder: 0
@@ -88,7 +91,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!58 &58499552163210830
@@ -165,7 +168,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e5190c44829d134bb8f2eb0b701b561, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player_Controller
   speed: 420
   jumpForce: 600
   isOnIce: 0
@@ -173,6 +176,10 @@ MonoBehaviour:
   purpleGroundCheckCollider: {fileID: 0}
   queueSuperJumpOnPurpleTouch: 0
   skinDB: {fileID: 11400000, guid: 9ca44747d890444809d63ba87bf619f5, type: 2}
+  groundProbeDistance: 0.02
+  torqueStrength: 8
+  iceControlMultiplier: 0.5
+  iceSlideBoost: 6
 --- !u!82 &8126714323904837470
 AudioSource:
   m_ObjectHideFlags: 0
@@ -183,7 +190,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: cb8c4d7bd34b7774086f7bfce05e7739, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: cb8c4d7bd34b7774086f7bfce05e7739, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0
