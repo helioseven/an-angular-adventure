@@ -114,6 +114,12 @@ public partial class PlayGM
     // resets the player to last checkpoint
     private IEnumerator ResetToCheckpoint(Rigidbody2D rb, bool isSpawn = false)
     {
+        PlayCam_Controller camController = Camera.main
+            ? Camera.main.GetComponent<PlayCam_Controller>()
+            : null;
+        if (camController != null)
+            camController.SetZoomSuppressed(true);
+
         // pause to watch death particles
         yield return new WaitForSeconds(1f);
 
@@ -179,6 +185,9 @@ public partial class PlayGM
         {
             clock.StartClock();
         }
+
+        if (camController != null)
+            camController.SetZoomSuppressed(false);
     }
 
     void CheckForTelefrag(int playerLayer)

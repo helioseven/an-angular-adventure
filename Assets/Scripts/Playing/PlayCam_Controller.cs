@@ -23,20 +23,40 @@ public class PlayCam_Controller : MonoBehaviour
     public float warpDuration = 0.35f;
     public float warpFocusLookAhead = 1.5f;
 
+    [Header("Zoom")]
+    public float zoomOutSize = 9f;
+    public float zoomOutExtra = 25f;
+    public float zoomSpeedThreshold = 0.75f;
+    public float zoomIdleDelay = 2f;
+    public float zoomOutSmoothTime = 0.66f;
+    public float zoomInSmoothTime = 0.25f;
+
     // private references
     private PlayGM _gmRef;
+    private Camera _cam;
 
     // private state
     private Vector3 _cameraVelocity = Vector3.zero;
     private float _currentLookAhead;
     private float _lookAheadVelocity;
     private float _lookAheadDirection;
-    private Coroutine _warpRoutine;
-    private bool _isWarping;
+    private float _baseOrthoSize;
+    private float _baseFov;
+    private float _orthoVelocity;
+    private float _idleTimer;
+    private bool _zoomSuppressed;
 
     void Awake()
     {
         _gmRef = PlayGM.instance;
+        _cam = GetComponent<Camera>();
+        if (_cam == null)
+            _cam = Camera.main;
+        if (_cam != null)
+        {
+            _baseOrthoSize = _cam.orthographicSize;
+            _baseFov = _cam.fieldOfView;
+        }
         if (!player)
             player = GameObject.FindWithTag("Player")?.transform;
         if (!playerBody && player)
@@ -51,6 +71,7 @@ public class PlayCam_Controller : MonoBehaviour
         Vector2 moveAxis = GetMovementAxis();
         float signedSpeed = GetSignedMovementSpeed(moveAxis);
         float absSpeed = Mathf.Abs(signedSpeed);
+        float speedMagnitude = playerBody ? playerBody.linearVelocity.magnitude : absSpeed;
 
         if (absSpeed > lookAheadDeadZoneSpeed)
         {
@@ -91,20 +112,40 @@ public class PlayCam_Controller : MonoBehaviour
             if (_warpFollowTimer >= _warpFollowDuration)
             {
                 _warpFollowActive = false;
-                _isWarping = false;
             }
+        }
+
+        if (!_zoomSuppressed)
+        {
+            UpdateZoom(speedMagnitude);
         }
     }
 
     public void PlayWarpTransition(Vector3 playerPos, float duration)
     {
-        _isWarping = true;
         _warpFollowTimer = 0f;
         _warpFollowDuration = duration;
         _warpFollowActive = true;
         _cameraVelocity = Vector3.zero;
         _lookAheadDirection = 0f;
         _currentLookAhead = 0f;
+    }
+
+    public void SetZoomSuppressed(bool suppressed)
+    {
+        _zoomSuppressed = suppressed;
+        if (_cam == null)
+            return;
+
+        if (suppressed)
+        {
+            _idleTimer = 0f;
+            _orthoVelocity = 0f;
+            if (_cam.orthographic)
+                _cam.orthographicSize = _baseOrthoSize;
+            else
+                _cam.fieldOfView = _baseFov;
+        }
     }
 
     private Vector2 GetMovementAxis()
@@ -133,4 +174,43 @@ public class PlayCam_Controller : MonoBehaviour
     private bool _warpFollowActive;
     private float _warpFollowTimer;
     private float _warpFollowDuration;
+
+    private void UpdateZoom(float speed)
+    {
+        if (_cam == null)
+            return;
+
+        if (speed < zoomSpeedThreshold)
+            _idleTimer += Time.deltaTime;
+        else
+            _idleTimer = 0f;
+
+        bool shouldZoomOut = _idleTimer >= zoomIdleDelay;
+        float smooth = shouldZoomOut ? zoomOutSmoothTime : zoomInSmoothTime;
+
+        if (_cam.orthographic)
+        {
+            float targetOut = Mathf.Max(_baseOrthoSize + zoomOutExtra, zoomOutSize);
+            float targetSize = shouldZoomOut ? targetOut : _baseOrthoSize;
+            float newSize = Mathf.SmoothDamp(
+                _cam.orthographicSize,
+                targetSize,
+                ref _orthoVelocity,
+                smooth
+            );
+            _cam.orthographicSize = newSize;
+        }
+        else
+        {
+            float targetOut = Mathf.Max(_baseFov + zoomOutExtra, zoomOutSize);
+            float targetFov = shouldZoomOut ? targetOut : _baseFov;
+            float newFov = Mathf.SmoothDamp(
+                _cam.fieldOfView,
+                targetFov,
+                ref _orthoVelocity,
+                smooth
+            );
+            _cam.fieldOfView = newFov;
+        }
+    }
 }
