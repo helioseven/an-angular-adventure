@@ -333,6 +333,7 @@ public class Player_Controller : MonoBehaviour
         if (groundProbeDistance <= 0f || _groundCheckCollider == null)
             return false;
 
+        int playerLayer = gameObject.layer;
         Vector2 origin = _groundCheckCollider.bounds.center;
         Vector2 dir = GravityDirectionVector();
         float castDistance = GetProbeDistance(dir);
@@ -344,7 +345,12 @@ public class Player_Controller : MonoBehaviour
                 continue;
             if (hit.collider.isTrigger)
                 continue;
-            if (hit.collider.GetComponent<Tile_Blue>() != null) // ignore ice for the override
+            if (hit.collider.gameObject.layer != playerLayer)
+                continue; // ignore other physics layers (e.g., warps)
+            Tile tile = hit.collider.GetComponent<Tile>();
+            if (tile == null)
+                continue; // only solid tiles count as ground
+            if (tile is Tile_Blue)
                 continue;
             return true;
         }
