@@ -15,9 +15,17 @@ public class PlayCam_Controller : MonoBehaviour
 
     [Header("Look-Ahead")]
     public float lookAheadDistance = 2f;
-    public float lookAheadSmoothTime = 0.15f;
+    public float lookAheadSmoothTime = 0.44f;
     public float lookAheadDeadZoneSpeed = 0.5f;
     public float lookAheadReleaseSpeed = 0.2f;
+    public float lookAheadRampRange = 2f;
+    public float lookAheadGravityScale = 8.0f;
+    public float gravityLookAheadMin = 20f;
+    public float gravityLookAheadMax = 110f;
+    public float gravityLookAheadSpeedScale = 2.0f;
+    public float velocityLookAheadTime = 0.35f;
+    public float velocityLookAheadMax = 90f;
+    public float velocityLookAheadSmoothTime = 0.4f;
 
     [Header("Warp Transition")]
     public float warpDuration = 0.35f;
@@ -37,9 +45,14 @@ public class PlayCam_Controller : MonoBehaviour
 
     // private state
     private Vector3 _cameraVelocity = Vector3.zero;
-    private float _currentLookAhead;
-    private float _lookAheadVelocity;
-    private float _lookAheadDirection;
+    private float _currentLookAheadPerp;
+    private float _lookAheadVelocityPerp;
+    private float _lookAheadDirectionPerp;
+    private float _currentLookAheadGrav;
+    private float _lookAheadVelocityGrav;
+    private float _lookAheadDirectionGrav;
+    private Vector2 _currentVelocityLookAhead;
+    private Vector2 _velocityLookAheadVel;
     private float _baseOrthoSize;
     private float _baseFov;
     private float _orthoVelocity;
@@ -69,30 +82,29 @@ public class PlayCam_Controller : MonoBehaviour
             return;
 
         Vector2 moveAxis = GetMovementAxis();
-        float signedSpeed = GetSignedMovementSpeed(moveAxis);
-        float absSpeed = Mathf.Abs(signedSpeed);
-        float speedMagnitude = playerBody ? playerBody.linearVelocity.magnitude : absSpeed;
+        Vector2 gravAxis = GetGravityAxis();
+        float signedPerpSpeed = GetSignedMovementSpeed(moveAxis);
+        float absPerpSpeed = Mathf.Abs(signedPerpSpeed);
+        float signedGravSpeed = GetSignedMovementSpeed(gravAxis);
+        float absGravSpeed = Mathf.Abs(signedGravSpeed);
+        float speedMagnitude = playerBody ? playerBody.linearVelocity.magnitude : absPerpSpeed;
+        Vector2 velocity = playerBody ? playerBody.linearVelocity : Vector2.zero;
 
-        if (absSpeed > lookAheadDeadZoneSpeed)
-        {
-            _lookAheadDirection = Mathf.Sign(signedSpeed);
-        }
-        else if (absSpeed < lookAheadReleaseSpeed)
-        {
-            _lookAheadDirection = 0f;
-        }
-
-        float targetLookAhead = _lookAheadDirection * lookAheadDistance;
-
-        _currentLookAhead = Mathf.SmoothDamp(
-            _currentLookAhead,
-            targetLookAhead,
-            ref _lookAheadVelocity,
-            lookAheadSmoothTime
+        UpdateLookAhead(
+            ref _lookAheadDirectionPerp,
+            ref _currentLookAheadPerp,
+            ref _lookAheadVelocityPerp,
+            absPerpSpeed,
+            signedPerpSpeed,
+            lookAheadDistance
         );
+        UpdateGravityLookAhead(absGravSpeed, signedGravSpeed);
+        UpdateVelocityLookAhead(velocity);
 
         Vector3 target = player.position;
-        target += (Vector3)(moveAxis * _currentLookAhead);
+        target += (Vector3)(moveAxis * _currentLookAheadPerp);
+        target += (Vector3)(gravAxis * _currentLookAheadGrav);
+        target += (Vector3)_currentVelocityLookAhead;
         target.y += verticalOffset;
         target.z = player.position.z + zOffset;
 
@@ -127,8 +139,10 @@ public class PlayCam_Controller : MonoBehaviour
         _warpFollowDuration = duration;
         _warpFollowActive = true;
         _cameraVelocity = Vector3.zero;
-        _lookAheadDirection = 0f;
-        _currentLookAhead = 0f;
+        _lookAheadDirectionPerp = 0f;
+        _currentLookAheadPerp = 0f;
+        _lookAheadDirectionGrav = 0f;
+        _currentLookAheadGrav = 0f;
     }
 
     public void SetZoomSuppressed(bool suppressed)
@@ -211,6 +225,84 @@ public class PlayCam_Controller : MonoBehaviour
                 smooth
             );
             _cam.fieldOfView = newFov;
+        }
+    }
+
+    private void UpdateLookAhead(
+        ref float dir,
+        ref float current,
+        ref float vel,
+        float absSpeed,
+        float signedSpeed,
+        float maxDistance
+    )
+    {
+        if (absSpeed > lookAheadDeadZoneSpeed)
+        {
+            dir = Mathf.Sign(signedSpeed);
+        }
+        else if (absSpeed < lookAheadReleaseSpeed)
+        {
+            dir = 0f;
+        }
+
+        float speedT = Mathf.InverseLerp(
+            lookAheadDeadZoneSpeed,
+            lookAheadDeadZoneSpeed + lookAheadRampRange,
+            absSpeed
+        );
+        float target = dir * maxDistance * speedT;
+        current = Mathf.SmoothDamp(current, target, ref vel, lookAheadSmoothTime);
+    }
+
+    private void UpdateGravityLookAhead(float absSpeed, float signedSpeed)
+    {
+        if (absSpeed > lookAheadDeadZoneSpeed)
+            _lookAheadDirectionGrav = Mathf.Sign(signedSpeed);
+        else if (absSpeed < lookAheadReleaseSpeed)
+            _lookAheadDirectionGrav = 0f;
+
+        float baseTarget = lookAheadDistance * lookAheadGravityScale;
+        float speedLead = absSpeed * gravityLookAheadSpeedScale;
+        float target = _lookAheadDirectionGrav
+            * Mathf.Clamp(baseTarget + speedLead, gravityLookAheadMin, gravityLookAheadMax);
+
+        _currentLookAheadGrav = Mathf.SmoothDamp(
+            _currentLookAheadGrav,
+            target,
+            ref _lookAheadVelocityGrav,
+            lookAheadSmoothTime
+        );
+    }
+
+    private void UpdateVelocityLookAhead(Vector2 velocity)
+    {
+        Vector2 target = Vector2.ClampMagnitude(velocity * velocityLookAheadTime, velocityLookAheadMax);
+        _currentVelocityLookAhead = Vector2.SmoothDamp(
+            _currentVelocityLookAhead,
+            target,
+            ref _velocityLookAheadVel,
+            velocityLookAheadSmoothTime
+        );
+    }
+
+    private Vector2 GetGravityAxis()
+    {
+        if (_gmRef == null)
+            return Vector2.zero;
+
+        switch (_gmRef.gravDirection)
+        {
+            case PlayGM.GravityDirection.Down:
+                return Vector2.down;
+            case PlayGM.GravityDirection.Up:
+                return Vector2.up;
+            case PlayGM.GravityDirection.Left:
+                return Vector2.left;
+            case PlayGM.GravityDirection.Right:
+                return Vector2.right;
+            default:
+                return Vector2.zero;
         }
     }
 }

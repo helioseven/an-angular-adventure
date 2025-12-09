@@ -400,7 +400,11 @@ public class Player_Controller : MonoBehaviour
             return;
 
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
-        float torque = -rollInput * torqueStrength * controlScale; // negative keeps spin matching roll
+        float torqueSign = (PlayGM.instance.gravDirection == PlayGM.GravityDirection.Down
+                || PlayGM.instance.gravDirection == PlayGM.GravityDirection.Right)
+            ? -1f
+            : 1f;
+        float torque = rollInput * torqueStrength * controlScale * torqueSign; // keeps spin matching roll per gravity side
         _rb2d.AddTorque(torque, ForceMode2D.Force);
         _rb2d.angularVelocity = Mathf.Clamp(
             _rb2d.angularVelocity,
