@@ -106,7 +106,7 @@ public partial class PlayGM
         if (child != null)
         {
             victoryBurst = child.GetComponent<ParticleSystem>();
-            // ✨ Trigger the particle burst
+            // Trigger the particle burst
             victoryBurst.Play();
         }
     }
@@ -114,6 +114,12 @@ public partial class PlayGM
     // resets the player to last checkpoint
     private IEnumerator ResetToCheckpoint(Rigidbody2D rb, bool isSpawn = false)
     {
+        PlayCam_Controller camController = Camera.main
+            ? Camera.main.GetComponent<PlayCam_Controller>()
+            : null;
+        if (camController != null)
+            camController.SetZoomSuppressed(true);
+
         // pause to watch death particles
         yield return new WaitForSeconds(1f);
 
@@ -143,7 +149,7 @@ public partial class PlayGM
         if (child != null)
         {
             checkpointBurstReverse = child.GetComponent<ParticleSystem>();
-            // ✨ Trigger the particle burst
+            // Trigger the particle burst
             checkpointBurstReverse.Play();
         }
 
@@ -179,6 +185,9 @@ public partial class PlayGM
         {
             clock.StartClock();
         }
+
+        if (camController != null)
+            camController.SetZoomSuppressed(false);
     }
 
     void CheckForTelefrag(int playerLayer)
@@ -204,21 +213,68 @@ public partial class PlayGM
         }
     }
 
-    // warps player from either base or target layer
-    public void WarpPlayer(int baseLayer, int targetLayer)
+    // warps player from either base or target layer with a short visual flow
+    public void WarpPlayer(
+        int baseLayer,
+        int targetLayer,
+        Vector3 entryPos,
+        Vector3 targetCenter,
+        float flowDuration
+    )
     {
-        // if activeLayer matches either base or target, select the other
-        int next_layer = activeLayer == baseLayer ? targetLayer : baseLayer;
+        StartCoroutine(
+            WarpPlayerRoutine(baseLayer, targetLayer, entryPos, targetCenter, flowDuration)
+        );
+    }
 
-        // update physics & transparency for all layers
-        activateLayer(next_layer);
+    private IEnumerator WarpPlayerRoutine(
+        int baseLayer,
+        int targetLayer,
+        Vector3 entryPos,
+        Vector3 targetCenter,
+        float flowDuration
+    )
+    {
+        int currentLayer = activeLayer;
+        int nextLayer = activeLayer == baseLayer ? targetLayer : baseLayer;
 
-        // change player's position as appropriate
-        Vector3 p = player.transform.position;
-        p.z = tileMap.transform.GetChild(next_layer).position.z;
-        player.transform.position = p;
+        float startZ = tileMap.transform.GetChild(currentLayer).position.z;
+        float targetZ = tileMap.transform.GetChild(nextLayer).position.z;
 
-        // Telefragging 😈
+        Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
+        RigidbodyType2D prevBodyType = rb2d.bodyType;
+        float prevAngularVelocity = rb2d.angularVelocity;
+
+        // Freeze motion during flow
+        rb2d.bodyType = RigidbodyType2D.Kinematic;
+        rb2d.linearVelocity = Vector2.zero;
+        rb2d.angularVelocity = 0f;
+
+        // Swap to the target layer (updates physics masks and visuals)
+        activateLayer(nextLayer);
+
+        Vector3 start = entryPos;
+        start.z = startZ;
+        Vector3 target = targetCenter;
+        target.z = targetZ;
+
+        float elapsed = 0f;
+        while (elapsed < flowDuration)
+        {
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / flowDuration);
+            player.transform.position = Vector3.Lerp(start, target, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        player.transform.position = target;
+
+        // Restore motion, but without prior linear velocity to keep the landing stable
+        rb2d.bodyType = prevBodyType;
+        rb2d.linearVelocity = Vector2.zero;
+        rb2d.angularVelocity = prevAngularVelocity;
+
+        // Telefragging
         CheckForTelefrag(LayerMask.NameToLayer(INT_TO_NAME[activeLayer]));
     }
 }
