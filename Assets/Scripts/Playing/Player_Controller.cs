@@ -164,7 +164,9 @@ public class Player_Controller : MonoBehaviour
     public void Move()
     {
         // read input
-        Vector2 movement = _moveInput;
+        float rollInput = GetPerpendicularComponent(_moveInput);
+        Vector2 movement =
+            rollInput == 0f ? Vector2.zero : GetPerpendicularUnit(Mathf.Sign(rollInput));
         Vector2 upwardDragForcedMovement = UpdateUpwardDragForce(movement);
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
         // Less input authority on ice; add a bit of carry to keep skidding
@@ -395,15 +397,20 @@ public class Player_Controller : MonoBehaviour
 
     private void ApplyTorqueForMovement(Vector2 movement)
     {
-        float rollInput = GetPerpendicularComponent(movement);
-        if (Mathf.Approximately(rollInput, 0f))
+        // Use the gravity-perpendicular component only; diagonals count the same as straight input
+        float rollInput = GetPerpendicularComponent(_moveInput);
+        if (Mathf.Abs(rollInput) <= 0.01f)
             return;
+        rollInput = Mathf.Sign(rollInput); // keyboard or stick diagonals give full torque
 
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
-        float torqueSign = (PlayGM.instance.gravDirection == PlayGM.GravityDirection.Down
-                || PlayGM.instance.gravDirection == PlayGM.GravityDirection.Right)
-            ? -1f
-            : 1f;
+        float torqueSign =
+            (
+                PlayGM.instance.gravDirection == PlayGM.GravityDirection.Down
+                || PlayGM.instance.gravDirection == PlayGM.GravityDirection.Right
+            )
+                ? -1f
+                : 1f;
         float torque = rollInput * torqueStrength * controlScale * torqueSign; // keeps spin matching roll per gravity side
         _rb2d.AddTorque(torque, ForceMode2D.Force);
         _rb2d.angularVelocity = Mathf.Clamp(
@@ -468,6 +475,21 @@ public class Player_Controller : MonoBehaviour
         }
 
         return v.magnitude;
+    }
+
+    private Vector2 GetPerpendicularUnit(float sign)
+    {
+        switch (PlayGM.instance.gravDirection)
+        {
+            case PlayGM.GravityDirection.Down:
+            case PlayGM.GravityDirection.Up:
+                return new Vector2(sign, 0f);
+            case PlayGM.GravityDirection.Left:
+            case PlayGM.GravityDirection.Right:
+                return new Vector2(0f, sign);
+            default:
+                return Vector2.zero;
+        }
     }
 
     public PlayGM.GravityDirection GetGravityDirection()

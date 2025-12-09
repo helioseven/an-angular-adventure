@@ -264,7 +264,8 @@ public class PlayCam_Controller : MonoBehaviour
 
         float baseTarget = lookAheadDistance * lookAheadGravityScale;
         float speedLead = absSpeed * gravityLookAheadSpeedScale;
-        float target = _lookAheadDirectionGrav
+        float target =
+            _lookAheadDirectionGrav
             * Mathf.Clamp(baseTarget + speedLead, gravityLookAheadMin, gravityLookAheadMax);
 
         _currentLookAheadGrav = Mathf.SmoothDamp(
@@ -277,7 +278,10 @@ public class PlayCam_Controller : MonoBehaviour
 
     private void UpdateVelocityLookAhead(Vector2 velocity)
     {
-        Vector2 target = Vector2.ClampMagnitude(velocity * velocityLookAheadTime, velocityLookAheadMax);
+        Vector2 target = Vector2.ClampMagnitude(
+            velocity * velocityLookAheadTime,
+            velocityLookAheadMax
+        );
         _currentVelocityLookAhead = Vector2.SmoothDamp(
             _currentVelocityLookAhead,
             target,
