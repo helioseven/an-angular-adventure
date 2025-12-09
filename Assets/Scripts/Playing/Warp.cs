@@ -65,6 +65,15 @@ public class Warp : MonoBehaviour
                 warpRipple.SetActive(false); // Reset in case it was left on
                 warpRipple.SetActive(true); // Triggers OnEnable and the ripple animation
             }
+
+            Camera mainCam = Camera.main;
+            PlayCam_Controller camController = mainCam != null
+                ? mainCam.GetComponent<PlayCam_Controller>()
+                : null;
+            if (camController != null)
+            {
+                camController.PlayWarpTransition(_gmRef.player.transform.position);
+            }
         }
     }
 }
