@@ -87,7 +87,10 @@ public partial class EditGM : MonoBehaviour
     // private variables
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentEditorMode;
+    private EditCreatorTool _currentCreatorTool;
     private GameObject _currentCreatorToolGameObject;
+    private Dictionary<GameObject, int> _doorTileMap;
+    private Dictionary<GameObject, int> _greenTileMap;
     private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
@@ -95,9 +98,6 @@ public partial class EditGM : MonoBehaviour
     // Selected item is the one that was last placed or just clicked on from select mode
     // Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
     private SelectedItem _selectedItem;
-
-    // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
-    private EditCreatorTool _currentCreatorTool;
 
     // Item lookups
     private Dictionary<GameObject, TileData> _tileLookup;
@@ -115,10 +115,12 @@ public partial class EditGM : MonoBehaviour
 
             // initializations for private state variables
             _currentHUDhover = new List<RaycastResult>();
-            _inputMode = false;
             _currentEditorMode = EditorMode.Create;
             _currentCreatorTool = EditCreatorTool.Tile;
             _currentCreatorToolGameObject = tileCreator.gameObject;
+            _inputMode = false;
+            _doorTileMap = new Dictionary<GameObject, int>();
+            _greenTileMap = new Dictionary<GameObject, int>();
             TileData td = new TileData(0, 0, 0, new HexOrient());
             _selectedItem = new SelectedItem(td);
             _tileLookup = new Dictionary<GameObject, TileData>();

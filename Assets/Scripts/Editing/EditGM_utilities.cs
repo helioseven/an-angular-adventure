@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -227,8 +228,27 @@ public partial class EditGM
         Transform tl = tileMap.transform.GetChild(inTile.orient.layer);
         go.transform.SetParent(tl);
 
-        // add tile's gameObject to the tile lookup and return it
+        // add tile's gameObject to the tile lookup
         _tileLookup[go] = inTile;
+        // if it's a green tile and has a valid key value,
+        // add it to the green tile map
+        if (inTile.color == 3 && inTile.special != 0)
+        {
+            _greenTileMap.Add(go, inTile.special);
+            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+        }
+        // if it has a valid door value, add it to the door tile map
+        if (inTile.doorId != 0)
+        {
+            _doorTileMap.Add(go, inTile.doorId);
+            foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+            {
+                if (kvp.Value == inTile.doorId)
+                    kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            }
+        }
+
+        // finally, return the gameObject
         return go;
     }
 
@@ -270,6 +290,23 @@ public partial class EditGM
             go.transform.SetParent(tileLayer);
             // once tile is built, add (GameObject,TileData) pair to _tileLookup
             _tileLookup.Add(go, td);
+            // if it's a green tile and has a valid key value,
+            // add it to the green tile map
+            if (td.color == 3 && td.special != 0)
+            {
+                _greenTileMap.Add(go, td.special);
+                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            }
+            // if it has a valid door value, add it to the door tile map
+            if (td.doorId != 0)
+            {
+                _doorTileMap.Add(go, td.doorId);
+                foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+                {
+                    if (kvp.Value == td.doorId)
+                        kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+                }
+            }
         }
 
         // build each checkpoint in the level
@@ -440,6 +477,21 @@ public partial class EditGM
         // otherwise remove tile from the level and _tileLookup
         levelData.tileSet.Remove(tData);
         _tileLookup.Remove(inTile);
+        // remove from green tile map if necessary
+        if (_greenTileMap.ContainsKey(inTile))
+            _greenTileMap.Remove(inTile);
+        // remove from the door tile map if necessary
+        if (_doorTileMap.ContainsKey(inTile))
+        {
+            _doorTileMap.Remove(inTile);
+            foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+            {
+                if (kvp.Value == tData.doorId)
+                    kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            }
+        }
+
+        Destroy(inTile);
     }
 
     // sets the opacity of all tiles within a layer using ordinal distance from activeLayer
@@ -600,6 +652,12 @@ public partial class EditGM
         return levelName;
     }
 
+    // returns the key value associated with a green tile, if one is known
+    public int GetGreenTileKey(GameObject inTile)
+    {
+        return _greenTileMap.ContainsKey(inTile) ? _greenTileMap[inTile] : 0;
+    }
+
     // returns the z value of the current layer's transform
     public float GetLayerDepth()
     {
@@ -635,6 +693,18 @@ public partial class EditGM
         // perform 2D physics raycast
         RaycastHit2D hit = Physics2D.GetRayIntersection(layerRay, 2f);
         return hit.collider;
+    }
+
+    // returns a hashset of door tiles based on a passed ID
+    public void GetDoorSet(int keyID, out HashSet<GameObject> knownDoors)
+    {
+        knownDoors = new HashSet<GameObject>();
+
+        foreach (GameObject go in _doorTileMap.Keys)
+        {
+            if (_doorTileMap[go] == keyID)
+                knownDoors.Add(go);
+        }
     }
 
     // returns true if the given element is mouse hovered
