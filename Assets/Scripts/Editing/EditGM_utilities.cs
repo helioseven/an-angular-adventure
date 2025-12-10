@@ -789,37 +789,53 @@ public partial class EditGM
 
     public void SetSelectedItemSpecial(string s)
     {
+        int newId = int.Parse(s);
+
         if (_selectedItem.tileData.HasValue)
         {
+            TileData td = _selectedItem.tileData.Value;
             TileData tileDataModified = new TileData(
-                _selectedItem.tileData.Value.type,
-                _selectedItem.tileData.Value.color,
-                int.Parse(s),
-                _selectedItem.tileData.Value.orient,
-                _selectedItem.tileData.Value.doorId
+                td.type,
+                td.color,
+                newId,
+                td.orient,
+                td.doorId
             );
-            removeTile(_selectedItem.instance);
-            Destroy(_selectedItem.instance);
-            GameObject newTile = addTile(tileDataModified);
-            _selectedItem.instance = newTile;
+
+            if (_selectedItem.instance)
+            {
+                removeTile(_selectedItem.instance);
+                GameObject newTile = addTile(tileDataModified);
+                _selectedItem = new SelectedItem(newTile, tileDataModified);
+            }
+            else
+                _selectedItem = new SelectedItem(tileDataModified);
         }
     }
 
     public void SetSelectedItemDoorId(string s)
     {
+        int newId = int.Parse(s);
+
         if (_selectedItem.tileData.HasValue)
         {
+            TileData td = _selectedItem.tileData.Value;
             TileData tileDataModified = new TileData(
-                _selectedItem.tileData.Value.type,
-                _selectedItem.tileData.Value.color,
-                _selectedItem.tileData.Value.special,
-                _selectedItem.tileData.Value.orient,
-                int.Parse(s)
+                td.type,
+                td.color,
+                td.special,
+                td.orient,
+                newId
             );
-            removeTile(_selectedItem.instance);
-            Destroy(_selectedItem.instance);
-            GameObject newTile = addTile(tileDataModified);
-            _selectedItem.instance = newTile;
+
+            if (_selectedItem.instance)
+            {
+                removeTile(_selectedItem.instance);
+                GameObject newTile = addTile(tileDataModified);
+                _selectedItem = new SelectedItem(newTile, tileDataModified);
+            }
+            else
+                _selectedItem = new SelectedItem(tileDataModified);
         }
     }
 
