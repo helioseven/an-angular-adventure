@@ -590,6 +590,15 @@ public partial class EditGM
 
     /* Public Utilities */
 
+    public static string CleanAutosaveName(string levelName)
+    {
+        const string suffix = " (autosave)";
+        if (levelName.EndsWith(suffix))
+        {
+            return levelName.Substring(0, levelName.Length - suffix.Length);
+        }
+        return levelName;
+    }
 
     // returns the z value of the current layer's transform
     public float GetLayerDepth()
@@ -601,25 +610,6 @@ public partial class EditGM
     public float GetLayerDepth(int inLayer)
     {
         return tileMap.transform.GetChild(inLayer).position.z;
-    }
-
-    public static string CleanAutosaveName(string levelName)
-    {
-        const string suffix = " (autosave)";
-        if (levelName.EndsWith(suffix))
-        {
-            return levelName.Substring(0, levelName.Length - suffix.Length);
-        }
-        return levelName;
-    }
-
-    public bool ShouldBlockWorldClick()
-    {
-        // palette open, typing into an input, or pointer over UI element
-        return paletteMode
-            || hoveringHUD
-            || inputMode
-            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
     }
 
     public Collider2D GetObjectClicked()
@@ -725,5 +715,50 @@ public partial class EditGM
             outData = _victoryLookup[inVictory];
             return true;
         }
+    }
+
+    public void SetSelectedItemSpecial(string s)
+    {
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData tileDataModified = new TileData(
+                _selectedItem.tileData.Value.type,
+                _selectedItem.tileData.Value.color,
+                int.Parse(s),
+                _selectedItem.tileData.Value.orient,
+                _selectedItem.tileData.Value.doorId
+            );
+            removeTile(_selectedItem.instance);
+            Destroy(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem.instance = newTile;
+        }
+    }
+
+    public void SetSelectedItemDoorId(string s)
+    {
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData tileDataModified = new TileData(
+                _selectedItem.tileData.Value.type,
+                _selectedItem.tileData.Value.color,
+                _selectedItem.tileData.Value.special,
+                _selectedItem.tileData.Value.orient,
+                int.Parse(s)
+            );
+            removeTile(_selectedItem.instance);
+            Destroy(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem.instance = newTile;
+        }
+    }
+
+    public bool ShouldBlockWorldClick()
+    {
+        // palette open, typing into an input, or pointer over UI element
+        return paletteMode
+            || hoveringHUD
+            || inputMode
+            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
     }
 }

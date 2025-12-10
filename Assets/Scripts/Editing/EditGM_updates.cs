@@ -114,42 +114,6 @@ public partial class EditGM
         _currentCreatorToolGameObject.SetActive(true);
     }
 
-    public void SetSelectedItemSpecial(string s)
-    {
-        if (_selectedItem.tileData.HasValue)
-        {
-            TileData tileDataModified = new TileData(
-                _selectedItem.tileData.Value.type,
-                _selectedItem.tileData.Value.color,
-                int.Parse(s),
-                _selectedItem.tileData.Value.orient,
-                _selectedItem.tileData.Value.doorId
-            );
-            removeTile(_selectedItem.instance);
-            Destroy(_selectedItem.instance);
-            GameObject newTile = addTile(tileDataModified);
-            _selectedItem.instance = newTile;
-        }
-    }
-
-    public void SetSelectedItemDoorId(string s)
-    {
-        if (_selectedItem.tileData.HasValue)
-        {
-            TileData tileDataModified = new TileData(
-                _selectedItem.tileData.Value.type,
-                _selectedItem.tileData.Value.color,
-                _selectedItem.tileData.Value.special,
-                _selectedItem.tileData.Value.orient,
-                int.Parse(s)
-            );
-            removeTile(_selectedItem.instance);
-            Destroy(_selectedItem.instance);
-            GameObject newTile = addTile(tileDataModified);
-            _selectedItem.instance = newTile;
-        }
-    }
-
     // Makes changes associated with being in isEditorInEditMode
     private void updateEdit()
     {
