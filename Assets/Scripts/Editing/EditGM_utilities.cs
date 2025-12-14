@@ -30,6 +30,28 @@ public partial class EditGM
 
     /* Private Utilities */
 
+    private void NotifyKeyDoorMappingChanged()
+    {
+        KeyDoorMappingChanged?.Invoke();
+    }
+
+    private void NotifyKeyDoorVisibilityChanged()
+    {
+        KeyDoorVisibilityChanged?.Invoke(_keyDoorLinksVisible);
+    }
+
+    private void HandleKeyDoorLinkHotkey()
+    {
+        if (Keyboard.current == null)
+            return;
+
+        if (Keyboard.current.gKey.wasPressedThisFrame)
+        {
+            _keyDoorLinksVisible = !_keyDoorLinksVisible;
+            NotifyKeyDoorVisibilityChanged();
+        }
+    }
+
     // cycles through all layers, calculates distance, and sets opacity accordingly
     private void activateLayer(int inLayer)
     {
@@ -220,6 +242,7 @@ public partial class EditGM
     // adds a passed tileData to the level and returns a reference
     private GameObject addTile(TileData inTile)
     {
+        bool mappingChanged = false;
         // first, the given TileData is added to levelData
         levelData.tileSet.Add(inTile);
 
@@ -236,6 +259,7 @@ public partial class EditGM
         {
             _greenTileMap.Add(go, inTile.special);
             go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            mappingChanged = true;
         }
         // if it has a valid door value, add it to the door tile map
         if (inTile.doorId != 0)
@@ -246,7 +270,11 @@ public partial class EditGM
                 if (kvp.Value == inTile.doorId)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
+            mappingChanged = true;
         }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
 
         // finally, return the gameObject
         return go;
@@ -276,6 +304,7 @@ public partial class EditGM
             tileLayer.transform.SetParent(tileMap.transform);
         }
 
+        bool mappingChanged = false;
         // build each tile in the level
         foreach (TileData td in inLevel.tileSet)
         {
@@ -296,6 +325,7 @@ public partial class EditGM
             {
                 _greenTileMap.Add(go, td.special);
                 go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+                mappingChanged = true;
             }
             // if it has a valid door value, add it to the door tile map
             if (td.doorId != 0)
@@ -306,8 +336,12 @@ public partial class EditGM
                     if (kvp.Value == td.doorId)
                         kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
                 }
+                mappingChanged = true;
             }
         }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
 
         // build each checkpoint in the level
         foreach (CheckpointData cd in inLevel.chkpntSet)
@@ -467,6 +501,7 @@ public partial class EditGM
     // removes a given tile from the level
     private void removeTile(GameObject inTile)
     {
+        bool mappingChanged = false;
         // lookup the item's TileData
         TileData tData;
         bool b = IsMappedTile(inTile, out tData);
@@ -479,7 +514,10 @@ public partial class EditGM
         _tileLookup.Remove(inTile);
         // remove from green tile map if necessary
         if (_greenTileMap.ContainsKey(inTile))
+        {
             _greenTileMap.Remove(inTile);
+            mappingChanged = true;
+        }
         // remove from the door tile map if necessary
         if (_doorTileMap.ContainsKey(inTile))
         {
@@ -489,7 +527,11 @@ public partial class EditGM
                 if (kvp.Value == tData.doorId)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
+            mappingChanged = true;
         }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
 
         Destroy(inTile);
     }

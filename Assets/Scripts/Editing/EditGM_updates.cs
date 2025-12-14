@@ -33,15 +33,6 @@ public partial class EditGM
         if (edit.Palette.WasPressedThisFrame())
             hudPanel.SetActive(!hudPanel.activeSelf);
 
-        // --- Palette toggle (Tab key hold style) ---
-        bool isPalHeld = edit.Palette.IsPressed();
-
-        if (paletteMode != isPalHeld)
-        {
-            paletteMode = isPalHeld;
-            palettePanel.TogglePalette();
-        }
-
         // --- HUD hover logic ---
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
 

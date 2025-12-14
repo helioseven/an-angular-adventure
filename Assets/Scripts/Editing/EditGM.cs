@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,7 +19,6 @@ public partial class EditGM : MonoBehaviour
     public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
-    public PaletteControl palettePanel;
     public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
@@ -48,6 +48,11 @@ public partial class EditGM : MonoBehaviour
     public SelectedItem selectedItem
     {
         get { return _selectedItem; }
+        set { }
+    }
+    public bool keyDoorLinksVisible
+    {
+        get { return _keyDoorLinksVisible; }
         set { }
     }
 
@@ -80,6 +85,10 @@ public partial class EditGM : MonoBehaviour
         set { SetLevelName(value); }
     }
 
+    // events
+    public event Action KeyDoorMappingChanged;
+    public event Action<bool> KeyDoorVisibilityChanged;
+
     // private constants
     private const int DEFAULT_LAYER = 0;
     private const int INACTIVE_LAYER = 9;
@@ -91,6 +100,7 @@ public partial class EditGM : MonoBehaviour
     private GameObject _currentCreatorToolGameObject;
     private Dictionary<GameObject, int> _doorTileMap;
     private Dictionary<GameObject, int> _greenTileMap;
+    private bool _keyDoorLinksVisible = true;
     private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
@@ -176,8 +186,13 @@ public partial class EditGM : MonoBehaviour
         }
         // get raycast results for this frame's mouse position
         _currentHUDhover = raycastAllHUD();
-        // hudPanel and palettePanel are updated
+
+        // updateUI in editGM_updates
         updateUI();
+
+        // G key to not show green tiles
+        HandleKeyDoorLinkHotkey();
+
         // if the palette is active, skip the rest
         if (hoveringHUD || paletteMode || inputMode)
             return;
