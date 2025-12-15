@@ -96,6 +96,8 @@ public partial class EditGM : MonoBehaviour
     // private variables
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentEditorMode;
+
+    // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
     private EditCreatorTool _currentCreatorTool;
     private GameObject _currentCreatorToolGameObject;
     private Dictionary<GameObject, int> _doorTileMap;
@@ -106,7 +108,7 @@ public partial class EditGM : MonoBehaviour
     private string _levelName;
 
     // Selected item is the one that was last placed or just clicked on from select mode
-    // Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
+    // ! Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
     private SelectedItem _selectedItem;
 
     // Item lookups

@@ -5,12 +5,16 @@ using UnityEngine;
 public class TileEditGreen : MonoBehaviour
 {
     private EditGM _editGM;
+
     [SerializeField]
     private Color _linkColor = new Color(0.25f, 0.9f, 0.25f, 0.9f);
+
     [SerializeField]
     private float _linkWidth = 0.05f;
+
     [SerializeField]
     private float _inactiveAlpha = 0.2f;
+
     [SerializeField]
     private float _activeAlpha = 1f;
 
@@ -49,7 +53,9 @@ public class TileEditGreen : MonoBehaviour
             UpdateLinePositions(link);
 
         bool currentlySelected =
-            _editGM != null && _editGM.selectedItem.instance != null && _editGM.selectedItem.instance == gameObject;
+            _editGM != null
+            && _editGM.selectedItem.instance != null
+            && _editGM.selectedItem.instance == gameObject;
         if (currentlySelected != _isSelected)
         {
             _isSelected = currentlySelected;
@@ -68,7 +74,7 @@ public class TileEditGreen : MonoBehaviour
 
         ClearLines();
 
-        int keyID = _editGM.GetGreenTileKey(gameObject);
+        int keyID = _editGM.GetGreenTileKeyID(gameObject);
         if (keyID == 0)
             return;
 

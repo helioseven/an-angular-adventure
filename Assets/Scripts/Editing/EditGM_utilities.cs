@@ -695,7 +695,7 @@ public partial class EditGM
     }
 
     // returns the key value associated with a green tile, if one is known
-    public int GetGreenTileKey(GameObject inTile)
+    public int GetGreenTileKeyID(GameObject inTile)
     {
         return _greenTileMap.ContainsKey(inTile) ? _greenTileMap[inTile] : 0;
     }
@@ -738,13 +738,13 @@ public partial class EditGM
     }
 
     // returns a hashset of door tiles based on a passed ID
-    public void GetDoorSet(int keyID, out HashSet<GameObject> knownDoors)
+    public void GetDoorSet(int doorID, out HashSet<GameObject> knownDoors)
     {
         knownDoors = new HashSet<GameObject>();
 
         foreach (GameObject go in _doorTileMap.Keys)
         {
-            if (_doorTileMap[go] == keyID)
+            if (_doorTileMap[go] == doorID)
                 knownDoors.Add(go);
         }
     }
