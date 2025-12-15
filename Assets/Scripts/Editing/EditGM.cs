@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,7 +19,6 @@ public partial class EditGM : MonoBehaviour
     public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
-    public PaletteControl palettePanel;
     public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
@@ -48,6 +48,11 @@ public partial class EditGM : MonoBehaviour
     public SelectedItem selectedItem
     {
         get { return _selectedItem; }
+        set { }
+    }
+    public bool keyDoorLinksVisible
+    {
+        get { return _keyDoorLinksVisible; }
         set { }
     }
 
@@ -80,6 +85,10 @@ public partial class EditGM : MonoBehaviour
         set { SetLevelName(value); }
     }
 
+    // events
+    public event Action KeyDoorMappingChanged;
+    public event Action<bool> KeyDoorVisibilityChanged;
+
     // private constants
     private const int DEFAULT_LAYER = 0;
     private const int INACTIVE_LAYER = 9;
@@ -87,17 +96,20 @@ public partial class EditGM : MonoBehaviour
     // private variables
     private List<RaycastResult> _currentHUDhover;
     private EditorMode _currentEditorMode;
+
+    // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
+    private EditCreatorTool _currentCreatorTool;
     private GameObject _currentCreatorToolGameObject;
+    private Dictionary<GameObject, int> _doorTileMap;
+    private Dictionary<GameObject, int> _greenTileMap;
+    private bool _keyDoorLinksVisible = true;
     private bool _inputMode;
     private EditLoader _lvlLoad;
     private string _levelName;
 
     // Selected item is the one that was last placed or just clicked on from select mode
-    // Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
+    // ! Selected item is NOT the "current creator tool's live knowledge of what tile you'd like to place"
     private SelectedItem _selectedItem;
-
-    // _currentCreatorTool is used in creation mode to keep track of the current live knowledge of what tile you'd like to place
-    private EditCreatorTool _currentCreatorTool;
 
     // Item lookups
     private Dictionary<GameObject, TileData> _tileLookup;
@@ -115,10 +127,12 @@ public partial class EditGM : MonoBehaviour
 
             // initializations for private state variables
             _currentHUDhover = new List<RaycastResult>();
-            _inputMode = false;
             _currentEditorMode = EditorMode.Create;
             _currentCreatorTool = EditCreatorTool.Tile;
             _currentCreatorToolGameObject = tileCreator.gameObject;
+            _inputMode = false;
+            _doorTileMap = new Dictionary<GameObject, int>();
+            _greenTileMap = new Dictionary<GameObject, int>();
             TileData td = new TileData(0, 0, 0, new HexOrient());
             _selectedItem = new SelectedItem(td);
             _tileLookup = new Dictionary<GameObject, TileData>();
@@ -174,8 +188,13 @@ public partial class EditGM : MonoBehaviour
         }
         // get raycast results for this frame's mouse position
         _currentHUDhover = raycastAllHUD();
-        // hudPanel and palettePanel are updated
+
+        // updateUI in editGM_updates
         updateUI();
+
+        // G key to not show green tiles
+        HandleKeyDoorLinkHotkey();
+
         // if the palette is active, skip the rest
         if (hoveringHUD || paletteMode || inputMode)
             return;

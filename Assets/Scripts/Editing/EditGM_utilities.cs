@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -28,6 +29,28 @@ public partial class EditGM
     }
 
     /* Private Utilities */
+
+    private void NotifyKeyDoorMappingChanged()
+    {
+        KeyDoorMappingChanged?.Invoke();
+    }
+
+    private void NotifyKeyDoorVisibilityChanged()
+    {
+        KeyDoorVisibilityChanged?.Invoke(_keyDoorLinksVisible);
+    }
+
+    private void HandleKeyDoorLinkHotkey()
+    {
+        if (Keyboard.current == null)
+            return;
+
+        if (Keyboard.current.gKey.wasPressedThisFrame)
+        {
+            _keyDoorLinksVisible = !_keyDoorLinksVisible;
+            NotifyKeyDoorVisibilityChanged();
+        }
+    }
 
     // cycles through all layers, calculates distance, and sets opacity accordingly
     private void activateLayer(int inLayer)
@@ -219,6 +242,7 @@ public partial class EditGM
     // adds a passed tileData to the level and returns a reference
     private GameObject addTile(TileData inTile)
     {
+        bool mappingChanged = false;
         // first, the given TileData is added to levelData
         levelData.tileSet.Add(inTile);
 
@@ -227,8 +251,32 @@ public partial class EditGM
         Transform tl = tileMap.transform.GetChild(inTile.orient.layer);
         go.transform.SetParent(tl);
 
-        // add tile's gameObject to the tile lookup and return it
+        // add tile's gameObject to the tile lookup
         _tileLookup[go] = inTile;
+        // if it's a green tile and has a valid key value,
+        // add it to the green tile map
+        if (inTile.color == 3 && inTile.special != 0)
+        {
+            _greenTileMap.Add(go, inTile.special);
+            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            mappingChanged = true;
+        }
+        // if it has a valid door value, add it to the door tile map
+        if (inTile.doorId != 0)
+        {
+            _doorTileMap.Add(go, inTile.doorId);
+            foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+            {
+                if (kvp.Value == inTile.doorId)
+                    kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            }
+            mappingChanged = true;
+        }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
+
+        // finally, return the gameObject
         return go;
     }
 
@@ -256,6 +304,7 @@ public partial class EditGM
             tileLayer.transform.SetParent(tileMap.transform);
         }
 
+        bool mappingChanged = false;
         // build each tile in the level
         foreach (TileData td in inLevel.tileSet)
         {
@@ -270,7 +319,29 @@ public partial class EditGM
             go.transform.SetParent(tileLayer);
             // once tile is built, add (GameObject,TileData) pair to _tileLookup
             _tileLookup.Add(go, td);
+            // if it's a green tile and has a valid key value,
+            // add it to the green tile map
+            if (td.color == 3 && td.special != 0)
+            {
+                _greenTileMap.Add(go, td.special);
+                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+                mappingChanged = true;
+            }
+            // if it has a valid door value, add it to the door tile map
+            if (td.doorId != 0)
+            {
+                _doorTileMap.Add(go, td.doorId);
+                foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+                {
+                    if (kvp.Value == td.doorId)
+                        kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+                }
+                mappingChanged = true;
+            }
         }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
 
         // build each checkpoint in the level
         foreach (CheckpointData cd in inLevel.chkpntSet)
@@ -430,6 +501,7 @@ public partial class EditGM
     // removes a given tile from the level
     private void removeTile(GameObject inTile)
     {
+        bool mappingChanged = false;
         // lookup the item's TileData
         TileData tData;
         bool b = IsMappedTile(inTile, out tData);
@@ -440,6 +512,28 @@ public partial class EditGM
         // otherwise remove tile from the level and _tileLookup
         levelData.tileSet.Remove(tData);
         _tileLookup.Remove(inTile);
+        // remove from green tile map if necessary
+        if (_greenTileMap.ContainsKey(inTile))
+        {
+            _greenTileMap.Remove(inTile);
+            mappingChanged = true;
+        }
+        // remove from the door tile map if necessary
+        if (_doorTileMap.ContainsKey(inTile))
+        {
+            _doorTileMap.Remove(inTile);
+            foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
+            {
+                if (kvp.Value == tData.doorId)
+                    kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+            }
+            mappingChanged = true;
+        }
+
+        if (mappingChanged)
+            NotifyKeyDoorMappingChanged();
+
+        Destroy(inTile);
     }
 
     // sets the opacity of all tiles within a layer using ordinal distance from activeLayer
@@ -590,6 +684,21 @@ public partial class EditGM
 
     /* Public Utilities */
 
+    public static string CleanAutosaveName(string levelName)
+    {
+        const string suffix = " (autosave)";
+        if (levelName.EndsWith(suffix))
+        {
+            return levelName.Substring(0, levelName.Length - suffix.Length);
+        }
+        return levelName;
+    }
+
+    // returns the key value associated with a green tile, if one is known
+    public int GetGreenTileKeyID(GameObject inTile)
+    {
+        return _greenTileMap.ContainsKey(inTile) ? _greenTileMap[inTile] : 0;
+    }
 
     // returns the z value of the current layer's transform
     public float GetLayerDepth()
@@ -601,25 +710,6 @@ public partial class EditGM
     public float GetLayerDepth(int inLayer)
     {
         return tileMap.transform.GetChild(inLayer).position.z;
-    }
-
-    public static string CleanAutosaveName(string levelName)
-    {
-        const string suffix = " (autosave)";
-        if (levelName.EndsWith(suffix))
-        {
-            return levelName.Substring(0, levelName.Length - suffix.Length);
-        }
-        return levelName;
-    }
-
-    public bool ShouldBlockWorldClick()
-    {
-        // palette open, typing into an input, or pointer over UI element
-        return paletteMode
-            || hoveringHUD
-            || inputMode
-            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
     }
 
     public Collider2D GetObjectClicked()
@@ -645,6 +735,18 @@ public partial class EditGM
         // perform 2D physics raycast
         RaycastHit2D hit = Physics2D.GetRayIntersection(layerRay, 2f);
         return hit.collider;
+    }
+
+    // returns a hashset of door tiles based on a passed ID
+    public void GetDoorSet(int doorID, out HashSet<GameObject> knownDoors)
+    {
+        knownDoors = new HashSet<GameObject>();
+
+        foreach (GameObject go in _doorTileMap.Keys)
+        {
+            if (_doorTileMap[go] == doorID)
+                knownDoors.Add(go);
+        }
     }
 
     // returns true if the given element is mouse hovered
@@ -725,5 +827,66 @@ public partial class EditGM
             outData = _victoryLookup[inVictory];
             return true;
         }
+    }
+
+    public void SetSelectedItemSpecial(string s)
+    {
+        int newId = int.Parse(s);
+
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData td = _selectedItem.tileData.Value;
+            TileData tileDataModified = new TileData(
+                td.type,
+                td.color,
+                newId,
+                td.orient,
+                td.doorId
+            );
+
+            if (_selectedItem.instance)
+            {
+                removeTile(_selectedItem.instance);
+                GameObject newTile = addTile(tileDataModified);
+                _selectedItem = new SelectedItem(newTile, tileDataModified);
+            }
+            else
+                _selectedItem = new SelectedItem(tileDataModified);
+        }
+    }
+
+    public void SetSelectedItemDoorId(string s)
+    {
+        int newId = int.Parse(s);
+
+        if (_selectedItem.tileData.HasValue)
+        {
+            TileData td = _selectedItem.tileData.Value;
+            TileData tileDataModified = new TileData(
+                td.type,
+                td.color,
+                td.special,
+                td.orient,
+                newId
+            );
+
+            if (_selectedItem.instance)
+            {
+                removeTile(_selectedItem.instance);
+                GameObject newTile = addTile(tileDataModified);
+                _selectedItem = new SelectedItem(newTile, tileDataModified);
+            }
+            else
+                _selectedItem = new SelectedItem(tileDataModified);
+        }
+    }
+
+    public bool ShouldBlockWorldClick()
+    {
+        // palette open, typing into an input, or pointer over UI element
+        return paletteMode
+            || hoveringHUD
+            || inputMode
+            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
     }
 }
