@@ -17,7 +17,11 @@ public class AccountInfoPanel : MonoBehaviour
     public Vector2 avatarSize = new(128, 128);
     public Texture2D fallbackAvatar;
 
+    [Tooltip("Keeps avatar square when nested in layout groups.")]
+    public bool forceSquareInLayout = true;
+
     private Coroutine avatarCo;
+    private LayoutElement avatarLayout;
 
     private void OnEnable()
     {
@@ -95,8 +99,7 @@ public class AccountInfoPanel : MonoBehaviour
         {
             var tex = DownloadHandlerTexture.GetContent(req);
             avatarImage.texture = tex;
-            avatarImage.SetNativeSize();
-            avatarImage.rectTransform.sizeDelta = avatarSize;
+            ApplyAvatarSizing();
             Debug.Log("[AccountInfoPanel] Avatar loaded from URL.");
         }
         else
@@ -111,8 +114,55 @@ public class AccountInfoPanel : MonoBehaviour
         if (avatarImage && fallbackAvatar)
         {
             avatarImage.texture = fallbackAvatar;
-            avatarImage.SetNativeSize();
-            avatarImage.rectTransform.sizeDelta = avatarSize;
+            ApplyAvatarSizing();
+        }
+    }
+
+    private void ApplyAvatarSizing()
+    {
+        if (!avatarImage)
+            return;
+
+        EnsureLayout();
+        avatarImage.rectTransform.sizeDelta = avatarSize;
+
+        if (avatarLayout != null)
+        {
+            avatarLayout.preferredWidth = avatarSize.x;
+            avatarLayout.preferredHeight = avatarSize.y;
+            avatarLayout.minWidth = avatarSize.x;
+            avatarLayout.minHeight = avatarSize.y;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (forceSquareInLayout)
+            MaintainSquareFromWidth();
+    }
+
+    private void MaintainSquareFromWidth()
+    {
+        if (!avatarImage)
+            return;
+
+        EnsureLayout();
+
+        float currentWidth = avatarImage.rectTransform.rect.width;
+        if (currentWidth <= 0f || avatarLayout == null)
+            return;
+
+        avatarLayout.preferredHeight = currentWidth;
+        avatarLayout.minHeight = currentWidth;
+    }
+
+    private void EnsureLayout()
+    {
+        if (avatarLayout == null && avatarImage != null)
+        {
+            avatarLayout =
+                avatarImage.GetComponent<LayoutElement>()
+                ?? avatarImage.gameObject.AddComponent<LayoutElement>();
         }
     }
 }

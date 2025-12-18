@@ -1,15 +1,17 @@
-// conditionally add steamworks to desktop only (must be unity native define symbols - the user defined STEAMWORKS_NET will not work)
 using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 #if !UNITY_IOS
+// conditionally add steamworks to desktop only (must be unity native define symbols - the user defined STEAMWORKS_NET will not work)
 using Steamworks;
 #endif
 
 public class AccountIndicator : MonoBehaviour
 {
+    private const string SignedOutLabel = "Not signed in";
+
     [Header("UI")]
     [SerializeField]
     private TMP_Text accountIndicatorText;
@@ -20,19 +22,24 @@ public class AccountIndicator : MonoBehaviour
     [SerializeField]
     private float spinSpeed = 180f; // degrees per second
 
+    [SerializeField]
+    private Vector2 avatarSize = new Vector2(64, 64);
+
     private bool steamInitialized;
     private bool isEditor => Application.isEditor;
     private string ticketHex = "";
     private bool isLoading = true;
+    private bool lastAuthSucceeded;
 
 #if !UNITY_IOS
     private void Start()
     {
         AuthState.Instance.OnChanged += RefreshUI;
+        RefreshUI();
 
         if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
         {
-            Debug.Log("[AccountIndicator] JWT present in memory — same session, skipping re-auth.");
+            Debug.Log("[AccountIndicator] JWT present in memory - same session, skipping re-auth.");
 
             // Skip login, but still finalize the display
             StartCoroutine(FinalizeUserDisplay());
@@ -40,7 +47,7 @@ public class AccountIndicator : MonoBehaviour
         }
         else
         {
-            // Fresh boot → run full Steam → Edge → Supabase sequence
+            // Fresh boot - run full Steam + Edge + Supabase sequence
             StartCoroutine(RunStartupSequence());
         }
     }
@@ -61,23 +68,47 @@ public class AccountIndicator : MonoBehaviour
 
     private IEnumerator RunStartupSequence()
     {
-        SetStatus("Initializing Steam…");
+        isLoading = true;
+        ResetAvatarRotation();
+
+        SetStatus("Starting Steam...");
         yield return StartCoroutine(InitializeSteam());
 
-        SetStatus("Getting session ticket…");
+        if (!steamInitialized && !isEditor)
+        {
+            HandleAuthFailure("Couldn't start Steam. Please restart.");
+            yield break;
+        }
+
+        ticketHex = "";
+        SetStatus("Requesting a session ticket...");
         yield return StartCoroutine(GetSessionTicket());
 
-        SetStatus("Authenticating with Edge Function…");
+        if (string.IsNullOrEmpty(ticketHex))
+        {
+            HandleAuthFailure("Couldn't get a Steam ticket.");
+            yield break;
+        }
+
+        SetStatus("Signing you in...");
         yield return StartCoroutine(AuthenticateAndFetchUser());
 
-        SetStatus("Fetching profile and avatar…");
+        if (!lastAuthSucceeded)
+        {
+            HandleAuthFailure("Sign-in failed. Please try again.");
+            yield break;
+        }
+
+        SetStatus("Loading your profile...");
         yield return StartCoroutine(FinalizeUserDisplay());
 
         // Stop spinning and finalize
         isLoading = false;
-        avatarImage.transform.rotation = Quaternion.identity;
+        ResetAvatarRotation();
 
-        string name = AuthState.Instance.PersonaName ?? "(unknown)";
+        string name = string.IsNullOrEmpty(AuthState.Instance.PersonaName)
+            ? SignedOutLabel
+            : AuthState.Instance.PersonaName;
         SetStatus(name);
     }
 
@@ -106,6 +137,8 @@ public class AccountIndicator : MonoBehaviour
     // --- Step 2: Session Ticket ---
     private IEnumerator GetSessionTicket()
     {
+        ticketHex = "";
+
         if (!steamInitialized && !isEditor)
         {
             SetStatus("Steam not initialized.");
@@ -132,6 +165,7 @@ public class AccountIndicator : MonoBehaviour
         if (handle == HAuthTicket.Invalid || ticketSize == 0)
         {
             SetStatus("Failed to get ticket.");
+            ticketHex = "";
             yield break;
         }
 
@@ -144,6 +178,7 @@ public class AccountIndicator : MonoBehaviour
     // --- Step 3: Edge Auth + Supabase JWT ---
     private IEnumerator AuthenticateAndFetchUser()
     {
+        lastAuthSucceeded = false;
         bool edgeOk = false;
         string steamIdText = isEditor
             ? SupabaseTest.Instance.testSteamId
@@ -167,6 +202,11 @@ public class AccountIndicator : MonoBehaviour
         }
 
         yield return StartCoroutine(SupabaseTest.Instance.PostSteamId(steamIdText));
+
+        lastAuthSucceeded =
+            !string.IsNullOrEmpty(AuthState.Instance.SteamId)
+            || !string.IsNullOrEmpty(AuthState.Instance.PersonaName)
+            || !string.IsNullOrEmpty(AuthState.Instance.Jwt);
         yield return null;
     }
 
@@ -182,6 +222,10 @@ public class AccountIndicator : MonoBehaviour
         else if (!isEditor && steamInitialized)
         {
             yield return StartCoroutine(LoadSteamAvatar(SteamUser.GetSteamID()));
+        }
+        else
+        {
+            ClearAvatarTexture();
         }
     }
 
@@ -205,6 +249,7 @@ public class AccountIndicator : MonoBehaviour
         tex.Apply();
 
         avatarImage.texture = tex;
+        ApplyAvatarSizing();
         yield return null;
     }
 
@@ -216,20 +261,68 @@ public class AccountIndicator : MonoBehaviour
             if (www.result == UnityWebRequest.Result.Success)
             {
                 avatarImage.texture = ((DownloadHandlerTexture)www.downloadHandler).texture;
+                ApplyAvatarSizing();
+            }
+            else
+            {
+                Debug.LogWarning($"[AccountIndicator] Avatar download failed: {www.error}");
+                ClearAvatarTexture();
             }
         }
     }
 
     private void RefreshUI()
     {
-        accountIndicatorText.text = AuthState.Instance.PersonaName ?? "(unknown)";
+        if (accountIndicatorText == null)
+            return;
+
+        string displayName = string.IsNullOrEmpty(AuthState.Instance.PersonaName)
+            ? SignedOutLabel
+            : AuthState.Instance.PersonaName;
+
+        accountIndicatorText.text = displayName;
     }
 
     private void SetStatus(string msg)
     {
-        accountIndicatorText.text = msg;
+        if (accountIndicatorText != null)
+            accountIndicatorText.text = msg;
+
         Debug.Log($"[AccountIndicator] {msg}");
     }
-    // #endif for #if UNITY_IOS
-#endif
+
+    private void HandleAuthFailure(string message)
+    {
+        isLoading = false;
+        ResetAvatarRotation();
+        ClearAvatarTexture();
+        AuthState.Instance.Clear();
+        SetStatus(message);
+    }
+
+    private void ResetAvatarRotation()
+    {
+        if (avatarImage != null)
+        {
+            avatarImage.transform.rotation = Quaternion.identity;
+        }
+    }
+
+    private void ClearAvatarTexture()
+    {
+        if (avatarImage != null)
+        {
+            avatarImage.texture = null;
+        }
+    }
+
+    private void ApplyAvatarSizing()
+    {
+        if (avatarImage != null)
+        {
+            avatarImage.rectTransform.sizeDelta = avatarSize;
+        }
+    }
+
+#endif // corresponds to #if UNITY_IOS
 }
