@@ -1592,7 +1592,7 @@ Transform:
   m_GameObject: {fileID: 275920919}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.485, y: -1.48056, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1610,7 +1610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  testSteamId: 76561198071047121
+  testSteamId: 
 --- !u!1001 &368631065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5941,7 +5941,7 @@ Transform:
   m_GameObject: {fileID: 1372858044}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 568.84454, y: 397.55, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

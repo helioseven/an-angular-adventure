@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 #if !UNITY_IOS
-// conditionally add steamworks to desktop only (must be unity native define symbols - the user defined STEAMWORKS_NET will not work)
+// conditionally add steamworks to desktop only (must be unity native define symbols - STEAMWORKS_NET will not work)
 using Steamworks;
 #endif
 
@@ -181,7 +181,7 @@ public class AccountIndicator : MonoBehaviour
         lastAuthSucceeded = false;
         bool edgeOk = false;
         string steamIdText = isEditor
-            ? SupabaseTest.Instance.testSteamId
+            ? StartupManager.Instance.testSteamId
             : SteamUser.GetSteamID().ToString();
 
         if (isEditor)
@@ -201,7 +201,7 @@ public class AccountIndicator : MonoBehaviour
             yield break;
         }
 
-        yield return StartCoroutine(SupabaseTest.Instance.PostSteamId(steamIdText));
+        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamIdText));
 
         lastAuthSucceeded =
             !string.IsNullOrEmpty(AuthState.Instance.SteamId)

@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Shared authentication state for the entire app.
 /// Holds current Steam ID, persona name, avatar URL, and Supabase JWT.
-/// Persists between sessions using PlayerPrefs, and remains alive across scenes.
+/// In-memory auth state for the entire app. Does not persist between sessions.
 /// </summary>
 public class AuthState : MonoBehaviour
 {
@@ -31,15 +31,10 @@ public class AuthState : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // Load everything *except* JWT
-        SteamId = PlayerPrefs.GetString("steam.steamid", "");
-        PersonaName = PlayerPrefs.GetString("steam.name", "");
-        AvatarUrl = PlayerPrefs.GetString("steam.avatar", "");
-
-        // Forget old JWT so we always reauth on fresh launch
+        // Fresh launch each run; nothing is cached across sessions
         Jwt = "";
 
-        Debug.Log("[AuthState] Initialized (JWT cleared for fresh session)");
+        Debug.Log("[AuthState] Initialized (no persistence)");
     }
 
     private void RaiseChanged() => OnChanged?.Invoke();
@@ -48,32 +43,24 @@ public class AuthState : MonoBehaviour
     public void SetSteamId(string value)
     {
         SteamId = value;
-        PlayerPrefs.SetString("steam.steamid", value);
-        PlayerPrefs.Save();
         RaiseChanged();
     }
 
     public void SetPersonaName(string value)
     {
         PersonaName = value;
-        PlayerPrefs.SetString("steam.name", value);
-        PlayerPrefs.Save();
         RaiseChanged();
     }
 
     public void SetAvatarUrl(string value)
     {
         AvatarUrl = value;
-        PlayerPrefs.SetString("steam.avatar", value);
-        PlayerPrefs.Save();
         RaiseChanged();
     }
 
     public void SetJwt(string token)
     {
         Jwt = token;
-        PlayerPrefs.SetString("steam.jwt", token);
-        PlayerPrefs.Save();
         RaiseChanged();
     }
 
@@ -82,24 +69,6 @@ public class AuthState : MonoBehaviour
         SteamId = steamId ?? SteamId;
         PersonaName = personaName ?? PersonaName;
         AvatarUrl = avatarUrl ?? AvatarUrl;
-
-        PlayerPrefs.SetString("steam.steamid", SteamId);
-        PlayerPrefs.SetString("steam.name", PersonaName);
-        PlayerPrefs.SetString("steam.avatar", AvatarUrl);
-        PlayerPrefs.Save();
-
-        RaiseChanged();
-    }
-
-    private void InitFromPrefs()
-    {
-        SteamId = PlayerPrefs.GetString("steam.steamid", "");
-        PersonaName = PlayerPrefs.GetString("steam.name", "");
-        AvatarUrl = PlayerPrefs.GetString("steam.avatar", "");
-        Jwt = PlayerPrefs.GetString("steam.jwt", "");
-
-        if (!string.IsNullOrEmpty(SteamId))
-            Debug.Log($"[AuthState] Loaded from prefs: {PersonaName} ({SteamId})");
 
         RaiseChanged();
     }
@@ -110,12 +79,6 @@ public class AuthState : MonoBehaviour
         PersonaName = "";
         AvatarUrl = "";
         Jwt = "";
-
-        PlayerPrefs.DeleteKey("steam.steamid");
-        PlayerPrefs.DeleteKey("steam.name");
-        PlayerPrefs.DeleteKey("steam.avatar");
-        PlayerPrefs.DeleteKey("steam.jwt");
-        PlayerPrefs.Save();
 
         RaiseChanged();
     }
