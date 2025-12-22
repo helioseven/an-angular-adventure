@@ -287,7 +287,7 @@ public partial class EditGM
             keyIcon.rotation = Quaternion.identity;
             keyIcon.gameObject.SetActive(true);
 
-            // trigger tile's script logic
+            // trigger appropriate script logics
             go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
 
             // flag event notification

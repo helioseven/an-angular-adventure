@@ -23,7 +23,7 @@ public class TileCreator : MonoBehaviour
 
     // private consts
     private const int ARROW_OR_KEY_CHILD_INDEX = 2;
-    private const int DOOR_CHILD_INDEX = 1;
+    private const int LOCK_CHILD_INDEX = 1;
     private const int SPRITE_CHILD_INDEX = 0;
 
     // private references
@@ -59,7 +59,7 @@ public class TileCreator : MonoBehaviour
                 _tileRenderers[i, j].enabled = false;
 
                 // also turn off all icons to begin with
-                t.GetChild(DOOR_CHILD_INDEX).gameObject.SetActive(false);
+                t.GetChild(LOCK_CHILD_INDEX).gameObject.SetActive(false);
                 if (j == 3 || j == 4)
                     t.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(false);
             }
