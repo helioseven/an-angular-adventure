@@ -255,7 +255,7 @@ public partial class EditGM
         _tileLookup[go] = inTile;
         // if it's a green tile and has a valid key value,
         // add it to the green tile map
-        if (inTile.color == 3 && inTile.special != 0)
+        if (inTile.color == TileColor.Green && inTile.special != 0)
         {
             _greenTileMap.Add(go, inTile.special);
             go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
@@ -311,7 +311,7 @@ public partial class EditGM
             // make sure there are enough layers for the new tile
             addLayers(td.orient.layer);
             Transform tileLayer = tileMap.transform.GetChild(td.orient.layer);
-            GameObject pfRef = prefab_refs[td.type, td.color];
+            GameObject pfRef = prefab_refs[(int)td.type, (int)td.color];
             Quaternion q;
             Vector3 v3 = td.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(pfRef, v3, q) as GameObject;
@@ -343,7 +343,7 @@ public partial class EditGM
             }
 
             // if it's a green tile and has a valid key value, add it to the green tile map
-            if (td.color == 3 && td.special != 0)
+            if (td.color == TileColor.Green && td.special != 0)
             {
                 _greenTileMap.Add(go, td.special);
                 go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
@@ -351,12 +351,12 @@ public partial class EditGM
             }
 
             // if tile is green or orange, deal with the arrow or key icon appropriately
-            if (td.color == 3 || td.color == 4)
+            if (td.color == TileColor.Green || td.color == TileColor.Orange)
             {
                 Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
-                if (td.color == 3 && td.special == 0)
+                if (td.color == TileColor.Green && td.special == 0)
                     specIcon.gameObject.SetActive(false);
-                else if (td.color == 4)
+                else if (td.color == TileColor.Orange)
                     go.GetComponent<TileEditOrange>().SetGravityDirection(td.special);
                 else
                     specIcon.rotation = Quaternion.identity;

@@ -497,14 +497,20 @@ namespace circleXsquares
     public struct TileData
     {
         // TileData consists of a type, color, and orientation
-        public int type;
-        public int color;
+        public TileType type;
+        public TileColor color;
         public int special;
         public HexOrient orient;
         public int doorID;
 
         // simple constructor
-        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient, int inDoorID = 0)
+        public TileData(
+            TileType inType,
+            TileColor inColor,
+            int inSpec,
+            HexOrient inOrient,
+            int inDoorID = 0
+        )
         {
             type = inType;
             color = inColor;
@@ -516,8 +522,8 @@ namespace circleXsquares
         // Serialize turns this TileData into strings separated by spaces
         public string Serialize()
         {
-            string s = type.ToString();
-            s += " " + color.ToString();
+            string s = ((int)type).ToString();
+            s += " " + ((int)color).ToString();
             s += " " + special.ToString();
             s += " " + orient.Serialize();
             s += " " + doorID.ToString();
@@ -897,8 +903,8 @@ namespace circleXsquares
             }
 
             return new TileData(
-                type,
-                color,
+                (TileType)type,
+                (TileColor)color,
                 extra,
                 new HexOrient(hexLocus, roation, layer),
                 doorID

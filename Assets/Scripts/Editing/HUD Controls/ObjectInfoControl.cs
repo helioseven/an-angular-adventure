@@ -238,8 +238,8 @@ public class ObjectInfoControl : MonoBehaviour
                 {
                     // if instance is non-null, gather info from object data
                     TileData td = selectedItem.tileData.Value;
-                    type = td.type;
-                    color = td.color;
+                    type = (int)td.type;
+                    color = (int)td.color;
                     spec = td.special;
                     rot = td.orient.rotation;
                     locus = td.orient.locus;

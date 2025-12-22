@@ -134,7 +134,7 @@ public partial class PlayGM
         // populate tile hierarchy
         foreach (TileData td in inLevel.tileSet)
         {
-            GameObject pfRef = prefab_refs[td.type, td.color];
+            GameObject pfRef = prefab_refs[(int)td.type, (int)td.color];
             Quaternion q;
             Vector3 v3 = td.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(pfRef, v3, q) as GameObject;
@@ -152,10 +152,10 @@ public partial class PlayGM
                 doorIcon.rotation = Quaternion.identity;
 
             // lose arrow/key icon if orange or green and non-zero special value
-            if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
+            if (td.color == TileColor.Orange || td.color == TileColor.Green)
             {
                 Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
-                if (td.color == (int)TileColor.Green && td.special == 0)
+                if (td.color == TileColor.Green && td.special == 0)
                     specIcon.gameObject.SetActive(false);
                 else
                     specIcon.rotation = Quaternion.identity;

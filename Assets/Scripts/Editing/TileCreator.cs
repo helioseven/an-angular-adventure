@@ -154,8 +154,8 @@ public class TileCreator : MonoBehaviour
     public void SetProperties(TileData inData)
     {
         _tileRenderers[tileType, tileColor].enabled = false;
-        tileType = inData.type;
-        tileColor = inData.color;
+        tileType = (int)inData.type;
+        tileColor = (int)inData.color;
         tileSpecial = inData.special;
         tileDoorID = inData.doorID;
         _tileRenderers[tileType, tileColor].enabled = true;
@@ -165,7 +165,13 @@ public class TileCreator : MonoBehaviour
     // returns a TileData representation of the genesisTile's current state
     public TileData GetTileData()
     {
-        return new TileData(tileType, tileColor, tileSpecial, tileOrient, tileDoorID);
+        return new TileData(
+            (TileType)tileType,
+            (TileColor)tileColor,
+            tileSpecial,
+            tileOrient,
+            tileDoorID
+        );
     }
 
     // returns a new tile copied from the tile in active use
@@ -182,7 +188,10 @@ public class TileCreator : MonoBehaviour
     {
         // rather than change TileCreator itself,
         // use it's GameObjects to instantiate a copy as specified
-        GameObject go = _tileRenderers[inData.type, inData.color].transform.parent.gameObject;
+        GameObject go = _tileRenderers[(int)inData.type, (int)inData.color]
+            .transform
+            .parent
+            .gameObject;
         Quaternion r = Quaternion.Euler(0, 0, 30 * inData.orient.rotation);
         Vector3 p = inData.orient.locus.ToUnitySpace();
         p.z = _gmRef.GetLayerDepth();
