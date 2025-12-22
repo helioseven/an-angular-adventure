@@ -4,14 +4,22 @@ using UnityEngine;
 
 public class Tile_Green : Tile
 {
-    public GameObject particlePrefab; // Assign a glowing particle prefab in Inspector
-    private List<Tile> connectedDoorTiles = new List<Tile>(); // To be filled with list of corresponding locked "door tiles"
+    //public variables
+    // Assign a glowing particle prefab in Inspector
+    public GameObject particlePrefab;
+
+    // private consts
+    private const int KEY_CHILD_INDEX = 2;
+
+    // private variables
+    // To be filled with list of corresponding locked "door tiles"
+    private List<Tile> connectedDoorTiles = new List<Tile>();
     private Transform keyIcon;
     private bool hasUnlocked = false;
 
     void Start()
     {
-        keyIcon = transform.GetChild(0).GetChild(0);
+        keyIcon = transform.GetChild(KEY_CHILD_INDEX);
         Vector3 rotation = Vector3.forward;
         keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
 

@@ -8,9 +8,12 @@ public class Tile_Orange : Tile
     // public references
     public Transform arrow;
 
+    // private consts
+    private const int ARROW_CHILD_INDEX = 2;
+
     void Start()
     {
-        arrow = transform.GetChild(0).GetChild(0);
+        arrow = transform.GetChild(ARROW_CHILD_INDEX);
 
         int direction = (data.special + 1) % 4;
         if (direction % 2 == 1)

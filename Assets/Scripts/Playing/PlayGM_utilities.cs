@@ -159,7 +159,7 @@ public partial class PlayGM
                 continue;
 
             // Lose door icon if non doorId tile
-            Transform icon = go.transform.GetChild(0).GetChild(0);
+            Transform icon = go.transform.GetChild(LOCK_CHILD_INDEX);
 
             if (td.doorId == 0)
                 icon.gameObject.SetActive(false);

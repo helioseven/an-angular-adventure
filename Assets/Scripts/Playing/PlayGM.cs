@@ -41,11 +41,6 @@ public partial class PlayGM : MonoBehaviour
     public GameObject levelCompletePanel;
     public TMP_Text victoryTimeText;
 
-    // for swapping mobile controls on and off
-    [SerializeField]
-    private GameObject mobileControlsLayer;
-    private const int DEFAULT_LAYER = 0;
-    private const int INACTIVE_LAYER = 9;
     public static readonly string[] INT_TO_NAME =
     {
         "Zero",
@@ -69,9 +64,19 @@ public partial class PlayGM : MonoBehaviour
 
     public PlayLoader levelLoader = null;
 
-    private GravityDirection _gravDir;
-    private HexOrient _playerStart;
+    // private consts
+    private const int DEFAULT_LAYER = 0;
+    private const int INACTIVE_LAYER = 9;
+    private const int LOCK_CHILD_INDEX = 1;
+
+    // private variables
     private Clock clock;
+    private HexOrient _playerStart;
+
+    // for swapping mobile controls on and off
+    [SerializeField]
+    private GameObject mobileControlsLayer;
+    private GravityDirection _gravDir;
 
     void Awake()
     {
