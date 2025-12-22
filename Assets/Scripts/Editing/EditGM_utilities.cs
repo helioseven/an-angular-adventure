@@ -356,6 +356,8 @@ public partial class EditGM
                 Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
                 if (td.color == 3 && td.special == 0)
                     specIcon.gameObject.SetActive(false);
+                else if (td.color == 4)
+                    go.GetComponent<TileEditOrange>().SetGravityDirection(td.special);
                 else
                     specIcon.rotation = Quaternion.identity;
             }
