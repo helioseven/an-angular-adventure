@@ -26,6 +26,6 @@ public class TileEditOrange : MonoBehaviour
             intRot += 2;
         Vector3 rotation = Vector3.forward * (intRot * 90);
 
-        arrowIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+        arrowIcon.rotation = Quaternion.Euler(rotation);
     }
 }

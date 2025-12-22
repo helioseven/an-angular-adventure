@@ -20,7 +20,7 @@ public class Tile_Orange : Tile
             direction += 2;
         Vector3 rotation = Vector3.forward * (direction * 90);
 
-        arrow.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+        arrow.rotation = Quaternion.Euler(rotation);
     }
 
     /* Override Functions */
