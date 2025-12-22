@@ -47,7 +47,7 @@ public class Tile_Green : Tile
                     // check for each tile to add to list of connected door tiles
                     Tile tileComp = otherTile.GetComponent<Tile>();
                     bool isCorrespondingSpecialNumber =
-                        tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
+                        tileComp.data.doorID == gameObject.GetComponent<Tile>().data.special;
                     bool isSelf = tileComp.Equals(gameObject.GetComponent<Tile>());
 
                     if (tileComp != null && isCorrespondingSpecialNumber && !isSelf)

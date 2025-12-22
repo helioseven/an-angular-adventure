@@ -262,12 +262,12 @@ public partial class EditGM
             mappingChanged = true;
         }
         // if it has a valid door value, add it to the door tile map
-        if (inTile.doorId != 0)
+        if (inTile.doorID != 0)
         {
-            _doorTileMap.Add(go, inTile.doorId);
+            _doorTileMap.Add(go, inTile.doorID);
             foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
             {
-                if (kvp.Value == inTile.doorId)
+                if (kvp.Value == inTile.doorID)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
             mappingChanged = true;
@@ -322,13 +322,13 @@ public partial class EditGM
 
             // do something with the lock icon, depending on whether tile has a valid doorID
             Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
-            if (td.doorId != 0)
+            if (td.doorID != 0)
             {
                 // if the tile has a valid door value, first add it to the door tile map
-                _doorTileMap.Add(go, td.doorId);
+                _doorTileMap.Add(go, td.doorID);
                 foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
                 {
-                    if (kvp.Value == td.doorId)
+                    if (kvp.Value == td.doorID)
                         kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
                 }
                 mappingChanged = true;
@@ -547,7 +547,7 @@ public partial class EditGM
             _doorTileMap.Remove(inTile);
             foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
             {
-                if (kvp.Value == tData.doorId)
+                if (kvp.Value == tData.doorID)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
             mappingChanged = true;
@@ -864,7 +864,7 @@ public partial class EditGM
                 td.color,
                 newId,
                 td.orient,
-                td.doorId
+                td.doorID
             );
 
             if (_selectedItem.instance)
@@ -878,7 +878,7 @@ public partial class EditGM
         }
     }
 
-    public void SetSelectedItemDoorId(string s)
+    public void SetSelectedItemDoorID(string s)
     {
         int newId = int.Parse(s);
 

@@ -144,9 +144,9 @@ public partial class PlayGM
             go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[td.orient.layer]);
 
-            // lose door icon if non doorId tile
+            // lose door icon if non doorID tile
             Transform doorIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
-            if (td.doorId == 0)
+            if (td.doorID == 0)
                 doorIcon.gameObject.SetActive(false);
             else
                 doorIcon.rotation = Quaternion.identity;

@@ -501,15 +501,15 @@ namespace circleXsquares
         public int color;
         public int special;
         public HexOrient orient;
-        public int doorId;
+        public int doorID;
 
         // simple constructor
-        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient, int inDoorId = 0)
+        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient, int inDoorID = 0)
         {
             type = inType;
             color = inColor;
             special = inSpec;
-            doorId = inDoorId;
+            doorID = inDoorID;
             orient = inOrient;
         }
 
@@ -520,7 +520,7 @@ namespace circleXsquares
             s += " " + color.ToString();
             s += " " + special.ToString();
             s += " " + orient.Serialize();
-            s += " " + doorId.ToString();
+            s += " " + doorID.ToString();
             return s;
         }
 
@@ -531,7 +531,7 @@ namespace circleXsquares
                 && (td1.color == td2.color)
                 && (td1.special == td2.special)
                 && (td1.orient == td2.orient)
-                && (td1.doorId == td2.doorId)
+                && (td1.doorID == td2.doorID)
             );
         }
 
@@ -890,10 +890,10 @@ namespace circleXsquares
             int roation = Int32.Parse(s[9]);
             int layer = Int32.Parse(s[10]);
 
-            int doorId = 0;
+            int doorID = 0;
             if (s.Length > 11)
             {
-                doorId = Int32.Parse(s[11]);
+                doorID = Int32.Parse(s[11]);
             }
 
             return new TileData(
@@ -901,7 +901,7 @@ namespace circleXsquares
                 color,
                 extra,
                 new HexOrient(hexLocus, roation, layer),
-                doorId
+                doorID
             );
         }
 

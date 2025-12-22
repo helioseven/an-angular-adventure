@@ -19,8 +19,8 @@ public class ObjectInfoControl : MonoBehaviour
     private TMP_Text _rotationDisplay;
     private TMP_Text _specialLabel;
     private TMP_Text _specialDisplay;
-    private TMP_Text _doorIdLabel;
-    private TMP_Text _doorIdDisplay;
+    private TMP_Text _doorIDLabel;
+    private TMP_Text _doorIDDisplay;
     private TMP_Text _typeDisplay;
     private TMP_Text _combinedNameDisplay;
 
@@ -86,8 +86,8 @@ public class ObjectInfoControl : MonoBehaviour
         _specialDisplay = t.GetChild(1).GetComponent<TMP_Text>();
 
         t = transform.GetChild(2);
-        _doorIdLabel = t.GetChild(0).GetComponent<TMP_Text>();
-        _doorIdDisplay = t.GetChild(1).GetComponent<TMP_Text>();
+        _doorIDLabel = t.GetChild(0).GetComponent<TMP_Text>();
+        _doorIDDisplay = t.GetChild(1).GetComponent<TMP_Text>();
     }
 
     void Update()
@@ -110,7 +110,7 @@ public class ObjectInfoControl : MonoBehaviour
         public int spec;
         public int rot;
         public HexLocus locus;
-        public int doorId;
+        public int doorID;
 
         public InfoPack(
             int inType,
@@ -118,7 +118,7 @@ public class ObjectInfoControl : MonoBehaviour
             int inSpec,
             int inRot,
             HexLocus inLocus,
-            int inDoorId
+            int inDoorID
         )
         {
             type = inType;
@@ -126,7 +126,7 @@ public class ObjectInfoControl : MonoBehaviour
             spec = inSpec;
             rot = inRot;
             locus = inLocus;
-            doorId = inDoorId;
+            doorID = inDoorID;
         }
 
         public static bool operator ==(InfoPack ip1, InfoPack ip2)
@@ -137,7 +137,7 @@ public class ObjectInfoControl : MonoBehaviour
                 && (ip1.spec == ip2.spec)
                 && (ip1.rot == ip2.rot)
                 && (ip1.locus == ip2.locus)
-                && (ip1.doorId == ip2.doorId)
+                && (ip1.doorID == ip2.doorID)
             );
         }
 
@@ -181,7 +181,7 @@ public class ObjectInfoControl : MonoBehaviour
         int spec = -1;
         int rot = -1;
         HexLocus locus = new HexLocus();
-        int doorId = -1;
+        int doorID = -1;
 
         // If the editor is in Create mode
         //   update object panel InfoPack based on active and enabled CreatorTool status
@@ -194,7 +194,7 @@ public class ObjectInfoControl : MonoBehaviour
                 spec = _tileCreator.tileSpecial;
                 rot = _tileCreator.tileOrient.rotation;
                 locus = _tileCreator.tileOrient.locus;
-                doorId = _tileCreator.tileDoorId;
+                doorID = _tileCreator.tileDoorID;
             }
             else if (_checkpointCreator.isActiveAndEnabled)
             {
@@ -232,7 +232,7 @@ public class ObjectInfoControl : MonoBehaviour
                     spec = _tileCreator.tileSpecial;
                     rot = _tileCreator.tileOrient.rotation;
                     locus = _tileCreator.tileOrient.locus;
-                    doorId = _tileCreator.tileDoorId;
+                    doorID = _tileCreator.tileDoorID;
                 }
                 else
                 {
@@ -243,7 +243,7 @@ public class ObjectInfoControl : MonoBehaviour
                     spec = td.special;
                     rot = td.orient.rotation;
                     locus = td.orient.locus;
-                    doorId = td.doorId;
+                    doorID = td.doorID;
                 }
             }
             if (selectedItem.checkpointData.HasValue)
@@ -287,7 +287,7 @@ public class ObjectInfoControl : MonoBehaviour
             }
         }
 
-        InfoPack infoPack = new InfoPack(type, color, spec, rot, locus, doorId);
+        InfoPack infoPack = new InfoPack(type, color, spec, rot, locus, doorID);
 
         return infoPack;
     }
@@ -415,7 +415,7 @@ public class ObjectInfoControl : MonoBehaviour
         // Door ID
         // Only show door id tiles
         transform.GetChild(2).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
-        _doorIdDisplay.text = infoPack.doorId.ToString();
+        _doorIDDisplay.text = infoPack.doorID.ToString();
 
         // Only show special attributes for green and orange tiles
         transform.GetChild(3).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
