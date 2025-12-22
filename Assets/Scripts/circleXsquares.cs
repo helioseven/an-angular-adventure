@@ -81,69 +81,45 @@ namespace circleXsquares
         // coordinate simplification is ensured by constructor
         public static HexLocus operator +(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a + h2.a;
-            rB = h1.b + h2.b;
-            rC = h1.c + h2.c;
-            rD = h1.d + h2.d;
-            rE = h1.e + h2.e;
-            rF = h1.f + h2.f;
+            int rA = h1.a + h2.a;
+            int rB = h1.b + h2.b;
+            int rC = h1.c + h2.c;
+            int rD = h1.d + h2.d;
+            int rE = h1.e + h2.e;
+            int rF = h1.f + h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator -(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a - h2.a;
-            rB = h1.b - h2.b;
-            rC = h1.c - h2.c;
-            rD = h1.d - h2.d;
-            rE = h1.e - h2.e;
-            rF = h1.f - h2.f;
+            int rA = h1.a - h2.a;
+            int rB = h1.b - h2.b;
+            int rC = h1.c - h2.c;
+            int rD = h1.d - h2.d;
+            int rE = h1.e - h2.e;
+            int rF = h1.f - h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator *(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a * h2.a;
-            rB = h1.b * h2.b;
-            rC = h1.c * h2.c;
-            rD = h1.d * h2.d;
-            rE = h1.e * h2.e;
-            rF = h1.f * h2.f;
+            int rA = h1.a * h2.a;
+            int rB = h1.b * h2.b;
+            int rC = h1.c * h2.c;
+            int rD = h1.d * h2.d;
+            int rE = h1.e * h2.e;
+            int rF = h1.f * h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator /(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a / h2.a;
-            rB = h1.b / h2.b;
-            rC = h1.c / h2.c;
-            rD = h1.d / h2.d;
-            rE = h1.e / h2.e;
-            rF = h1.f / h2.f;
+            int rA = h1.a / h2.a;
+            int rB = h1.b / h2.b;
+            int rC = h1.c / h2.c;
+            int rD = h1.d / h2.d;
+            int rE = h1.e / h2.e;
+            int rF = h1.f / h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
