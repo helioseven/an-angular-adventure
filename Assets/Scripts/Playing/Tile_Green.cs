@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class Tile_Green : Tile
 {
-    //public variables
-    // Assign a glowing particle prefab in Inspector
+    //public references
+    // inspector-assigned glowing particle prefab
     public GameObject particlePrefab;
 
     // private consts
     private const int KEY_CHILD_INDEX = 2;
 
+    // private references
+    // list of corresponding "door tiles"
+    private List<Tile> _connectedDoorTiles = new List<Tile>();
+    private Transform _keyIcon;
+
     // private variables
-    // To be filled with list of corresponding locked "door tiles"
-    private List<Tile> connectedDoorTiles = new List<Tile>();
-    private Transform keyIcon;
-    private bool hasUnlocked = false;
+    private bool _hasUnlocked = false;
 
     void Start()
     {
-        keyIcon = transform.GetChild(KEY_CHILD_INDEX);
+        _keyIcon = transform.GetChild(KEY_CHILD_INDEX);
         Vector3 rotation = Vector3.forward;
-        keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+        _keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
 
         int myKeyId = gameObject.GetComponent<Tile>().data.special;
 
@@ -29,8 +31,8 @@ public class Tile_Green : Tile
         if (myKeyId <= 0)
         {
             // hide by setting to inactive and skip looking for doors by returning
-            keyIcon.gameObject.SetActive(false);
-            hasUnlocked = true;
+            _keyIcon.gameObject.SetActive(false);
+            _hasUnlocked = true;
             return;
         }
 
@@ -52,7 +54,7 @@ public class Tile_Green : Tile
                     if (tileComp != null && isCorrespondingSpecialNumber && !isSelf)
                     {
                         // add to list of connected door tiles
-                        connectedDoorTiles.Add(tileComp);
+                        _connectedDoorTiles.Add(tileComp);
                     }
                 }
             }
@@ -66,16 +68,16 @@ public class Tile_Green : Tile
         // triggers door open on player collision
         if (other.gameObject.CompareTag("Player"))
         {
-            if (!hasUnlocked)
+            if (!_hasUnlocked)
             {
                 SoundManager.instance.Play("key");
 
                 // update the state of the tile to note that is has been unlocked
-                hasUnlocked = true;
+                _hasUnlocked = true;
 
-                keyIcon.gameObject.SetActive(false);
+                _keyIcon.gameObject.SetActive(false);
 
-                foreach (Tile doorTile in connectedDoorTiles)
+                foreach (Tile doorTile in _connectedDoorTiles)
                 {
                     // show the unlock trail effect
                     StartCoroutine(MoveEffectToLockedTile(doorTile));
@@ -96,7 +98,7 @@ public class Tile_Green : Tile
     IEnumerator MoveEffectToLockedTile(Tile doorTile)
     {
         // Spawn the particle effect at the key tile's position
-        Vector3 startPos = keyIcon.position;
+        Vector3 startPos = _keyIcon.position;
         Vector3 endPos = doorTile.transform.GetChild(0).GetChild(0).position;
         GameObject effect = Instantiate(particlePrefab, startPos, Quaternion.identity);
 

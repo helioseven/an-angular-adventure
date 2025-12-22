@@ -41,25 +41,7 @@ public class Tile_Orange : Tile
     private void redirectGravity()
     {
         int newDir = data.special % 4;
-        PlayGM.GravityDirection gd;
-        switch (newDir)
-        {
-            case 0:
-                gd = PlayGM.GravityDirection.Down;
-                break;
-            case 1:
-                gd = PlayGM.GravityDirection.Left;
-                break;
-            case 2:
-                gd = PlayGM.GravityDirection.Up;
-                break;
-            case 3:
-                gd = PlayGM.GravityDirection.Right;
-                break;
-            default:
-                return;
-        }
 
-        _gmRef.SetGravity(gd);
+        _gmRef.SetGravity((PlayGM.GravityDirection)newDir);
     }
 }
