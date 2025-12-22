@@ -253,26 +253,58 @@ public partial class EditGM
 
         // add tile's gameObject to the tile lookup
         _tileLookup[go] = inTile;
-        // if it's a green tile and has a valid key value,
-        // add it to the green tile map
-        if (inTile.color == TileColor.Green && inTile.special != 0)
-        {
-            _greenTileMap.Add(go, inTile.special);
-            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
-            mappingChanged = true;
-        }
-        // if it has a valid door value, add it to the door tile map
+
+        // if any tile has a valid door value
         if (inTile.doorID != 0)
         {
+            // add tile to the door map
             _doorTileMap.Add(go, inTile.doorID);
+
+            // set lock icon's rotation and then activate it
+            Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
+            lockIcon.rotation = Quaternion.identity;
+            lockIcon.gameObject.SetActive(true);
+
+            // trigger appropriate tile's script logic
             foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
             {
                 if (kvp.Value == inTile.doorID)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
+
+            // flag event notification
             mappingChanged = true;
         }
 
+        // if the tile is green and has a valid key value
+        if (inTile.color == TileColor.Green && inTile.special != 0)
+        {
+            // add tile to the green tile map
+            _greenTileMap.Add(go, inTile.special);
+
+            // set key icon's rotation and then activate it
+            Transform keyIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+            keyIcon.rotation = Quaternion.identity;
+            keyIcon.gameObject.SetActive(true);
+
+            // trigger tile's script logic
+            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+
+            // flag event notification
+            mappingChanged = true;
+        }
+
+        // if the tile is orange
+        if (inTile.color == TileColor.Orange)
+        {
+            // set arrow icon direction
+            go.GetComponent<TileEditOrange>()
+                .SetGravityDirection((GravityDirection)inTile.special);
+            // set arrow icon to active
+            go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(true);
+        }
+
+        // handle event notifications
         if (mappingChanged)
             NotifyKeyDoorMappingChanged();
 
@@ -322,19 +354,25 @@ public partial class EditGM
 
             // do something with the lock icon, depending on whether tile has a valid doorID
             Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
+
+            // if the tile has a valid door value
             if (td.doorID != 0)
             {
-                // if the tile has a valid door value, first add it to the door tile map
+                // orient lock icon appropriately
+                lockIcon.rotation = Quaternion.identity;
+
+                // add it to the door tile map
                 _doorTileMap.Add(go, td.doorID);
+
+                // trigger appropriate script logics
                 foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
                 {
                     if (kvp.Value == td.doorID)
                         kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
                 }
-                mappingChanged = true;
 
-                // then orient lock icon appropriately
-                lockIcon.rotation = Quaternion.identity;
+                // flag event notification
+                mappingChanged = true;
             }
             else
             {
@@ -342,24 +380,36 @@ public partial class EditGM
                 lockIcon.gameObject.SetActive(false);
             }
 
-            // if it's a green tile and has a valid key value, add it to the green tile map
+            // if the tile is green and has a valid key value
             if (td.color == TileColor.Green && td.special != 0)
             {
+                // add it to the green tile map
                 _greenTileMap.Add(go, td.special);
+
+                // trigger script logic
                 go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+
+                // flag event notification
                 mappingChanged = true;
             }
 
-            // if tile is green or orange, deal with the arrow or key icon appropriately
+            // if tile is green or orange
             if (td.color == TileColor.Green || td.color == TileColor.Orange)
             {
+                // first, get a reference to the arrow/key icon
                 Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+
+                // if the tile is green, but no valid key value
                 if (td.color == TileColor.Green && td.special == 0)
+                    // simply deactivate the key icon
                     specIcon.gameObject.SetActive(false);
+                // if the tile is orange
                 else if (td.color == TileColor.Orange)
+                    // set the arrow icon's direction
                     go.GetComponent<TileEditOrange>()
                         .SetGravityDirection((GravityDirection)td.special);
                 else
+                    // if the tile isn't orange, the key icon defaults to identity rotation
                     specIcon.rotation = Quaternion.identity;
             }
         }
