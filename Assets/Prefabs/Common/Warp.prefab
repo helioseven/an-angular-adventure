@@ -35,6 +35,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4420827599353576588
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -80,6 +81,7 @@ SpriteRenderer:
   m_SortingLayerID: 213111429
   m_SortingLayer: 4
   m_SortingOrder: 4
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -1540871414, guid: 52909ef3265c8465fbc05ac8e8d2f5f4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
@@ -89,7 +91,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &2385586048542034182
 MonoBehaviour:
@@ -118,7 +119,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2244605294843365327}
   - component: {fileID: 5944974147216877441}
-  - component: {fileID: 2247309276653015095}
   m_Layer: 0
   m_Name: Warp
   m_TagString: Untagged
@@ -181,23 +181,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1
---- !u!114 &2247309276653015095
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3179061033308198932}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6910e79739c64a04384722088500bd4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Warp
-  warpRipple: {fileID: 851227070788830806}
-  warpFlowDuration: 0.85
-  warpCooldown: 3
-  cooldownArcSegments: 48
-  cooldownArcRadiusScale: 1.025
 --- !u!1 &3862192152516294494
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +216,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2394535824126884059
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -278,6 +262,7 @@ SpriteRenderer:
   m_SortingLayerID: 213111429
   m_SortingLayer: 4
   m_SortingOrder: 1
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -3170555087464758571, guid: a5b8dc6e9458a44b186f5d35925e4b21,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -288,7 +273,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &7618080851402466491
 MonoBehaviour:
@@ -340,6 +324,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1987181300709470078
 SpriteRenderer:
+  serializedVersion: 2
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -385,6 +370,7 @@ SpriteRenderer:
   m_SortingLayerID: 213111429
   m_SortingLayer: 4
   m_SortingOrder: 3
+  m_MaskInteraction: 0
   m_Sprite: {fileID: -3170555087464758571, guid: a5b8dc6e9458a44b186f5d35925e4b21,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -395,7 +381,6 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1625451380679953080
 MonoBehaviour:
@@ -5224,7 +5209,7 @@ ParticleSystem:
     vectorLabel1_3: W
 --- !u!199 &5889406716113179143
 ParticleSystemRenderer:
-  serializedVersion: 6
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -5270,6 +5255,7 @@ ParticleSystemRenderer:
   m_SortingLayerID: 213111429
   m_SortingLayer: 4
   m_SortingOrder: 2
+  m_MaskInteraction: 0
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 0
@@ -5301,4 +5287,3 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
-  m_MaskInteraction: 0
