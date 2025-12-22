@@ -1,3 +1,4 @@
+using circleXsquares;
 using UnityEngine;
 
 public class TileEditOrange : MonoBehaviour
@@ -16,13 +17,11 @@ public class TileEditOrange : MonoBehaviour
     /* Public Functions */
 
     // turns the arrow icon according to passed direction
-    public void SetGravityDirection(int inDirection)
+    public void SetGravityDirection(GravityDirection inDirection)
     {
-        inDirection %= 4;
-
         Transform arrowIcon = transform.GetChild(ARROW_CHILD_INDEX);
 
-        int intRot = (inDirection + 1) % 4;
+        int intRot = ((int)inDirection + 1) % 4;
         if (intRot % 2 == 1)
             intRot += 2;
         Vector3 rotation = Vector3.forward * (intRot * 90);

@@ -357,7 +357,8 @@ public partial class EditGM
                 if (td.color == TileColor.Green && td.special == 0)
                     specIcon.gameObject.SetActive(false);
                 else if (td.color == TileColor.Orange)
-                    go.GetComponent<TileEditOrange>().SetGravityDirection(td.special);
+                    go.GetComponent<TileEditOrange>()
+                        .SetGravityDirection((GravityDirection)td.special);
                 else
                     specIcon.rotation = Quaternion.identity;
             }
