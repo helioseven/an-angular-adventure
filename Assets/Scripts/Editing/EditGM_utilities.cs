@@ -319,17 +319,12 @@ public partial class EditGM
             go.transform.SetParent(tileLayer);
             // once tile is built, add (GameObject,TileData) pair to _tileLookup
             _tileLookup.Add(go, td);
-            // if it's a green tile and has a valid key value,
-            // add it to the green tile map
-            if (td.color == 3 && td.special != 0)
-            {
-                _greenTileMap.Add(go, td.special);
-                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
-                mappingChanged = true;
-            }
-            // if it has a valid door value, add it to the door tile map
+
+            // do something with the lock icon, depending on whether tile has a valid doorID
+            Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
             if (td.doorId != 0)
             {
+                // if the tile has a valid door value, first add it to the door tile map
                 _doorTileMap.Add(go, td.doorId);
                 foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
                 {
@@ -337,6 +332,32 @@ public partial class EditGM
                         kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
                 }
                 mappingChanged = true;
+
+                // then orient lock icon appropriately
+                lockIcon.rotation = Quaternion.identity;
+            }
+            else
+            {
+                // otherwise, simply deactivate the lock icon
+                lockIcon.gameObject.SetActive(false);
+            }
+
+            // if it's a green tile and has a valid key value, add it to the green tile map
+            if (td.color == 3 && td.special != 0)
+            {
+                _greenTileMap.Add(go, td.special);
+                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+                mappingChanged = true;
+            }
+
+            // if tile is green or orange, deal with the arrow or key icon appropriately
+            if (td.color == 3 || td.color == 4)
+            {
+                Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+                if (td.color == 3 && td.special == 0)
+                    specIcon.gameObject.SetActive(false);
+                else
+                    specIcon.rotation = Quaternion.identity;
             }
         }
 

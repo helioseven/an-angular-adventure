@@ -21,6 +21,11 @@ public class TileCreator : MonoBehaviour
     public HexOrient tileOrient { get; private set; }
     public int tileDoorId { get; private set; }
 
+    // private consts
+    private const int ARROW_OR_KEY_CHILD_INDEX = 2;
+    private const int DOOR_CHILD_INDEX = 1;
+    private const int SPRITE_CHILD_INDEX = 0;
+
     // private references
     private SpriteRenderer[,] _tileRenderers;
 
@@ -46,10 +51,17 @@ public class TileCreator : MonoBehaviour
         {
             for (int j = 0; j < nColors; j++)
             {
-                // gets the sprite renderer for each of the tile types and colors
                 Transform t = transform.GetChild(i).GetChild(j);
-                _tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
+
+                // gets the sprite renderer for each of the tile types and colors
+                _tileRenderers[i, j] = t.GetChild(SPRITE_CHILD_INDEX)
+                    .GetComponent<SpriteRenderer>();
                 _tileRenderers[i, j].enabled = false;
+
+                // also turn off all icons to begin with
+                t.GetChild(DOOR_CHILD_INDEX).gameObject.SetActive(false);
+                if (j == 3 || j == 4)
+                    t.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(false);
             }
         }
 

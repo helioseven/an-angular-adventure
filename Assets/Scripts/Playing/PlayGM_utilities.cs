@@ -165,7 +165,7 @@ public partial class PlayGM
             if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
             {
                 Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
-                if (td.special == 0)
+                if (td.color == (int)TileColor.Green && td.special == 0)
                     specIcon.gameObject.SetActive(false);
                 else
                     specIcon.rotation = Quaternion.identity;
