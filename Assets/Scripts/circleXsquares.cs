@@ -6,6 +6,14 @@ namespace circleXsquares
 {
     /* Public Utility Enums */
 
+    public enum GravityDirection
+    {
+        Down = 0,
+        Left,
+        Up,
+        Right,
+    }
+
     public enum TileType
     {
         Tri = 0,

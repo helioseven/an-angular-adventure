@@ -4,16 +4,6 @@ using UnityEngine;
 
 public partial class PlayGM
 {
-    /* Public Enums */
-
-    public enum GravityDirection
-    {
-        Down = 0,
-        Left,
-        Up,
-        Right,
-    }
-
     /* Public Utilities */
 
     // returns the z value of the current layer's transform

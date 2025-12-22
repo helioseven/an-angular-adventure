@@ -42,6 +42,6 @@ public class Tile_Orange : Tile
     {
         int newDir = data.special % 4;
 
-        _gmRef.SetGravity((PlayGM.GravityDirection)newDir);
+        _gmRef.SetGravity((GravityDirection)newDir);
     }
 }
