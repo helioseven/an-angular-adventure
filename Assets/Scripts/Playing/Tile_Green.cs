@@ -23,7 +23,6 @@ public class Tile_Green : Tile
     {
         _keyIcon = transform.GetChild(KEY_CHILD_INDEX);
         Vector3 rotation = Vector3.forward;
-        _keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
 
         int myKeyId = gameObject.GetComponent<Tile>().data.special;
 

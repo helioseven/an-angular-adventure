@@ -154,17 +154,22 @@ public partial class PlayGM
             go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[td.orient.layer]);
 
-            // keep icon if orange gravity or green key
-            if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
-                continue;
-
-            // Lose door icon if non doorId tile
-            Transform icon = go.transform.GetChild(LOCK_CHILD_INDEX);
-
+            // lose door icon if non doorId tile
+            Transform doorIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
             if (td.doorId == 0)
-                icon.gameObject.SetActive(false);
+                doorIcon.gameObject.SetActive(false);
             else
-                icon.localRotation = Quaternion.Euler(rotation - go.transform.rotation.eulerAngles);
+                doorIcon.rotation = Quaternion.identity;
+
+            // lose arrow/key icon if orange or green and non-zero special value
+            if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
+            {
+                Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+                if (td.special == 0)
+                    specIcon.gameObject.SetActive(false);
+                else
+                    specIcon.rotation = Quaternion.identity;
+            }
         }
 
         // populate checkpoint map

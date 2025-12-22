@@ -65,6 +65,7 @@ public partial class PlayGM : MonoBehaviour
     public PlayLoader levelLoader = null;
 
     // private consts
+    private const int ARROW_OR_KEY_CHILD_INDEX = 2;
     private const int DEFAULT_LAYER = 0;
     private const int INACTIVE_LAYER = 9;
     private const int LOCK_CHILD_INDEX = 1;
