@@ -4,7 +4,7 @@
 ## Quickstart ##
 
 + Install Unity Hub
-    * Unity 6.2 - Current build is using `6000.2.9f1`
+    * Unity 6.3 - Current build is using `6000.3.1f1`
 + Install Git
 + Clone this Repo
     * Main branch is `origin/master`
