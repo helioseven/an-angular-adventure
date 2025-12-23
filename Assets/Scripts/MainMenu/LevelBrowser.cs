@@ -41,7 +41,16 @@ public class LevelBrowser : MonoBehaviour
 
     void OnEnable()
     {
-        filterInput.onValueChanged.AddListener(_ => RefreshUI());
+        if (supabase == null)
+            supabase = SupabaseController.Instance;
+        if (supabase == null)
+        {
+            Debug.LogError("[LevelBrowser] SupabaseController reference is missing.");
+            return;
+        }
+
+        if (filterInput != null)
+            filterInput.onValueChanged.AddListener(_ => RefreshUI());
 
         localTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Local));
 
@@ -80,6 +89,12 @@ public class LevelBrowser : MonoBehaviour
 
     void SwitchTab(LevelBrowserTab tab)
     {
+        if (supabase == null)
+        {
+            Debug.LogError("[LevelBrowser] Cannot switch tab: SupabaseController is missing.");
+            return;
+        }
+
         currTab = tab;
 
         // Clear current levels
@@ -91,6 +106,12 @@ public class LevelBrowser : MonoBehaviour
         {
             case LevelBrowserTab.MyRemote:
             {
+                if (AuthState.Instance == null)
+                {
+                    Debug.LogError("[LevelBrowser] AuthState not ready; cannot fetch MyRemote.");
+                    break;
+                }
+
                 string steamId = AuthState.Instance.SteamId;
                 StartCoroutine(
                     supabase.FetchPublishedLevelsBySteamId(
@@ -123,6 +144,14 @@ public class LevelBrowser : MonoBehaviour
             }
             case LevelBrowserTab.DeveloperLevels:
             {
+                if (AuthState.Instance == null)
+                {
+                    Debug.LogError(
+                        "[LevelBrowser] AuthState not ready; cannot fetch DeveloperLevels."
+                    );
+                    break;
+                }
+
                 string steamId = AuthState.Instance.SteamId;
                 StartCoroutine(
                     supabase.FetchPublishedLevelsFromDevelopers(levels =>

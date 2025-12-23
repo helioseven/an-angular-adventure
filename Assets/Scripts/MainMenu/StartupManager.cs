@@ -4,11 +4,14 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SupabaseTest : MonoBehaviour
+public class StartupManager : MonoBehaviour
 {
     [Header("DEV ONLY - Test SteamID (used if none provided elsewhere)")]
     [SerializeField]
-    public string testSteamId = "76561198071047121";
+    public string testSteamId = ""; // Editor-only fallback lives below
+#if UNITY_EDITOR
+    private const string EditorDefaultSteamId = "76561198071047121";
+#endif
 
     private string supabaseSteamPartnerEdgeFunctionUrl =
         "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
@@ -18,7 +21,7 @@ public class SupabaseTest : MonoBehaviour
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
 
     // === Singleton setup ===
-    public static SupabaseTest Instance { get; private set; }
+    public static StartupManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -89,7 +92,15 @@ public class SupabaseTest : MonoBehaviour
 
     public IEnumerator PostSteamId(string steamId)
     {
-        var sid = string.IsNullOrWhiteSpace(steamId) ? testSteamId : steamId;
+        var sid = ResolveSteamId(steamId);
+        if (string.IsNullOrWhiteSpace(sid))
+        {
+            Debug.LogError(
+                "[StartupManager] No SteamID provided (and no editor fallback available)."
+            );
+            yield break;
+        }
+
         var body = new SteamRequest { steamid = sid };
         var json = JsonUtility.ToJson(body);
 
@@ -173,33 +184,32 @@ public class SupabaseTest : MonoBehaviour
                 : "";
 
             AuthState.Instance.SetSteamProfile(p.steamid, p.personaname, avatar);
-            Debug.Log($"[SupabaseTest] Updated AuthState → {p.personaname} ({p.steamid})");
+            Debug.Log($"[StartupManager] Updated AuthState: {p.personaname} ({p.steamid})");
         }
         else
         {
-            Debug.LogWarning("[SupabaseTest] No players returned from Steam data.");
+            Debug.LogWarning("[StartupManager] No players returned from Steam data.");
         }
 
         // --- Sanity check ---
         Debug.Log(
-            $"[SupabaseTest] Steam OK → {AuthState.Instance.PersonaName} ({AuthState.Instance.SteamId})"
+            $"[StartupManager] Steam OK: {AuthState.Instance.PersonaName} ({AuthState.Instance.SteamId})"
         );
 
-        // --- Continue with upsert if JWT present ---
-        if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
-        {
-            Debug.Log("[SupabaseTest] Upserting user...");
-            yield return StartCoroutine(UpsertUser(AuthState.Instance.Jwt));
-        }
-        else
-        {
-            Debug.LogWarning("[SupabaseTest] Skipped upsert — no JWT present.");
-        }
+        // --- Continue with upsert if JWT present (only once) ---
+        var jwtToUse = !string.IsNullOrEmpty(AuthState.Instance.Jwt)
+            ? AuthState.Instance.Jwt
+            : resp.token;
 
-        if (!string.IsNullOrEmpty(resp.token))
-            yield return StartCoroutine(UpsertUser(resp.token));
+        if (!string.IsNullOrEmpty(jwtToUse))
+        {
+            Debug.Log("[StartupManager] Upserting user...");
+            yield return StartCoroutine(UpsertUser(jwtToUse));
+        }
         else
-            Debug.LogWarning("[users upsert] Skipped — no JWT present.");
+        {
+            Debug.LogWarning("[StartupManager] Skipped upsert (no JWT present).");
+        }
     }
 
     private IEnumerator UpsertUser(string jwt)
@@ -230,10 +240,25 @@ public class SupabaseTest : MonoBehaviour
 
         if (req.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError($"[users upsert] Failed → {req.error}");
+            Debug.LogError($"[users upsert] Failed: {req.error}");
             yield break;
         }
 
         Debug.Log("[users upsert] OK!");
+    }
+
+    private string ResolveSteamId(string providedSteamId)
+    {
+        if (!string.IsNullOrWhiteSpace(providedSteamId))
+            return providedSteamId;
+
+        if (!string.IsNullOrWhiteSpace(testSteamId))
+            return testSteamId;
+
+#if UNITY_EDITOR
+        return EditorDefaultSteamId;
+#else
+        return "";
+#endif
     }
 }

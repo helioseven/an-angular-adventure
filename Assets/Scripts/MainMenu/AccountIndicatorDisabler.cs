@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class AccountIndicatorDisabler : MonoBehaviour
 {
-    public GameObject accountIndicatorPanel; // drag your panel here in Inspector
+    public GameObject accountIndicatorPanel;
 
     void Awake()
     {
