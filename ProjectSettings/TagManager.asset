@@ -50,6 +50,9 @@ TagManager:
   - name: Tiles
     uniqueID: 3584287159
     locked: 0
+  - name: Icons
+    uniqueID: 2391286481
+    locked: 0
   - name: Player
     uniqueID: 1615293027
     locked: 0
