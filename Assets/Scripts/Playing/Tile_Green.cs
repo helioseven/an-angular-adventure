@@ -10,6 +10,8 @@ public class Tile_Green : Tile
 
     // private consts
     private const int KEY_CHILD_INDEX = 2;
+    private const float LOCK_FLASH_INTERVAL = 0.05f;
+    private const int LOCK_FLASH_COUNT = 3;
 
     // private references
     // list of corresponding "door tiles"
@@ -91,9 +93,7 @@ public class Tile_Green : Tile
 
     private void openDoor(Tile doorTile)
     {
-        // TODO: flash locked tile before disappearing
-        SoundManager.instance.Play("door");
-        doorTile.gameObject.SetActive(false);
+        StartCoroutine(FlashAndOpenDoor(doorTile));
     }
 
     IEnumerator MoveEffectToLockedTile(Tile doorTile)
@@ -131,5 +131,24 @@ public class Tile_Green : Tile
 
         // Remove the effect after it reaches the locked tile and grace period is over
         Destroy(effect);
+    }
+
+    private IEnumerator FlashAndOpenDoor(Tile doorTile)
+    {
+        SpriteRenderer doorRenderer = doorTile.GetComponentInChildren<SpriteRenderer>();
+
+        if (doorRenderer != null)
+        {
+            for (int i = 0; i < LOCK_FLASH_COUNT; i++)
+            {
+                doorRenderer.enabled = false;
+                yield return new WaitForSeconds(LOCK_FLASH_INTERVAL);
+                doorRenderer.enabled = true;
+                yield return new WaitForSeconds(LOCK_FLASH_INTERVAL);
+            }
+        }
+
+        SoundManager.instance.Play("door");
+        doorTile.gameObject.SetActive(false);
     }
 }
