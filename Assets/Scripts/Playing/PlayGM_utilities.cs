@@ -4,16 +4,6 @@ using UnityEngine;
 
 public partial class PlayGM
 {
-    /* Public Enums */
-
-    public enum GravityDirection
-    {
-        Down = 0,
-        Left,
-        Up,
-        Right,
-    }
-
     /* Public Utilities */
 
     // returns the z value of the current layer's transform
@@ -144,27 +134,33 @@ public partial class PlayGM
         // populate tile hierarchy
         foreach (TileData td in inLevel.tileSet)
         {
-            GameObject pfRef = prefab_refs[td.type, td.color];
+            GameObject pfRef = prefab_refs[(int)td.type, (int)td.color];
             Quaternion q;
             Vector3 v3 = td.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(pfRef, v3, q) as GameObject;
             Tile t = go.GetComponent<Tile>();
             if (t)
                 t.data = td;
+            TileCreator.ApplyLayerSorting(go, td.orient.layer);
             go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[td.orient.layer]);
 
-            // keep icon if orange gravity or green key
-            if (td.color == (int)TileColor.Orange || td.color == (int)TileColor.Green)
-                continue;
-
-            // Lose door icon if non doorId tile
-            Transform icon = go.transform.GetChild(0).GetChild(0);
-
-            if (td.doorId == 0)
-                icon.gameObject.SetActive(false);
+            // lose door icon if non doorID tile
+            Transform doorIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
+            if (td.doorID == 0)
+                doorIcon.gameObject.SetActive(false);
             else
-                icon.localRotation = Quaternion.Euler(rotation - go.transform.rotation.eulerAngles);
+                doorIcon.rotation = Quaternion.identity;
+
+            // lose arrow/key icon if orange or green and non-zero special value
+            if (td.color == TileColor.Orange || td.color == TileColor.Green)
+            {
+                Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+                if (td.color == TileColor.Green && td.special == 0)
+                    specIcon.gameObject.SetActive(false);
+                else
+                    specIcon.rotation = Quaternion.identity;
+            }
         }
 
         // populate checkpoint map
@@ -241,14 +237,9 @@ public partial class PlayGM
 
         foreach (Transform tile in tileLayer)
         {
-            tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
-
-            // if there are grandchildren, dim them too
-            if (tile.GetChild(0).childCount > 0)
-            {
-                GameObject go = tile.GetChild(0).GetChild(0).gameObject;
-                go.GetComponent<SpriteRenderer>().color = color;
-            }
+            SpriteRenderer[] renderers = tile.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].color = color;
         }
     }
 

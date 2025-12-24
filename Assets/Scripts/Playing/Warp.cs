@@ -114,8 +114,7 @@ public class Warp : MonoBehaviour
                 if (w == null)
                     continue;
 
-                bool isCounterpart =
-                    w.data.layer == targetLayer && w.data.locus == data.locus;
+                bool isCounterpart = w.data.layer == targetLayer && w.data.locus == data.locus;
 
                 if (!isCounterpart)
                     continue;

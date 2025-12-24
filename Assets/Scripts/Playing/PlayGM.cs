@@ -41,11 +41,6 @@ public partial class PlayGM : MonoBehaviour
     public GameObject levelCompletePanel;
     public TMP_Text victoryTimeText;
 
-    // for swapping mobile controls on and off
-    [SerializeField]
-    private GameObject mobileControlsLayer;
-    private const int DEFAULT_LAYER = 0;
-    private const int INACTIVE_LAYER = 9;
     public static readonly string[] INT_TO_NAME =
     {
         "Zero",
@@ -69,9 +64,20 @@ public partial class PlayGM : MonoBehaviour
 
     public PlayLoader levelLoader = null;
 
-    private GravityDirection _gravDir;
+    // private consts
+    private const int ARROW_OR_KEY_CHILD_INDEX = 2;
+    private const int DEFAULT_LAYER = 0;
+    private const int INACTIVE_LAYER = 9;
+    private const int LOCK_CHILD_INDEX = 1;
+
+    // private variables
+    private Clock _clock;
     private HexOrient _playerStart;
-    private Clock clock;
+
+    // for swapping mobile controls on and off
+    [SerializeField]
+    private GameObject mobileControlsLayer;
+    private GravityDirection _gravDir;
 
     void Awake()
     {
@@ -81,7 +87,7 @@ public partial class PlayGM : MonoBehaviour
             levelLoader = GameObject.FindWithTag("Loader").GetComponent<PlayLoader>();
             player = GameObject.FindWithTag("Player").GetComponent<Player_Controller>();
             soundManager = GameObject.FindWithTag("SoundManager").GetComponent<SoundManager>();
-            clock = GameObject.FindWithTag("Clock").GetComponent<Clock>();
+            _clock = GameObject.FindWithTag("Clock").GetComponent<Clock>();
         }
         else
         {

@@ -30,7 +30,7 @@ public class Boundary : MonoBehaviour
     {
         // delete white tiles by color
         Tile tile = other.gameObject.GetComponent<Tile>();
-        if ((tile != null) && (tile.data.color == (int)TileColor.White))
+        if ((tile != null) && (tile.data.color == TileColor.White))
             tile.gameObject.SetActive(false);
     }
 

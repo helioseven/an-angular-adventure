@@ -253,26 +253,57 @@ public partial class EditGM
 
         // add tile's gameObject to the tile lookup
         _tileLookup[go] = inTile;
-        // if it's a green tile and has a valid key value,
-        // add it to the green tile map
-        if (inTile.color == 3 && inTile.special != 0)
+
+        // if any tile has a valid door value
+        if (inTile.doorID != 0)
         {
-            _greenTileMap.Add(go, inTile.special);
-            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
-            mappingChanged = true;
-        }
-        // if it has a valid door value, add it to the door tile map
-        if (inTile.doorId != 0)
-        {
-            _doorTileMap.Add(go, inTile.doorId);
+            // add tile to the door map
+            _doorTileMap.Add(go, inTile.doorID);
+
+            // set lock icon's rotation and then activate it
+            Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
+            lockIcon.rotation = Quaternion.identity;
+            lockIcon.gameObject.SetActive(true);
+
+            // trigger appropriate tile's script logic
             foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
             {
-                if (kvp.Value == inTile.doorId)
+                if (kvp.Value == inTile.doorID)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
+
+            // flag event notification
             mappingChanged = true;
         }
 
+        // if the tile is green and has a valid key value
+        if (inTile.color == TileColor.Green && inTile.special != 0)
+        {
+            // add tile to the green tile map
+            _greenTileMap.Add(go, inTile.special);
+
+            // set key icon's rotation and then activate it
+            Transform keyIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+            keyIcon.rotation = Quaternion.identity;
+            keyIcon.gameObject.SetActive(true);
+
+            // trigger appropriate script logics
+            go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+
+            // flag event notification
+            mappingChanged = true;
+        }
+
+        // if the tile is orange
+        if (inTile.color == TileColor.Orange)
+        {
+            // set arrow icon direction
+            SetGravityIconDirection(go, (GravityDirection)inTile.special);
+            // set arrow icon to active
+            go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(true);
+        }
+
+        // handle event notifications
         if (mappingChanged)
             NotifyKeyDoorMappingChanged();
 
@@ -311,32 +342,74 @@ public partial class EditGM
             // make sure there are enough layers for the new tile
             addLayers(td.orient.layer);
             Transform tileLayer = tileMap.transform.GetChild(td.orient.layer);
-            GameObject pfRef = prefab_refs[td.type, td.color];
+            GameObject pfRef = prefab_refs[(int)td.type, (int)td.color];
             Quaternion q;
             Vector3 v3 = td.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(pfRef, v3, q) as GameObject;
             go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+            TileCreator.ApplyLayerSorting(go, td.orient.layer);
             go.transform.SetParent(tileLayer);
             // once tile is built, add (GameObject,TileData) pair to _tileLookup
             _tileLookup.Add(go, td);
-            // if it's a green tile and has a valid key value,
-            // add it to the green tile map
-            if (td.color == 3 && td.special != 0)
+
+            // do something with the lock icon, depending on whether tile has a valid doorID
+            Transform lockIcon = go.transform.GetChild(LOCK_CHILD_INDEX);
+
+            // if the tile has a valid door value
+            if (td.doorID != 0)
             {
-                _greenTileMap.Add(go, td.special);
-                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
-                mappingChanged = true;
-            }
-            // if it has a valid door value, add it to the door tile map
-            if (td.doorId != 0)
-            {
-                _doorTileMap.Add(go, td.doorId);
+                // orient lock icon appropriately
+                lockIcon.rotation = Quaternion.identity;
+
+                // add it to the door tile map
+                _doorTileMap.Add(go, td.doorID);
+
+                // trigger appropriate script logics
                 foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
                 {
-                    if (kvp.Value == td.doorId)
+                    if (kvp.Value == td.doorID)
                         kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
                 }
+
+                // flag event notification
                 mappingChanged = true;
+            }
+            else
+            {
+                // otherwise, simply deactivate the lock icon
+                lockIcon.gameObject.SetActive(false);
+            }
+
+            // if the tile is green and has a valid key value
+            if (td.color == TileColor.Green && td.special != 0)
+            {
+                // add it to the green tile map
+                _greenTileMap.Add(go, td.special);
+
+                // trigger script logic
+                go.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
+
+                // flag event notification
+                mappingChanged = true;
+            }
+
+            // if tile is green or orange
+            if (td.color == TileColor.Green || td.color == TileColor.Orange)
+            {
+                // first, get a reference to the arrow/key icon
+                Transform specIcon = go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+
+                // if the tile is green, but no valid key value
+                if (td.color == TileColor.Green && td.special == 0)
+                    // simply deactivate the key icon
+                    specIcon.gameObject.SetActive(false);
+                // if the tile is orange
+                else if (td.color == TileColor.Orange)
+                    // set the arrow icon's direction
+                    SetGravityIconDirection(go, (GravityDirection)td.special);
+                else
+                    // if the tile isn't orange, the key icon defaults to identity rotation
+                    specIcon.rotation = Quaternion.identity;
             }
         }
 
@@ -524,7 +597,7 @@ public partial class EditGM
             _doorTileMap.Remove(inTile);
             foreach (KeyValuePair<GameObject, int> kvp in _greenTileMap)
             {
-                if (kvp.Value == tData.doorId)
+                if (kvp.Value == tData.doorID)
                     kvp.Key.GetComponent<TileEditGreen>().DrawLinesToAllTargets();
             }
             mappingChanged = true;
@@ -554,7 +627,9 @@ public partial class EditGM
         foreach (Transform tile in tileLayer)
         {
             tile.gameObject.layer = layer;
-            tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+            SpriteRenderer[] renderers = tile.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].color = color;
         }
     }
 
@@ -829,6 +904,19 @@ public partial class EditGM
         }
     }
 
+    // turns the arrow icon according to passed direction
+    public void SetGravityIconDirection(GameObject inTile, GravityDirection inDirection)
+    {
+        Transform arrowIcon = inTile.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+
+        int intRot = ((int)inDirection + 1) % 4;
+        if (intRot % 2 == 1)
+            intRot += 2;
+        Vector3 rotation = Vector3.forward * (intRot * 90);
+
+        arrowIcon.rotation = Quaternion.Euler(rotation);
+    }
+
     public void SetSelectedItemSpecial(string s)
     {
         int newId = int.Parse(s);
@@ -841,7 +929,7 @@ public partial class EditGM
                 td.color,
                 newId,
                 td.orient,
-                td.doorId
+                td.doorID
             );
 
             if (_selectedItem.instance)
@@ -855,7 +943,7 @@ public partial class EditGM
         }
     }
 
-    public void SetSelectedItemDoorId(string s)
+    public void SetSelectedItemDoorID(string s)
     {
         int newId = int.Parse(s);
 

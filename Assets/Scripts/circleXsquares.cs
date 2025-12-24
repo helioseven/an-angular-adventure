@@ -6,6 +6,14 @@ namespace circleXsquares
 {
     /* Public Utility Enums */
 
+    public enum GravityDirection
+    {
+        Down = 0,
+        Left,
+        Up,
+        Right,
+    }
+
     public enum TileType
     {
         Tri = 0,
@@ -35,6 +43,7 @@ namespace circleXsquares
         public const int DEFAULT_NUM_LAYERS = 10;
         public const int NUM_COLORS = 8;
         public const int NUM_SHAPES = 6;
+        public const int LAYER_SORTING_ORDER_STEP = 1000;
     }
 
     // HexLocus describes a location in a hexagonal coodinate system
@@ -73,69 +82,45 @@ namespace circleXsquares
         // coordinate simplification is ensured by constructor
         public static HexLocus operator +(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a + h2.a;
-            rB = h1.b + h2.b;
-            rC = h1.c + h2.c;
-            rD = h1.d + h2.d;
-            rE = h1.e + h2.e;
-            rF = h1.f + h2.f;
+            int rA = h1.a + h2.a;
+            int rB = h1.b + h2.b;
+            int rC = h1.c + h2.c;
+            int rD = h1.d + h2.d;
+            int rE = h1.e + h2.e;
+            int rF = h1.f + h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator -(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a - h2.a;
-            rB = h1.b - h2.b;
-            rC = h1.c - h2.c;
-            rD = h1.d - h2.d;
-            rE = h1.e - h2.e;
-            rF = h1.f - h2.f;
+            int rA = h1.a - h2.a;
+            int rB = h1.b - h2.b;
+            int rC = h1.c - h2.c;
+            int rD = h1.d - h2.d;
+            int rE = h1.e - h2.e;
+            int rF = h1.f - h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator *(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a * h2.a;
-            rB = h1.b * h2.b;
-            rC = h1.c * h2.c;
-            rD = h1.d * h2.d;
-            rE = h1.e * h2.e;
-            rF = h1.f * h2.f;
+            int rA = h1.a * h2.a;
+            int rB = h1.b * h2.b;
+            int rC = h1.c * h2.c;
+            int rD = h1.d * h2.d;
+            int rE = h1.e * h2.e;
+            int rF = h1.f * h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
         public static HexLocus operator /(HexLocus h1, HexLocus h2)
         {
-            int rA,
-                rB,
-                rC,
-                rD,
-                rE,
-                rF;
-            rA = h1.a / h2.a;
-            rB = h1.b / h2.b;
-            rC = h1.c / h2.c;
-            rD = h1.d / h2.d;
-            rE = h1.e / h2.e;
-            rF = h1.f / h2.f;
+            int rA = h1.a / h2.a;
+            int rB = h1.b / h2.b;
+            int rC = h1.c / h2.c;
+            int rD = h1.d / h2.d;
+            int rE = h1.e / h2.e;
+            int rF = h1.f / h2.f;
             return new HexLocus(rA, rB, rC, rD, rE, rF);
         }
 
@@ -513,30 +498,36 @@ namespace circleXsquares
     public struct TileData
     {
         // TileData consists of a type, color, and orientation
-        public int type;
-        public int color;
+        public TileType type;
+        public TileColor color;
         public int special;
         public HexOrient orient;
-        public int doorId;
+        public int doorID;
 
         // simple constructor
-        public TileData(int inType, int inColor, int inSpec, HexOrient inOrient, int inDoorId = 0)
+        public TileData(
+            TileType inType,
+            TileColor inColor,
+            int inSpec,
+            HexOrient inOrient,
+            int inDoorID = 0
+        )
         {
             type = inType;
             color = inColor;
             special = inSpec;
-            doorId = inDoorId;
+            doorID = inDoorID;
             orient = inOrient;
         }
 
         // Serialize turns this TileData into strings separated by spaces
         public string Serialize()
         {
-            string s = type.ToString();
-            s += " " + color.ToString();
+            string s = ((int)type).ToString();
+            s += " " + ((int)color).ToString();
             s += " " + special.ToString();
             s += " " + orient.Serialize();
-            s += " " + doorId.ToString();
+            s += " " + doorID.ToString();
             return s;
         }
 
@@ -547,7 +538,7 @@ namespace circleXsquares
                 && (td1.color == td2.color)
                 && (td1.special == td2.special)
                 && (td1.orient == td2.orient)
-                && (td1.doorId == td2.doorId)
+                && (td1.doorID == td2.doorID)
             );
         }
 
@@ -906,18 +897,18 @@ namespace circleXsquares
             int roation = Int32.Parse(s[9]);
             int layer = Int32.Parse(s[10]);
 
-            int doorId = 0;
+            int doorID = 0;
             if (s.Length > 11)
             {
-                doorId = Int32.Parse(s[11]);
+                doorID = Int32.Parse(s[11]);
             }
 
             return new TileData(
-                type,
-                color,
+                (TileType)type,
+                (TileColor)color,
                 extra,
                 new HexOrient(hexLocus, roation, layer),
-                doorId
+                doorID
             );
         }
 

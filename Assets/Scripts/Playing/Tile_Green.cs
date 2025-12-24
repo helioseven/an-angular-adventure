@@ -4,25 +4,35 @@ using UnityEngine;
 
 public class Tile_Green : Tile
 {
-    public GameObject particlePrefab; // Assign a glowing particle prefab in Inspector
-    private List<Tile> connectedDoorTiles = new List<Tile>(); // To be filled with list of corresponding locked "door tiles"
-    private Transform keyIcon;
-    private bool hasUnlocked = false;
+    //public references
+    // inspector-assigned glowing particle prefab
+    public GameObject particlePrefab;
+
+    // private consts
+    private const int KEY_CHILD_INDEX = 2;
+
+    // private references
+    // list of corresponding "door tiles"
+    private List<Tile> _connectedDoorTiles = new List<Tile>();
+    private Transform _keyIcon;
+
+    // private variables
+    private bool _hasUnlocked = false;
 
     void Start()
     {
-        keyIcon = transform.GetChild(0).GetChild(0);
+        _keyIcon = transform.GetChild(KEY_CHILD_INDEX);
         Vector3 rotation = Vector3.forward;
-        keyIcon.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
 
-        int myKeyId = gameObject.GetComponent<Tile>().data.special;
+        Tile myTile = gameObject.GetComponent<Tile>();
+        int myKeyId = myTile.data.special;
 
         // 0 (or negative) is special - represents no key for this lock
         if (myKeyId <= 0)
         {
             // hide by setting to inactive and skip looking for doors by returning
-            keyIcon.gameObject.SetActive(false);
-            hasUnlocked = true;
+            _keyIcon.gameObject.SetActive(false);
+            _hasUnlocked = true;
             return;
         }
 
@@ -37,14 +47,15 @@ public class Tile_Green : Tile
                 {
                     // check for each tile to add to list of connected door tiles
                     Tile tileComp = otherTile.GetComponent<Tile>();
-                    bool isCorrespondingSpecialNumber =
-                        tileComp.data.doorId == gameObject.GetComponent<Tile>().data.special;
-                    bool isSelf = tileComp.Equals(gameObject.GetComponent<Tile>());
+                    if (tileComp == null)
+                        continue;
+                    bool isCorrespondingSpecialNumber = tileComp.data.doorID == myKeyId;
+                    bool isSelf = tileComp == myTile;
 
-                    if (tileComp != null && isCorrespondingSpecialNumber && !isSelf)
+                    if (isCorrespondingSpecialNumber && !isSelf)
                     {
                         // add to list of connected door tiles
-                        connectedDoorTiles.Add(tileComp);
+                        _connectedDoorTiles.Add(tileComp);
                     }
                 }
             }
@@ -58,16 +69,16 @@ public class Tile_Green : Tile
         // triggers door open on player collision
         if (other.gameObject.CompareTag("Player"))
         {
-            if (!hasUnlocked)
+            if (!_hasUnlocked)
             {
                 SoundManager.instance.Play("key");
 
                 // update the state of the tile to note that is has been unlocked
-                hasUnlocked = true;
+                _hasUnlocked = true;
 
-                keyIcon.gameObject.SetActive(false);
+                _keyIcon.gameObject.SetActive(false);
 
-                foreach (Tile doorTile in connectedDoorTiles)
+                foreach (Tile doorTile in _connectedDoorTiles)
                 {
                     // show the unlock trail effect
                     StartCoroutine(MoveEffectToLockedTile(doorTile));
@@ -88,8 +99,9 @@ public class Tile_Green : Tile
     IEnumerator MoveEffectToLockedTile(Tile doorTile)
     {
         // Spawn the particle effect at the key tile's position
-        Vector3 startPos = keyIcon.position;
-        Vector3 endPos = doorTile.transform.GetChild(0).GetChild(0).position;
+        Vector3 startPos = _keyIcon.position;
+        SpriteRenderer doorRenderer = doorTile.GetComponentInChildren<SpriteRenderer>();
+        Vector3 endPos = doorRenderer ? doorRenderer.bounds.center : doorTile.transform.position;
         GameObject effect = Instantiate(particlePrefab, startPos, Quaternion.identity);
 
         // Get the ParticleSystem component

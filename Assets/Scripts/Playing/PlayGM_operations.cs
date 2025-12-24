@@ -13,6 +13,10 @@ public partial class PlayGM
     // redirects gravity in the specified direction
     public void SetGravity(GravityDirection inDirect)
     {
+        // if new gravity direction matches current, simply return
+        if (inDirect == _gravDir)
+            return;
+
         // update PlayGM instance state or gravity direction
         _gravDir = inDirect;
 
@@ -95,9 +99,9 @@ public partial class PlayGM
         victoryAchieved = true;
 
         // Stop the clock
-        clock.PauseClock();
+        _clock.PauseClock();
         // Set time for victory panel
-        victoryTimeText.text = clock.clockTimeToString();
+        victoryTimeText.text = _clock.clockTimeToString();
         // Open the victory panel
         levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
 
@@ -183,7 +187,7 @@ public partial class PlayGM
         // Start the clock
         if (isSpawn)
         {
-            clock.StartClock();
+            _clock.StartClock();
         }
 
         if (camController != null)

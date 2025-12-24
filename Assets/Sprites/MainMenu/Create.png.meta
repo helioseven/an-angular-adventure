@@ -97,12 +97,16 @@ TextureImporter:
     serializedVersion: 2
     sprites: []
     outline:
-    - - {x: 99, y: 87}
-      - {x: -101, y: 87}
-      - {x: -201, y: -86}
-      - {x: 200, y: -87}
+    - - {x: 100, y: 86}
+      - {x: -100, y: 86}
+      - {x: -199, y: -86}
+      - {x: 199, y: -86}
     customData: 
-    physicsShape: []
+    physicsShape:
+    - - {x: 100, y: 87}
+      - {x: -100, y: 87}
+      - {x: -200, y: -87}
+      - {x: 200, y: -87}
     bones: []
     spriteID: 4ce42764eacf60980b8f818c508d0586
     internalID: 2007901375

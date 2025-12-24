@@ -8,16 +8,19 @@ public class Tile_Orange : Tile
     // public references
     public Transform arrow;
 
+    // private consts
+    private const int ARROW_CHILD_INDEX = 2;
+
     void Start()
     {
-        arrow = transform.GetChild(0).GetChild(0);
+        arrow = transform.GetChild(ARROW_CHILD_INDEX);
 
         int direction = (data.special + 1) % 4;
         if (direction % 2 == 1)
             direction += 2;
         Vector3 rotation = Vector3.forward * (direction * 90);
 
-        arrow.localRotation = Quaternion.Euler(rotation - transform.rotation.eulerAngles);
+        arrow.rotation = Quaternion.Euler(rotation);
     }
 
     /* Override Functions */
@@ -38,25 +41,7 @@ public class Tile_Orange : Tile
     private void redirectGravity()
     {
         int newDir = data.special % 4;
-        PlayGM.GravityDirection gd;
-        switch (newDir)
-        {
-            case 0:
-                gd = PlayGM.GravityDirection.Down;
-                break;
-            case 1:
-                gd = PlayGM.GravityDirection.Left;
-                break;
-            case 2:
-                gd = PlayGM.GravityDirection.Up;
-                break;
-            case 3:
-                gd = PlayGM.GravityDirection.Right;
-                break;
-            default:
-                return;
-        }
 
-        _gmRef.SetGravity(gd);
+        _gmRef.SetGravity((GravityDirection)newDir);
     }
 }

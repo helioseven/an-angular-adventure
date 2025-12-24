@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 
 public class PlayCam_Controller : MonoBehaviour
@@ -169,8 +170,8 @@ public class PlayCam_Controller : MonoBehaviour
 
         switch (_gmRef.gravDirection)
         {
-            case PlayGM.GravityDirection.Left:
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Left:
+            case GravityDirection.Right:
                 return Vector2.up;
             default:
                 return Vector2.right;
@@ -297,13 +298,13 @@ public class PlayCam_Controller : MonoBehaviour
 
         switch (_gmRef.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
+            case GravityDirection.Down:
                 return Vector2.down;
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Up:
                 return Vector2.up;
-            case PlayGM.GravityDirection.Left:
+            case GravityDirection.Left:
                 return Vector2.left;
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Right:
                 return Vector2.right;
             default:
                 return Vector2.zero;

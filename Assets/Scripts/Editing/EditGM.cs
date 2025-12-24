@@ -90,7 +90,9 @@ public partial class EditGM : MonoBehaviour
     public event Action<bool> KeyDoorVisibilityChanged;
 
     // private constants
+    private const int ARROW_OR_KEY_CHILD_INDEX = 2;
     private const int DEFAULT_LAYER = 0;
+    private const int LOCK_CHILD_INDEX = 1;
     private const int INACTIVE_LAYER = 9;
 
     // private variables

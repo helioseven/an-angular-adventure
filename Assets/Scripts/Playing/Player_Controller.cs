@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -237,20 +238,20 @@ public class Player_Controller : MonoBehaviour
         UpdateJumpForceVector(PlayGM.instance.gravDirection);
     }
 
-    public void UpdateJumpForceVector(PlayGM.GravityDirection gd)
+    public void UpdateJumpForceVector(GravityDirection gd)
     {
         switch (gd)
         {
-            case PlayGM.GravityDirection.Down:
+            case GravityDirection.Down:
                 _jumpForceVec = new Vector2(0.0f, jumpForce);
                 break;
-            case PlayGM.GravityDirection.Left:
+            case GravityDirection.Left:
                 _jumpForceVec = new Vector2(jumpForce, 0.0f);
                 break;
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Up:
                 _jumpForceVec = new Vector2(0.0f, -jumpForce);
                 break;
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Right:
                 _jumpForceVec = new Vector2(-jumpForce, 0.0f);
                 break;
         }
@@ -261,12 +262,12 @@ public class Player_Controller : MonoBehaviour
         // Ignore input along the gravity axis so movement is only perpendicular to gravity
         switch (PlayGM.instance.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Down:
+            case GravityDirection.Up:
                 inMovement.y = 0f;
                 break;
-            case PlayGM.GravityDirection.Left:
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Left:
+            case GravityDirection.Right:
                 inMovement.x = 0f;
                 break;
         }
@@ -279,13 +280,13 @@ public class Player_Controller : MonoBehaviour
         // Gravity debug keys kept for editor desktop testing
 #if UNITY_EDITOR
         if (Keyboard.current.kKey.wasPressedThisFrame)
-            _gmRef.SetGravity(PlayGM.GravityDirection.Down);
+            _gmRef.SetGravity(GravityDirection.Down);
         if (Keyboard.current.jKey.wasPressedThisFrame)
-            _gmRef.SetGravity(PlayGM.GravityDirection.Left);
+            _gmRef.SetGravity(GravityDirection.Left);
         if (Keyboard.current.iKey.wasPressedThisFrame)
-            _gmRef.SetGravity(PlayGM.GravityDirection.Up);
+            _gmRef.SetGravity(GravityDirection.Up);
         if (Keyboard.current.lKey.wasPressedThisFrame)
-            _gmRef.SetGravity(PlayGM.GravityDirection.Right);
+            _gmRef.SetGravity(GravityDirection.Right);
 #endif
     }
 
@@ -406,8 +407,8 @@ public class Player_Controller : MonoBehaviour
         float controlScale = isOnIce ? iceControlMultiplier : 1f;
         float torqueSign =
             (
-                PlayGM.instance.gravDirection == PlayGM.GravityDirection.Down
-                || PlayGM.instance.gravDirection == PlayGM.GravityDirection.Right
+                PlayGM.instance.gravDirection == GravityDirection.Down
+                || PlayGM.instance.gravDirection == GravityDirection.Right
             )
                 ? -1f
                 : 1f;
@@ -431,13 +432,13 @@ public class Player_Controller : MonoBehaviour
     {
         switch (PlayGM.instance.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
+            case GravityDirection.Down:
                 return Vector2.down;
-            case PlayGM.GravityDirection.Left:
+            case GravityDirection.Left:
                 return Vector2.left;
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Up:
                 return Vector2.up;
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Right:
                 return Vector2.right;
             default:
                 return Vector2.down;
@@ -448,11 +449,11 @@ public class Player_Controller : MonoBehaviour
     {
         switch (PlayGM.instance.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Down:
+            case GravityDirection.Up:
                 return v.x;
-            case PlayGM.GravityDirection.Left:
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Left:
+            case GravityDirection.Right:
                 return v.y;
             default:
                 return 0f;
@@ -464,12 +465,12 @@ public class Player_Controller : MonoBehaviour
         Vector2 v = _rb2d.linearVelocity;
         switch (PlayGM.instance.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Down:
+            case GravityDirection.Up:
                 v.y = 0f;
                 break;
-            case PlayGM.GravityDirection.Left:
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Left:
+            case GravityDirection.Right:
                 v.x = 0f;
                 break;
         }
@@ -481,18 +482,18 @@ public class Player_Controller : MonoBehaviour
     {
         switch (PlayGM.instance.gravDirection)
         {
-            case PlayGM.GravityDirection.Down:
-            case PlayGM.GravityDirection.Up:
+            case GravityDirection.Down:
+            case GravityDirection.Up:
                 return new Vector2(sign, 0f);
-            case PlayGM.GravityDirection.Left:
-            case PlayGM.GravityDirection.Right:
+            case GravityDirection.Left:
+            case GravityDirection.Right:
                 return new Vector2(0f, sign);
             default:
                 return Vector2.zero;
         }
     }
 
-    public PlayGM.GravityDirection GetGravityDirection()
+    public GravityDirection GetGravityDirection()
     {
         return _gmRef.gravDirection;
     }

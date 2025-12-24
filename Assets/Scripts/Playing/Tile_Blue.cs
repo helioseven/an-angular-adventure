@@ -81,7 +81,7 @@ public class Tile_Blue : Tile
     }
 
     /* Private Functions */
-    private bool CanJump(PlayGM.GravityDirection gravityDirection)
+    private bool CanJump(GravityDirection gravityDirection)
     {
         // Debug.Log("[BlueTiile] [CanJump] slopeNormal: " + slopeNormal);
         // Debug.Log("[BlueTiile] [CanJump] (returns if false)isOnIce: " + isOnIce);
@@ -100,10 +100,7 @@ public class Tile_Blue : Tile
 
         bool shouldBeAbleToJump = Math.Abs(slopeDot) > breakPoint;
         // need to use goofy when gravity is left or right
-        if (
-            gravityDirection == PlayGM.GravityDirection.Left
-            || gravityDirection == PlayGM.GravityDirection.Right
-        )
+        if (gravityDirection == GravityDirection.Left || gravityDirection == GravityDirection.Right)
         {
             shouldBeAbleToJump = Math.Abs(slopeDotGoofy) > breakPoint;
         }

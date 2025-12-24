@@ -19,7 +19,12 @@ public class TileCreator : MonoBehaviour
     public int tileColor { get; private set; }
     public int tileSpecial { get; private set; }
     public HexOrient tileOrient { get; private set; }
-    public int tileDoorId { get; private set; }
+    public int tileDoorID { get; private set; }
+
+    // private consts
+    private const int ARROW_OR_KEY_CHILD_INDEX = 2;
+    private const int LOCK_CHILD_INDEX = 1;
+    private const int SPRITE_CHILD_INDEX = 0;
 
     // private references
     private SpriteRenderer[,] _tileRenderers;
@@ -28,6 +33,34 @@ public class TileCreator : MonoBehaviour
     private SnapCursor _anchorRef;
     private EditGM _gmRef;
 
+    public static void ApplyLayerSorting(GameObject tileRoot, int layerIndex)
+    {
+        if (!tileRoot)
+            return;
+
+        int offset = -layerIndex * Constants.LAYER_SORTING_ORDER_STEP;
+        SpriteRenderer[] renderers = tileRoot.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].sortingOrder += offset;
+
+        // Keep tile icons on top of the base tile sprite within the same layer.
+        SpriteRenderer baseRenderer = null;
+        if (tileRoot.transform.childCount > 0)
+            baseRenderer = tileRoot.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        if (!baseRenderer)
+            return;
+
+        int baseOrder = baseRenderer.sortingOrder;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer sr = renderers[i];
+            if (!sr || sr == baseRenderer)
+                continue;
+            if (sr.sortingOrder <= baseOrder)
+                sr.sortingOrder = baseOrder + 1;
+        }
+    }
+
     void Start()
     {
         _gmRef = EditGM.instance;
@@ -35,7 +68,7 @@ public class TileCreator : MonoBehaviour
         tileType = 0;
         tileColor = 0;
         tileSpecial = 0;
-        tileDoorId = 0;
+        tileDoorID = 0;
         tileOrient = new HexOrient(new HexLocus(), 0, 0);
 
         int nTypes = Constants.NUM_SHAPES;
@@ -46,10 +79,17 @@ public class TileCreator : MonoBehaviour
         {
             for (int j = 0; j < nColors; j++)
             {
-                // gets the sprite renderer for each of the tile types and colors
                 Transform t = transform.GetChild(i).GetChild(j);
-                _tileRenderers[i, j] = t.GetComponentInChildren<SpriteRenderer>();
+
+                // gets the sprite renderer for each of the tile types and colors
+                _tileRenderers[i, j] = t.GetChild(SPRITE_CHILD_INDEX)
+                    .GetComponent<SpriteRenderer>();
                 _tileRenderers[i, j].enabled = false;
+
+                // also turn off all icons to begin with
+                t.GetChild(LOCK_CHILD_INDEX).gameObject.SetActive(false);
+                if (j == 3 || j == 4)
+                    t.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(false);
             }
         }
 
@@ -92,20 +132,20 @@ public class TileCreator : MonoBehaviour
     }
 
     // set door id
-    public void SetDoorId(string inId)
+    public void SetDoorID(string inId)
     {
-        int doorId = 0;
+        int doorID = 0;
 
         if (int.TryParse(inId, out int parsedId))
         {
-            doorId = parsedId;
+            doorID = parsedId;
         }
         else
         {
             Debug.LogWarning($"Could not parse door ID from input: \"{inId}\"");
         }
 
-        tileDoorId = doorId;
+        tileDoorID = doorID;
     }
 
     // sets tile's special value if valid color is in use
@@ -142,10 +182,10 @@ public class TileCreator : MonoBehaviour
     public void SetProperties(TileData inData)
     {
         _tileRenderers[tileType, tileColor].enabled = false;
-        tileType = inData.type;
-        tileColor = inData.color;
+        tileType = (int)inData.type;
+        tileColor = (int)inData.color;
         tileSpecial = inData.special;
-        tileDoorId = inData.doorId;
+        tileDoorID = inData.doorID;
         _tileRenderers[tileType, tileColor].enabled = true;
         SetRotation(inData.orient.rotation);
     }
@@ -153,7 +193,13 @@ public class TileCreator : MonoBehaviour
     // returns a TileData representation of the genesisTile's current state
     public TileData GetTileData()
     {
-        return new TileData(tileType, tileColor, tileSpecial, tileOrient, tileDoorId);
+        return new TileData(
+            (TileType)tileType,
+            (TileColor)tileColor,
+            tileSpecial,
+            tileOrient,
+            tileDoorID
+        );
     }
 
     // returns a new tile copied from the tile in active use
@@ -170,7 +216,10 @@ public class TileCreator : MonoBehaviour
     {
         // rather than change TileCreator itself,
         // use it's GameObjects to instantiate a copy as specified
-        GameObject go = _tileRenderers[inData.type, inData.color].transform.parent.gameObject;
+        GameObject go = _tileRenderers[(int)inData.type, (int)inData.color]
+            .transform
+            .parent
+            .gameObject;
         Quaternion r = Quaternion.Euler(0, 0, 30 * inData.orient.rotation);
         Vector3 p = inData.orient.locus.ToUnitySpace();
         p.z = _gmRef.GetLayerDepth();
@@ -178,6 +227,7 @@ public class TileCreator : MonoBehaviour
         go = Instantiate(go, p, r) as GameObject;
         // make sure the renderer is on before handing the GameObject off
         go.GetComponentInChildren<SpriteRenderer>().enabled = true;
+        ApplyLayerSorting(go, inData.orient.layer);
 
         return go;
     }
