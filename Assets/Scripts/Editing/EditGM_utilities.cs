@@ -298,8 +298,7 @@ public partial class EditGM
         if (inTile.color == TileColor.Orange)
         {
             // set arrow icon direction
-            go.GetComponent<TileEditOrange>()
-                .SetGravityDirection((GravityDirection)inTile.special);
+            SetGravityIconDirection(go, (GravityDirection)inTile.special);
             // set arrow icon to active
             go.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX).gameObject.SetActive(true);
         }
@@ -407,8 +406,7 @@ public partial class EditGM
                 // if the tile is orange
                 else if (td.color == TileColor.Orange)
                     // set the arrow icon's direction
-                    go.GetComponent<TileEditOrange>()
-                        .SetGravityDirection((GravityDirection)td.special);
+                    SetGravityIconDirection(go, (GravityDirection)td.special);
                 else
                     // if the tile isn't orange, the key icon defaults to identity rotation
                     specIcon.rotation = Quaternion.identity;
@@ -904,6 +902,19 @@ public partial class EditGM
             outData = _victoryLookup[inVictory];
             return true;
         }
+    }
+
+    // turns the arrow icon according to passed direction
+    public void SetGravityIconDirection(GameObject inTile, GravityDirection inDirection)
+    {
+        Transform arrowIcon = inTile.transform.GetChild(ARROW_OR_KEY_CHILD_INDEX);
+
+        int intRot = ((int)inDirection + 1) % 4;
+        if (intRot % 2 == 1)
+            intRot += 2;
+        Vector3 rotation = Vector3.forward * (intRot * 90);
+
+        arrowIcon.rotation = Quaternion.Euler(rotation);
     }
 
     public void SetSelectedItemSpecial(string s)
