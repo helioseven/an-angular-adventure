@@ -24,7 +24,8 @@ public class Tile_Green : Tile
         _keyIcon = transform.GetChild(KEY_CHILD_INDEX);
         Vector3 rotation = Vector3.forward;
 
-        int myKeyId = gameObject.GetComponent<Tile>().data.special;
+        Tile myTile = gameObject.GetComponent<Tile>();
+        int myKeyId = myTile.data.special;
 
         // 0 (or negative) is special - represents no key for this lock
         if (myKeyId <= 0)
@@ -46,11 +47,12 @@ public class Tile_Green : Tile
                 {
                     // check for each tile to add to list of connected door tiles
                     Tile tileComp = otherTile.GetComponent<Tile>();
-                    bool isCorrespondingSpecialNumber =
-                        tileComp.data.doorID == gameObject.GetComponent<Tile>().data.special;
-                    bool isSelf = tileComp.Equals(gameObject.GetComponent<Tile>());
+                    if (tileComp == null)
+                        continue;
+                    bool isCorrespondingSpecialNumber = tileComp.data.doorID == myKeyId;
+                    bool isSelf = tileComp == myTile;
 
-                    if (tileComp != null && isCorrespondingSpecialNumber && !isSelf)
+                    if (isCorrespondingSpecialNumber && !isSelf)
                     {
                         // add to list of connected door tiles
                         _connectedDoorTiles.Add(tileComp);
@@ -98,7 +100,8 @@ public class Tile_Green : Tile
     {
         // Spawn the particle effect at the key tile's position
         Vector3 startPos = _keyIcon.position;
-        Vector3 endPos = doorTile.transform.GetChild(0).GetChild(0).position;
+        SpriteRenderer doorRenderer = doorTile.GetComponentInChildren<SpriteRenderer>();
+        Vector3 endPos = doorRenderer ? doorRenderer.bounds.center : doorTile.transform.position;
         GameObject effect = Instantiate(particlePrefab, startPos, Quaternion.identity);
 
         // Get the ParticleSystem component

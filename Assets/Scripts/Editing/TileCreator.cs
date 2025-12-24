@@ -33,6 +33,34 @@ public class TileCreator : MonoBehaviour
     private SnapCursor _anchorRef;
     private EditGM _gmRef;
 
+    public static void ApplyLayerSorting(GameObject tileRoot, int layerIndex)
+    {
+        if (!tileRoot)
+            return;
+
+        int offset = -layerIndex * Constants.LAYER_SORTING_ORDER_STEP;
+        SpriteRenderer[] renderers = tileRoot.GetComponentsInChildren<SpriteRenderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].sortingOrder += offset;
+
+        // Keep tile icons on top of the base tile sprite within the same layer.
+        SpriteRenderer baseRenderer = null;
+        if (tileRoot.transform.childCount > 0)
+            baseRenderer = tileRoot.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        if (!baseRenderer)
+            return;
+
+        int baseOrder = baseRenderer.sortingOrder;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            SpriteRenderer sr = renderers[i];
+            if (!sr || sr == baseRenderer)
+                continue;
+            if (sr.sortingOrder <= baseOrder)
+                sr.sortingOrder = baseOrder + 1;
+        }
+    }
+
     void Start()
     {
         _gmRef = EditGM.instance;
@@ -199,6 +227,7 @@ public class TileCreator : MonoBehaviour
         go = Instantiate(go, p, r) as GameObject;
         // make sure the renderer is on before handing the GameObject off
         go.GetComponentInChildren<SpriteRenderer>().enabled = true;
+        ApplyLayerSorting(go, inData.orient.layer);
 
         return go;
     }

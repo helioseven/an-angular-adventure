@@ -348,6 +348,7 @@ public partial class EditGM
             Vector3 v3 = td.orient.ToUnitySpace(out q);
             GameObject go = Instantiate(pfRef, v3, q) as GameObject;
             go.transform.GetChild(0).GetComponent<SpriteRenderer>().enabled = true;
+            TileCreator.ApplyLayerSorting(go, td.orient.layer);
             go.transform.SetParent(tileLayer);
             // once tile is built, add (GameObject,TileData) pair to _tileLookup
             _tileLookup.Add(go, td);
@@ -628,7 +629,9 @@ public partial class EditGM
         foreach (Transform tile in tileLayer)
         {
             tile.gameObject.layer = layer;
-            tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
+            SpriteRenderer[] renderers = tile.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].color = color;
         }
     }
 

@@ -141,6 +141,7 @@ public partial class PlayGM
             Tile t = go.GetComponent<Tile>();
             if (t)
                 t.data = td;
+            TileCreator.ApplyLayerSorting(go, td.orient.layer);
             go.transform.SetParent(tileMap.transform.GetChild(td.orient.layer));
             go.layer = LayerMask.NameToLayer(INT_TO_NAME[td.orient.layer]);
 
@@ -236,14 +237,9 @@ public partial class PlayGM
 
         foreach (Transform tile in tileLayer)
         {
-            tile.GetChild(0).GetComponent<SpriteRenderer>().color = color;
-
-            // if there are grandchildren, dim them too
-            if (tile.GetChild(0).childCount > 0)
-            {
-                GameObject go = tile.GetChild(0).GetChild(0).gameObject;
-                go.GetComponent<SpriteRenderer>().color = color;
-            }
+            SpriteRenderer[] renderers = tile.GetComponentsInChildren<SpriteRenderer>(true);
+            for (int i = 0; i < renderers.Length; i++)
+                renderers[i].color = color;
         }
     }
 

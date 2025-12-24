@@ -43,6 +43,7 @@ namespace circleXsquares
         public const int DEFAULT_NUM_LAYERS = 10;
         public const int NUM_COLORS = 8;
         public const int NUM_SHAPES = 6;
+        public const int LAYER_SORTING_ORDER_STEP = 1000;
     }
 
     // HexLocus describes a location in a hexagonal coodinate system
