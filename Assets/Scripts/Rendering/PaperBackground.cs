@@ -45,7 +45,7 @@ public class PaperBackground : MonoBehaviour
     private bool _fitToBoundaries = true;
 
     [SerializeField]
-    private float _boundaryPadding = 0f;
+    private float _boundaryPadding = 0.5f;
 
     private GameObject _quad;
     private MeshRenderer _renderer;

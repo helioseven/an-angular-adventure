@@ -6,7 +6,9 @@ Shader "Unlit/TornEdge"
         _Color ("Tint", Color) = (1, 1, 1, 1)
         _Alpha ("Alpha", Range(0, 1)) = 1
         _EdgeWidth ("Edge Width", Range(0, 0.5)) = 0
+        _EdgeOffset ("Edge Offset", Range(-0.5, 0.5)) = 0.05
         _NoiseScale ("Noise Scale", Float) = 1.5
+        _NoiseTiling ("Noise Tiling", Vector) = (1, 1, 0, 0)
         _NoiseStrength ("Noise Strength", Range(0, 0.5)) = 0.2
         _Feather ("Feather", Range(0, 0.2)) = 0.08
         _BurnWidth ("Burn Width", Range(0, 0.4)) = 0.22
@@ -54,7 +56,9 @@ Shader "Unlit/TornEdge"
             float4 _Color;
             float _Alpha;
             float _EdgeWidth;
+            float _EdgeOffset;
             float _NoiseScale;
+            float2 _NoiseTiling;
             float _NoiseStrength;
             float _Feather;
             float _BurnWidth;
@@ -107,7 +111,8 @@ Shader "Unlit/TornEdge"
                 float2 uv = i.uv;
                 float2 texUv = TRANSFORM_TEX(uv, _MainTex);
                 float4 spriteSample = tex2D(_MainTex, texUv);
-                float n = fbm(uv * _NoiseScale);
+                float2 noiseUv = uv * _NoiseTiling;
+                float n = fbm(noiseUv * _NoiseScale);
 
                 float2 dir;
                 if (_EdgeDir < 0.5)
@@ -128,12 +133,13 @@ Shader "Unlit/TornEdge"
                 }
 
                 float signedDist = dot(uv - 0.5, dir);
+                signedDist += _EdgeOffset;
                 signedDist -= _EdgeWidth;
                 signedDist -= (n - 0.5) * _NoiseStrength;
 
                 if (signedDist > 0.0)
                 {
-                    return fixed4(0.0, 0.0, 0.0, 0.0);
+                    return fixed4(0.0, 0.0, 0.0, 1.0);
                 }
 
                 float insideDist = -signedDist;

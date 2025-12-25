@@ -1070,7 +1070,7 @@ MonoBehaviour:
   _followActiveLayer: 1
   _layerDepthOffset: 0
   _fitToBoundaries: 1
-  _boundaryPadding: 0
+  _boundaryPadding: 0.15
 --- !u!1 &742004740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2658,7 +2658,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -2733,13 +2733,15 @@ MonoBehaviour:
   _baseColor: {r: 0.95, g: 0.92, b: 0.86, a: 1}
   _alpha: 1
   _edgeWidth: 0.08
-  _noiseScale: 100
-  _noiseStrength: 0.5
+  _edgeOffset: 0.05
+  _noiseScale: 6
+  _noiseTileWorldSize: 1
+  _noiseStrength: 0.08
   _feather: 0.02
   _grainStrength: 0.05
-  _burnWidth: 0.22
-  _burnStrength: 1.2
-  _burnGlow: 0
+  _burnWidth: 0.32
+  _burnStrength: 1.6
+  _burnGlow: 0.08
   _edgeDirectionOverride: -1
 --- !u!212 &1324976632
 SpriteRenderer:
@@ -4006,7 +4008,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -4081,13 +4083,15 @@ MonoBehaviour:
   _baseColor: {r: 0.95, g: 0.92, b: 0.86, a: 1}
   _alpha: 1
   _edgeWidth: 0.08
-  _noiseScale: 100
-  _noiseStrength: 0.5
+  _edgeOffset: 0.05
+  _noiseScale: 6
+  _noiseTileWorldSize: 1
+  _noiseStrength: 0.08
   _feather: 0.02
   _grainStrength: 0.05
-  _burnWidth: 0.22
-  _burnStrength: 1.2
-  _burnGlow: 0
+  _burnWidth: 0.32
+  _burnStrength: 1.6
+  _burnGlow: 0.08
   _edgeDirectionOverride: -1
 --- !u!212 &1936284903
 SpriteRenderer:
@@ -4350,7 +4354,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -4422,16 +4426,18 @@ MonoBehaviour:
   _boundary: {fileID: 1985882131}
   _followActiveLayer: 1
   _layerDepthOffset: 0
-  _baseColor: {r: 0.9333334, g: 0.9058824, b: 0.83921576, a: 1}
+  _baseColor: {r: 0.95, g: 0.92, b: 0.86, a: 1}
   _alpha: 1
-  _edgeWidth: 0.095
-  _noiseScale: 100
-  _noiseStrength: 0.5
-  _feather: 0
+  _edgeWidth: 0.08
+  _edgeOffset: 0.05
+  _noiseScale: 6
+  _noiseTileWorldSize: 1
+  _noiseStrength: 0.08
+  _feather: 0.02
   _grainStrength: 0.05
-  _burnWidth: 0.22
-  _burnStrength: 1.2
-  _burnGlow: 0.04
+  _burnWidth: 0.32
+  _burnStrength: 1.6
+  _burnGlow: 0.08
   _edgeDirectionOverride: -1
 --- !u!212 &1985882133
 SpriteRenderer:
@@ -4669,7 +4675,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -4744,13 +4750,15 @@ MonoBehaviour:
   _baseColor: {r: 0.95, g: 0.92, b: 0.86, a: 1}
   _alpha: 1
   _edgeWidth: 0.08
-  _noiseScale: 100
-  _noiseStrength: 0.5
+  _edgeOffset: 0.05
+  _noiseScale: 6
+  _noiseTileWorldSize: 1
+  _noiseStrength: 0.08
   _feather: 0.02
   _grainStrength: 0.05
-  _burnWidth: 0.22
-  _burnStrength: 1.2
-  _burnGlow: 0
+  _burnWidth: 0.32
+  _burnStrength: 1.6
+  _burnGlow: 0.08
   _edgeDirectionOverride: -1
 --- !u!212 &2129861612
 SpriteRenderer:

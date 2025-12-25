@@ -9,13 +9,15 @@ public class TornEdgeMaterialBinder : MonoBehaviour
     [SerializeField] private Color _baseColor = new Color(0.95f, 0.92f, 0.86f, 1f);
     [SerializeField, Range(0f, 1f)] private float _alpha = 1f;
     [SerializeField, Range(0f, 0.5f)] private float _edgeWidth = 0.08f;
-    [SerializeField] private float _noiseScale = 6f;
+    [SerializeField, Range(-0.5f, 0.5f)] private float _edgeOffset = 0.05f;
+    [SerializeField] private float _noiseScale = 1f;
+    [SerializeField, Min(0.1f)] private float _noiseTileWorldSize = 1f;
     [SerializeField, Range(0f, 0.5f)] private float _noiseStrength = 0.08f;
     [SerializeField, Range(0f, 0.2f)] private float _feather = 0.02f;
     [SerializeField, Range(0f, 0.2f)] private float _grainStrength = 0.05f;
-    [SerializeField, Range(0f, 0.4f)] private float _burnWidth = 0.22f;
-    [SerializeField, Range(0f, 2f)] private float _burnStrength = 1.2f;
-    [SerializeField, Range(0f, 1f)] private float _burnGlow = 0f;
+    [SerializeField, Range(0f, 0.4f)] private float _burnWidth = 0.32f;
+    [SerializeField, Range(0f, 2f)] private float _burnStrength = 1.6f;
+    [SerializeField, Range(0f, 1f)] private float _burnGlow = 0.08f;
     [SerializeField] private int _edgeDirectionOverride = -1;
 
     private SpriteRenderer _renderer;
@@ -30,6 +32,7 @@ public class TornEdgeMaterialBinder : MonoBehaviour
         }
 
         DisableMeshRenderer();
+        EnsureBoundary();
         EnsureSprite();
         Apply();
     }
@@ -47,6 +50,7 @@ public class TornEdgeMaterialBinder : MonoBehaviour
         }
 
         DisableMeshRenderer();
+        EnsureBoundary();
         Apply();
     }
 
@@ -76,7 +80,9 @@ public class TornEdgeMaterialBinder : MonoBehaviour
         _mpb.SetColor("_BaseColor", _baseColor);
         _mpb.SetFloat("_Alpha", _alpha);
         _mpb.SetFloat("_EdgeWidth", _edgeWidth);
+        _mpb.SetFloat("_EdgeOffset", _edgeOffset);
         _mpb.SetFloat("_NoiseScale", _noiseScale);
+        _mpb.SetVector("_NoiseTiling", GetNoiseTiling());
         _mpb.SetFloat("_NoiseStrength", _noiseStrength);
         _mpb.SetFloat("_Feather", _feather);
         _mpb.SetFloat("_GrainStrength", _grainStrength);
@@ -85,6 +91,29 @@ public class TornEdgeMaterialBinder : MonoBehaviour
         _mpb.SetFloat("_BurnGlow", _burnGlow);
         _mpb.SetFloat("_EdgeDir", GetEdgeDirection());
         _renderer.SetPropertyBlock(_mpb);
+    }
+
+    private Vector2 GetNoiseTiling()
+    {
+        if (_renderer == null)
+        {
+            return Vector2.one;
+        }
+
+        Bounds bounds = _renderer.bounds;
+        float width = bounds.size.x;
+        float height = bounds.size.y;
+        float tileSize = Mathf.Max(_noiseTileWorldSize, 0.001f);
+        int edgeDir = GetEdgeDirection();
+
+        if (edgeDir == 0 || edgeDir == 1)
+        {
+            float tileCount = Mathf.Max(1f, width / tileSize);
+            return new Vector2(tileCount, 1f);
+        }
+
+        float verticalCount = Mathf.Max(1f, height / tileSize);
+        return new Vector2(1f, verticalCount);
     }
 
     private void EnsureSprite()
@@ -113,6 +142,14 @@ public class TornEdgeMaterialBinder : MonoBehaviour
         if (meshRenderer != null && meshRenderer.enabled)
         {
             meshRenderer.enabled = false;
+        }
+    }
+
+    private void EnsureBoundary()
+    {
+        if (_boundary == null)
+        {
+            _boundary = GetComponent<Boundary>();
         }
     }
 
