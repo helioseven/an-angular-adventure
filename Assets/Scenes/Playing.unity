@@ -274,7 +274,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 68.3
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.8
+  m_fontSize: 30.8
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2104,7 +2104,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.6
+  m_fontSize: 21.6
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2380,7 +2380,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 68.3
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2736,7 +2736,7 @@ MonoBehaviour:
   _edgeOffset: 0.05
   _noiseScale: 6
   _noiseTileWorldSize: 1
-  _noiseStrength: 0.08
+  _noiseStrength: 0.38
   _feather: 0.02
   _grainStrength: 0.05
   _burnWidth: 0.32
@@ -3661,7 +3661,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.6
+  m_fontSize: 21.6
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4086,7 +4086,7 @@ MonoBehaviour:
   _edgeOffset: 0.05
   _noiseScale: 6
   _noiseTileWorldSize: 1
-  _noiseStrength: 0.08
+  _noiseStrength: 0.38
   _feather: 0.02
   _grainStrength: 0.05
   _burnWidth: 0.32
@@ -4258,7 +4258,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 99.15
+  m_fontSize: 89.2
   m_fontSizeBase: 72
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4432,7 +4432,7 @@ MonoBehaviour:
   _edgeOffset: 0.05
   _noiseScale: 6
   _noiseTileWorldSize: 1
-  _noiseStrength: 0.08
+  _noiseStrength: 0.38
   _feather: 0.02
   _grainStrength: 0.05
   _burnWidth: 0.32
@@ -4753,7 +4753,7 @@ MonoBehaviour:
   _edgeOffset: 0.05
   _noiseScale: 6
   _noiseTileWorldSize: 1
-  _noiseStrength: 0.08
+  _noiseStrength: 0.38
   _feather: 0.02
   _grainStrength: 0.05
   _burnWidth: 0.32
