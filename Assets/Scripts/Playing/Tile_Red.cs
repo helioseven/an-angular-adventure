@@ -16,9 +16,10 @@ public class Tile_Red : Tile
 
     /* Private Functions */
 
-    // red tiles have no player action
+    // red tiles kill the player on contact
     private void playerAction()
     {
-        return;
+        if (_gmRef != null)
+            _gmRef.KillPlayer();
     }
 }
