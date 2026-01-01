@@ -45,6 +45,12 @@ public class MenuGM : MonoBehaviour
         accountButton.onClick.AddListener(OpenAccountMenu);
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
+        if (StartupManager.DemoModeEnabled)
+        {
+            editButton.gameObject.SetActive(false);
+            accountButton.gameObject.SetActive(false);
+        }
+
         // Only keep Play button on iOS for now
 #if UNITY_IOS
         editButton.gameObject.SetActive(false);

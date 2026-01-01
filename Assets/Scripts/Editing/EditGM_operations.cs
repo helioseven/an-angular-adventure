@@ -248,7 +248,7 @@ public partial class EditGM
     {
         Debug.Log("tessellationName: " + tessellationName);
         string[] lines = levelData.Serialize();
-        string levelsFolder = LevelStorage.LevelsFolder;
+        string levelsFolder = LevelStorage.TessellationsFolder;
 
         if (!Directory.Exists(levelsFolder))
         {
@@ -258,7 +258,10 @@ public partial class EditGM
         SupabaseLevelDTO level = new SupabaseLevelDTO { name = tessellationName, data = lines };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
 
-        string path = Path.Combine(levelsFolder, $"{tessellationName}.json");
+        string path = Path.Combine(
+            levelsFolder,
+            $"{tessellationName}{LevelStorage.TessellationExtension}"
+        );
 
         Debug.Log($"[SAVE] Saving to: {path}");
         File.WriteAllText(path, json);

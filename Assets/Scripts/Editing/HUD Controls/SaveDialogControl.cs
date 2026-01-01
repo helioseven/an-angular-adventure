@@ -45,16 +45,16 @@ public class SaveDialogControl : MonoBehaviour
         string name = _inputField.text;
 
         // first, check to see whether the folder exists
-        if (!Directory.Exists(LevelStorage.LevelsFolder))
-            Directory.CreateDirectory(LevelStorage.LevelsFolder);
+        if (!Directory.Exists(LevelStorage.TessellationsFolder))
+            Directory.CreateDirectory(LevelStorage.TessellationsFolder);
 
         // then, check to see whether the file exists
-        string path = Path.Combine(LevelStorage.LevelsFolder, $"{name}.json");
+        bool levelExists = LevelStorage.LocalLevelExists(name);
 
         string levelNameIncremented = GetIncrementedName(name);
 
         // if there's no overwite, save the file outright
-        if (!File.Exists(path))
+        if (!levelExists)
         {
             ForceSaveLocalLevel(name);
             cancelDialog();
@@ -90,13 +90,13 @@ public class SaveDialogControl : MonoBehaviour
         string baseName = StripIncrementSuffix(name);
         int i = 1;
         string newName = baseName;
-        string path = Path.Combine(LevelStorage.LevelsFolder, $"{baseName}.json");
+        bool exists = LevelStorage.LocalLevelExists(baseName);
 
         // increment i until the path doesn't exist anymore
-        while (File.Exists(path))
+        while (exists)
         {
             newName = $"{baseName} ({i++})";
-            path = Path.Combine(LevelStorage.LevelsFolder, $"{newName}.json");
+            exists = LevelStorage.LocalLevelExists(newName);
         }
 
         return newName;
