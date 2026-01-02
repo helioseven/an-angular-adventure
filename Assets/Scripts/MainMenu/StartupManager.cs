@@ -6,6 +6,18 @@ using UnityEngine.Networking;
 
 public class StartupManager : MonoBehaviour
 {
+    [Header("Demo Mode")]
+    [SerializeField]
+    private bool demoMode = false;
+
+    [Header("Testing")]
+    [SerializeField]
+    private bool simulateEmptyLocalFolders = false;
+
+    public static bool DemoModeEnabled => Instance != null && Instance.demoMode;
+    public static bool SimulateEmptyLocalFolders =>
+        Instance != null && Instance.simulateEmptyLocalFolders;
+
     [Header("DEV ONLY - Test SteamID (used if none provided elsewhere)")]
     [SerializeField]
     public string testSteamId = ""; // Editor-only fallback lives below
@@ -92,6 +104,12 @@ public class StartupManager : MonoBehaviour
 
     public IEnumerator PostSteamId(string steamId)
     {
+        if (DemoModeEnabled)
+        {
+            Debug.Log("[StartupManager] Demo mode enabled - skipping Steam/Supabase auth.");
+            yield break;
+        }
+
         var sid = ResolveSteamId(steamId);
         if (string.IsNullOrWhiteSpace(sid))
         {

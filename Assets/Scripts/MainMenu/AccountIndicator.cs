@@ -30,11 +30,23 @@ public class AccountIndicator : MonoBehaviour
     private string ticketHex = "";
     private bool isLoading = true;
     private bool lastAuthSucceeded;
+    private bool isSubscribed;
 
 #if !UNITY_IOS
     private void Start()
     {
+        if (StartupManager.DemoModeEnabled)
+        {
+            isLoading = false;
+            ClearAvatarTexture();
+            if (avatarImage != null)
+                avatarImage.gameObject.SetActive(false);
+            SetStatus("Tessel Run Demo");
+            return;
+        }
+
         AuthState.Instance.OnChanged += RefreshUI;
+        isSubscribed = true;
         RefreshUI();
 
         if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
@@ -54,7 +66,8 @@ public class AccountIndicator : MonoBehaviour
 
     private void OnDestroy()
     {
-        AuthState.Instance.OnChanged -= RefreshUI;
+        if (isSubscribed && AuthState.Instance != null)
+            AuthState.Instance.OnChanged -= RefreshUI;
     }
 
     private void Update()

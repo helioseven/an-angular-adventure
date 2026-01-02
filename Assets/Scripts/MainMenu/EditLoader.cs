@@ -35,7 +35,7 @@ public class EditLoader : MonoBehaviour
     {
         levelName = levelInfo.name;
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
-        loadFromSupabase = !levelInfo.isLocal;
+        loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;
 
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
@@ -79,13 +79,23 @@ public class EditLoader : MonoBehaviour
             return;
         }
 
-        // first, check to see whether the folder exists
-        if (!Directory.Exists(LevelStorage.LevelsFolder))
-            Directory.CreateDirectory(LevelStorage.LevelsFolder);
-        // set the path
-        path = Path.Combine(LevelStorage.LevelsFolder, $"{levelName}.json");
+        if (levelInfo.isBundled)
+        {
+            if (LevelStorage.TryGetBundledLevelPath(levelName, out path))
+            {
+                string json = File.ReadAllText(path);
+                var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
+                supabaseLevelPayloadData = levelDTO.data;
 
-        if (loadFromSupabase)
+                levelData = LevelLoader.LoadLevel(supabaseLevelPayloadData);
+                levelReady = true;
+            }
+            else
+            {
+                Debug.LogError("[EditLoader] Bundled file not found.");
+            }
+        }
+        else if (loadFromSupabase)
         {
             SupabaseController.Instance.StartCoroutine(
                 SupabaseController.Instance.LoadLevel(supabase_uuid, GetLevelFromPayload)
@@ -93,10 +103,7 @@ public class EditLoader : MonoBehaviour
         }
         else
         {
-            // then, check to see whether the file exists
-            bool file_exists = File.Exists(path);
-
-            if (file_exists)
+            if (LevelStorage.TryGetLocalLevelPath(levelName, out path))
             {
                 string json = File.ReadAllText(path);
                 var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below

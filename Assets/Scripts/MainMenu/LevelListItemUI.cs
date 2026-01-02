@@ -40,9 +40,14 @@ public class LevelListItemUI : MonoBehaviour
         editOrRemixButton.onClick.RemoveAllListeners();
         editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
 
+        if (StartupManager.DemoModeEnabled && editOrRemixButton != null)
+            editOrRemixButton.gameObject.SetActive(false);
+
         // for the delete button level ownership check, we consider them the owner if
         // they uploaded it OR the level is local
         bool isOwner = info.uploaderId == AuthState.Instance.SteamId || info.isLocal;
+        if (StartupManager.DemoModeEnabled)
+            isOwner = false;
 
         // Only show delete for "owned" levels
         deleteButton.gameObject.SetActive(isOwner);

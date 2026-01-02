@@ -39,7 +39,7 @@ public class PlayLoader : MonoBehaviour
     {
         levelName = levelInfo.name;
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
-        loadFromSupabase = !levelInfo.isLocal;
+        loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;
 
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
@@ -263,13 +263,24 @@ public class PlayLoader : MonoBehaviour
             return;
         }
 
-        // first, check to see whether the folder exists
-        if (!Directory.Exists(LevelStorage.LevelsFolder))
-            Directory.CreateDirectory(LevelStorage.LevelsFolder);
-        // set the path
-        path = Path.Combine(LevelStorage.LevelsFolder, $"{levelName}.json");
+        if (levelInfo.isBundled)
+        {
+            if (LevelStorage.TryGetBundledLevelPath(levelName, out path))
+            {
+                Debug.Log($"[LOAD] Loading bundled from: {path}");
+                string json = File.ReadAllText(path);
+                var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
+                supabaseLevelPayloadData = levelDTO.data;
 
-        if (loadFromSupabase)
+                levelData = LevelLoader.LoadLevel(supabaseLevelPayloadData);
+                levelReady = true;
+            }
+            else
+            {
+                Debug.LogError("[PlayLoader] Bundled file not found :(");
+            }
+        }
+        else if (loadFromSupabase)
         {
             SupabaseController.Instance.StartCoroutine(
                 SupabaseController.Instance.LoadLevel(supabase_uuid, GetLevelFromPayload)
@@ -277,12 +288,9 @@ public class PlayLoader : MonoBehaviour
         }
         else
         {
-            // first, check to see whether the file exists
-            bool file_exists = File.Exists(path);
-            Debug.Log($"[LOAD] Loading from: {path}"); // when loading
-
-            if (file_exists)
+            if (LevelStorage.TryGetLocalLevelPath(levelName, out path))
             {
+                Debug.Log($"[LOAD] Loading from: {path}"); // when loading
                 string json = File.ReadAllText(path);
                 var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
                 supabaseLevelPayloadData = levelDTO.data;
