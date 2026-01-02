@@ -36,6 +36,24 @@ namespace circleXsquares
         White,
     }
 
+    public static class ColorUtilities
+    {
+        public static readonly Dictionary<TileColor, Color> TileColorToColor = new Dictionary<
+            TileColor,
+            Color
+        >
+        {
+            { TileColor.Blue, new Color(0.186f, 0.14f, 0.7f, 1f) },
+            { TileColor.Brown, new Color(0.3f, 0.2f, 0.1f, 1f) },
+            { TileColor.Green, new Color(0.12f, 0.7f, 0.36f, 1f) },
+            { TileColor.Orange, new Color(0.85f, 0.354f, 0f, 1f) },
+            { TileColor.Purple, new Color(0.306f, 0.175f, 0.35f, 1f) },
+            { TileColor.Red, new Color(0.85f, 0.085f, 0.085f, 1f) },
+            { TileColor.Black, Color.black },
+            { TileColor.White, Color.white },
+        };
+    }
+
     /* Primary Struct Definitions */
 
     public struct Constants

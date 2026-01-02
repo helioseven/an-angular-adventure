@@ -1089,6 +1089,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8784519856818914319 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1225796360081900, guid: 9acfcf5961fa1a348817d1f5311f8000,
@@ -1145,6 +1146,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8784587863800355565 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1575050685026062, guid: 9acfcf5961fa1a348817d1f5311f8000,
@@ -1457,6 +1459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8784786436698574125 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1526289299413198, guid: 9acfcf5961fa1a348817d1f5311f8000,
@@ -1588,6 +1591,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8784839978524440335 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1897705933365996, guid: 9acfcf5961fa1a348817d1f5311f8000,
@@ -1711,6 +1715,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8784977164366440133 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1753382438597414, guid: 9acfcf5961fa1a348817d1f5311f8000,
@@ -1830,6 +1835,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particlePrefab: {fileID: 432694890796224157, guid: c64f3702dc7169346bf1be3b476d6945,
     type: 3}
+  doorBurstPrefab: {fileID: 103838, guid: 22d48eda6ae797d428f62432970145ff, type: 3}
 --- !u!1 &8785081248201114273 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1785912118449986, guid: 9acfcf5961fa1a348817d1f5311f8000,

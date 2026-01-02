@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 
 public class Tile_Green : Tile
@@ -8,10 +9,12 @@ public class Tile_Green : Tile
     // inspector-assigned glowing particle prefab
     public GameObject particlePrefab;
 
+    // inspector-assigned burst prefab on door unlock
+    public GameObject doorBurstPrefab;
+
     // private consts
     private const int KEY_CHILD_INDEX = 2;
-    private const float LOCK_FLASH_INTERVAL = 0.05f;
-    private const int LOCK_FLASH_COUNT = 3;
+    private const float DOOR_FADE_DURATION = 0.2f;
 
     // private references
     // list of corresponding "door tiles"
@@ -93,7 +96,7 @@ public class Tile_Green : Tile
 
     private void openDoor(Tile doorTile)
     {
-        StartCoroutine(FlashAndOpenDoor(doorTile));
+        StartCoroutine(FadeAndOpenDoor(doorTile));
     }
 
     IEnumerator MoveEffectToLockedTile(Tile doorTile)
@@ -133,19 +136,44 @@ public class Tile_Green : Tile
         Destroy(effect);
     }
 
-    private IEnumerator FlashAndOpenDoor(Tile doorTile)
+    private IEnumerator FadeAndOpenDoor(Tile doorTile)
     {
         SpriteRenderer doorRenderer = doorTile.GetComponentInChildren<SpriteRenderer>();
+        Vector3 burstPos = doorRenderer ? doorRenderer.bounds.center : doorTile.transform.position;
+        Color doorColor = Color.white;
+        if (ColorUtilities.TileColorToColor.TryGetValue(doorTile.data.color, out Color mappedColor))
+            doorColor = mappedColor;
+
+        if (doorBurstPrefab != null)
+        {
+            GameObject burst = Instantiate(doorBurstPrefab, burstPos, Quaternion.identity);
+            ParticleSystem[] burstSystems = burst.GetComponentsInChildren<ParticleSystem>();
+            foreach (ParticleSystem burstSystem in burstSystems)
+            {
+                ParticleSystem.MainModule main = burstSystem.main;
+                main.startColor = doorColor;
+            }
+        }
 
         if (doorRenderer != null)
         {
-            for (int i = 0; i < LOCK_FLASH_COUNT; i++)
+            Color startColor = doorRenderer.color;
+            float elapsed = 0f;
+
+            while (elapsed < DOOR_FADE_DURATION)
             {
-                doorRenderer.enabled = false;
-                yield return new WaitForSeconds(LOCK_FLASH_INTERVAL);
-                doorRenderer.enabled = true;
-                yield return new WaitForSeconds(LOCK_FLASH_INTERVAL);
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / DOOR_FADE_DURATION);
+                Color c = startColor;
+                c.a = Mathf.Lerp(startColor.a, 0f, t);
+                doorRenderer.color = c;
+                yield return null;
             }
+
+            doorTile.gameObject.SetActive(false);
+            doorRenderer.color = startColor;
+            SoundManager.instance.Play("door");
+            yield break;
         }
 
         SoundManager.instance.Play("door");
