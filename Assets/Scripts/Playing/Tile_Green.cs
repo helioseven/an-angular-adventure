@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using circleXsquares;
 using UnityEngine;
 
 public class Tile_Green : Tile
@@ -139,9 +140,9 @@ public class Tile_Green : Tile
     {
         SpriteRenderer doorRenderer = doorTile.GetComponentInChildren<SpriteRenderer>();
         Vector3 burstPos = doorRenderer ? doorRenderer.bounds.center : doorTile.transform.position;
-        string burstName =
-            doorRenderer && doorRenderer.sprite ? doorRenderer.sprite.name : doorTile.name;
-        Color doorColor = GetColorFromName(burstName);
+        Color doorColor = Color.white;
+        if (ColorUtilities.TileColorToColor.TryGetValue(doorTile.data.color, out Color mappedColor))
+            doorColor = mappedColor;
 
         if (doorBurstPrefab != null)
         {
@@ -177,31 +178,5 @@ public class Tile_Green : Tile
 
         SoundManager.instance.Play("door");
         doorTile.gameObject.SetActive(false);
-    }
-
-    private static Color GetColorFromName(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return Color.white;
-
-        string lower = name.ToLowerInvariant();
-        if (lower.Contains("black"))
-            return Color.black;
-        if (lower.Contains("blue"))
-            return Color.blue;
-        if (lower.Contains("brown"))
-            return new Color(0.45f, 0.3f, 0.2f, 1f);
-        if (lower.Contains("green"))
-            return Color.green;
-        if (lower.Contains("orange"))
-            return new Color(1f, 0.5f, 0.1f, 1f);
-        if (lower.Contains("purple"))
-            return new Color(0.6f, 0.3f, 0.8f, 1f);
-        if (lower.Contains("red"))
-            return Color.red;
-        if (lower.Contains("white"))
-            return Color.white;
-
-        return Color.white;
     }
 }
