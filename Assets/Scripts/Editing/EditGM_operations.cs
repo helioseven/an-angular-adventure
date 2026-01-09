@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -249,13 +250,21 @@ public partial class EditGM
         Debug.Log("tessellationName: " + tessellationName);
         string[] lines = levelData.Serialize();
         string levelsFolder = LevelStorage.TessellationsFolder;
+        const int previewWidth = 256;
+        const int previewHeight = 144;
 
         if (!Directory.Exists(levelsFolder))
         {
             Directory.CreateDirectory(levelsFolder);
         }
 
-        SupabaseLevelDTO level = new SupabaseLevelDTO { name = tessellationName, data = lines };
+        LevelPreviewDTO preview = CapturePreviewPng(Camera.main, previewWidth, previewHeight);
+        SupabaseLevelDTO level = new SupabaseLevelDTO
+        {
+            name = tessellationName,
+            data = lines,
+            preview = preview,
+        };
         string json = JsonUtility.ToJson(level, true); // true = pretty print
 
         string path = Path.Combine(
@@ -267,6 +276,48 @@ public partial class EditGM
         File.WriteAllText(path, json);
 
         ToastManager.Instance.ShowToast($"Saved {tessellationName}!");
+    }
+
+    private LevelPreviewDTO CapturePreviewPng(Camera camera, int width, int height)
+    {
+        if (camera == null || width <= 0 || height <= 0)
+            return null;
+
+        RenderTexture rt = RenderTexture.GetTemporary(
+            width,
+            height,
+            24,
+            RenderTextureFormat.ARGB32
+        );
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture previousTarget = camera.targetTexture;
+
+        camera.targetTexture = rt;
+        RenderTexture.active = rt;
+        camera.Render();
+
+        Texture2D texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        texture.Apply();
+
+        camera.targetTexture = previousTarget;
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(rt);
+
+        byte[] pngBytes = texture.EncodeToPNG();
+        Destroy(texture);
+
+        if (pngBytes == null || pngBytes.Length == 0)
+            return null;
+
+        return new LevelPreviewDTO
+        {
+            format = "png",
+            width = width,
+            height = height,
+            encoding = "base64",
+            data = Convert.ToBase64String(pngBytes),
+        };
     }
 
     public void TestLevel()

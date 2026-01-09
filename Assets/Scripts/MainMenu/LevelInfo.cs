@@ -10,4 +10,5 @@ public class LevelInfo
     public string uploaderId; // corresponds to uploader_id from levels table in supabase db
     public string uploaderDisplayName; // human friendly creator name from users table
     public DateTime createdAt; // Created at time
+    public LevelPreviewDTO preview; // Optional base64 preview data
 }

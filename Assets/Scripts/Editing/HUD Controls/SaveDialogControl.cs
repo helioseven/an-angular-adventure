@@ -6,8 +6,11 @@ using UnityEngine;
 public class SaveDialogControl : MonoBehaviour
 {
     public OverwriteDialogControl overwriteDialogControl;
+
+    [SerializeField]
     private TMP_InputField _inputField;
 
+    //
     void Awake()
     {
         // establishes a reference to the relevant text component

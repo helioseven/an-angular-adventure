@@ -37,6 +37,12 @@ public class LevelBrowser : MonoBehaviour
     public SupabaseController supabase;
     public MenuGM menuGM;
 
+    [Header("Preview Popup")]
+    public LevelPreviewPopup previewPopup;
+
+    [Header("Name Popup")]
+    public LevelNamePopup namePopup;
+
     public LevelBrowserTab currTab = LevelBrowserTab.Local;
 
     private List<LevelInfo> allLevels = new();
@@ -44,6 +50,9 @@ public class LevelBrowser : MonoBehaviour
 
     void OnEnable()
     {
+        EnsurePreviewPopup();
+        EnsureNamePopup();
+
         if (!StartupManager.DemoModeEnabled)
         {
             if (supabase == null)
@@ -96,9 +105,10 @@ public class LevelBrowser : MonoBehaviour
         }
 
         // Default tab = Bundled in demo mode or when no locals, DeveloperLevels otherwise
-        var defaultTab = StartupManager.DemoModeEnabled || !hasLocalLevels
-            ? LevelBrowserTab.Bundled
-            : LevelBrowserTab.DeveloperLevels;
+        var defaultTab =
+            StartupManager.DemoModeEnabled || !hasLocalLevels
+                ? LevelBrowserTab.Bundled
+                : LevelBrowserTab.DeveloperLevels;
         SwitchTab(defaultTab);
 
         // Wait a frame, then select to ensure EventSystem is active
@@ -110,9 +120,10 @@ public class LevelBrowser : MonoBehaviour
         yield return null; // wait one frame
         if (EventSystem.current != null)
         {
-            var target = (StartupManager.DemoModeEnabled || !hasLocalLevels)
-                ? bundledTabButton
-                : developerTabButton;
+            var target =
+                (StartupManager.DemoModeEnabled || !hasLocalLevels)
+                    ? bundledTabButton
+                    : developerTabButton;
             if (target != null)
                 EventSystem.current.SetSelectedGameObject(target.gameObject);
         }
@@ -121,6 +132,10 @@ public class LevelBrowser : MonoBehaviour
     void OnDisable()
     {
         filterInput.onValueChanged.RemoveAllListeners();
+        if (previewPopup != null)
+            previewPopup.Hide();
+        if (namePopup != null)
+            namePopup.Hide();
         if (localTabButton != null)
             localTabButton.onClick.RemoveAllListeners();
         if (developerTabButton != null)
@@ -143,9 +158,11 @@ public class LevelBrowser : MonoBehaviour
     {
         if (
             supabase == null
-            && (tab == LevelBrowserTab.MyRemote
+            && (
+                tab == LevelBrowserTab.MyRemote
                 || tab == LevelBrowserTab.Community
-                || tab == LevelBrowserTab.DeveloperLevels)
+                || tab == LevelBrowserTab.DeveloperLevels
+            )
         )
         {
             Debug.LogError("[LevelBrowser] Cannot switch tab: SupabaseController is missing.");
@@ -271,8 +288,8 @@ public class LevelBrowser : MonoBehaviour
     {
         string header = "Delete Tessellation?";
         string body = isLocal
-            ? $"Are you sure you want to permanently delete your local draft “{levelName}”? This cannot be undone."
-            : $"Are you sure you want to delete “{levelName}”?";
+            ? $"Are you sure you want to permanently delete your local draft \"{levelName}\"? This cannot be undone."
+            : $"Are you sure you want to delete \"{levelName}\"?";
 
         confirmModal.Show(
             header: header,
@@ -349,5 +366,122 @@ public class LevelBrowser : MonoBehaviour
     public void RefreshList()
     {
         SwitchTab(currTab);
+    }
+
+    public void ShowPreview(Sprite sprite, Vector2 screenPos)
+    {
+        if (sprite == null)
+            return;
+
+        EnsurePreviewPopup();
+        previewPopup?.Show(sprite, screenPos);
+    }
+
+    public void MovePreview(Vector2 screenPos)
+    {
+        previewPopup?.MoveTo(screenPos);
+    }
+
+    public void HidePreview()
+    {
+        previewPopup?.Hide();
+    }
+
+    public void ShowNamePopup(string text, TMP_Text source, Vector2 screenPos)
+    {
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        EnsureNamePopup();
+        namePopup?.Show(text, source, screenPos);
+    }
+
+    public void MoveNamePopup(Vector2 screenPos)
+    {
+        namePopup?.MoveTo(screenPos);
+    }
+
+    public void HideNamePopup()
+    {
+        namePopup?.Hide();
+    }
+
+    private void EnsurePreviewPopup()
+    {
+        if (previewPopup != null)
+            return;
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("[LevelBrowser] Cannot create preview popup: Canvas missing.");
+            return;
+        }
+
+        GameObject popupGO = new GameObject(
+            "LevelPreviewPopup",
+            typeof(RectTransform),
+            typeof(CanvasGroup),
+            typeof(Image),
+            typeof(LevelPreviewPopup)
+        );
+        popupGO.transform.SetParent(canvas.transform, false);
+
+        CanvasGroup group = popupGO.GetComponent<CanvasGroup>();
+        group.interactable = false;
+        group.blocksRaycasts = false;
+        group.ignoreParentGroups = true;
+
+        Image background = popupGO.GetComponent<Image>();
+        background.color = new Color(0f, 0f, 0f, 0.85f);
+
+        GameObject imageGO = new GameObject("PreviewImage", typeof(RectTransform), typeof(Image));
+        imageGO.transform.SetParent(popupGO.transform, false);
+        Image image = imageGO.GetComponent<Image>();
+        image.preserveAspect = true;
+
+        LevelPreviewPopup popup = popupGO.GetComponent<LevelPreviewPopup>();
+        popup.Initialize(canvas, image);
+        previewPopup = popup;
+    }
+
+    private void EnsureNamePopup()
+    {
+        if (namePopup != null)
+            return;
+
+        Canvas canvas = GetComponentInParent<Canvas>();
+        if (canvas == null)
+        {
+            Debug.LogError("[LevelBrowser] Cannot create name popup: Canvas missing.");
+            return;
+        }
+
+        GameObject popupGO = new GameObject(
+            "LevelNamePopup",
+            typeof(RectTransform),
+            typeof(CanvasGroup),
+            typeof(Image),
+            typeof(LevelNamePopup)
+        );
+        popupGO.transform.SetParent(canvas.transform, false);
+
+        CanvasGroup group = popupGO.GetComponent<CanvasGroup>();
+        group.interactable = false;
+        group.blocksRaycasts = false;
+        group.ignoreParentGroups = true;
+
+        Image background = popupGO.GetComponent<Image>();
+        background.color = new Color(0f, 0f, 0f, 0.85f);
+
+        GameObject textGO = new GameObject("NameText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        textGO.transform.SetParent(popupGO.transform, false);
+        TMP_Text text = textGO.GetComponent<TMP_Text>();
+        text.enableAutoSizing = false;
+        text.raycastTarget = false;
+
+        LevelNamePopup popup = popupGO.GetComponent<LevelNamePopup>();
+        popup.Initialize(canvas, text);
+        namePopup = popup;
     }
 }

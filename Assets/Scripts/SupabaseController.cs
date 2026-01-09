@@ -6,10 +6,21 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
+public class LevelPreviewDTO
+{
+    public string format;
+    public int width;
+    public int height;
+    public string encoding;
+    public string data;
+}
+
+[System.Serializable]
 public class SupabaseLevelDTO
 {
     public string name;
     public string[] data;
+    public LevelPreviewDTO preview;
 }
 
 public class SupabaseController : MonoBehaviour
