@@ -33,6 +33,9 @@ public class ResponsiveGrid : MonoBehaviour
     [SerializeField]
     private int basePadding = 8;
 
+    private float _lastScreenWidth = -1f;
+    private float _lastViewportWidth = -1f;
+
     void Awake()
     {
         if (grid == null)
@@ -49,6 +52,17 @@ public class ResponsiveGrid : MonoBehaviour
 
         float screenWidth = Screen.width;
         float viewportWidth = viewport.rect.width;
+
+        if (
+            Mathf.Abs(screenWidth - _lastScreenWidth) < 0.5f
+            && Mathf.Abs(viewportWidth - _lastViewportWidth) < 0.5f
+        )
+        {
+            return;
+        }
+
+        _lastScreenWidth = screenWidth;
+        _lastViewportWidth = viewportWidth;
 
         if (grid == null || viewportWidth <= 0.1f)
             return;
@@ -75,8 +89,7 @@ public class ResponsiveGrid : MonoBehaviour
         grid.padding.left = basePadding;
         grid.padding.right = basePadding;
 
-        float available =
-            viewportWidth - (basePadding * 2) - (baseSpacing * (safeColumns - 1));
+        float available = viewportWidth - (basePadding * 2) - (baseSpacing * (safeColumns - 1));
         if (available <= 0f)
             return;
 
@@ -86,10 +99,7 @@ public class ResponsiveGrid : MonoBehaviour
             while (safeColumns > 1 && cellWidth < minCardWidth)
             {
                 safeColumns--;
-                available =
-                    viewportWidth
-                    - (basePadding * 2)
-                    - (baseSpacing * (safeColumns - 1));
+                available = viewportWidth - (basePadding * 2) - (baseSpacing * (safeColumns - 1));
                 cellWidth = Mathf.Floor(available / safeColumns);
             }
         }
