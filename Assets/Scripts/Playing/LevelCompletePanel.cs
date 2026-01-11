@@ -140,9 +140,17 @@ public class LevelCompletePanel : MonoBehaviour
         // get the data we need
         string[] lines = PlayGM.instance.levelData.Serialize();
         string levelName = PlayGM.instance.levelName;
+        const int previewWidth = 256;
+        const int previewHeight = 144;
 
         // create the data transfer object to send up
-        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO { name = levelName, data = lines };
+        LevelPreviewDTO preview = CapturePreviewPng(Camera.main, previewWidth, previewHeight);
+        SupabaseLevelDTO levelDTO = new SupabaseLevelDTO
+        {
+            name = levelName,
+            data = lines,
+            preview = preview,
+        };
 
         // Upload the level to supabase
         SupabaseController.Instance.StartCoroutine(
@@ -155,5 +163,47 @@ public class LevelCompletePanel : MonoBehaviour
         Debug.Log("[LevelCompletePanel] SaveLevelCallback");
         Debug.Log(s);
         uploadComplete = true;
+    }
+
+    private LevelPreviewDTO CapturePreviewPng(Camera camera, int width, int height)
+    {
+        if (camera == null || width <= 0 || height <= 0)
+            return null;
+
+        RenderTexture rt = RenderTexture.GetTemporary(
+            width,
+            height,
+            24,
+            RenderTextureFormat.ARGB32
+        );
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture previousTarget = camera.targetTexture;
+
+        camera.targetTexture = rt;
+        RenderTexture.active = rt;
+        camera.Render();
+
+        Texture2D texture = new Texture2D(width, height, TextureFormat.RGB24, false);
+        texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        texture.Apply();
+
+        camera.targetTexture = previousTarget;
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(rt);
+
+        byte[] pngBytes = texture.EncodeToPNG();
+        Destroy(texture);
+
+        if (pngBytes == null || pngBytes.Length == 0)
+            return null;
+
+        return new LevelPreviewDTO
+        {
+            format = "png",
+            width = width,
+            height = height,
+            encoding = "base64",
+            data = Convert.ToBase64String(pngBytes),
+        };
     }
 }

@@ -10,7 +10,6 @@ public class SaveDialogControl : MonoBehaviour
     [SerializeField]
     private TMP_InputField _inputField;
 
-    //
     void Awake()
     {
         // establishes a reference to the relevant text component
