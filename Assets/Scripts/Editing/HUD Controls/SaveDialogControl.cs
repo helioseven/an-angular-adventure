@@ -6,6 +6,8 @@ using UnityEngine;
 public class SaveDialogControl : MonoBehaviour
 {
     public OverwriteDialogControl overwriteDialogControl;
+
+    [SerializeField]
     private TMP_InputField _inputField;
 
     void Awake()
