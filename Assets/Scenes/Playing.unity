@@ -1574,7 +1574,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1441810847}
         m_TargetAssemblyTypeName: LevelCompletePanel, Assembly-CSharp
-        m_MethodName: OnPositiveButton
+        m_MethodName: OnNextLevelButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2910,6 +2910,9 @@ MonoBehaviour:
   levelCompleteNameText: {fileID: 157041889}
   playtestButtons: {fileID: 1733720953}
   standardButtons: {fileID: 258842321}
+  uploadButton: {fileID: 742004742}
+  nextLevelButton: {fileID: 966695243}
+  nextLevelLabel: {fileID: 1852275681}
 --- !u!95 &1441810848
 Animator:
   serializedVersion: 7
@@ -3884,7 +3887,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Retry Level
+  m_text: Next Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,

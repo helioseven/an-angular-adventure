@@ -102,25 +102,8 @@ public class MenuGM : MonoBehaviour
         // start the play scene with the next bundled level without a best time
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
-        LevelInfo next = null;
-        List<LevelInfo> bundled = LevelStorage.LoadBundledLevelMetadata();
-
-        foreach (LevelInfo info in bundled)
-        {
-            if (!BestTimeStore.TryGetBestTime(info.name, info.dataHash, out _))
-            {
-                next = info;
-                break;
-            }
-        }
-
-        if (next == null && bundled.Count > 0)
-            next = bundled[UnityEngine.Random.Range(0, bundled.Count)];
-
-        if (next == null)
-            next = new LevelInfo { name = "", isLocal = true };
-
-        loader.levelInfo = next;
+        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
+        loader.levelInfo = next ?? new LevelInfo { name = "", isLocal = true };
         loader.playModeContext = PlayGM.PlayModeContext.FromMainMenuPlayButton;
     }
 

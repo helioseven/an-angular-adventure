@@ -45,14 +45,17 @@ public class LevelListItemUI
                 : info.uploaderId;
 
         string bestTimeLabel = null;
-        if (BestTimeStore.TryGetBestTime(info.name, info.dataHash, out float bestSeconds))
+        bool isRemote = !info.isLocal && !info.isBundled;
+        bool hasBest = isRemote
+            ? BestTimeStore.TryGetBestTimeForRemote(info.id, out float bestSeconds)
+            : BestTimeStore.TryGetBestTime(info.name, info.dataHash, out bestSeconds);
+        if (hasBest)
         {
             bestTimeLabel = Clock.FormatTimeSeconds(bestSeconds);
         }
 
-        creatorNameText.text = bestTimeLabel == null
-            ? creatorLabel
-            : $"{creatorLabel} - Best {bestTimeLabel}";
+        creatorNameText.text =
+            bestTimeLabel == null ? creatorLabel : $"{creatorLabel} - Best {bestTimeLabel}";
 
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 

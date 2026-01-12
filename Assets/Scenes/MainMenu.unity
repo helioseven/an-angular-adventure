@@ -1731,8 +1731,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  demoMode: 1
-  simulateEmptyLocalFolders: 1
+  demoMode: 0
+  simulateEmptyLocalFolders: 0
   testSteamId: 
 --- !u!1 &339975805
 GameObject:

@@ -21,6 +21,23 @@ public static class BestTimeStore
         return false;
     }
 
+    public static bool RecordBestTimeForRemote(string levelId, float seconds)
+    {
+        if (string.IsNullOrWhiteSpace(levelId))
+            return false;
+
+        string key = BuildRemoteKey(levelId);
+        float existing = PlayerPrefs.GetFloat(key, -1f);
+        if (existing < 0f || seconds < existing)
+        {
+            PlayerPrefs.SetFloat(key, seconds);
+            PlayerPrefs.Save();
+            return true;
+        }
+
+        return false;
+    }
+
     public static bool TryGetBestTime(string levelName, string dataHash, out float seconds)
     {
         seconds = 0f;
@@ -28,6 +45,20 @@ public static class BestTimeStore
             return false;
 
         string key = BuildKey(levelName, dataHash);
+        if (!PlayerPrefs.HasKey(key))
+            return false;
+
+        seconds = PlayerPrefs.GetFloat(key);
+        return seconds > 0f;
+    }
+
+    public static bool TryGetBestTimeForRemote(string levelId, out float seconds)
+    {
+        seconds = 0f;
+        if (string.IsNullOrWhiteSpace(levelId))
+            return false;
+
+        string key = BuildRemoteKey(levelId);
         if (!PlayerPrefs.HasKey(key))
             return false;
 
@@ -51,6 +82,12 @@ public static class BestTimeStore
     {
         string safeName = levelName.Trim().ToLowerInvariant();
         return $"best_time:{safeName}:{dataHash}";
+    }
+
+    private static string BuildRemoteKey(string levelId)
+    {
+        string safeId = levelId.Trim().ToLowerInvariant();
+        return $"best_time:remote:{safeId}";
     }
 
     private static string ToHex(byte[] bytes)

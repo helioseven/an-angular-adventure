@@ -216,4 +216,31 @@ public static class LevelStorage
 
         return levelInfos;
     }
+
+    public static LevelInfo GetNextBundledLevelByBestTime()
+    {
+        List<LevelInfo> bundled = LoadBundledLevelMetadata();
+        foreach (LevelInfo info in bundled)
+        {
+            if (!BestTimeStore.TryGetBestTime(info.name, info.dataHash, out _))
+            {
+                Debug.Log(
+                    $"[NextLevel] Unplayed bundled: {info.name} (hash {info.dataHash?.Substring(0, 8)})"
+                );
+                return info;
+            }
+        }
+
+        if (bundled.Count > 0)
+        {
+            int idx = UnityEngine.Random.Range(0, bundled.Count);
+            Debug.Log(
+                $"[NextLevel] All played, random pick: {bundled[idx].name} (hash {bundled[idx].dataHash?.Substring(0, 8)})"
+            );
+            return bundled[idx];
+        }
+
+        Debug.Log("[NextLevel] No bundled levels found.");
+        return null;
+    }
 }
