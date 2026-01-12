@@ -102,6 +102,11 @@ public partial class PlayGM
         _clock.PauseClock();
         // Set time for victory panel
         victoryTimeText.text = _clock.clockTimeToString();
+        string dataHash = BestTimeStore.ComputeDataHash(levelData.Serialize());
+        if (BestTimeStore.RecordBestTime(levelName, dataHash, _clock.ElapsedSeconds))
+        {
+            ToastManager.Instance?.ShowToast("New best time!");
+        }
         // Open the victory panel
         levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
 
@@ -140,6 +145,7 @@ public partial class PlayGM
         v3.z = 2f * l;
         activateLayer(l);
         player.transform.position = v3;
+        player.SetSpawnJumpCooldown();
 
         string BurstComponentName = "CheckpointBurstReverse";
         if (isSpawn)

@@ -11,4 +11,5 @@ public class LevelInfo
     public string uploaderDisplayName; // human friendly creator name from users table
     public DateTime createdAt; // Created at time
     public LevelPreviewDTO preview; // Optional base64 preview data
+    public string dataHash; // Hash of level data lines (local/bundled only)
 }

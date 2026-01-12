@@ -44,7 +44,15 @@ public class LevelListItemUI
                 ? "Unknown creator"
                 : info.uploaderId;
 
-        creatorNameText.text = creatorLabel;
+        string bestTimeLabel = null;
+        if (BestTimeStore.TryGetBestTime(info.name, info.dataHash, out float bestSeconds))
+        {
+            bestTimeLabel = Clock.FormatTimeSeconds(bestSeconds);
+        }
+
+        creatorNameText.text = bestTimeLabel == null
+            ? creatorLabel
+            : $"{creatorLabel} - Best {bestTimeLabel}";
 
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 

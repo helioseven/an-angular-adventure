@@ -96,6 +96,9 @@ public class Player_Controller : MonoBehaviour
         _gmRef = PlayGM.instance;
         int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
         _spriteRenderer.sprite = skinDB.skins[index];
+        _jumpPressed = false;
+        _jumpTriggered = false;
+        _jumpHoldActive = false;
         UpdateJumpForce();
     }
 
@@ -510,5 +513,14 @@ public class Player_Controller : MonoBehaviour
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(origin, origin + dir * castDistance); // shows ground override ray
+    }
+
+    public void SetSpawnJumpCooldown()
+    {
+        _numJumps = _maxJumps;
+        _jumpTriggered = false;
+        _jumpNow = false;
+        _jumpHoldActive = false;
+        _jumpPressed = false;
     }
 }
