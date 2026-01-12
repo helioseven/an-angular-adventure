@@ -20,7 +20,9 @@ public class LevelListItemUI
     public Image previewImage;
     public LevelBrowser parent;
 
+    // Reuse decoded preview sprites across list rebuilds to avoid repeated base64 decoding.
     private static readonly Dictionary<string, Sprite> PreviewCache = new();
+
     private bool _isHovering;
     private bool _isNameHovering;
     private LevelInfo _info;
@@ -200,8 +202,8 @@ public class LevelListItemUI
         bool overName = IsOverText(levelNameText, eventData);
         levelNameText.ForceMeshUpdate();
         float visibleWidth = levelNameText.rectTransform.rect.width;
-        bool isOverflowing = levelNameText.isTextOverflowing
-            || levelNameText.preferredWidth > (visibleWidth + 0.5f);
+        bool isOverflowing =
+            levelNameText.isTextOverflowing || levelNameText.preferredWidth > (visibleWidth + 0.5f);
         bool shouldShow = overName && isOverflowing;
 
         if (shouldShow && !_isNameHovering)
@@ -222,14 +224,11 @@ public class LevelListItemUI
     private static bool IsOverText(TMP_Text text, PointerEventData eventData)
     {
         RectTransform rect = text.rectTransform;
-        Camera cam = eventData.enterEventCamera != null
-            ? eventData.enterEventCamera
-            : eventData.pressEventCamera;
-        return RectTransformUtility.RectangleContainsScreenPoint(
-            rect,
-            eventData.position,
-            cam
-        );
+        Camera cam =
+            eventData.enterEventCamera != null
+                ? eventData.enterEventCamera
+                : eventData.pressEventCamera;
+        return RectTransformUtility.RectangleContainsScreenPoint(rect, eventData.position, cam);
     }
 
     private static string BuildPreviewCacheKey(LevelInfo info)

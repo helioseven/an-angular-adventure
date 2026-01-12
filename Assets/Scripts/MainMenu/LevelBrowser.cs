@@ -50,7 +50,7 @@ public class LevelBrowser : MonoBehaviour
 
     void OnEnable()
     {
-        EnsurePreviewPopup();
+        InitializePreviewPopup();
         EnsureNamePopup();
 
         if (!StartupManager.DemoModeEnabled)
@@ -156,14 +156,11 @@ public class LevelBrowser : MonoBehaviour
 
     void SwitchTab(LevelBrowserTab tab)
     {
-        if (
-            supabase == null
-            && (
-                tab == LevelBrowserTab.MyRemote
-                || tab == LevelBrowserTab.Community
-                || tab == LevelBrowserTab.DeveloperLevels
-            )
-        )
+        bool usesSupabase =
+            tab == LevelBrowserTab.MyRemote
+            || tab == LevelBrowserTab.Community
+            || tab == LevelBrowserTab.DeveloperLevels;
+        if (supabase == null && usesSupabase)
         {
             Debug.LogError("[LevelBrowser] Cannot switch tab: SupabaseController is missing.");
             return;
@@ -373,7 +370,7 @@ public class LevelBrowser : MonoBehaviour
         if (sprite == null)
             return;
 
-        EnsurePreviewPopup();
+        InitializePreviewPopup();
         previewPopup?.Show(sprite, screenPos);
     }
 
@@ -406,7 +403,7 @@ public class LevelBrowser : MonoBehaviour
         namePopup?.Hide();
     }
 
-    private void EnsurePreviewPopup()
+    private void InitializePreviewPopup()
     {
         if (previewPopup != null)
             return;
@@ -474,7 +471,11 @@ public class LevelBrowser : MonoBehaviour
         Image background = popupGO.GetComponent<Image>();
         background.color = new Color(0f, 0f, 0f, 0.85f);
 
-        GameObject textGO = new GameObject("NameText", typeof(RectTransform), typeof(TextMeshProUGUI));
+        GameObject textGO = new GameObject(
+            "NameText",
+            typeof(RectTransform),
+            typeof(TextMeshProUGUI)
+        );
         textGO.transform.SetParent(popupGO.transform, false);
         TMP_Text text = textGO.GetComponent<TMP_Text>();
         text.enableAutoSizing = false;

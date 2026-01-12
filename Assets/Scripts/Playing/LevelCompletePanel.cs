@@ -140,8 +140,8 @@ public class LevelCompletePanel : MonoBehaviour
         // get the data we need
         string[] lines = PlayGM.instance.levelData.Serialize();
         string levelName = PlayGM.instance.levelName;
-        const int previewWidth = 256;
-        const int previewHeight = 144;
+        const int previewWidth = LevelPreviewConstants.PREVIEW_WIDTH;
+        const int previewHeight = LevelPreviewConstants.PREVIEW_HEIGHT;
 
         // create the data transfer object to send up
         LevelPreviewDTO preview = CapturePreviewPng(Camera.main, previewWidth, previewHeight);

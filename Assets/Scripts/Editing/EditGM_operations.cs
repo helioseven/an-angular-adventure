@@ -250,8 +250,8 @@ public partial class EditGM
         Debug.Log("tessellationName: " + tessellationName);
         string[] lines = levelData.Serialize();
         string levelsFolder = LevelStorage.TessellationsFolder;
-        const int previewWidth = 256;
-        const int previewHeight = 144;
+        const int previewWidth = LevelPreviewConstants.PREVIEW_WIDTH;
+        const int previewHeight = LevelPreviewConstants.PREVIEW_HEIGHT;
 
         if (!Directory.Exists(levelsFolder))
         {
