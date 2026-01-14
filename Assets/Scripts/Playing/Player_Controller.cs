@@ -96,9 +96,6 @@ public class Player_Controller : MonoBehaviour
         _gmRef = PlayGM.instance;
         int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
         _spriteRenderer.sprite = skinDB.skins[index];
-        _jumpPressed = false;
-        _jumpTriggered = false;
-        _jumpHoldActive = false;
         UpdateJumpForce();
     }
 
