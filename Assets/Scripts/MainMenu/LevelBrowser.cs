@@ -26,6 +26,8 @@ public class LevelBrowser : MonoBehaviour
     public GameObject editLoader;
     public ConfirmModal confirmModal;
 
+    public Button backButton;
+
     [Header("Tabs")]
     public Button localTabButton;
     public Button developerTabButton;
@@ -80,6 +82,12 @@ public class LevelBrowser : MonoBehaviour
             communityTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Community));
         if (myTessellationsButton != null)
             myTessellationsButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.MyRemote));
+
+        if (backButton != null)
+            backButton.onClick.AddListener(() =>
+            {
+                menuGM.OpenMainMenu();
+            });
 
         hasLocalLevels = LevelStorage.HasLocalLevels();
         if (localTabButton != null)
@@ -344,6 +352,7 @@ public class LevelBrowser : MonoBehaviour
                 level,
                 onPlay: () =>
                 {
+                    Debug.Log($"[LevelBrowser] Play clicked: {level.name} ({level.id})");
                     var loaderGO = Instantiate(playLoader);
                     var loader = loaderGO.GetComponent<PlayLoader>();
                     loader.levelInfo = level;

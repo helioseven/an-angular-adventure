@@ -102,6 +102,32 @@ public partial class PlayGM
         _clock.PauseClock();
         // Set time for victory panel
         victoryTimeText.text = _clock.clockTimeToString();
+        bool isRemote = levelInfo != null && !levelInfo.isLocal && !levelInfo.isBundled;
+        string dataHash = levelInfo != null ? levelInfo.dataHash : null;
+        if (!isRemote && string.IsNullOrWhiteSpace(dataHash))
+            dataHash = BestTimeStore.ComputeDataHash(levelData.Serialize());
+
+        if (isRemote)
+        {
+            Debug.Log(
+                $"[BestTime] Recording remote {levelName} id {levelInfo?.id} time {_clock.ElapsedSeconds:0.##}"
+            );
+        }
+        else
+        {
+            Debug.Log(
+                $"[BestTime] Recording for {levelName} hash {dataHash?.Substring(0, 8)} time {_clock.ElapsedSeconds:0.##}"
+            );
+        }
+
+        bool isNewBest = isRemote
+            ? BestTimeStore.RecordBestTimeForRemote(levelInfo?.id, _clock.ElapsedSeconds)
+            : BestTimeStore.RecordBestTime(levelName, dataHash, _clock.ElapsedSeconds);
+
+        if (isNewBest)
+        {
+            ToastManager.Instance?.ShowToast("New best time!");
+        }
         // Open the victory panel
         levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
 
@@ -140,6 +166,7 @@ public partial class PlayGM
         v3.z = 2f * l;
         activateLayer(l);
         player.transform.position = v3;
+        player.SetSpawnJumpCooldown();
 
         string BurstComponentName = "CheckpointBurstReverse";
         if (isSpawn)

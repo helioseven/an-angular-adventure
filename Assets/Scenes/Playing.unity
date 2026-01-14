@@ -274,7 +274,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 68.3
+  m_fontSize: 70.05
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -440,7 +440,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30.8
+  m_fontSize: 31.65
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1429,8 +1429,16 @@ MonoBehaviour:
     id: 
     name: 
     isLocal: 0
+    isBundled: 0
     uploaderId: 
     uploaderDisplayName: 
+    preview:
+      format: 
+      width: 0
+      height: 0
+      encoding: 
+      data: 
+    dataHash: 
   levelCompletePanel: {fileID: 1441810843}
   victoryTimeText: {fileID: 1123289766}
   levelLoader: {fileID: 0}
@@ -1566,7 +1574,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1441810847}
         m_TargetAssemblyTypeName: LevelCompletePanel, Assembly-CSharp
-        m_MethodName: OnPositiveButton
+        m_MethodName: OnNextLevelButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2104,7 +2112,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.6
+  m_fontSize: 22.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2380,7 +2388,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 68.3
+  m_fontSize: 70.05
   m_fontSizeBase: 48
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2902,6 +2910,9 @@ MonoBehaviour:
   levelCompleteNameText: {fileID: 157041889}
   playtestButtons: {fileID: 1733720953}
   standardButtons: {fileID: 258842321}
+  uploadButton: {fileID: 742004742}
+  nextLevelButton: {fileID: 966695243}
+  nextLevelLabel: {fileID: 1852275681}
 --- !u!95 &1441810848
 Animator:
   serializedVersion: 7
@@ -3661,7 +3672,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 21.6
+  m_fontSize: 22.9
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3876,7 +3887,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Retry Level
+  m_text: Next Level
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -4186,7 +4197,7 @@ RectTransform:
   m_Father: {fileID: 1812960731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.2, y: 0.2}
+  m_AnchorMax: {x: 0.25, y: 0.2}
   m_AnchoredPosition: {x: 16, y: 16.000061}
   m_SizeDelta: {x: -32, y: -32}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -4230,7 +4241,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 0:00
+  m_text: 0:00:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -4258,10 +4269,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 89.2
+  m_fontSize: 72
   m_fontSizeBase: 72
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 100
   m_fontStyle: 0

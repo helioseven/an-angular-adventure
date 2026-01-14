@@ -511,4 +511,13 @@ public class Player_Controller : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(origin, origin + dir * castDistance); // shows ground override ray
     }
+
+    public void SetSpawnJumpCooldown()
+    {
+        _numJumps = _maxJumps;
+        _jumpTriggered = false;
+        _jumpNow = false;
+        _jumpHoldActive = false;
+        _jumpPressed = false;
+    }
 }

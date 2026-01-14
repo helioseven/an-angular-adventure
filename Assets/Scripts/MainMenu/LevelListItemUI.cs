@@ -13,6 +13,7 @@ public class LevelListItemUI
 {
     public TMP_Text levelNameText;
     public TMP_Text creatorNameText;
+    public TMP_Text bestTimeText;
     public Button playButton;
     public Button editOrRemixButton;
     public TMP_Text editOrRemixButtonText;
@@ -44,6 +45,17 @@ public class LevelListItemUI
                 ? "Unknown creator"
                 : info.uploaderId;
 
+        string bestTimeLabel = null;
+        bool isRemote = !info.isLocal && !info.isBundled;
+        bool hasBest = isRemote
+            ? BestTimeStore.TryGetBestTimeForRemote(info.id, out float bestSeconds)
+            : BestTimeStore.TryGetBestTime(info.name, info.dataHash, out bestSeconds);
+        if (hasBest)
+        {
+            bestTimeLabel = Clock.FormatTimeSeconds(bestSeconds);
+        }
+
+        bestTimeText.text = bestTimeLabel == null ? "" : $"Best {bestTimeLabel}";
         creatorNameText.text = creatorLabel;
 
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";

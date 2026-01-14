@@ -125,6 +125,7 @@ public static class LevelStorage
                             name = levelData.name,
                             isLocal = true,
                             preview = levelData.preview,
+                            dataHash = BestTimeStore.ComputeDataHash(levelData.data),
                             uploaderId = "you, sucka!",
                             uploaderDisplayName = StartupManager.DemoModeEnabled ? "Custom" : "You",
                             createdAt = File.GetLastWriteTime(file),
@@ -199,6 +200,7 @@ public static class LevelStorage
                         isLocal = false,
                         isBundled = true,
                         preview = levelData.preview,
+                        dataHash = BestTimeStore.ComputeDataHash(levelData.data),
                         uploaderId = "tessellations",
                         uploaderDisplayName = "Demo Tessellations",
                         createdAt = File.GetLastWriteTime(file),
@@ -213,5 +215,32 @@ public static class LevelStorage
         }
 
         return levelInfos;
+    }
+
+    public static LevelInfo GetNextBundledLevelByBestTime()
+    {
+        List<LevelInfo> bundled = LoadBundledLevelMetadata();
+        foreach (LevelInfo info in bundled)
+        {
+            if (!BestTimeStore.TryGetBestTime(info.name, info.dataHash, out _))
+            {
+                Debug.Log(
+                    $"[NextLevel] Unplayed bundled: {info.name} (hash {info.dataHash?.Substring(0, 8)})"
+                );
+                return info;
+            }
+        }
+
+        if (bundled.Count > 0)
+        {
+            int idx = UnityEngine.Random.Range(0, bundled.Count);
+            Debug.Log(
+                $"[NextLevel] All played, random pick: {bundled[idx].name} (hash {bundled[idx].dataHash?.Substring(0, 8)})"
+            );
+            return bundled[idx];
+        }
+
+        Debug.Log("[NextLevel] No bundled levels found.");
+        return null;
     }
 }

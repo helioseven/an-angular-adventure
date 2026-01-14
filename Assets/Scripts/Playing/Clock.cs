@@ -43,7 +43,7 @@ public class Clock : MonoBehaviour
 
     public string clockTimeToString()
     {
-        return minuteCount + ":" + Mathf.FloorToInt(secondsCount).ToString("00");
+        return FormatTimeSeconds(ElapsedSeconds);
     }
 
     public void StartClock()
@@ -55,5 +55,18 @@ public class Clock : MonoBehaviour
     public void PauseClock()
     {
         isClockPaused = true;
+    }
+
+    public float ElapsedSeconds => (minuteCount * 60f) + secondsCount;
+
+    public static string FormatTimeSeconds(float totalSeconds)
+    {
+        if (totalSeconds < 0f)
+            totalSeconds = 0f;
+
+        int minutes = Mathf.FloorToInt(totalSeconds / 60f);
+        int seconds = Mathf.FloorToInt(totalSeconds) % 60;
+        int hundredths = Mathf.FloorToInt((totalSeconds - Mathf.Floor(totalSeconds)) * 100f);
+        return $"{minutes}:{seconds:00}.{hundredths:00}";
     }
 }

@@ -13,6 +13,12 @@ public class LevelCompletePanel : MonoBehaviour
     public TMP_Text levelCompleteNameText;
     public GameObject playtestButtons;
     public GameObject standardButtons;
+    [SerializeField]
+    private Button uploadButton;
+    [SerializeField]
+    private Button nextLevelButton;
+    [SerializeField]
+    private TMP_Text nextLevelLabel;
     private bool uploadComplete = false;
 
     private void Start()
@@ -25,6 +31,8 @@ public class LevelCompletePanel : MonoBehaviour
 
     public void Show()
     {
+        ConfigureDemoButtons();
+
         switch (playModeContext)
         {
             case PlayModeContext.FromEditor:
@@ -135,6 +143,27 @@ public class LevelCompletePanel : MonoBehaviour
         }
     }
 
+    public void OnNextLevelButton()
+    {
+        if (!StartupManager.DemoModeEnabled)
+        {
+            PlayLoader retryLoaderGO = Instantiate(levelLoader);
+            var retryLoader = retryLoaderGO.GetComponent<PlayLoader>();
+            retryLoader.levelInfo = PlayGM.instance.levelInfo;
+            retryLoader.playModeContext = PlayGM.instance.playModeContext;
+            return;
+        }
+
+        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
+        if (next == null)
+            return;
+
+        PlayLoader playLoaderGO = Instantiate(levelLoader);
+        var playLoader = playLoaderGO.GetComponent<PlayLoader>();
+        playLoader.levelInfo = next;
+        playLoader.playModeContext = PlayGM.PlayModeContext.FromMainMenuPlayButton;
+    }
+
     public void PublishToSupabase()
     {
         // get the data we need
@@ -163,6 +192,16 @@ public class LevelCompletePanel : MonoBehaviour
         Debug.Log("[LevelCompletePanel] SaveLevelCallback");
         Debug.Log(s);
         uploadComplete = true;
+    }
+
+    private void ConfigureDemoButtons()
+    {
+        bool demo = StartupManager.DemoModeEnabled;
+        uploadButton.gameObject.SetActive(!demo);
+        nextLevelButton.gameObject.SetActive(true);
+        nextLevelLabel.text = demo ? "Next Level" : "Retry Level";
+        nextLevelButton.onClick.RemoveAllListeners();
+        nextLevelButton.onClick.AddListener(OnNextLevelButton);
     }
 
     private LevelPreviewDTO CapturePreviewPng(Camera camera, int width, int height)

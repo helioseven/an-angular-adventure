@@ -17,6 +17,8 @@ public class SettingsMenu : MonoBehaviour
     public Slider sfxVolumeSlider;
     public TMP_Text sfxVolumeLabel;
 
+    public Button backButton;
+
     private const string masterVolumeKey = "MasterVolume";
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";
@@ -46,6 +48,13 @@ public class SettingsMenu : MonoBehaviour
 
         // Hook up slider event
         masterVolumeSlider.onValueChanged.AddListener(ApplyMasterVolume);
+
+        // Hook up back button
+        if (backButton != null)
+            backButton.onClick.AddListener(() =>
+            {
+                menuGM.OpenMainMenu();
+            });
     }
 
     void Update()
@@ -103,9 +112,4 @@ public class SettingsMenu : MonoBehaviour
     {
         PlayerPrefs.Save();
     }
-
-    // Optional: Add other setting categories below
-    // public void SetResolution(...) {}
-    // public void SetFullscreen(bool isFullscreen) {}
-    // public void RebindKey(...) {}
 }

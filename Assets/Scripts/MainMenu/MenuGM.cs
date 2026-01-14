@@ -99,8 +99,12 @@ public class MenuGM : MonoBehaviour
     /* Private Functions */
     private void StartPlay()
     {
-        // start the play scene and set the levelName to default
-        Instantiate(playLoader);
+        // start the play scene with the next bundled level without a best time
+        var loaderGO = Instantiate(playLoader);
+        var loader = loaderGO.GetComponent<PlayLoader>();
+        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
+        loader.levelInfo = next ?? new LevelInfo { name = "", isLocal = true };
+        loader.playModeContext = PlayGM.PlayModeContext.FromMainMenuPlayButton;
     }
 
     private void StartEdit()
