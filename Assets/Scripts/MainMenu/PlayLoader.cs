@@ -35,8 +35,19 @@ public class PlayLoader : MonoBehaviour
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
+    void Awake()
+    {
+        GameObject[] loaders = GameObject.FindGameObjectsWithTag("Loader");
+        foreach (GameObject loader in loaders)
+        {
+            if (loader != gameObject)
+                Destroy(loader);
+        }
+    }
+
     void Start()
     {
+        Debug.Log($"[PlayLoader] Start() levelInfo: {levelInfo?.name} ({levelInfo?.id})");
         levelName = levelInfo.name;
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
         loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;

@@ -13,6 +13,7 @@ public class LevelListItemUI
 {
     public TMP_Text levelNameText;
     public TMP_Text creatorNameText;
+    public TMP_Text bestTimeText;
     public Button playButton;
     public Button editOrRemixButton;
     public TMP_Text editOrRemixButtonText;
@@ -54,8 +55,8 @@ public class LevelListItemUI
             bestTimeLabel = Clock.FormatTimeSeconds(bestSeconds);
         }
 
-        creatorNameText.text =
-            bestTimeLabel == null ? creatorLabel : $"{creatorLabel} - Best {bestTimeLabel}";
+        bestTimeText.text = bestTimeLabel == null ? "" : $"Best {bestTimeLabel}";
+        creatorNameText.text = creatorLabel;
 
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 

@@ -352,6 +352,7 @@ public class LevelBrowser : MonoBehaviour
                 level,
                 onPlay: () =>
                 {
+                    Debug.Log($"[LevelBrowser] Play clicked: {level.name} ({level.id})");
                     var loaderGO = Instantiate(playLoader);
                     var loader = loaderGO.GetComponent<PlayLoader>();
                     loader.levelInfo = level;
