@@ -1732,7 +1732,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
   demoMode: 0
-  simulateEmptyLocalFolders: 0
   testSteamId: 
 --- !u!1 &339975805
 GameObject:
@@ -2003,7 +2002,7 @@ PrefabInstance:
     - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
       propertyPath: sounds.Array.size
-      value: 28
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
@@ -2207,6 +2206,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
+      propertyPath: sounds.Array.data[28].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: 9d59ea6061f144347969bc793138c506, type: 3}
+    - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
+        type: 3}
+      propertyPath: sounds.Array.data[28].name
+      value: brownStick
+      objectReference: {fileID: 0}
+    - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
+        type: 3}
       propertyPath: sounds.Array.data[9].pitch
       value: 1
       objectReference: {fileID: 0}
@@ -2302,6 +2311,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
+      propertyPath: sounds.Array.data[28].pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
+        type: 3}
       propertyPath: sounds.Array.data[9].volume
       value: 0.219
       objectReference: {fileID: 0}
@@ -2393,6 +2407,11 @@ PrefabInstance:
     - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
         type: 3}
       propertyPath: sounds.Array.data[27].volume
+      value: 0.557
+      objectReference: {fileID: 0}
+    - target: {fileID: 9003061505592303763, guid: 0164a860da576054cac0e19190b45ca5,
+        type: 3}
+      propertyPath: sounds.Array.data[28].volume
       value: 0.557
       objectReference: {fileID: 0}
     m_RemovedComponents: []

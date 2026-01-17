@@ -23,6 +23,29 @@ public class SettingsMenu : MonoBehaviour
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";
 
+    private void OnEnable()
+    {
+        InputModeTracker.EnsureInstance();
+
+        var jiggle = GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = gameObject.AddComponent<SelectedJiggle>();
+        jiggle.SetScope(transform);
+
+        var adapter = GetComponent<MenuInputModeAdapter>();
+        if (adapter == null)
+            adapter = gameObject.AddComponent<MenuInputModeAdapter>();
+        adapter.SetScope(transform);
+        adapter.SetPreferred(masterVolumeSlider);
+
+        if (InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            && masterVolumeSlider != null)
+        {
+            MenuFocusUtility.SelectPreferred(gameObject, masterVolumeSlider);
+        }
+    }
+
     private void Start()
     {
         // Load saved preferences or use defaults (Master)
@@ -59,7 +82,8 @@ public class SettingsMenu : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame
+            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame))
         {
             menuGM.OpenMainMenu();
         }

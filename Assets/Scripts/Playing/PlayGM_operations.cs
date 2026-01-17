@@ -128,6 +128,7 @@ public partial class PlayGM
         {
             ToastManager.Instance?.ShowToast("New best time!");
         }
+        StartCoroutine(VictoryHoldRoutine(inVictory));
         // Open the victory panel
         levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
 
@@ -139,6 +140,41 @@ public partial class PlayGM
             // Trigger the particle burst
             victoryBurst.Play();
         }
+    }
+
+    private IEnumerator VictoryHoldRoutine(Victory inVictory)
+    {
+        if (player == null || inVictory == null)
+            yield break;
+
+        var rb2d = player.GetComponent<Rigidbody2D>();
+        if (rb2d == null)
+            yield break;
+
+        player.SetInputEnabled(false);
+        rb2d.bodyType = RigidbodyType2D.Kinematic;
+        rb2d.linearVelocity = Vector2.zero;
+        rb2d.angularVelocity = 0f;
+
+        Vector3 start = player.transform.position;
+        Vector3 target = inVictory.transform.position;
+        target.z = start.z;
+
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, victoryPullDuration);
+        while (elapsed < duration)
+        {
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            player.transform.position = Vector3.Lerp(start, target, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        player.transform.position = target;
+
+        float hold = Mathf.Max(0f, victoryHoldDuration);
+        if (hold > 0f)
+            yield return new WaitForSeconds(hold);
     }
 
     // resets the player to last checkpoint

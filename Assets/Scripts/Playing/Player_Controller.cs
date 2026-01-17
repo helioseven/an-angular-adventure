@@ -47,6 +47,7 @@ public class Player_Controller : MonoBehaviour
     private Vector2 _jumpHoldDirection;
     private bool _jumpTriggered;
     private bool _groundOverrideJumpBlock;
+    private bool _inputEnabled = true;
     private const float PROBE_SKIN = 0.01f;
 
     // New Input System
@@ -164,6 +165,9 @@ public class Player_Controller : MonoBehaviour
 
     public void Move()
     {
+        if (!_inputEnabled)
+            return;
+
         // read input
         float rollInput = GetPerpendicularComponent(_moveInput);
         Vector2 movement =
@@ -181,6 +185,9 @@ public class Player_Controller : MonoBehaviour
 
     public void Jump()
     {
+        if (!_inputEnabled)
+            return;
+
         if (_jumpNow)
         {
             Vector2 jumpVec = _jumpForceVec * _pendingJumpMultiplier;
@@ -195,6 +202,12 @@ public class Player_Controller : MonoBehaviour
 
     public void UpdateJumping()
     {
+        if (!_inputEnabled)
+        {
+            _jumpTriggered = false;
+            return;
+        }
+
         bool canJump = _numJumps < _maxJumps;
         if (_numJumps == 0)
         {
@@ -519,5 +532,18 @@ public class Player_Controller : MonoBehaviour
         _jumpNow = false;
         _jumpHoldActive = false;
         _jumpPressed = false;
+    }
+
+    public void SetInputEnabled(bool enabled)
+    {
+        _inputEnabled = enabled;
+        if (!enabled)
+        {
+            _moveInput = Vector2.zero;
+            _jumpPressed = false;
+            _jumpTriggered = false;
+            _jumpHoldActive = false;
+            _jumpNow = false;
+        }
     }
 }
