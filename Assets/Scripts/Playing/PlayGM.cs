@@ -41,6 +41,12 @@ public partial class PlayGM : MonoBehaviour
     public GameObject levelCompletePanel;
     public TMP_Text victoryTimeText;
 
+    [Header("Victory Grab")]
+    [SerializeField]
+    private float victoryPullDuration = 0.4f;
+    [SerializeField]
+    private float victoryHoldDuration = 0.6f;
+
     public static readonly string[] INT_TO_NAME =
     {
         "Zero",

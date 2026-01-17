@@ -17,6 +17,8 @@ public class QuitDialogControl : MonoBehaviour
     {
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+        MenuFocusUtility.SelectPreferred(gameObject);
     }
 
     // cancels the quit dialog by deactivating the panel and resuming EditGM

@@ -49,7 +49,7 @@ public class AccountIndicator : MonoBehaviour
         isSubscribed = true;
         RefreshUI();
 
-        if (!string.IsNullOrEmpty(AuthState.Instance.Jwt))
+        if (!string.IsNullOrEmpty(AuthState.Instance.Jwt) && !AuthState.Instance.IsTokenExpired())
         {
             Debug.Log("[AccountIndicator] JWT present in memory - same session, skipping re-auth.");
 
@@ -59,6 +59,8 @@ public class AccountIndicator : MonoBehaviour
         }
         else
         {
+            if (AuthState.Instance.IsTokenExpired())
+                AuthState.Instance.SetJwt("");
             // Fresh boot - run full Steam + Edge + Supabase sequence
             StartCoroutine(RunStartupSequence());
         }

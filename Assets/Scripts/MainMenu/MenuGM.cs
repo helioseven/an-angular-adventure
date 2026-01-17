@@ -74,6 +74,28 @@ public class MenuGM : MonoBehaviour
         {
             panel.SetActive(panel == targetPanel);
         }
+
+        InputModeTracker.EnsureInstance();
+        var adapter = targetPanel.GetComponent<MenuInputModeAdapter>();
+        if (adapter == null)
+            adapter = targetPanel.AddComponent<MenuInputModeAdapter>();
+        adapter.SetScope(targetPanel.transform);
+        if (targetPanel == mainMenuPanel)
+            adapter.SetPreferred(playButton);
+        else
+            adapter.SetPreferred(null);
+
+        if (InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+        {
+            if (targetPanel == browsePanel)
+                return;
+            if (targetPanel == mainMenuPanel)
+                MenuFocusUtility.SelectPreferred(targetPanel, playButton);
+            else
+                MenuFocusUtility.SelectPreferred(targetPanel);
+        }
+
     }
 
     public void OpenLevelBrowser()

@@ -49,9 +49,11 @@ public class LevelBrowser : MonoBehaviour
 
     private List<LevelInfo> allLevels = new();
     private bool hasLocalLevels;
+    private MenuInputModeAdapter inputAdapter;
 
     void OnEnable()
     {
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         InitializePreviewPopup();
         EnsureNamePopup();
 
@@ -97,6 +99,8 @@ public class LevelBrowser : MonoBehaviour
         {
             if (filterInput != null)
                 filterInput.gameObject.SetActive(false);
+            if (bundledTabButton != null)
+                bundledTabButton.gameObject.SetActive(false);
             if (developerTabButton != null)
                 developerTabButton.gameObject.SetActive(false);
             if (communityTabButton != null)
@@ -105,8 +109,6 @@ public class LevelBrowser : MonoBehaviour
                 myTessellationsButton.gameObject.SetActive(false);
             if (!hasLocalLevels)
             {
-                if (bundledTabButton != null)
-                    bundledTabButton.gameObject.SetActive(false);
                 if (localTabButton != null)
                     localTabButton.gameObject.SetActive(false);
             }
@@ -119,6 +121,18 @@ public class LevelBrowser : MonoBehaviour
                 : LevelBrowserTab.DeveloperLevels;
         SwitchTab(defaultTab);
 
+        InputModeTracker.EnsureInstance();
+        var jiggle = GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = gameObject.AddComponent<SelectedJiggle>();
+        jiggle.SetScope(transform);
+
+        inputAdapter = GetComponent<MenuInputModeAdapter>();
+        if (inputAdapter == null)
+            inputAdapter = gameObject.AddComponent<MenuInputModeAdapter>();
+        inputAdapter.SetScope(transform);
+        inputAdapter.SetPreferred(null);
+
         // Wait a frame, then select to ensure EventSystem is active
         StartCoroutine(SelectStartingTabNextFrame());
     }
@@ -126,15 +140,40 @@ public class LevelBrowser : MonoBehaviour
     IEnumerator SelectStartingTabNextFrame()
     {
         yield return null; // wait one frame
-        if (EventSystem.current != null)
+        if (EventSystem.current != null
+            && InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
         {
-            var target =
-                (StartupManager.DemoModeEnabled || !hasLocalLevels)
-                    ? bundledTabButton
-                    : developerTabButton;
-            if (target != null)
+            var target = GetDefaultTabButton();
+            if (target != null && target != backButton)
                 EventSystem.current.SetSelectedGameObject(target.gameObject);
         }
+    }
+
+    private Button GetDefaultTabButton()
+    {
+        if (StartupManager.DemoModeEnabled || !hasLocalLevels)
+        {
+            if (bundledTabButton != null && bundledTabButton.gameObject.activeInHierarchy)
+                return bundledTabButton;
+        }
+        else if (developerTabButton != null && developerTabButton.gameObject.activeInHierarchy)
+        {
+            return developerTabButton;
+        }
+
+        if (localTabButton != null && localTabButton.gameObject.activeInHierarchy)
+            return localTabButton;
+        if (bundledTabButton != null && bundledTabButton.gameObject.activeInHierarchy)
+            return bundledTabButton;
+        if (developerTabButton != null && developerTabButton.gameObject.activeInHierarchy)
+            return developerTabButton;
+        if (communityTabButton != null && communityTabButton.gameObject.activeInHierarchy)
+            return communityTabButton;
+        if (myTessellationsButton != null && myTessellationsButton.gameObject.activeInHierarchy)
+            return myTessellationsButton;
+
+        return backButton;
     }
 
     void OnDisable()
@@ -158,7 +197,8 @@ public class LevelBrowser : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current.escapeKey.wasPressedThisFrame
+            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame))
             menuGM.OpenMainMenu();
     }
 
@@ -343,6 +383,7 @@ public class LevelBrowser : MonoBehaviour
         string query = filterInput.text.ToLower();
         var filtered = allLevels.Where(l => l.name.ToLower().Contains(query)).ToList();
 
+        LevelListItemUI firstItem = null;
         foreach (var level in filtered)
         {
             var itemGO = Instantiate(levelListItemPrefab, levelListContent);
@@ -366,12 +407,52 @@ public class LevelBrowser : MonoBehaviour
                 },
                 browser: this
             );
+
+            if (firstItem == null)
+                firstItem = itemUI;
         }
+
+        SelectFirstListItemIfNavigating(firstItem);
     }
 
     public void RefreshList()
     {
         SwitchTab(currTab);
+    }
+
+    private void SelectFirstListItemIfNavigating(LevelListItemUI firstItem)
+    {
+        if (firstItem == null || InputModeTracker.Instance == null)
+            return;
+        if (InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
+            return;
+
+        var button = firstItem.playButton != null && firstItem.playButton.gameObject.activeInHierarchy
+            ? firstItem.playButton
+            : firstItem.editOrRemixButton != null && firstItem.editOrRemixButton.gameObject.activeInHierarchy
+                ? firstItem.editOrRemixButton
+                : firstItem.deleteButton != null && firstItem.deleteButton.gameObject.activeInHierarchy
+                    ? firstItem.deleteButton
+                    : null;
+
+        if (button != null)
+        {
+            if (inputAdapter != null)
+                inputAdapter.SetPreferred(button);
+            StartCoroutine(SelectListButtonNextFrame(button));
+        }
+    }
+
+    private IEnumerator SelectListButtonNextFrame(Button button)
+    {
+        yield return null;
+        if (button == null || InputModeTracker.Instance == null)
+            yield break;
+        if (InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
+            yield break;
+
+        EventSystem.current?.SetSelectedGameObject(null);
+        EventSystem.current?.SetSelectedGameObject(button.gameObject);
     }
 
     public void ShowPreview(Sprite sprite, Vector2 screenPos)

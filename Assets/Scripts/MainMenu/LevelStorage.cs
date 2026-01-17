@@ -30,7 +30,7 @@ public static class LevelStorage
 
     public static bool TryGetLocalLevelPath(string levelName, out string path)
     {
-        if (StartupManager.SimulateEmptyLocalFolders)
+        if (StartupManager.DemoModeEnabled)
         {
             path = string.Empty;
             return false;
@@ -55,7 +55,7 @@ public static class LevelStorage
 
     public static bool LocalLevelExists(string levelName)
     {
-        if (StartupManager.SimulateEmptyLocalFolders)
+        if (StartupManager.DemoModeEnabled)
             return false;
 
         return TryGetLocalLevelPath(levelName, out _);
@@ -63,7 +63,7 @@ public static class LevelStorage
 
     public static bool HasLocalLevels()
     {
-        if (StartupManager.SimulateEmptyLocalFolders)
+        if (StartupManager.DemoModeEnabled)
             return false;
 
         foreach (var folder in GetLocalFolders())
@@ -96,7 +96,7 @@ public static class LevelStorage
 
     public static List<LevelInfo> LoadLocalLevelMetadata()
     {
-        if (StartupManager.SimulateEmptyLocalFolders)
+        if (StartupManager.DemoModeEnabled)
             return new List<LevelInfo>();
 
         var levelInfos = new List<LevelInfo>();

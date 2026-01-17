@@ -49,8 +49,18 @@ public class SupabaseController : MonoBehaviour
         var jwt = AuthState.Instance.Jwt;
         if (string.IsNullOrEmpty(jwt))
         {
-            Debug.LogError("Missing JWT — user not authenticated yet.");
+            Debug.LogError("Missing JWT - user not authenticated yet.");
             yield break;
+        }
+        if (AuthState.Instance.IsTokenExpired())
+        {
+            yield return StartCoroutine(AttemptReauth());
+            jwt = AuthState.Instance.Jwt;
+            if (string.IsNullOrEmpty(jwt) || AuthState.Instance.IsTokenExpired())
+            {
+                ToastManager.Instance.ShowToast("Session expired. Please sign in again.", 2f, true);
+                yield break;
+            }
         }
 
         // prepare the level payload
@@ -80,8 +90,7 @@ public class SupabaseController : MonoBehaviour
         }
         else
         {
-            // TODO: error variant for toast
-            ToastManager.Instance.ShowToast($"Failed upload :(");
+            ToastManager.Instance.ShowToast("Failed upload :(", 2f, true);
             Debug.LogError(
                 "Error saving level: " + request.error + "\n" + request.downloadHandler.text
             );
@@ -294,6 +303,15 @@ public class SupabaseController : MonoBehaviour
         request.uploadHandler.contentType = "application/json";
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("apikey", SUPABASE_API_KEY);
+        if (AuthState.Instance.IsTokenExpired())
+        {
+            yield return StartCoroutine(AttemptReauth());
+            if (AuthState.Instance.IsTokenExpired())
+            {
+                onComplete?.Invoke(false);
+                yield break;
+            }
+        }
         request.SetRequestHeader("Authorization", $"Bearer {AuthState.Instance.Jwt}");
         Debug.Log(AuthState.Instance.Jwt);
         request.SetRequestHeader("Content-Type", "application/json");
@@ -354,5 +372,18 @@ public class SupabaseController : MonoBehaviour
         {
             return null;
         }
+    }
+
+    private IEnumerator AttemptReauth()
+    {
+        if (StartupManager.DemoModeEnabled || StartupManager.Instance == null)
+            yield break;
+
+        string steamId = AuthState.Instance.SteamId;
+        if (string.IsNullOrEmpty(steamId))
+            yield break;
+
+        ToastManager.Instance.ShowToast("Refreshing session...", 2f);
+        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamId));
     }
 }

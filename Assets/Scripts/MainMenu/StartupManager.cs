@@ -10,13 +10,7 @@ public class StartupManager : MonoBehaviour
     [SerializeField]
     private bool demoMode = false;
 
-    [Header("Testing")]
-    [SerializeField]
-    private bool simulateEmptyLocalFolders = false;
-
     public static bool DemoModeEnabled => Instance != null && Instance.demoMode;
-    public static bool SimulateEmptyLocalFolders =>
-        Instance != null && Instance.simulateEmptyLocalFolders;
 
     [Header("DEV ONLY - Test SteamID (used if none provided elsewhere)")]
     [SerializeField]
@@ -188,6 +182,12 @@ public class StartupManager : MonoBehaviour
                 jwt.Length > 20 ? $"{jwt.Substring(0, 10)}...{jwt.Substring(jwt.Length - 8)}" : jwt;
 
             Debug.Log($"[JWT OK] {preview}");
+            if (AuthState.Instance.TokenExpiryUnix > 0)
+            {
+                long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                long secondsLeft = (long)AuthState.Instance.TokenExpiryUnix - now;
+                Debug.Log($"[JWT OK] Expires in {secondsLeft}s (~{secondsLeft / 60f:F1} min).");
+            }
         }
 
         // --- Extract Steam player info ---
