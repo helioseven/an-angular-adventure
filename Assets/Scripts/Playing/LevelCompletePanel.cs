@@ -160,6 +160,11 @@ public class LevelCompletePanel : MonoBehaviour
             case PlayModeContext.FromBrowser:
                 // In this case the user clicked "retry level"
                 // start the play scene and set the level info based on current level / context
+                if (levelLoader == null)
+                {
+                    Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                    return;
+                }
                 PlayLoader playLoaderGO = Instantiate(levelLoader);
                 var playLoader = playLoaderGO.GetComponent<PlayLoader>();
                 playLoader.levelInfo = PlayGM.instance.levelInfo;
@@ -167,6 +172,11 @@ public class LevelCompletePanel : MonoBehaviour
                 break;
             case PlayModeContext.FromMainMenuPlayButton:
                 // start the play scene without any extra info - it will load default level
+                if (levelLoader == null)
+                {
+                    Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                    return;
+                }
                 Instantiate(levelLoader);
                 break;
         }
@@ -176,6 +186,11 @@ public class LevelCompletePanel : MonoBehaviour
     {
         if (!StartupManager.DemoModeEnabled)
         {
+            if (levelLoader == null)
+            {
+                Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                return;
+            }
             PlayLoader retryLoaderGO = Instantiate(levelLoader);
             var retryLoader = retryLoaderGO.GetComponent<PlayLoader>();
             retryLoader.levelInfo = PlayGM.instance.levelInfo;
@@ -183,10 +198,15 @@ public class LevelCompletePanel : MonoBehaviour
             return;
         }
 
-        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
+        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime(PlayGM.instance?.levelName);
         if (next == null)
             return;
 
+        if (levelLoader == null)
+        {
+            Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+            return;
+        }
         PlayLoader playLoaderGO = Instantiate(levelLoader);
         var playLoader = playLoaderGO.GetComponent<PlayLoader>();
         playLoader.levelInfo = next;

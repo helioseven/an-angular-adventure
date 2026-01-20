@@ -19,6 +19,9 @@ public class SettingsMenu : MonoBehaviour
 
     public Button backButton;
 
+    [Header("Pause Menu Integration")]
+    public PausePanel pausePanel;
+
     private const string masterVolumeKey = "MasterVolume";
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";
@@ -38,9 +41,11 @@ public class SettingsMenu : MonoBehaviour
         adapter.SetScope(transform);
         adapter.SetPreferred(masterVolumeSlider);
 
-        if (InputModeTracker.Instance != null
+        if (
+            InputModeTracker.Instance != null
             && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
-            && masterVolumeSlider != null)
+            && masterVolumeSlider != null
+        )
         {
             MenuFocusUtility.SelectPreferred(gameObject, masterVolumeSlider);
         }
@@ -69,23 +74,33 @@ public class SettingsMenu : MonoBehaviour
         percent = Mathf.RoundToInt(savedSFXVolume * 100f);
         sfxVolumeLabel.text = percent + "%";
 
-        // Hook up slider event
+        // Hook up slider events
         masterVolumeSlider.onValueChanged.AddListener(ApplyMasterVolume);
+        musicVolumeSlider.onValueChanged.AddListener(ApplyMusicVolume);
+        sfxVolumeSlider.onValueChanged.AddListener(ApplySFXVolume);
 
         // Hook up back button
         if (backButton != null)
             backButton.onClick.AddListener(() =>
             {
-                menuGM.OpenMainMenu();
+                if (pausePanel != null)
+                    pausePanel.ShowMainMenu();
+                else if (menuGM != null)
+                    menuGM.OpenMainMenu();
             });
     }
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame
-            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame))
+        if (
+            Keyboard.current.escapeKey.wasPressedThisFrame
+            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        )
         {
-            menuGM.OpenMainMenu();
+            if (pausePanel != null)
+                pausePanel.ShowMainMenu();
+            else if (menuGM != null)
+                menuGM.OpenMainMenu();
         }
     }
 

@@ -1731,7 +1731,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  demoMode: 0
+  demoMode: 1
   testSteamId: 
 --- !u!1 &339975805
 GameObject:
@@ -10856,6 +10856,7 @@ MonoBehaviour:
   sfxVolumeSlider: {fileID: 717948059}
   sfxVolumeLabel: {fileID: 1602360706}
   backButton: {fileID: 2142331643}
+  pausePanel: {fileID: 0}
 --- !u!1 &2089692218
 GameObject:
   m_ObjectHideFlags: 0

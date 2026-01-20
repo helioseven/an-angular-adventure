@@ -51,6 +51,9 @@ public class SoundManager : MonoBehaviour
             {
                 s.source.outputAudioMixerGroup = musicGroup;
             }
+
+            // Allow music to keep playing while the game is paused via AudioListener.pause.
+            s.source.ignoreListenerPause = s.source.outputAudioMixerGroup == musicGroup;
         }
     }
 

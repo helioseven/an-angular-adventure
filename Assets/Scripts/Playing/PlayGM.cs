@@ -29,6 +29,9 @@ public partial class PlayGM : MonoBehaviour
     public PlayModeContext playModeContext = PlayModeContext.FromMainMenuPlayButton;
     public LevelInfo levelInfo;
 
+    [SerializeField]
+    private PauseMenu pauseMenu;
+
     // public read-accessibile state variables
     public GameObject activeCheckpoint { get; private set; }
     public CheckpointData activeCheckpointData { get; private set; }
@@ -44,6 +47,7 @@ public partial class PlayGM : MonoBehaviour
     [Header("Victory Grab")]
     [SerializeField]
     private float victoryPullDuration = 0.4f;
+
     [SerializeField]
     private float victoryHoldDuration = 0.6f;
 
@@ -138,6 +142,8 @@ public partial class PlayGM : MonoBehaviour
         Boundary[] bs = { boundaryDown, boundaryLeft, boundaryRight, boundaryUp };
         foreach (Boundary b in bs)
             b.SetBoundary();
+        foreach (Boundary b in bs)
+            b.SetBoundarySpanFromPeers();
 
         GameObject checkpoint = checkpointMap.transform.GetChild(0).gameObject;
         SetCheckpoint(checkpoint);
@@ -155,11 +161,13 @@ public partial class PlayGM : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-            OnEscapePressed();
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            pauseMenu.TogglePause();
+        else if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+            pauseMenu.TogglePause();
     }
 
-    private void OnEscapePressed()
+    public void QuitToMenu()
     {
         if (playModeContext == PlayModeContext.FromEditor)
         {

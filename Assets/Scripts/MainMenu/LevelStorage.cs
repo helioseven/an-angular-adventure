@@ -217,11 +217,18 @@ public static class LevelStorage
         return levelInfos;
     }
 
-    public static LevelInfo GetNextBundledLevelByBestTime()
+    public static LevelInfo GetNextBundledLevelByBestTime(string excludeLevelName = null)
     {
         List<LevelInfo> bundled = LoadBundledLevelMetadata();
+        StringComparison comparison = StringComparison.OrdinalIgnoreCase;
+        Predicate<LevelInfo> allow = info =>
+            string.IsNullOrEmpty(excludeLevelName)
+            || !string.Equals(info.name, excludeLevelName, comparison);
+
         foreach (LevelInfo info in bundled)
         {
+            if (!allow(info))
+                continue;
             if (!BestTimeStore.TryGetBestTime(info.name, info.dataHash, out _))
             {
                 Debug.Log(
@@ -233,11 +240,18 @@ public static class LevelStorage
 
         if (bundled.Count > 0)
         {
-            int idx = UnityEngine.Random.Range(0, bundled.Count);
+            var allowed = bundled.FindAll(info => allow(info));
+            if (allowed.Count == 0)
+            {
+                Debug.Log("[NextLevel] All played, but only excluded level available.");
+                return null;
+            }
+
+            int idx = UnityEngine.Random.Range(0, allowed.Count);
             Debug.Log(
-                $"[NextLevel] All played, random pick: {bundled[idx].name} (hash {bundled[idx].dataHash?.Substring(0, 8)})"
+                $"[NextLevel] All played, random pick: {allowed[idx].name} (hash {allowed[idx].dataHash?.Substring(0, 8)})"
             );
-            return bundled[idx];
+            return allowed[idx];
         }
 
         Debug.Log("[NextLevel] No bundled levels found.");
