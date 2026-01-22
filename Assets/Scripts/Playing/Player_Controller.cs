@@ -48,6 +48,7 @@ public class Player_Controller : MonoBehaviour
     private bool _jumpTriggered;
     private bool _groundOverrideJumpBlock;
     private bool _inputEnabled = true;
+    private bool _suppressJumpUntilRelease;
     private const float PROBE_SKIN = 0.01f;
 
     // New Input System
@@ -204,6 +205,14 @@ public class Player_Controller : MonoBehaviour
     {
         if (!_inputEnabled)
         {
+            _jumpTriggered = false;
+            return;
+        }
+
+        if (_suppressJumpUntilRelease)
+        {
+            if (!_jumpPressed)
+                _suppressJumpUntilRelease = false;
             _jumpTriggered = false;
             return;
         }
@@ -544,6 +553,14 @@ public class Player_Controller : MonoBehaviour
             _jumpTriggered = false;
             _jumpHoldActive = false;
             _jumpNow = false;
+            _suppressJumpUntilRelease = false;
         }
+    }
+
+    public void SuppressJumpUntilRelease()
+    {
+        _suppressJumpUntilRelease = true;
+        _jumpTriggered = false;
+        _jumpNow = false;
     }
 }

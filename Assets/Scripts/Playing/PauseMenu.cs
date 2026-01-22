@@ -34,14 +34,13 @@ public class PauseMenu : MonoBehaviour
         if (_playGM != null && _playGM.victoryAchieved)
             return;
 
-        if (!EnsurePanel())
-            return;
-
         _previousTimeScale = Time.timeScale;
         Time.timeScale = 0f;
         AudioListener.pause = true;
         _isPaused = true;
-        _playGM.player.SetInputEnabled(false);
+        _playGM?.player?.SetInputEnabled(false);
+        if (InputManager.Instance != null)
+            InputManager.Instance.Controls.Player.Disable();
         pausePanel.Show();
     }
 
@@ -64,7 +63,12 @@ public class PauseMenu : MonoBehaviour
         _settingsOpen = false;
         Time.timeScale = _previousTimeScale <= 0f ? 1f : _previousTimeScale;
         AudioListener.pause = false;
-        _playGM.player.SetInputEnabled(true);
+        if (InputManager.Instance != null)
+            InputManager.Instance.Controls.Player.Enable();
+        if (_playGM?.player != null)
+        {
+            _playGM.player.SetInputEnabled(true);
+        }
         pausePanel.Hide();
     }
 
@@ -74,22 +78,9 @@ public class PauseMenu : MonoBehaviour
         _settingsOpen = false;
         Time.timeScale = 1f;
         AudioListener.pause = false;
-        _playGM.player.SetInputEnabled(true);
+        if (InputManager.Instance != null)
+            InputManager.Instance.Controls.Player.Enable();
+        _playGM?.player?.SetInputEnabled(true);
         pausePanel.Hide();
-    }
-
-    private bool EnsurePanel()
-    {
-        if (pausePanel != null)
-            return true;
-
-        pausePanel = Object.FindFirstObjectByType<PausePanel>(FindObjectsInactive.Include);
-        if (pausePanel == null)
-        {
-            Debug.LogError("[PauseMenu] PausePanel not found in scene.");
-            return false;
-        }
-
-        return true;
     }
 }
