@@ -65,6 +65,12 @@ public class PausePanel : MonoBehaviour
             return;
         }
 
+        if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
+        {
+            pauseMenu.Resume();
+            return;
+        }
+
         if (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
         {
             if (pauseMenu != null && pauseMenu.IsSettingsOpen)
