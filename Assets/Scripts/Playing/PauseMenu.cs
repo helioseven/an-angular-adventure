@@ -9,8 +9,10 @@ public class PauseMenu : MonoBehaviour
     private PlayGM _playGM;
     private float _previousTimeScale = 1f;
     private bool _isPaused;
+    private bool _settingsOpen;
 
     public bool IsPaused => _isPaused;
+    public bool IsSettingsOpen => _settingsOpen;
 
     private void Awake()
     {
@@ -39,8 +41,18 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         AudioListener.pause = true;
         _isPaused = true;
-        _playGM?.player?.SetInputEnabled(false);
+        _playGM.player.SetInputEnabled(false);
         pausePanel.Show();
+    }
+
+    public void OpenMainPauseMenu()
+    {
+        pausePanel.ShowMainMenu();
+    }
+
+    public void SetSettingsOpen(bool open)
+    {
+        _settingsOpen = open;
     }
 
     public void Resume()
@@ -49,19 +61,21 @@ public class PauseMenu : MonoBehaviour
             return;
 
         _isPaused = false;
+        _settingsOpen = false;
         Time.timeScale = _previousTimeScale <= 0f ? 1f : _previousTimeScale;
         AudioListener.pause = false;
-        _playGM?.player?.SetInputEnabled(true);
-        pausePanel?.Hide();
+        _playGM.player.SetInputEnabled(true);
+        pausePanel.Hide();
     }
 
     public void PrepareForSceneChange()
     {
         _isPaused = false;
+        _settingsOpen = false;
         Time.timeScale = 1f;
         AudioListener.pause = false;
-        _playGM?.player?.SetInputEnabled(true);
-        pausePanel?.Hide();
+        _playGM.player.SetInputEnabled(true);
+        pausePanel.Hide();
     }
 
     private bool EnsurePanel()

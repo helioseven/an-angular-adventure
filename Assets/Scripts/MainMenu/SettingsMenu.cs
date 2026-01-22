@@ -29,6 +29,7 @@ public class SettingsMenu : MonoBehaviour
     private void OnEnable()
     {
         InputModeTracker.EnsureInstance();
+        pausePanel.NotifySettingsOpen(true);
 
         var jiggle = GetComponent<SelectedJiggle>();
         if (jiggle == null)
@@ -49,6 +50,13 @@ public class SettingsMenu : MonoBehaviour
         {
             MenuFocusUtility.SelectPreferred(gameObject, masterVolumeSlider);
         }
+
+        ApplyWrapNavigation();
+    }
+
+    private void OnDisable()
+    {
+        pausePanel.NotifySettingsOpen(false);
     }
 
     private void Start()
@@ -98,9 +106,14 @@ public class SettingsMenu : MonoBehaviour
         )
         {
             if (pausePanel != null)
+            {
+                var pauseMenu = pausePanel.GetComponent<PauseMenu>();
                 pausePanel.ShowMainMenu();
+            }
             else if (menuGM != null)
+            {
                 menuGM.OpenMainMenu();
+            }
         }
     }
 
@@ -150,5 +163,47 @@ public class SettingsMenu : MonoBehaviour
     public void SaveSettings()
     {
         PlayerPrefs.Save();
+    }
+
+    public void RefreshNavigation()
+    {
+        ApplyWrapNavigation();
+    }
+
+    private void ApplyWrapNavigation()
+    {
+        var order = new Selectable[]
+        {
+            masterVolumeSlider,
+            musicVolumeSlider,
+            sfxVolumeSlider,
+            backButton,
+        };
+
+        var active = new System.Collections.Generic.List<Selectable>(order.Length);
+        foreach (var selectable in order)
+        {
+            if (
+                selectable == null
+                || !selectable.gameObject.activeInHierarchy
+                || !selectable.IsInteractable()
+            )
+                continue;
+            active.Add(selectable);
+        }
+
+        if (active.Count < 2)
+            return;
+
+        for (int i = 0; i < active.Count; i++)
+        {
+            var nav = active[i].navigation;
+            nav.mode = Navigation.Mode.Explicit;
+            nav.selectOnUp = i > 0 ? active[i - 1] : active[active.Count - 1];
+            nav.selectOnDown = i < active.Count - 1 ? active[i + 1] : active[0];
+            nav.selectOnLeft = null;
+            nav.selectOnRight = null;
+            active[i].navigation = nav;
+        }
     }
 }

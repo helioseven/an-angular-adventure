@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class PausePanel : MonoBehaviour
@@ -48,6 +49,33 @@ public class PausePanel : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    private void Update()
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            if (pauseMenu != null && pauseMenu.IsSettingsOpen)
+            {
+                ShowMainMenu();
+            }
+            else
+                pauseMenu.Resume();
+            return;
+        }
+
+        if (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        {
+            if (pauseMenu != null && pauseMenu.IsSettingsOpen)
+            {
+                ShowMainMenu();
+            }
+            else
+                pauseMenu.Resume();
+        }
+    }
+
     public void Show()
     {
         if (headerText != null)
@@ -55,8 +83,8 @@ public class PausePanel : MonoBehaviour
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
 
-        ShowMainMenu();
         gameObject.SetActive(true);
+        ShowMainMenu();
         StartCoroutine(EnableUIAfterFade());
     }
 
@@ -80,6 +108,7 @@ public class PausePanel : MonoBehaviour
 
         _activeContainer = mainButtonContainer != null ? mainButtonContainer : gameObject;
         ApplyButtonNavigation(_activeContainer);
+        pauseMenu.SetSettingsOpen(false);
         if (settingsBackButton != null)
             settingsBackButton.onClick.RemoveAllListeners();
         RefreshNavigationFocus();
@@ -94,12 +123,23 @@ public class PausePanel : MonoBehaviour
 
         _activeContainer = settingsContainer != null ? settingsContainer : gameObject;
         ApplyButtonNavigation(_activeContainer);
+        pauseMenu.SetSettingsOpen(true);
+        var settingsMenu =
+            _activeContainer != null
+                ? _activeContainer.GetComponentInChildren<SettingsMenu>(true)
+                : null;
+        settingsMenu.RefreshNavigation();
         if (settingsBackButton != null)
         {
             settingsBackButton.onClick.RemoveAllListeners();
             settingsBackButton.onClick.AddListener(ShowMainMenu);
         }
         RefreshNavigationFocus();
+    }
+
+    public void NotifySettingsOpen(bool open)
+    {
+        pauseMenu.SetSettingsOpen(open);
     }
 
     public void OnResumeButton()
@@ -110,7 +150,7 @@ public class PausePanel : MonoBehaviour
     public void OnMainMenuButton()
     {
         pauseMenu.PrepareForSceneChange();
-        PlayGM.instance?.QuitToMenu();
+        PlayGM.instance.QuitToMenu();
     }
 
     public void OnRestartButton()
@@ -191,15 +231,42 @@ public class PausePanel : MonoBehaviour
                 && selectable.gameObject.activeInHierarchy
                 && selectable.IsInteractable()
             )
+            {
+                if (
+                    container == mainButtonContainer
+                    && selectable.transform.parent != container.transform
+                )
+                    continue;
                 activeSelectables.Add(selectable);
+            }
         }
+
+        if (container == mainButtonContainer)
+            activeSelectables.Sort(
+                (a, b) => a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex())
+            );
 
         for (int i = 0; i < activeSelectables.Count; i++)
         {
             var nav = activeSelectables[i].navigation;
             nav.mode = Navigation.Mode.Explicit;
-            nav.selectOnUp = i > 0 ? activeSelectables[i - 1] : null;
-            nav.selectOnDown = i < activeSelectables.Count - 1 ? activeSelectables[i + 1] : null;
+            if (container == mainButtonContainer && activeSelectables.Count > 1)
+            {
+                nav.selectOnUp =
+                    i > 0
+                        ? activeSelectables[i - 1]
+                        : activeSelectables[activeSelectables.Count - 1];
+                nav.selectOnDown =
+                    i < activeSelectables.Count - 1
+                        ? activeSelectables[i + 1]
+                        : activeSelectables[0];
+            }
+            else
+            {
+                nav.selectOnUp = i > 0 ? activeSelectables[i - 1] : null;
+                nav.selectOnDown =
+                    i < activeSelectables.Count - 1 ? activeSelectables[i + 1] : null;
+            }
             nav.selectOnLeft = null;
             nav.selectOnRight = null;
             activeSelectables[i].navigation = nav;

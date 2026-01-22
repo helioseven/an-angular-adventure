@@ -161,10 +161,19 @@ public partial class PlayGM : MonoBehaviour
 
     private void Update()
     {
+        if (pauseMenu == null)
+            return;
+
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
-            pauseMenu.TogglePause();
+        {
+            if (!pauseMenu.IsPaused)
+                pauseMenu.TogglePause();
+        }
         else if (Gamepad.current != null && Gamepad.current.startButton.wasPressedThisFrame)
-            pauseMenu.TogglePause();
+        {
+            if (!pauseMenu.IsPaused)
+                pauseMenu.TogglePause();
+        }
     }
 
     public void QuitToMenu()

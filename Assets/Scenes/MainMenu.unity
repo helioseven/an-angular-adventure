@@ -1731,7 +1731,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  demoMode: 1
+  demoMode: 0
   testSteamId: 
 --- !u!1 &339975805
 GameObject:
@@ -10397,7 +10397,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 40, y: 0}
   m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1937077225
