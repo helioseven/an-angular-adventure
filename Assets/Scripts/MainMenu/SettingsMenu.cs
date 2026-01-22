@@ -29,7 +29,7 @@ public class SettingsMenu : MonoBehaviour
     private void OnEnable()
     {
         InputModeTracker.EnsureInstance();
-        pausePanel.NotifySettingsOpen(true);
+        pausePanel?.NotifySettingsOpen(true);
 
         var jiggle = GetComponent<SelectedJiggle>();
         if (jiggle == null)
@@ -56,7 +56,7 @@ public class SettingsMenu : MonoBehaviour
 
     private void OnDisable()
     {
-        pausePanel.NotifySettingsOpen(false);
+        pausePanel?.NotifySettingsOpen(false);
     }
 
     private void Start()
@@ -107,7 +107,6 @@ public class SettingsMenu : MonoBehaviour
         {
             if (pausePanel != null)
             {
-                var pauseMenu = pausePanel.GetComponent<PauseMenu>();
                 pausePanel.ShowMainMenu();
             }
             else if (menuGM != null)
