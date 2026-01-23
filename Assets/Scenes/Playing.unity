@@ -6556,16 +6556,15 @@ MonoBehaviour:
   settingsBackButton: {fileID: 359370843}
   canvasGroup: {fileID: 1550526533}
   headerText: {fileID: 2128820424}
+  mainMenuButton: {fileID: 579390131}
+  mainMenuButtonText: {fileID: 199150183}
+  mainMenuLabel: Main Menu
+  backToCreateLabel: Back to Create
   pausedTitle: Paused
   fadeDelaySeconds: 0
   pauseMenu: {fileID: 1550526536}
   playLoaderPrefab: {fileID: 114512282420527558, guid: bbac2f3309ace634a8fa5422c3c1047c,
     type: 3}
-  mainMenuOrder:
-  - {fileID: 1249945583}
-  - {fileID: 476380874}
-  - {fileID: 1149579008}
-  - {fileID: 579390131}
 --- !u!95 &1550526532
 Animator:
   serializedVersion: 7

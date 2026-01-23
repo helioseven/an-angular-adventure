@@ -22,6 +22,19 @@ public class PausePanel : MonoBehaviour
     [SerializeField]
     private TMP_Text headerText;
 
+    [Header("Main Menu Button")]
+    [SerializeField]
+    private Button mainMenuButton;
+
+    [SerializeField]
+    private TMP_Text mainMenuButtonText;
+
+    [SerializeField]
+    private string mainMenuLabel = "Main Menu";
+
+    [SerializeField]
+    private string backToCreateLabel = "Back to Create";
+
     [SerializeField]
     private string pausedTitle = "Paused";
 
@@ -112,6 +125,8 @@ public class PausePanel : MonoBehaviour
         if (settingsContainer != null)
             settingsContainer.SetActive(false);
 
+        ConfigureMainMenuButton();
+
         _activeContainer = mainButtonContainer != null ? mainButtonContainer : gameObject;
         ApplyButtonNavigation(_activeContainer);
         pauseMenu.SetSettingsOpen(false);
@@ -154,6 +169,12 @@ public class PausePanel : MonoBehaviour
     }
 
     public void OnMainMenuButton()
+    {
+        pauseMenu.PrepareForSceneChange();
+        PlayGM.instance.QuitToMenu();
+    }
+
+    public void OnBackToCreateButton()
     {
         pauseMenu.PrepareForSceneChange();
         PlayGM.instance.QuitToMenu();
@@ -208,6 +229,63 @@ public class PausePanel : MonoBehaviour
         adapter.SetScope(_activeContainer != null ? _activeContainer.transform : transform);
 
         RefreshNavigationFocus();
+    }
+
+    private void ConfigureMainMenuButton()
+    {
+        ResolveMainMenuButton();
+
+        bool fromEditor =
+            PlayGM.instance != null
+            && PlayGM.instance.playModeContext == PlayGM.PlayModeContext.FromEditor;
+
+        if (mainMenuButtonText != null)
+            mainMenuButtonText.text = fromEditor ? backToCreateLabel : mainMenuLabel;
+
+        if (mainMenuButton != null)
+        {
+            mainMenuButton.onClick.RemoveListener(OnMainMenuButton);
+            mainMenuButton.onClick.RemoveListener(OnBackToCreateButton);
+
+            if (fromEditor)
+                mainMenuButton.onClick.AddListener(OnBackToCreateButton);
+            else
+                mainMenuButton.onClick.AddListener(OnMainMenuButton);
+        }
+    }
+
+    private void ResolveMainMenuButton()
+    {
+        if (mainMenuButton == null && mainButtonContainer != null)
+        {
+            var buttons = mainButtonContainer.GetComponentsInChildren<Button>(true);
+            foreach (var button in buttons)
+            {
+                if (button == null)
+                    continue;
+
+                var label = button.GetComponentInChildren<TMP_Text>(true);
+                if (
+                    label != null
+                    && (label.text == mainMenuLabel || label.text == backToCreateLabel)
+                )
+                {
+                    mainMenuButton = button;
+                    mainMenuButtonText = label;
+                    break;
+                }
+
+                if (button.name.Contains("Main Menu"))
+                {
+                    mainMenuButton = button;
+                    mainMenuButtonText = label ?? button.GetComponentInChildren<TMP_Text>(true);
+                    break;
+                }
+            }
+        }
+
+        if (mainMenuButtonText == null && mainMenuButton != null)
+            mainMenuButtonText = mainMenuButton.GetComponentInChildren<TMP_Text>(true);
     }
 
     private void RefreshNavigationFocus()
