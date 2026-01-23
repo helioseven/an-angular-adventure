@@ -23,6 +23,7 @@ public class OverwriteDialogControl : MonoBehaviour
     )
     {
         gameObject.SetActive(true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         promptText.text = $"A tessellation named \"{levelName}\" already exists.";
         incrementButton.GetComponentInChildren<TMP_Text>().text =
             $"Save As...\n \"{levelNameIncremented}\"";
@@ -50,6 +51,8 @@ public class OverwriteDialogControl : MonoBehaviour
             onIncrement?.Invoke();
             Close();
         });
+
+        MenuFocusUtility.SelectPreferred(gameObject, cancelButton);
     }
 
     private void Close()

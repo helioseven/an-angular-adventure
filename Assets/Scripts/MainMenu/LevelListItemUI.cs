@@ -56,7 +56,11 @@ public class LevelListItemUI
         }
 
         bestTimeText.text = bestTimeLabel == null ? "" : $"Best {bestTimeLabel}";
-        creatorNameText.text = creatorLabel;
+        if (creatorNameText != null)
+        {
+            creatorNameText.text = creatorLabel;
+            creatorNameText.gameObject.SetActive(!StartupManager.DemoModeEnabled);
+        }
 
         editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 

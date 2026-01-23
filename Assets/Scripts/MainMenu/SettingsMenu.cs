@@ -19,9 +19,45 @@ public class SettingsMenu : MonoBehaviour
 
     public Button backButton;
 
+    [Header("Pause Menu Integration")]
+    public PausePanel pausePanel;
+
     private const string masterVolumeKey = "MasterVolume";
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";
+
+    private void OnEnable()
+    {
+        InputModeTracker.EnsureInstance();
+        pausePanel?.NotifySettingsOpen(true);
+
+        var jiggle = GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = gameObject.AddComponent<SelectedJiggle>();
+        jiggle.SetScope(transform);
+
+        var adapter = GetComponent<MenuInputModeAdapter>();
+        if (adapter == null)
+            adapter = gameObject.AddComponent<MenuInputModeAdapter>();
+        adapter.SetScope(transform);
+        adapter.SetPreferred(masterVolumeSlider);
+
+        if (
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            && masterVolumeSlider != null
+        )
+        {
+            MenuFocusUtility.SelectPreferred(gameObject, masterVolumeSlider);
+        }
+
+        ApplyWrapNavigation();
+    }
+
+    private void OnDisable()
+    {
+        pausePanel?.NotifySettingsOpen(false);
+    }
 
     private void Start()
     {
@@ -46,22 +82,37 @@ public class SettingsMenu : MonoBehaviour
         percent = Mathf.RoundToInt(savedSFXVolume * 100f);
         sfxVolumeLabel.text = percent + "%";
 
-        // Hook up slider event
+        // Hook up slider events
         masterVolumeSlider.onValueChanged.AddListener(ApplyMasterVolume);
+        musicVolumeSlider.onValueChanged.AddListener(ApplyMusicVolume);
+        sfxVolumeSlider.onValueChanged.AddListener(ApplySFXVolume);
 
         // Hook up back button
         if (backButton != null)
             backButton.onClick.AddListener(() =>
             {
-                menuGM.OpenMainMenu();
+                if (pausePanel != null)
+                    pausePanel.ShowMainMenu();
+                else if (menuGM != null)
+                    menuGM.OpenMainMenu();
             });
     }
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (
+            Keyboard.current.escapeKey.wasPressedThisFrame
+            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        )
         {
-            menuGM.OpenMainMenu();
+            if (pausePanel != null)
+            {
+                pausePanel.ShowMainMenu();
+            }
+            else if (menuGM != null)
+            {
+                menuGM.OpenMainMenu();
+            }
         }
     }
 
@@ -111,5 +162,47 @@ public class SettingsMenu : MonoBehaviour
     public void SaveSettings()
     {
         PlayerPrefs.Save();
+    }
+
+    public void RefreshNavigation()
+    {
+        ApplyWrapNavigation();
+    }
+
+    private void ApplyWrapNavigation()
+    {
+        var order = new Selectable[]
+        {
+            masterVolumeSlider,
+            musicVolumeSlider,
+            sfxVolumeSlider,
+            backButton,
+        };
+
+        var active = new System.Collections.Generic.List<Selectable>(order.Length);
+        foreach (var selectable in order)
+        {
+            if (
+                selectable == null
+                || !selectable.gameObject.activeInHierarchy
+                || !selectable.IsInteractable()
+            )
+                continue;
+            active.Add(selectable);
+        }
+
+        if (active.Count < 2)
+            return;
+
+        for (int i = 0; i < active.Count; i++)
+        {
+            var nav = active[i].navigation;
+            nav.mode = Navigation.Mode.Explicit;
+            nav.selectOnUp = i > 0 ? active[i - 1] : active[active.Count - 1];
+            nav.selectOnDown = i < active.Count - 1 ? active[i + 1] : active[0];
+            nav.selectOnLeft = null;
+            nav.selectOnRight = null;
+            active[i].navigation = nav;
+        }
     }
 }

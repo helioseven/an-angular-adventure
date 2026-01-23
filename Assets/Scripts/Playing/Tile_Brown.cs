@@ -41,6 +41,8 @@ public class Tile_Brown : Tile
     // brown tiles have no player action
     private void playerAction()
     {
+        if (_gmRef != null && _gmRef.soundManager != null)
+            _gmRef.soundManager.Play("brownStick");
         return;
     }
 }

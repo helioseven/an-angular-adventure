@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -31,6 +31,7 @@ public class SaveDialogControl : MonoBehaviour
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         gameObject.SetActive(true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         _inputField.Select();
     }
 
@@ -113,4 +114,6 @@ public class SaveDialogControl : MonoBehaviour
         }
         return name;
     }
+
 }
+

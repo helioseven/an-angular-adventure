@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,13 +14,17 @@ public class LevelCompletePanel : MonoBehaviour
     public TMP_Text levelCompleteNameText;
     public GameObject playtestButtons;
     public GameObject standardButtons;
+
     [SerializeField]
     private Button uploadButton;
+
     [SerializeField]
     private Button nextLevelButton;
+
     [SerializeField]
     private TMP_Text nextLevelLabel;
     private bool uploadComplete = false;
+    private GameObject activeButtonContainer;
 
     private void Start()
     {
@@ -38,11 +43,15 @@ public class LevelCompletePanel : MonoBehaviour
             case PlayModeContext.FromEditor:
                 playtestButtons.SetActive(true);
                 standardButtons.SetActive(false);
+                activeButtonContainer = playtestButtons;
+                ApplyButtonNavigation(playtestButtons);
                 break;
             case PlayModeContext.FromBrowser:
             case PlayModeContext.FromMainMenuPlayButton:
                 playtestButtons.SetActive(false);
                 standardButtons.SetActive(true);
+                activeButtonContainer = standardButtons;
+                ApplyButtonNavigation(standardButtons);
                 break;
         }
 
@@ -62,6 +71,26 @@ public class LevelCompletePanel : MonoBehaviour
         {
             group.interactable = true;
             group.blocksRaycasts = true;
+        }
+        InputModeTracker.EnsureInstance();
+
+        var jiggle = GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = gameObject.AddComponent<SelectedJiggle>();
+        jiggle.SetScope(activeButtonContainer != null ? activeButtonContainer.transform : transform);
+
+        var adapter = GetComponent<MenuInputModeAdapter>();
+        if (adapter == null)
+            adapter = gameObject.AddComponent<MenuInputModeAdapter>();
+        adapter.SetScope(activeButtonContainer != null ? activeButtonContainer.transform : transform);
+
+        if (InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+        {
+            if (activeButtonContainer != null)
+                MenuFocusUtility.SelectPreferred(activeButtonContainer);
+            else
+                MenuFocusUtility.SelectPreferred(gameObject);
         }
     }
 
@@ -131,6 +160,11 @@ public class LevelCompletePanel : MonoBehaviour
             case PlayModeContext.FromBrowser:
                 // In this case the user clicked "retry level"
                 // start the play scene and set the level info based on current level / context
+                if (levelLoader == null)
+                {
+                    Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                    return;
+                }
                 PlayLoader playLoaderGO = Instantiate(levelLoader);
                 var playLoader = playLoaderGO.GetComponent<PlayLoader>();
                 playLoader.levelInfo = PlayGM.instance.levelInfo;
@@ -138,6 +172,11 @@ public class LevelCompletePanel : MonoBehaviour
                 break;
             case PlayModeContext.FromMainMenuPlayButton:
                 // start the play scene without any extra info - it will load default level
+                if (levelLoader == null)
+                {
+                    Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                    return;
+                }
                 Instantiate(levelLoader);
                 break;
         }
@@ -147,6 +186,11 @@ public class LevelCompletePanel : MonoBehaviour
     {
         if (!StartupManager.DemoModeEnabled)
         {
+            if (levelLoader == null)
+            {
+                Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+                return;
+            }
             PlayLoader retryLoaderGO = Instantiate(levelLoader);
             var retryLoader = retryLoaderGO.GetComponent<PlayLoader>();
             retryLoader.levelInfo = PlayGM.instance.levelInfo;
@@ -154,10 +198,15 @@ public class LevelCompletePanel : MonoBehaviour
             return;
         }
 
-        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
+        LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime(PlayGM.instance?.levelName);
         if (next == null)
             return;
 
+        if (levelLoader == null)
+        {
+            Debug.LogError("[LevelCompletePanel] PlayLoader prefab not assigned.");
+            return;
+        }
         PlayLoader playLoaderGO = Instantiate(levelLoader);
         var playLoader = playLoaderGO.GetComponent<PlayLoader>();
         playLoader.levelInfo = next;
@@ -202,6 +251,31 @@ public class LevelCompletePanel : MonoBehaviour
         nextLevelLabel.text = demo ? "Next Level" : "Retry Level";
         nextLevelButton.onClick.RemoveAllListeners();
         nextLevelButton.onClick.AddListener(OnNextLevelButton);
+    }
+
+    private void ApplyButtonNavigation(GameObject container)
+    {
+        if (container == null)
+            return;
+
+        var buttons = container.GetComponentsInChildren<Button>(true);
+        var activeButtons = new List<Button>(buttons.Length);
+        foreach (var button in buttons)
+        {
+            if (button != null && button.gameObject.activeInHierarchy && button.IsInteractable())
+                activeButtons.Add(button);
+        }
+
+        for (int i = 0; i < activeButtons.Count; i++)
+        {
+            var nav = activeButtons[i].navigation;
+            nav.mode = Navigation.Mode.Explicit;
+            nav.selectOnLeft = i > 0 ? activeButtons[i - 1] : null;
+            nav.selectOnRight = i < activeButtons.Count - 1 ? activeButtons[i + 1] : null;
+            nav.selectOnUp = null;
+            nav.selectOnDown = null;
+            activeButtons[i].navigation = nav;
+        }
     }
 
     private LevelPreviewDTO CapturePreviewPng(Camera camera, int width, int height)
