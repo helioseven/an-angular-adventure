@@ -1,6 +1,14 @@
 
 # [Join the Playtest on Steam!](https://store.steampowered.com/app/3661660/Tessel_Run/) #
+- Our Playtest is open!  Click "Join the Playtest" and you will automatically be added and you can play the playtest.
+- In this playtest you can create and upload your own levels as well as play others!
+- The Demo will be offline only and ship with a few predetermined levels.
 
+## Upcoming Releases ##
+*  Tessel Run Demo - Feb 23 - Steam Next Fest - Offline Demo version
+*  Tessel Run - April 20 - Full Steam Release - Includes level editor and upload capability
+
+# Contribution Guide
 ## Quickstart ##
 
 + Install Unity Hub
@@ -11,10 +19,6 @@
 + Install Steamworks.NET
     * [Read installation instructions.](https://steamworks.github.io/installation/)
     * Current build is using `2025.162.1`
-
-## Next Milestone ##
-
-*  Full Steam Release (April 20, 2026)
 
 ## Notes ##
 
@@ -29,8 +33,8 @@
  
 ## Unity Version History ##
 
-* Current - `6000.2.9f1`
-* Steam Playtest Release - `6000.0.41f1`
+* Current - `6000.3.1f1`
+* Steam Playtest Release (original) - `6000.0.41f1`
 * Alpha ([Legacy Playable Demo](https://play.unity.com/en/games/272f39a2-dafd-4ab3-b45a-d0bd734b4ff9/aaa)) - `2019.4.11f1`
 * Oldest Version Recalled - `5.6.0f3`
 
