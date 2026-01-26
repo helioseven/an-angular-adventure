@@ -216,7 +216,7 @@ public class AccountIndicator : MonoBehaviour
             yield break;
         }
 
-        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamIdText));
+        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamIdText, ticketHex));
 
         lastAuthSucceeded =
             !string.IsNullOrEmpty(AuthState.Instance.SteamId)

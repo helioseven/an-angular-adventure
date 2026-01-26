@@ -36,8 +36,7 @@ public class SupabaseController : MonoBehaviour
     }
 
     private const string SUPABASE_URL = "https://nswnjhegifaudsgjyrwf.supabase.co";
-    private const string SUPABASE_API_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
+    private const string SUPABASE_API_KEY = "sb_publishable_MYNl8BowBvssYTayyrDX3g_g9yM5WVX";
     private const string STEAM_FN_URL = SUPABASE_URL + "/functions/v1/steam-partner"; // your edge fn
     private const string USERS_REST_URL = SUPABASE_URL + "/rest/v1/users";
     private const string LEVELS_REST_URL = SUPABASE_URL + "/rest/v1/levels";
@@ -49,6 +48,12 @@ public class SupabaseController : MonoBehaviour
         var jwt = AuthState.Instance.Jwt;
         if (string.IsNullOrEmpty(jwt))
         {
+            yield return StartCoroutine(AttemptReauth());
+            jwt = AuthState.Instance.Jwt;
+        }
+        if (string.IsNullOrEmpty(jwt))
+        {
+            ToastManager.Instance.ShowToast("Please sign in before uploading.", 2f, true);
             Debug.LogError("Missing JWT - user not authenticated yet.");
             yield break;
         }
@@ -384,6 +389,7 @@ public class SupabaseController : MonoBehaviour
             yield break;
 
         ToastManager.Instance.ShowToast("Refreshing session...", 2f);
-        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamId));
+        string ticket = StartupManager.Instance.GetSteamTicketHex();
+        yield return StartCoroutine(StartupManager.Instance.PostSteamId(steamId, ticket));
     }
 }

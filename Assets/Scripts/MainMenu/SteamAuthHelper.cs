@@ -11,8 +11,7 @@ using UnityEngine.Networking;
 public static class SteamAuthHelper
 {
     // Public anon key (safe to embed for client-side access)
-    private const string SupabaseAnonKey =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7zB_CV4swO4sM";
+    private const string SupabaseAnonKey = "sb_publishable_MYNl8BowBvssYTayyrDX3g_g9yM5WVX";
 
     /// <summary>
     /// Authenticate the Steam session ticket with the configured Supabase Edge Function.

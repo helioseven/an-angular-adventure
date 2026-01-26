@@ -3,6 +3,9 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+#if !UNITY_IOS
+using Steamworks;
+#endif
 
 public class StartupManager : MonoBehaviour
 {
@@ -23,8 +26,7 @@ public class StartupManager : MonoBehaviour
         "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
     private string supabaseRestBase = "https://nswnjhegifaudsgjyrwf.supabase.co/rest/v1";
-    private string supabasePublicAnonAPIKey =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd25qaGVnaWZhdWRzZ2p5cndmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3ODg3MDEsImV4cCI6MjA1ODM2NDcwMX0.c6JxmTv5DUD2ZeocXg1S1MFR_fPSK7RzB_CV4swO4sM";
+    private string supabasePublicAnonAPIKey = "sb_publishable_MYNl8BowBvssYTayyrDX3g_g9yM5WVX";
 
     // === Singleton setup ===
     public static StartupManager Instance { get; private set; }
@@ -46,6 +48,7 @@ public class StartupManager : MonoBehaviour
     private class SteamRequest
     {
         public string steamid;
+        public string ticket;
     }
 
     [Serializable]
@@ -96,7 +99,7 @@ public class StartupManager : MonoBehaviour
         StartCoroutine(PostSteamId(steamId));
     }
 
-    public IEnumerator PostSteamId(string steamId)
+    public IEnumerator PostSteamId(string steamId, string ticket = "")
     {
         if (DemoModeEnabled)
         {
@@ -113,7 +116,7 @@ public class StartupManager : MonoBehaviour
             yield break;
         }
 
-        var body = new SteamRequest { steamid = sid };
+        var body = new SteamRequest { steamid = sid, ticket = ticket };
         var json = JsonUtility.ToJson(body);
 
         using var req = new UnityWebRequest(
@@ -125,6 +128,7 @@ public class StartupManager : MonoBehaviour
             downloadHandler = new DownloadHandlerBuffer(),
         };
         req.SetRequestHeader("Content-Type", "application/json");
+        req.SetRequestHeader("apikey", supabasePublicAnonAPIKey);
         req.SetRequestHeader("Authorization", $"Bearer {supabasePublicAnonAPIKey}");
 
         yield return req.SendWebRequest();
@@ -228,6 +232,47 @@ public class StartupManager : MonoBehaviour
         {
             Debug.LogWarning("[StartupManager] Skipped upsert (no JWT present).");
         }
+    }
+
+    public string GetSteamTicketHex()
+    {
+#if UNITY_EDITOR
+        return "DEV_TICKET";
+#elif !UNITY_IOS
+        try
+        {
+            if (!SteamAPI.IsSteamRunning())
+                return "";
+
+            if (!SteamAPI.Init())
+                return "";
+
+            byte[] ticketData = new byte[2048];
+            uint ticketSize = 0;
+            var identity = new SteamNetworkingIdentity();
+
+            HAuthTicket handle = SteamUser.GetAuthSessionTicket(
+                ticketData,
+                ticketData.Length,
+                out ticketSize,
+                ref identity
+            );
+
+            if (handle == HAuthTicket.Invalid || ticketSize == 0)
+                return "";
+
+            return System
+                .BitConverter.ToString(ticketData, 0, (int)ticketSize)
+                .Replace("-", string.Empty);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("[StartupManager] Steam ticket exception: " + e);
+            return "";
+        }
+#else
+        return "";
+#endif
     }
 
     private IEnumerator UpsertUser(string jwt)

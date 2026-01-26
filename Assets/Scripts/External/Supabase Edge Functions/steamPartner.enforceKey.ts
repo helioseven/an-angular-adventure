@@ -30,6 +30,20 @@ export default {
       );
     try {
       const apikey = req.headers.get("apikey") ?? "";
+      const incomingSig = shortSig(apikey);
+      const expectedSig = shortSig(SUPABASE_ANON_KEY);
+      console.log(
+        `[steam-partner] apikey present=${apikey.length > 0} len=${apikey.length} incoming=${incomingSig} expected=${expectedSig}`
+      );
+      if (!apikey || apikey !== SUPABASE_ANON_KEY) {
+        return respond(
+          {
+            ok: false,
+            error: "Invalid apikey",
+          },
+          401
+        );
+      }
 
       const { steamid, ticket } = await req.json().catch(() => ({}));
       if (!steamid)
@@ -112,4 +126,9 @@ function respond(obj, status = 200) {
       "access-control-allow-headers": "content-type,apikey",
     },
   });
+}
+
+function shortSig(value) {
+  if (!value || value.length < 12) return "(missing)";
+  return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
