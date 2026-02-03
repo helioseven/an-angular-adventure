@@ -49,18 +49,19 @@ public class EditCamControl : MonoBehaviour
 
     void Update()
     {
-        var mouse = Mouse.current;
-        if (mouse == null)
-            return;
-
         // --- Keyboard camera movement ---
         if (!_gmRef.inputMode && _moveInput != Vector2.zero)
         {
             Vector3 v3 = transform.position;
-            v3.x += _moveInput.x * 5f * Time.deltaTime;
-            v3.y += _moveInput.y * 5f * Time.deltaTime;
+            float zScale = 5f - (0.5f * _zoomAmount);
+            v3.x += _moveInput.x * zScale * Time.deltaTime;
+            v3.y += _moveInput.y * zScale * Time.deltaTime;
             transform.position = v3;
         }
+
+        var mouse = Mouse.current;
+        if (mouse == null)
+            return;
 
         // --- Middle mouse drag (pan) ---
         if (mouse.middleButton.wasPressedThisFrame)
