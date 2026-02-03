@@ -66,10 +66,8 @@ public class Player_Controller : MonoBehaviour
         if (_rb2d != null)
         {
             // Smooth render between physics steps to avoid "double image" ghosting at high fall speed.
-            if (_rb2d.interpolation == RigidbodyInterpolation2D.None)
-                _rb2d.interpolation = RigidbodyInterpolation2D.Interpolate;
-            if (_rb2d.collisionDetectionMode == CollisionDetectionMode2D.Discrete)
-                _rb2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            _rb2d.interpolation = RigidbodyInterpolation2D.Interpolate;
+            _rb2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = GetComponent<Collider2D>();
