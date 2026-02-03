@@ -63,6 +63,12 @@ public class Player_Controller : MonoBehaviour
     void Awake()
     {
         _rb2d = GetComponent<Rigidbody2D>();
+        if (_rb2d != null)
+        {
+            // Smooth render between physics steps to avoid "double image" ghosting at high fall speed.
+            _rb2d.interpolation = RigidbodyInterpolation2D.Interpolate;
+            _rb2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        }
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = GetComponent<Collider2D>();
         _audioSource = GetComponent<AudioSource>();
