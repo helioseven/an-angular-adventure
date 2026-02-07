@@ -14,11 +14,15 @@ public class Player_Controller : MonoBehaviour
     public bool queueSuperJumpOnPurpleTouch = false;
     public BallSkinDatabase skinDB;
 
-    // Tweakables (feels good around these defaults; push slightly to taste)
+    // Tweakables
+    // Audio - video gamey pitch jump
+    public float jumpPitchVariance = 0.03f;
+
+    // Ball Rolling mechanics tweakables
     public float groundProbeDistance = 0.02f; // 0.2 was too long
-    public float torqueStrength = 8f; // 6–10 feels controlled
-    public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35–0.6)
-    public float iceSlideBoost = 6f; // add carry on ice (4–8 range)
+    public float torqueStrength = 8f; // 6�10 feels controlled
+    public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35�0.6)
+    public float iceSlideBoost = 6f; // add carry on ice (4�8 range)
 
     // private references
     private SpriteRenderer _spriteRenderer;
@@ -28,6 +32,17 @@ public class Player_Controller : MonoBehaviour
     private Rigidbody2D _rb2d;
 
     // private variables
+    // air woosh settings
+    private string airWooshSoundName = "air-woosh";
+    private float airWooshMinSpeed = 3f;
+    private float airWooshMaxSpeed = 14f;
+    private float airWooshMaxVolume = 0.6f;
+    private float airWooshFadeInSpeed = 0.33f; // lower number means takes longer to reach max volume
+    private float airWooshFadeOutSpeed = 8f; // higher number means faster fadout
+    private float airWooshPitchMin = 0.8f;
+    private float airWooshPitchMax = 1.2f;
+
+    // jump and more
     private Vector2 _jumpForceVec;
     private bool _jumpNow = false;
     private int _maxJumps = 1;
@@ -49,7 +64,17 @@ public class Player_Controller : MonoBehaviour
     private bool _groundOverrideJumpBlock;
     private bool _inputEnabled = true;
     private bool _suppressJumpUntilRelease;
+    private float _airWooshVolume;
+    private bool _rollingMuted;
+    private float _topSpeedThisSecond;
+    private float _topSpeedTimer;
     private const float PROBE_SKIN = 0.01f;
+    private const float ROLLING_FADE_START_SPEED = 0.1f;
+    private const float ROLLING_FADE_MID_SPEED = 5f;
+    private const float ROLLING_FADE_END_SPEED = 9f;
+    private const float ROLLING_PITCH = 1f;
+    private string rollingSoftSoundName = "rolling-soft";
+    private string rollingLoudSoundName = "rolling-loud";
 
     // New Input System
     private InputControls _controls;
@@ -115,6 +140,7 @@ public class Player_Controller : MonoBehaviour
         UpdateJumping();
         UnityEditorGodMode();
         UpdateRollingSound();
+        UpdateAirWooshSound();
     }
 
     void FixedUpdate()
@@ -136,6 +162,16 @@ public class Player_Controller : MonoBehaviour
     void OnCollisionEnter2D(Collision2D other)
     {
         _numJumps = 0;
+        Tile tile = other.collider.GetComponentInParent<Tile>();
+        if (tile != null && tile.data.color != TileColor.Red)
+        {
+            float baseVolume = _gmRef.ImpactIntensityToVolume(
+                other.relativeVelocity,
+                Physics2D.gravity
+            );
+            float volume = baseVolume * 0.75f;
+            _gmRef.soundManager.Play("thud", volume);
+        }
 
         if (other.collider.name.Contains("Purple"))
         {
@@ -143,7 +179,7 @@ public class Player_Controller : MonoBehaviour
             _purpleTouchTimes[other.collider] = Time.time;
             if (queueSuperJumpOnPurpleTouch)
             {
-                _gmRef.soundManager.Play("superJump");
+                _gmRef.soundManager.PlayWithPitchVariance("superJump", jumpPitchVariance);
                 queueSuperJumpOnPurpleTouch = false;
                 _jumpNow = true;
             }
@@ -255,9 +291,8 @@ public class Player_Controller : MonoBehaviour
             _numJumps++;
             _jumpNow = true;
             _pendingJumpMultiplier = ComputeJumpSpeedMultiplier();
-            _gmRef.soundManager.Play("jump");
+            _gmRef.soundManager.PlayWithPitchVariance("jump", jumpPitchVariance);
         }
-
         _jumpTriggered = false;
     }
 
@@ -322,14 +357,106 @@ public class Player_Controller : MonoBehaviour
     {
         if (_gmRef.victoryAchieved)
         {
-            _audioSource.volume = 0f;
+            StopRollingSound();
+            return;
+        }
+
+        if (_rollingMuted)
+        {
+            StopRollingSound();
             return;
         }
 
         float volume = _gmRef.SlideIntensityToVolume(_rb2d.linearVelocity, Physics2D.gravity);
         if (!_groundCheckCollider.IsTouchingLayers())
             volume = 0.0f;
-        _audioSource.volume = volume;
+        if (volume <= 0f)
+        {
+            StopRollingSound();
+            return;
+        }
+
+        float speed = GetPerpendicularSpeed();
+        float t;
+        if (speed <= ROLLING_FADE_MID_SPEED)
+        {
+            t = 0.5f * Mathf.InverseLerp(ROLLING_FADE_START_SPEED, ROLLING_FADE_MID_SPEED, speed);
+        }
+        else
+        {
+            t =
+                0.5f
+                + 0.5f * Mathf.InverseLerp(ROLLING_FADE_MID_SPEED, ROLLING_FADE_END_SPEED, speed);
+        }
+        float blend = Mathf.SmoothStep(0f, 1f, t);
+        float softVolume = volume * (1f - blend);
+        float loudVolume = volume * blend;
+
+        _gmRef.soundManager.SetLoopingSound(rollingSoftSoundName, softVolume, ROLLING_PITCH);
+        _gmRef.soundManager.SetLoopingSound(rollingLoudSoundName, loudVolume, ROLLING_PITCH);
+
+        if (_audioSource != null)
+        {
+            _audioSource.volume = 0f;
+            if (_audioSource.isPlaying)
+                _audioSource.Stop();
+        }
+    }
+
+    private void UpdateAirWooshSound()
+    {
+        if (_gmRef == null)
+            return;
+
+        float targetVolume = 0f;
+        if (!_gmRef.victoryAchieved && !_groundCheckCollider.IsTouchingLayers())
+        {
+            float speed = _rb2d.linearVelocity.magnitude;
+            float t = Mathf.InverseLerp(airWooshMinSpeed, airWooshMaxSpeed, speed);
+            targetVolume = airWooshMaxVolume * Mathf.SmoothStep(0f, 1f, t);
+        }
+
+        float fadeSpeed =
+            targetVolume > _airWooshVolume ? airWooshFadeInSpeed : airWooshFadeOutSpeed;
+        _airWooshVolume = Mathf.MoveTowards(
+            _airWooshVolume,
+            targetVolume,
+            fadeSpeed * Time.deltaTime
+        );
+
+        float pitchT = airWooshMaxVolume > 0f ? _airWooshVolume / airWooshMaxVolume : 0f;
+        float pitch = Mathf.Lerp(airWooshPitchMin, airWooshPitchMax, pitchT);
+        _gmRef.soundManager.SetLoopingSound(airWooshSoundName, _airWooshVolume, pitch);
+    }
+
+    public void StopAirWooshSound()
+    {
+        _airWooshVolume = 0f;
+        if (_gmRef != null)
+            _gmRef.soundManager.StopSound(airWooshSoundName);
+    }
+
+    public void StopRollingSound()
+    {
+        if (_gmRef != null)
+        {
+            _gmRef.soundManager.StopSound(rollingSoftSoundName);
+            _gmRef.soundManager.StopSound(rollingLoudSoundName);
+        }
+
+        if (_audioSource != null)
+        {
+            _audioSource.volume = 0f;
+            if (_audioSource.isPlaying)
+                _audioSource.Stop();
+        }
+    }
+
+    public void SetRollingMuted(bool muted)
+    {
+        _rollingMuted = muted;
+        if (muted)
+            StopRollingSound();
     }
 
     private void CleanupStalePurpleTouches()

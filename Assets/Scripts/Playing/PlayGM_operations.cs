@@ -52,9 +52,16 @@ public partial class PlayGM
         soundManager.Play("death");
 
         // hide and reset the player
+        player.StopAirWooshSound();
+        player.SetRollingMuted(true);
         player.gameObject.SetActive(false);
         Vector3 p = player.transform.position;
         Rigidbody2D rb2d = player.GetComponent<Rigidbody2D>();
+        if (rb2d != null)
+        {
+            rb2d.linearVelocity = Vector2.zero;
+            rb2d.angularVelocity = 0f;
+        }
         UnityEngine.Object dp = Instantiate(deathParticles, p, Quaternion.identity);
 
         // respawn at checkpoint
@@ -243,6 +250,7 @@ public partial class PlayGM
 
         // Show the player visually by activating the game object
         player.gameObject.SetActive(true);
+        player.SetRollingMuted(false);
 
         // Show locked in visual Game Object
         Transform lockInTransform = activeCheckpoint.transform.Find("CheckpointLockedIn");

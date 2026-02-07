@@ -86,25 +86,57 @@ public class SoundManager : MonoBehaviour
     // play our sounds; option to set volume too
     public void Play(string name, float volume = 0.5f)
     {
-        // get the sound
-        Sound s = Array.Find(sounds, sound => sound.name == name);
-        if (s == null)
-        {
-            Debug.LogWarning("Sound name not recognized: " + name);
+        if (!TryGetSound(name, out Sound s))
             return;
-        }
-        else if (s.source == null)
-        {
-            Debug.LogWarning("Load me better: " + name);
+
+        // set the volume
+        s.volume = volume;
+        s.source.volume = volume;
+        s.source.pitch = s.pitch;
+
+        // play the sound
+        s.source.Play();
+    }
+
+    public void PlayWithPitchVariance(string name, float pitchVariance, float volume = 0.5f)
+    {
+        if (!TryGetSound(name, out Sound s))
             return;
-        }
 
         // set the volume
         s.volume = volume;
         s.source.volume = volume;
 
+        float variance = Mathf.Abs(pitchVariance);
+        float pitchScale = UnityEngine.Random.Range(1f - variance, 1f + variance);
+        s.source.pitch = s.pitch * pitchScale;
+
         // play the sound
         s.source.Play();
+    }
+
+    public void SetLoopingSound(string name, float volume, float pitch)
+    {
+        if (!TryGetSound(name, out Sound s))
+            return;
+
+        s.volume = volume;
+        s.source.volume = volume;
+        s.source.pitch = pitch;
+
+        if (!s.source.isPlaying)
+            s.source.Play();
+    }
+
+    public void StopSound(string name)
+    {
+        if (!TryGetSound(name, out Sound s))
+            return;
+
+        s.volume = 0f;
+        s.source.volume = 0f;
+        if (s.source.isPlaying)
+            s.source.Stop();
     }
 
     public void SetMasterVolume(float volume)
@@ -126,5 +158,21 @@ public class SoundManager : MonoBehaviour
         float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
         audioMixer.SetFloat(sfxVolumeKey, dB);
         PlayerPrefs.SetFloat(sfxVolumeKey, volume);
+    }
+
+    private bool TryGetSound(string name, out Sound sound)
+    {
+        sound = Array.Find(sounds, s => s.name == name);
+        if (sound == null)
+        {
+            Debug.LogWarning("Sound name not recognized: " + name);
+            return false;
+        }
+        if (sound.source == null)
+        {
+            Debug.LogWarning("Load me better: " + name);
+            return false;
+        }
+        return true;
     }
 }
