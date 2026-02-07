@@ -20,9 +20,9 @@ public class Player_Controller : MonoBehaviour
 
     // Ball Rolling mechanics tweakables
     public float groundProbeDistance = 0.02f; // 0.2 was too long
-    public float torqueStrength = 8f; // 6�10 feels controlled
-    public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35�0.6)
-    public float iceSlideBoost = 6f; // add carry on ice (4�8 range)
+    public float torqueStrength = 8f; // 6-10 feels controlled
+    public float iceControlMultiplier = 0.5f; // lower = slipperier (0.35-0.6)
+    public float iceSlideBoost = 6f; // add carry on ice (4-8 range)
 
     // private references
     private SpriteRenderer _spriteRenderer;
@@ -66,8 +66,6 @@ public class Player_Controller : MonoBehaviour
     private bool _suppressJumpUntilRelease;
     private float _airWooshVolume;
     private bool _rollingMuted;
-    private float _topSpeedThisSecond;
-    private float _topSpeedTimer;
     private const float PROBE_SKIN = 0.01f;
     private const float ROLLING_FADE_START_SPEED = 0.1f;
     private const float ROLLING_FADE_MID_SPEED = 5f;
@@ -92,7 +90,7 @@ public class Player_Controller : MonoBehaviour
         {
             // Smooth render between physics steps to avoid "double image" ghosting at high fall speed.
             _rb2d.interpolation = RigidbodyInterpolation2D.Interpolate;
-            _rb2d.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+            _rb2d.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
         }
         _jumpForceVec = new Vector2(0.0f, jumpForce);
         _groundCheckCollider = GetComponent<Collider2D>();

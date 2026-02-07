@@ -32,11 +32,74 @@ public class MenuGM : MonoBehaviour
     public GameObject settingsPanel;
     public GameObject accountPanel;
 
+    [Header("Physics (Main Menu Only)")]
+    public MenuUIPhysicsProxy physicsProxy;
+    public MenuUIPhysicsBall physicsBall;
+    public RectTransform mainMenuPhysicsRoot;
+    public RectTransform browsePhysicsRoot;
+    public RectTransform settingsPhysicsRoot;
+    public RectTransform browsePhysicsViewport;
+
     // private variables
     private GameObject[] menuPanels;
 
     void Awake()
     {
+        if (!physicsProxy)
+        {
+            physicsProxy = FindAnyObjectByType<MenuUIPhysicsProxy>();
+        }
+        if (!physicsBall)
+        {
+            physicsBall = FindAnyObjectByType<MenuUIPhysicsBall>();
+        }
+        if (!mainMenuPhysicsRoot && mainMenuPanel)
+        {
+            mainMenuPhysicsRoot = mainMenuPanel.GetComponent<RectTransform>();
+        }
+        if (!browsePhysicsRoot && browsePanel)
+        {
+            LevelBrowser browser = browsePanel.GetComponentInChildren<LevelBrowser>(true);
+            if (browser && browser.levelListContent)
+            {
+                browsePhysicsRoot = browser.levelListContent as RectTransform;
+            }
+
+            if (browser && !browsePhysicsViewport)
+            {
+                ScrollRect scrollRect = browser.GetComponentInParent<ScrollRect>(true);
+                if (scrollRect && scrollRect.viewport)
+                {
+                    browsePhysicsViewport = scrollRect.viewport;
+                }
+            }
+        }
+        if (!settingsPhysicsRoot && settingsPanel)
+        {
+            settingsPhysicsRoot = settingsPanel.GetComponent<RectTransform>();
+        }
+
+        if (physicsProxy)
+        {
+            physicsProxy.RegisterGroup("MainMenu", mainMenuPhysicsRoot);
+            physicsProxy.RegisterGroup("Browse", browsePhysicsRoot);
+            physicsProxy.RegisterGroup("Settings", settingsPhysicsRoot);
+
+            if (browsePhysicsViewport)
+            {
+                physicsProxy.SetGroupVisibilityRect("Browse", browsePhysicsViewport);
+            }
+
+            if (physicsBall)
+            {
+                Transform mainMenuPhysicsContainer = physicsProxy.GetGroupContainer("MainMenu");
+                if (mainMenuPhysicsContainer)
+                {
+                    physicsBall.SetPhysicsRoot(mainMenuPhysicsContainer, true);
+                }
+            }
+        }
+
         playButton.onClick.AddListener(StartPlay);
         editButton.onClick.AddListener(StartEdit);
         browseButton.onClick.AddListener(OpenLevelBrowser);
@@ -60,6 +123,11 @@ public class MenuGM : MonoBehaviour
         quitButton.gameObject.SetActive(false);
 #endif
 
+        if (physicsProxy)
+        {
+            physicsProxy.RebuildGroup("MainMenu");
+        }
+
         OpenMainMenu();
     }
 
@@ -75,6 +143,18 @@ public class MenuGM : MonoBehaviour
             panel.SetActive(panel == targetPanel);
         }
 
+        bool isMainMenu = targetPanel == mainMenuPanel;
+        bool isBrowse = targetPanel == browsePanel;
+        bool isSettings = targetPanel == settingsPanel;
+
+        if (physicsProxy)
+        {
+            physicsProxy.SetGroupActive("MainMenu", isMainMenu);
+            physicsProxy.SetGroupActive("Browse", isBrowse);
+            physicsProxy.SetGroupActive("Settings", isSettings);
+        }
+        SetPhysicsActive(isMainMenu || isBrowse || isSettings);
+
         InputModeTracker.EnsureInstance();
         var adapter = targetPanel.GetComponent<MenuInputModeAdapter>();
         if (adapter == null)
@@ -85,8 +165,10 @@ public class MenuGM : MonoBehaviour
         else
             adapter.SetPreferred(null);
 
-        if (InputModeTracker.Instance != null
-            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+        if (
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+        )
         {
             if (targetPanel == browsePanel)
                 return;
@@ -95,7 +177,6 @@ public class MenuGM : MonoBehaviour
             else
                 MenuFocusUtility.SelectPreferred(targetPanel);
         }
-
     }
 
     public void OpenLevelBrowser()
@@ -116,6 +197,27 @@ public class MenuGM : MonoBehaviour
     public void OpenAccountMenu()
     {
         SwitchToMenu(accountPanel);
+    }
+
+    private void SetPhysicsActive(bool active)
+    {
+        if (physicsProxy)
+        {
+            physicsProxy.SetPhysicsActive(active);
+        }
+
+        if (physicsBall)
+        {
+            physicsBall.SetPhysicsActive(active && mainMenuPanel && mainMenuPanel.activeSelf);
+        }
+    }
+
+    public void RebuildBrowsePhysicsProxies()
+    {
+        if (physicsProxy)
+        {
+            physicsProxy.RebuildGroup("Browse");
+        }
     }
 
     /* Private Functions */

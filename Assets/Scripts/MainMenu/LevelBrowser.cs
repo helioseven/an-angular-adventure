@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 public enum LevelBrowserTab
 {
@@ -50,6 +51,9 @@ public class LevelBrowser : MonoBehaviour
     private List<LevelInfo> allLevels = new();
     private bool hasLocalLevels;
     private MenuInputModeAdapter inputAdapter;
+    private ScrollRect scrollRect;
+    private Coroutine rebuildRoutine;
+    private UnityAction<Vector2> scrollListener;
 
     void OnEnable()
     {
@@ -90,6 +94,19 @@ public class LevelBrowser : MonoBehaviour
             {
                 menuGM.OpenMainMenu();
             });
+
+        scrollRect = levelListContent != null
+            ? levelListContent.GetComponentInParent<ScrollRect>(true)
+            : GetComponentInParent<ScrollRect>(true);
+        if (scrollRect != null)
+        {
+            if (scrollListener == null)
+            {
+                scrollListener = _ => ScheduleProxyRebuild();
+            }
+
+            scrollRect.onValueChanged.AddListener(scrollListener);
+        }
 
         hasLocalLevels = LevelStorage.HasLocalLevels();
         if (localTabButton != null)
@@ -193,6 +210,11 @@ public class LevelBrowser : MonoBehaviour
             communityTabButton.onClick.RemoveAllListeners();
         if (myTessellationsButton != null)
             myTessellationsButton.onClick.RemoveAllListeners();
+
+        if (scrollRect != null && scrollListener != null)
+        {
+            scrollRect.onValueChanged.RemoveListener(scrollListener);
+        }
     }
 
     void Update()
@@ -413,6 +435,34 @@ public class LevelBrowser : MonoBehaviour
         }
 
         SelectFirstListItemIfNavigating(firstItem);
+        ScheduleProxyRebuild();
+    }
+
+    private void ScheduleProxyRebuild()
+    {
+        if (rebuildRoutine != null)
+        {
+            StopCoroutine(rebuildRoutine);
+        }
+
+        rebuildRoutine = StartCoroutine(RebuildBrowseProxiesNextFrame());
+    }
+
+    private IEnumerator RebuildBrowseProxiesNextFrame()
+    {
+        yield return null;
+
+        Canvas.ForceUpdateCanvases();
+        RectTransform listRect = levelListContent as RectTransform;
+        if (listRect != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(listRect);
+        }
+
+        if (menuGM != null)
+        {
+            menuGM.RebuildBrowsePhysicsProxies();
+        }
     }
 
     public void RefreshList()

@@ -33,6 +33,8 @@ public class SettingsMenu : MonoBehaviour
     private const string musicVolumeKey = "MusicVolume";
     private const string sfxVolumeKey = "SFXVolume";
 
+    private bool IsPauseMenuSettings => pausePanel != null;
+
     private void OnEnable()
     {
         InputModeTracker.EnsureInstance();
@@ -40,6 +42,14 @@ public class SettingsMenu : MonoBehaviour
 
         if (audioCreditsPanel != null)
             audioCreditsPanel.SetActive(false);
+
+        if (IsPauseMenuSettings)
+        {
+            if (audioCreditsButton != null)
+                audioCreditsButton.gameObject.SetActive(false);
+            if (audioCreditsPanel != null)
+                audioCreditsPanel.SetActive(false);
+        }
 
         var jiggle = GetComponent<SelectedJiggle>();
         if (jiggle == null)
@@ -101,9 +111,12 @@ public class SettingsMenu : MonoBehaviour
         if (backButton != null)
             backButton.onClick.AddListener(HandleBackButton);
 
-        if (audioCreditsButton != null)
-            audioCreditsButton.onClick.AddListener(ToggleAudioCredits);
-        UpdateAudioCreditsText();
+        if (!IsPauseMenuSettings)
+        {
+            if (audioCreditsButton != null)
+                audioCreditsButton.onClick.AddListener(ToggleAudioCredits);
+            UpdateAudioCreditsText();
+        }
     }
 
     void Update()
