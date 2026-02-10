@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.UI;
+#if !UNITY_IOS
+using Steamworks;
+#endif
 
 public class MenuGM : MonoBehaviour
 {
@@ -31,6 +34,35 @@ public class MenuGM : MonoBehaviour
     public GameObject mainMenuPanel;
     public GameObject settingsPanel;
     public GameObject accountPanel;
+
+    [Header("Onboarding")]
+    public WelcomeModal welcomeModal;
+    public Button tutorialButton;
+    public Button howToPlayButton;
+    public Button discordButton;
+    public Button wishlistButton;
+    public string tutorialLevelName = "Menu Mayhem";
+    public string discordUrl = "";
+    public uint wishlistAppId = 3661660;
+    public string wishlistUrl = "https://store.steampowered.com/app/3661660/Tessel_Run/";
+    public bool showWelcomeOnFirstLaunch = true;
+    public string welcomeHeader = "Welcome to Tessel Run!";
+
+    [TextArea(3, 8)]
+    public string welcomeBody = "";
+    public string howToPlayHeader = "How to Play";
+
+    [TextArea(4, 10)]
+    public string howToPlayBody =
+        "Roll, jump, and weave your way through tessellated courses.\n\n"
+        + "Keyboard/Mouse:\n"
+        + "  - Move: WASD\n"
+        + "  - Jump: Space\n"
+        + "  - Reset: R\n\n"
+        + "Controller:\n"
+        + "  - Move: Left Stick\n"
+        + "  - Jump: South Button\n"
+        + "  - Reset: Select/Back";
 
     [Header("Physics (Main Menu Only)")]
     public MenuUIPhysicsProxy physicsProxy;
@@ -100,12 +132,26 @@ public class MenuGM : MonoBehaviour
             }
         }
 
+        if (!welcomeModal)
+            welcomeModal = FindAnyObjectByType<WelcomeModal>();
+
         playButton.onClick.AddListener(StartPlay);
         editButton.onClick.AddListener(StartEdit);
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
         settingsButton.onClick.AddListener(OpenSettingsMenu);
         accountButton.onClick.AddListener(OpenAccountMenu);
+        if (tutorialButton != null)
+        {
+            bool isModalButton =
+                welcomeModal != null && tutorialButton.transform.IsChildOf(welcomeModal.transform);
+            if (!isModalButton)
+                tutorialButton.onClick.AddListener(StartTutorial);
+        }
+        if (discordButton != null)
+            discordButton.onClick.AddListener(OpenDiscord);
+        if (wishlistButton != null)
+            wishlistButton.onClick.AddListener(OpenWishlist);
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
         if (StartupManager.DemoModeEnabled)
@@ -134,6 +180,9 @@ public class MenuGM : MonoBehaviour
     void Start()
     {
         InputManager.Instance.SetSceneInputs("MainMenu");
+
+        if (showWelcomeOnFirstLaunch)
+            StartCoroutine(ShowWelcomeNextFrame());
     }
 
     public void SwitchToMenu(GameObject targetPanel)
@@ -229,6 +278,115 @@ public class MenuGM : MonoBehaviour
         LevelInfo next = LevelStorage.GetNextBundledLevelByBestTime();
         loader.levelInfo = next ?? new LevelInfo { name = "", isLocal = true };
         loader.playModeContext = PlayGM.PlayModeContext.FromMainMenuPlayButton;
+    }
+
+    public void StartTutorial()
+    {
+        if (playLoader == null)
+        {
+            Debug.LogWarning("[MenuGM] Cannot start tutorial: playLoader is not assigned.");
+            return;
+        }
+
+        var loaderGO = Instantiate(playLoader);
+        var loader = loaderGO.GetComponent<PlayLoader>();
+        loader.levelInfo = ResolveTutorialLevelInfo();
+        loader.playModeContext = PlayGM.PlayModeContext.FromMainMenuPlayButton;
+        MarkWelcomeSeen();
+    }
+
+    private void OpenDiscord()
+    {
+        if (string.IsNullOrWhiteSpace(discordUrl))
+        {
+            Debug.LogWarning("[MenuGM] Discord URL is not configured.");
+            return;
+        }
+
+        Application.OpenURL(discordUrl);
+    }
+
+    private void OpenWishlist()
+    {
+#if !UNITY_IOS
+        try
+        {
+            AppId_t appId = wishlistAppId != 0 ? new AppId_t(wishlistAppId) : SteamUtils.GetAppID();
+            SteamFriends.ActivateGameOverlayToStore(
+                appId,
+                EOverlayToStoreFlag.k_EOverlayToStoreFlag_None
+            );
+            return;
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[MenuGM] Steam overlay failed, falling back to URL. {ex.Message}");
+        }
+#endif
+
+        if (string.IsNullOrWhiteSpace(wishlistUrl))
+        {
+            Debug.LogWarning("[MenuGM] Wishlist URL is not configured.");
+            return;
+        }
+
+        Application.OpenURL(wishlistUrl);
+    }
+
+    private IEnumerator ShowWelcomeNextFrame()
+    {
+        yield return null;
+
+        if (PlayerPrefs.GetInt(StartupManager.WelcomeSeenKey, 0) == 1)
+            yield break;
+        if (welcomeModal == null)
+            yield break;
+
+        welcomeModal.Show(
+            header: welcomeHeader,
+            body: welcomeBody,
+            confirmAction: MarkWelcomeSeen,
+            cancelAction: MarkWelcomeSeen,
+            discordAction: () =>
+            {
+                OpenDiscord();
+            },
+            wishlistAction: () =>
+            {
+                OpenWishlist();
+            }
+        );
+    }
+
+    private void MarkWelcomeSeen()
+    {
+        if (PlayerPrefs.GetInt(StartupManager.WelcomeSeenKey, 0) == 1)
+            return;
+
+        PlayerPrefs.SetInt(StartupManager.WelcomeSeenKey, 1);
+        PlayerPrefs.Save();
+    }
+
+    private LevelInfo ResolveTutorialLevelInfo()
+    {
+        if (!string.IsNullOrWhiteSpace(tutorialLevelName))
+        {
+            var bundled = LevelStorage.LoadBundledLevelMetadata();
+            var match = bundled.Find(info =>
+                string.Equals(info.name, tutorialLevelName, StringComparison.OrdinalIgnoreCase)
+            );
+            if (match != null)
+                return match;
+        }
+
+        LevelInfo fallback = LevelStorage.GetNextBundledLevelByBestTime();
+        if (fallback != null)
+            return fallback;
+
+        Debug.LogWarning(
+            "[MenuGM] No bundled tutorial level found, falling back to default play level."
+        );
+        return new LevelInfo { name = "", isLocal = true };
     }
 
     private void StartEdit()

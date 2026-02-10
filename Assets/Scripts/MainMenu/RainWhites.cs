@@ -35,6 +35,7 @@ public class RainWhites : MonoBehaviour
     public bool lockVisualRotation = false;
     public bool lockPhysicsRotation = false;
     public bool useCanvasScaleForPhysics = false;
+    public bool keepTilesUnderSpawnArea = true;
 
     [Header("Click Burst")]
     public int burstShardCount = 6;
@@ -130,7 +131,7 @@ public class RainWhites : MonoBehaviour
                 (2f * worldCamera.orthographicSize) / Mathf.Max(1f, Screen.height);
             _physicsScale = worldUnitsPerScreenPixel * scaleFactor;
 
-            if (_canvas)
+            if (_canvas && !keepTilesUnderSpawnArea)
             {
                 RectTransform canvasRect = _canvas.transform as RectTransform;
                 if (canvasRect)

@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 
 public class StartupManager : MonoBehaviour
 {
+    public const string WelcomeSeenKey = "MainMenuWelcomeSeen";
+
     [Header("Demo Mode")]
     [SerializeField]
     private bool demoMode = false;
@@ -17,6 +19,10 @@ public class StartupManager : MonoBehaviour
     public string testSteamId = ""; // Editor-only fallback lives below
 #if UNITY_EDITOR
     private const string EditorDefaultSteamId = "76561198071047121";
+
+    [Header("Editor Helpers")]
+    [SerializeField]
+    private bool resetWelcomeOnStartup = false;
 #endif
 
     private string supabaseSteamPartnerEdgeFunctionUrl =
@@ -39,6 +45,15 @@ public class StartupManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+#if UNITY_EDITOR
+        if (resetWelcomeOnStartup)
+        {
+            PlayerPrefs.DeleteKey(WelcomeSeenKey);
+            PlayerPrefs.Save();
+            Debug.Log("[StartupManager] Editor reset: cleared welcome seen flag.");
+        }
+#endif
     }
 
     // ===== DTOs =====
