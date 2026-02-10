@@ -37,6 +37,7 @@ public class MenuGM : MonoBehaviour
 
     [Header("Onboarding")]
     public WelcomeModal welcomeModal;
+    public HowToPlayModal howToPlayModal;
     public Button tutorialButton;
     public Button howToPlayButton;
     public Button discordButton;
@@ -134,6 +135,8 @@ public class MenuGM : MonoBehaviour
 
         if (!welcomeModal)
             welcomeModal = FindAnyObjectByType<WelcomeModal>();
+        if (!howToPlayModal)
+            howToPlayModal = FindAnyObjectByType<HowToPlayModal>();
 
         playButton.onClick.AddListener(StartPlay);
         editButton.onClick.AddListener(StartEdit);
@@ -148,6 +151,8 @@ public class MenuGM : MonoBehaviour
             if (!isModalButton)
                 tutorialButton.onClick.AddListener(StartTutorial);
         }
+        if (howToPlayButton != null)
+            howToPlayButton.onClick.AddListener(ShowHowToPlay);
         if (discordButton != null)
             discordButton.onClick.AddListener(OpenDiscord);
         if (wishlistButton != null)
@@ -181,7 +186,7 @@ public class MenuGM : MonoBehaviour
     {
         InputManager.Instance.SetSceneInputs("MainMenu");
 
-        if (showWelcomeOnFirstLaunch)
+        if (showWelcomeOnFirstLaunch && StartupManager.DemoModeEnabled)
             StartCoroutine(ShowWelcomeNextFrame());
     }
 
@@ -295,6 +300,22 @@ public class MenuGM : MonoBehaviour
         MarkWelcomeSeen();
     }
 
+    public void ShowHowToPlay()
+    {
+        if (howToPlayModal == null)
+        {
+            Debug.LogWarning("[MenuGM] Cannot show How To Play: howToPlayModal is missing.");
+            return;
+        }
+
+        howToPlayModal.Show(
+            header: howToPlayHeader,
+            body: howToPlayBody,
+            confirmAction: StartTutorial,
+            cancelAction: null
+        );
+    }
+
     private void OpenDiscord()
     {
         if (string.IsNullOrWhiteSpace(discordUrl))
@@ -360,9 +381,6 @@ public class MenuGM : MonoBehaviour
 
     private void MarkWelcomeSeen()
     {
-        if (PlayerPrefs.GetInt(StartupManager.WelcomeSeenKey, 0) == 1)
-            return;
-
         PlayerPrefs.SetInt(StartupManager.WelcomeSeenKey, 1);
         PlayerPrefs.Save();
     }
