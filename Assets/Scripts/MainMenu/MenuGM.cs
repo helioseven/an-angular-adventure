@@ -44,7 +44,7 @@ public class MenuGM : MonoBehaviour
     public Button discordButton;
     public Button wishlistButton;
     public string tutorialLevelName = "Menu Mayhem";
-    public string discordUrl = "";
+    public string discordUrl = "https://discord.gg/WR6Qy3dPvg";
     public uint wishlistAppId = 3661660;
     public string wishlistUrl = "https://store.steampowered.com/app/3661660/Tessel_Run/";
     public bool showWelcomeOnFirstLaunch = true;

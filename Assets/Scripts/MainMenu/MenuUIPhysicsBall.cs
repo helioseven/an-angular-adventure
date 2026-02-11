@@ -7,7 +7,7 @@ public class MenuUIPhysicsBall : MonoBehaviour
     public Camera worldCamera;
     public float physicsPlaneZ = 0f;
     public Transform physicsRoot;
-    public bool disableUiPhysics = true;
+    public bool disableUIPhysics = true;
     public float gravityScaleMultiplier = 0.25f;
     public float linearDampingMultiplier = 1f;
     public bool startActive = true;
@@ -54,7 +54,7 @@ public class MenuUIPhysicsBall : MonoBehaviour
         _uiBody = GetComponent<Rigidbody2D>();
         _uiCollider = GetComponent<CircleCollider2D>();
 
-        if (disableUiPhysics)
+        if (disableUIPhysics)
         {
             if (_uiBody)
             {

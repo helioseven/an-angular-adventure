@@ -506,12 +506,12 @@ public class MenuUIPhysicsProxy : MonoBehaviour
         Vector3 worldRight = ScreenToWorld(centerWorld + rightWorld, zDistance) - worldCenter;
         Vector3 worldUp = ScreenToWorld(centerWorld + upWorld, zDistance) - worldCenter;
 
-        float worldUnitsPerUiX = worldRight.magnitude;
-        float worldUnitsPerUiY = worldUp.magnitude;
+        float worldUnitsPerUIX = worldRight.magnitude;
+        float worldUnitsPerUIY = worldUp.magnitude;
 
         Vector2 size = source.size;
-        float width = Mathf.Abs(size.x * worldUnitsPerUiX);
-        float height = Mathf.Abs(size.y * worldUnitsPerUiY);
+        float width = Mathf.Abs(size.x * worldUnitsPerUIX);
+        float height = Mathf.Abs(size.y * worldUnitsPerUIY);
 
         proxy.transform.position = worldCenter;
         proxy.transform.rotation = rect.rotation;

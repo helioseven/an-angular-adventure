@@ -134,7 +134,7 @@ public class HowToPlayModal : MonoBehaviour
             {
                 suppressNavigate = false;
                 InputManager.Instance?.Controls.UI.Navigate.Enable();
-                SetUiNavigateEnabled(true);
+                SetUINavigateEnabled(true);
             }
             return;
         }
@@ -143,7 +143,7 @@ public class HowToPlayModal : MonoBehaviour
         {
             suppressNavigate = true;
             InputManager.Instance?.Controls.UI.Navigate.Disable();
-            SetUiNavigateEnabled(false);
+            SetUINavigateEnabled(false);
         }
 
         ApplyThumbstickScroll(scrollRect, thumbstickInput, thumbstickScrollPixelsPerSecond);
@@ -214,7 +214,7 @@ public class HowToPlayModal : MonoBehaviour
         target.content.anchoredPosition = anchored;
     }
 
-    private void SetUiNavigateEnabled(bool enabled)
+    private void SetUINavigateEnabled(bool enabled)
     {
         if (uiInputModule == null)
         {
