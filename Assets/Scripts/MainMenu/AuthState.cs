@@ -43,8 +43,6 @@ public class AuthState : MonoBehaviour
 
         // Fresh launch each run; nothing is cached across sessions
         Jwt = "";
-
-        Debug.Log("[AuthState] Initialized (no persistence)");
     }
 
     private void RaiseChanged() => OnChanged?.Invoke();

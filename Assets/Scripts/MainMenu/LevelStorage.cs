@@ -245,9 +245,7 @@ public static class LevelStorage
                 continue;
             if (!BestTimeStore.TryGetBestTime(info.name, info.dataHash, out _))
             {
-                Debug.Log(
-                    $"[NextLevel] Unplayed bundled: {info.name} (hash {info.dataHash?.Substring(0, 8)})"
-                );
+                Debug.Log($"[NextLevel] {info.name} #{info.dataHash?.Substring(0, 8)}");
                 return info;
             }
         }

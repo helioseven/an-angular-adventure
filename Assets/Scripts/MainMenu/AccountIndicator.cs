@@ -303,8 +303,6 @@ public class AccountIndicator : MonoBehaviour
     {
         if (accountIndicatorText != null)
             accountIndicatorText.text = msg;
-
-        Debug.Log($"[AccountIndicator] {msg}");
     }
 
     private void HandleAuthFailure(string message)
