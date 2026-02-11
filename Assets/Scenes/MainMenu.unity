@@ -3670,9 +3670,6 @@ MonoBehaviour:
   spawnFromScreenTop: 1
   forceSpawnXCenter: 0
   fallSpeed: 220
-  swayDistance: 0
-  swayFrequency: 0.4
-  velocitySmoothing: 10
   despawnBuffer: 1500
   useWorldSpacePhysics: 1
   worldCamera: {fileID: 0}
@@ -3691,7 +3688,7 @@ MonoBehaviour:
   burstSizeScale: 0.15
   burstKickSpeed: 420
   burstKickImpulse: 8
-  burstKickTorque: 6
+  burstKickTorque: 35
   clickLayers:
     serializedVersion: 2
     m_Bits: 4294967295

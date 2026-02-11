@@ -21,9 +21,6 @@ public class RainWhites : MonoBehaviour
 
     [Header("Motion")]
     public float fallSpeed = 200f;
-    public float swayDistance = 30f;
-    public float swayFrequency = 0.4f;
-    public float velocitySmoothing = 10f;
     public float despawnBuffer = 150f;
 
     [Header("World Physics")]
@@ -84,9 +81,6 @@ public class RainWhites : MonoBehaviour
         public Image image;
         public Quaternion lastRotation;
         public float fallSpeed;
-        public float swayDistance;
-        public float swayFrequency;
-        public float swayPhase;
         public float spawnX;
     }
 
@@ -186,9 +180,7 @@ public class RainWhites : MonoBehaviour
                 {
                     Vector2 rectPos = tile.rect.anchoredPosition;
                     rectPos.y -= tile.fallSpeed * Time.deltaTime;
-                    rectPos.x =
-                        tile.spawnX
-                        + Mathf.Sin(t * tile.swayFrequency + tile.swayPhase) * tile.swayDistance;
+                    rectPos.x = tile.spawnX;
                     tile.rect.anchoredPosition = rectPos;
                 }
 
@@ -205,9 +197,7 @@ public class RainWhites : MonoBehaviour
                 {
                     Vector3 localPos = tile.transform.localPosition;
                     localPos.y -= tile.fallSpeed * Time.deltaTime;
-                    localPos.x =
-                        tile.spawnX
-                        + Mathf.Sin(t * tile.swayFrequency + tile.swayPhase) * tile.swayDistance;
+                    localPos.x = tile.spawnX;
                     tile.transform.localPosition = localPos;
                 }
 
@@ -230,27 +220,7 @@ public class RainWhites : MonoBehaviour
             return;
         }
 
-        float t = Time.time;
-        float smoothT = 1f - Mathf.Exp(-velocitySmoothing * Time.fixedDeltaTime);
-
-        for (int i = _alive.Count - 1; i >= 0; i--)
-        {
-            RainTile tile = _alive[i];
-            if (!tile.transform)
-            {
-                continue;
-            }
-
-            if (tile.body)
-            {
-                float phase = t * tile.swayFrequency + tile.swayPhase;
-                float scale = useWorldSpacePhysics ? _physicsScale : 1f;
-                float targetVx = Mathf.Cos(phase) * tile.swayDistance * tile.swayFrequency * scale;
-                Vector2 velocity = tile.body.linearVelocity;
-                velocity.x = Mathf.Lerp(velocity.x, targetVx, smoothT);
-                tile.body.linearVelocity = velocity;
-            }
-        }
+        // Horizontal sway removed for physics-driven tiles.
     }
 
     private IEnumerator SpawnLoop()
@@ -313,10 +283,6 @@ public class RainWhites : MonoBehaviour
         }
 
         float speed = fallSpeed * Random.Range(1f - fallSpeedVariance, 1f + fallSpeedVariance);
-        float swayDist = swayDistance * Random.Range(0.7f, 1.3f);
-        float swayFreq = swayFrequency * Random.Range(0.8f, 1.2f);
-        float swayPhase = Random.Range(0f, Mathf.PI * 2f);
-
         if (useWorldSpacePhysics)
         {
             if (body)
@@ -371,9 +337,6 @@ public class RainWhites : MonoBehaviour
                 image = go.GetComponent<Image>(),
                 lastRotation = rect ? rect.rotation : Quaternion.identity,
                 fallSpeed = speed,
-                swayDistance = swayDist,
-                swayFrequency = swayFreq,
-                swayPhase = swayPhase,
                 spawnX = x,
             }
         );
@@ -1023,9 +986,11 @@ public class RainWhites : MonoBehaviour
 
         float torqueSign = 0f;
         float torqueStrength = 1f;
+        Vector2 dirLocalNorm = dirLocal.sqrMagnitude > 0.0001f ? dirLocal.normalized : Vector2.zero;
+        // Positive torque spins CCW in Unity 2D, so invert to make rightward kick spin CW.
+        torqueSign = dirLocalNorm.x >= 0f ? -1f : 1f;
         if (TryGetWorldPoint(screenPos, out Vector3 hitWorld))
         {
-            torqueSign = hitWorld.x < centerWorld.x ? -1f : 1f;
             float distance = Mathf.Abs(hitWorld.x - centerWorld.x);
             float radius = Mathf.Max(0.001f, tile.rect.rect.width * 0.5f);
             torqueStrength = Mathf.Clamp01(distance / radius);
