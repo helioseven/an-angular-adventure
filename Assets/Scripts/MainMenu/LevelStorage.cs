@@ -192,7 +192,7 @@ public static class LevelStorage
                 try
                 {
                     string json = File.ReadAllText(file);
-                    var levelData = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
+                    var levelData = JsonUtility.FromJson<BundledLevelDTO>(json);
                     var info = new LevelInfo
                     {
                         id = Path.GetFileNameWithoutExtension(file),
@@ -204,6 +204,10 @@ public static class LevelStorage
                         uploaderId = "tessellations",
                         uploaderDisplayName = "Demo Tessellations",
                         createdAt = File.GetLastWriteTime(file),
+                        sortOrder =
+                            levelData != null && levelData.order > 0
+                                ? levelData.order
+                                : int.MaxValue,
                     };
                     levelInfos.Add(info);
                 }
@@ -213,6 +217,16 @@ public static class LevelStorage
                 }
             }
         }
+
+        levelInfos.Sort(
+            (a, b) =>
+            {
+                int orderCompare = a.sortOrder.CompareTo(b.sortOrder);
+                if (orderCompare != 0)
+                    return orderCompare;
+                return string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase);
+            }
+        );
 
         return levelInfos;
     }

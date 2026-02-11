@@ -37,6 +37,8 @@ public class AccountIndicator : MonoBehaviour
     {
         if (StartupManager.DemoModeEnabled)
         {
+            // Still initialize Steam so overlay works in demo builds.
+            StartCoroutine(InitializeSteam());
             isLoading = false;
             ClearAvatarTexture();
             if (avatarImage != null)
@@ -136,15 +138,14 @@ public class AccountIndicator : MonoBehaviour
             yield break;
         }
 
-        try
+        if (StartupManager.Instance == null)
         {
-            steamInitialized = SteamAPI.Init();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("[Steam] Init exception: " + e);
+            Debug.LogError("[Steam] StartupManager missing; cannot init Steam.");
             steamInitialized = false;
+            yield break;
         }
+
+        steamInitialized = StartupManager.Instance.EnsureSteamInitialized();
 
         yield return null;
     }

@@ -1,5 +1,6 @@
 {
     "name": "Get Higher",
+    "order": 13,
     "data": [
         "-- level comments goes here --",
         "-- player start info goes here --",

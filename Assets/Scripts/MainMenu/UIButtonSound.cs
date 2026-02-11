@@ -10,12 +10,14 @@ public class UIButtonSound
 {
     public void OnPointerEnter(PointerEventData eventData)
     {
-        SoundManager.instance.Play("mainMenuHover");
+        if (SoundManager.instance != null)
+            SoundManager.instance.Play("mainMenuHover");
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        SoundManager.instance.Play("mainMenuClick");
+        if (SoundManager.instance != null)
+            SoundManager.instance.Play("mainMenuClick");
     }
 
     public void OnSelect(BaseEventData eventData)
@@ -24,7 +26,8 @@ public class UIButtonSound
             || InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
             return;
 
-        SoundManager.instance.Play("mainMenuHover");
+        if (SoundManager.instance != null)
+            SoundManager.instance.Play("mainMenuHover");
     }
 
     public void OnSubmit(BaseEventData eventData)
@@ -33,6 +36,7 @@ public class UIButtonSound
             || InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
             return;
 
-        SoundManager.instance.Play("mainMenuClick");
+        if (SoundManager.instance != null)
+            SoundManager.instance.Play("mainMenuClick");
     }
 }

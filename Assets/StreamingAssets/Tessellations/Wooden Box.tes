@@ -1,5 +1,6 @@
 {
     "name": "Wooden Box",
+    "order": 14,
     "data": [
         "-- level comments goes here --",
         "-- player start info goes here --",

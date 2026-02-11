@@ -3,9 +3,14 @@ using System.Collections;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+#if !UNITY_IOS
+using Steamworks;
+#endif
 
 public class StartupManager : MonoBehaviour
 {
+    public const string WelcomeSeenKey = "MainMenuWelcomeSeen";
+
     [Header("Demo Mode")]
     [SerializeField]
     private bool demoMode = false;
@@ -19,6 +24,10 @@ public class StartupManager : MonoBehaviour
     private const string EditorDefaultSteamId = "76561198071047121";
 #endif
 
+    [Header("Dev Helpers")]
+    [SerializeField]
+    private bool resetWelcomeOnStartup = false;
+
     private string supabaseSteamPartnerEdgeFunctionUrl =
         "https://nswnjhegifaudsgjyrwf.supabase.co/functions/v1/steam-partner";
 
@@ -28,6 +37,12 @@ public class StartupManager : MonoBehaviour
 
     // === Singleton setup ===
     public static StartupManager Instance { get; private set; }
+
+#if !UNITY_IOS
+    private bool steamInitialized;
+    private bool steamInitAttempted;
+    public bool SteamInitialized => steamInitialized;
+#endif
 
     private void Awake()
     {
@@ -39,7 +54,57 @@ public class StartupManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (resetWelcomeOnStartup)
+        {
+            PlayerPrefs.DeleteKey(WelcomeSeenKey);
+            PlayerPrefs.Save();
+            Debug.Log("[StartupManager] Reset: cleared welcome seen flag.");
+        }
+
+#if !UNITY_IOS
+        EnsureSteamInitialized();
+#endif
     }
+
+#if !UNITY_IOS
+    private void Update()
+    {
+        if (!steamInitialized && !steamInitAttempted)
+        {
+            EnsureSteamInitialized();
+        }
+
+        if (steamInitialized)
+        {
+            SteamAPI.RunCallbacks();
+        }
+    }
+
+    public bool EnsureSteamInitialized()
+    {
+        if (steamInitialized)
+            return true;
+
+        steamInitAttempted = true;
+
+        if (Application.isEditor)
+            return false;
+
+        try
+        {
+            steamInitialized = SteamAPI.Init();
+            Debug.Log($"[Steam] Init {(steamInitialized ? "OK" : "FAILED")}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("[Steam] Init exception: " + e);
+            steamInitialized = false;
+        }
+
+        return steamInitialized;
+    }
+#endif
 
     // ===== DTOs =====
     [Serializable]
