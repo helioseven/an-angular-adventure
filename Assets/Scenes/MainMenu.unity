@@ -2809,7 +2809,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
   demoMode: 1
   testSteamId: 
-  resetWelcomeOnStartup: 1
+  resetWelcomeOnStartup: 0
 --- !u!1 &339975805
 GameObject:
   m_ObjectHideFlags: 0
@@ -16270,7 +16270,7 @@ MonoBehaviour:
   worldCamera: {fileID: 1094403549}
   physicsPlaneZ: 0
   physicsRoot: {fileID: 0}
-  disableUiPhysics: 1
+  disableUIPhysics: 1
   gravityScaleMultiplier: 0.25
   linearDampingMultiplier: 1
   startActive: 1
