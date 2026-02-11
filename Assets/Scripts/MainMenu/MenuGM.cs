@@ -26,7 +26,7 @@ public class MenuGM : MonoBehaviour
     public Button browseButton;
     public Button quitButton;
     public Button settingsButton;
-    public Button accountButton;
+    public Button howToPlayButton;
     public GameObject Logo;
 
     // Panels
@@ -39,7 +39,6 @@ public class MenuGM : MonoBehaviour
     public WelcomeModal welcomeModal;
     public HowToPlayModal howToPlayModal;
     public Button tutorialButton;
-    public Button howToPlayButton;
     public Button discordButton;
     public Button wishlistButton;
     public string tutorialLevelName = "Menu Mayhem";
@@ -143,7 +142,7 @@ public class MenuGM : MonoBehaviour
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
         settingsButton.onClick.AddListener(OpenSettingsMenu);
-        accountButton.onClick.AddListener(OpenAccountMenu);
+        // howToPlay.onClick.AddListener(OpenAccountMenu);
         if (tutorialButton != null)
         {
             bool isModalButton =
@@ -159,17 +158,17 @@ public class MenuGM : MonoBehaviour
             wishlistButton.onClick.AddListener(OpenWishlist);
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
+        // turn off create mode for demo
         if (StartupManager.DemoModeEnabled)
         {
             editButton.gameObject.SetActive(false);
-            accountButton.gameObject.SetActive(false);
         }
 
         // Only keep Play button on iOS for now
 #if UNITY_IOS
         editButton.gameObject.SetActive(false);
         settingsButton.gameObject.SetActive(false);
-        accountButton.gameObject.SetActive(false);
+        howToPlay.gameObject.SetActive(false);
         browseButton.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(false);
 #endif
@@ -248,11 +247,6 @@ public class MenuGM : MonoBehaviour
         SwitchToMenu(settingsPanel);
     }
 
-    public void OpenAccountMenu()
-    {
-        SwitchToMenu(accountPanel);
-    }
-
     private void SetPhysicsActive(bool active)
     {
         if (physicsProxy)
@@ -308,11 +302,14 @@ public class MenuGM : MonoBehaviour
             return;
         }
 
+        if (!howToPlayModal.gameObject.activeSelf)
+            howToPlayModal.gameObject.SetActive(true);
+
         howToPlayModal.Show(
             header: howToPlayHeader,
             body: howToPlayBody,
             confirmAction: StartTutorial,
-            cancelAction: null
+            cancelAction: () => { }
         );
     }
 
@@ -362,6 +359,9 @@ public class MenuGM : MonoBehaviour
             yield break;
         if (welcomeModal == null)
             yield break;
+
+        if (!welcomeModal.gameObject.activeSelf)
+            welcomeModal.gameObject.SetActive(true);
 
         welcomeModal.Show(
             header: welcomeHeader,

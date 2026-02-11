@@ -332,6 +332,7 @@ public class MenuUIPhysicsProxy : MonoBehaviour
             }
 
             proxy.isTrigger = source.isTrigger;
+            proxy.sharedMaterial = source.sharedMaterial;
 
             RectTransform rect = source.transform as RectTransform;
             if (group.visibilityRect != null && rect != null)
