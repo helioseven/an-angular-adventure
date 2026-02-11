@@ -2807,7 +2807,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 929a66aa50753504592ccdcfa2c7ba93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SupabaseTest
-  demoMode: 0
+  demoMode: 1
   testSteamId: 
   resetWelcomeOnStartup: 0
 --- !u!1 &339975805
