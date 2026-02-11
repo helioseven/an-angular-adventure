@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 #if !UNITY_IOS
 using Steamworks;
@@ -74,6 +76,8 @@ public class MenuGM : MonoBehaviour
 
     // private variables
     private GameObject[] menuPanels;
+    private MenuInputModeAdapter mainMenuAdapter;
+    private CanvasGroup mainMenuCanvasGroup;
 
     void Awake()
     {
@@ -153,9 +157,28 @@ public class MenuGM : MonoBehaviour
         if (howToPlayButton != null)
             howToPlayButton.onClick.AddListener(ShowHowToPlay);
         if (discordButton != null)
-            discordButton.onClick.AddListener(OpenDiscord);
+        {
+            bool isModalButton =
+                welcomeModal != null && discordButton.transform.IsChildOf(welcomeModal.transform);
+            if (!isModalButton)
+            {
+                discordButton.gameObject.SetActive(StartupManager.DemoModeEnabled);
+                if (StartupManager.DemoModeEnabled)
+                    discordButton.onClick.AddListener(OpenDiscord);
+            }
+        }
+
         if (wishlistButton != null)
-            wishlistButton.onClick.AddListener(OpenWishlist);
+        {
+            bool isModalButton =
+                welcomeModal != null && wishlistButton.transform.IsChildOf(welcomeModal.transform);
+            if (!isModalButton)
+            {
+                wishlistButton.gameObject.SetActive(StartupManager.DemoModeEnabled);
+                if (StartupManager.DemoModeEnabled)
+                    wishlistButton.onClick.AddListener(OpenWishlist);
+            }
+        }
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
         // turn off create mode for demo
@@ -187,6 +210,30 @@ public class MenuGM : MonoBehaviour
 
         if (showWelcomeOnFirstLaunch && StartupManager.DemoModeEnabled)
             StartCoroutine(ShowWelcomeNextFrame());
+    }
+
+    void Update()
+    {
+        var keyboard = Keyboard.current;
+        if (keyboard == null || !keyboard.escapeKey.wasPressedThisFrame)
+            return;
+
+        bool closedModal = false;
+        if (welcomeModal != null && welcomeModal.gameObject.activeSelf)
+        {
+            MarkWelcomeSeen();
+            welcomeModal.Hide();
+            closedModal = true;
+        }
+
+        if (howToPlayModal != null && howToPlayModal.gameObject.activeSelf)
+        {
+            howToPlayModal.Hide();
+            closedModal = true;
+        }
+
+        if (closedModal)
+            SetMainMenuAdapterEnabled(true);
     }
 
     public void SwitchToMenu(GameObject targetPanel)
@@ -239,6 +286,8 @@ public class MenuGM : MonoBehaviour
 
     public void OpenMainMenu()
     {
+        ForceMenuGravityDown();
+        StopGameplayLoopingSounds();
         SwitchToMenu(mainMenuPanel);
     }
 
@@ -302,14 +351,25 @@ public class MenuGM : MonoBehaviour
             return;
         }
 
+        SetMainMenuAdapterEnabled(false);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
+
         if (!howToPlayModal.gameObject.activeSelf)
             howToPlayModal.gameObject.SetActive(true);
 
         howToPlayModal.Show(
             header: howToPlayHeader,
             body: howToPlayBody,
-            confirmAction: StartTutorial,
-            cancelAction: () => { }
+            confirmAction: () =>
+            {
+                StartTutorial();
+                SetMainMenuAdapterEnabled(true);
+            },
+            cancelAction: () =>
+            {
+                SetMainMenuAdapterEnabled(true);
+            }
         );
     }
 
@@ -363,11 +423,23 @@ public class MenuGM : MonoBehaviour
         if (!welcomeModal.gameObject.activeSelf)
             welcomeModal.gameObject.SetActive(true);
 
+        SetMainMenuAdapterEnabled(false);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
+
         welcomeModal.Show(
             header: welcomeHeader,
             body: welcomeBody,
-            confirmAction: MarkWelcomeSeen,
-            cancelAction: MarkWelcomeSeen,
+            confirmAction: () =>
+            {
+                MarkWelcomeSeen();
+                SetMainMenuAdapterEnabled(true);
+            },
+            cancelAction: () =>
+            {
+                MarkWelcomeSeen();
+                SetMainMenuAdapterEnabled(true);
+            },
             discordAction: () =>
             {
                 OpenDiscord();
@@ -383,6 +455,25 @@ public class MenuGM : MonoBehaviour
     {
         PlayerPrefs.SetInt(StartupManager.WelcomeSeenKey, 1);
         PlayerPrefs.Save();
+    }
+
+    private void SetMainMenuAdapterEnabled(bool enabled)
+    {
+        if (mainMenuPanel == null)
+            return;
+
+        if (mainMenuAdapter == null)
+            mainMenuAdapter = mainMenuPanel.GetComponent<MenuInputModeAdapter>();
+
+        if (mainMenuAdapter != null)
+            mainMenuAdapter.enabled = enabled;
+
+        if (mainMenuCanvasGroup == null)
+            mainMenuCanvasGroup = mainMenuPanel.GetComponent<CanvasGroup>();
+        if (mainMenuCanvasGroup == null)
+            mainMenuCanvasGroup = mainMenuPanel.AddComponent<CanvasGroup>();
+        mainMenuCanvasGroup.interactable = enabled;
+        mainMenuCanvasGroup.blocksRaycasts = enabled;
     }
 
     private LevelInfo ResolveTutorialLevelInfo()
@@ -417,5 +508,27 @@ public class MenuGM : MonoBehaviour
     {
         Debug.Log("You Quitter");
         Application.Quit();
+    }
+
+    private static void ForceMenuGravityDown()
+    {
+        Physics2D.gravity = new Vector2(0f, -9.81f);
+    }
+
+    private static void StopGameplayLoopingSounds()
+    {
+        if (PlayGM.instance != null && PlayGM.instance.player != null)
+        {
+            PlayGM.instance.player.StopAirWooshSound();
+            PlayGM.instance.player.StopRollingSound();
+            return;
+        }
+
+        if (SoundManager.instance != null)
+        {
+            SoundManager.instance.StopSound("air-woosh");
+            SoundManager.instance.StopSound("rolling-soft");
+            SoundManager.instance.StopSound("rolling-loud");
+        }
     }
 }

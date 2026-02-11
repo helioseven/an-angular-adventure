@@ -36,6 +36,7 @@ public class RainWhites : MonoBehaviour
     public bool lockPhysicsRotation = false;
     public bool useCanvasScaleForPhysics = false;
     public bool keepTilesUnderSpawnArea = true;
+    public float gravityScaleMultiplier = 0.3f;
 
     [Header("Click Burst")]
     public int burstShardCount = 6;
@@ -43,9 +44,9 @@ public class RainWhites : MonoBehaviour
     public float burstDistance = 180f;
     public float burstSpreadAngle = 50f;
     public float burstSizeScale = 0.15f;
-    public float burstKickSpeed = 520f;
-    public float burstKickImpulse = 14f;
-    public float burstKickTorque = 12f;
+    public float burstKickSpeed = 300f;
+    public float burstKickImpulse = 8f;
+    public float burstKickTorque = 6f;
     public LayerMask clickLayers = ~0;
 
     private readonly List<RainTile> _alive = new List<RainTile>();
@@ -245,8 +246,9 @@ public class RainWhites : MonoBehaviour
                 float phase = t * tile.swayFrequency + tile.swayPhase;
                 float scale = useWorldSpacePhysics ? _physicsScale : 1f;
                 float targetVx = Mathf.Cos(phase) * tile.swayDistance * tile.swayFrequency * scale;
-                Vector2 target = new Vector2(targetVx, -tile.fallSpeed * scale);
-                tile.body.linearVelocity = Vector2.Lerp(tile.body.linearVelocity, target, smoothT);
+                Vector2 velocity = tile.body.linearVelocity;
+                velocity.x = Mathf.Lerp(velocity.x, targetVx, smoothT);
+                tile.body.linearVelocity = velocity;
             }
         }
     }
@@ -662,7 +664,7 @@ public class RainWhites : MonoBehaviour
         Rigidbody2D body = bodyGo.AddComponent<Rigidbody2D>();
         body.interpolation = RigidbodyInterpolation2D.Interpolate;
         body.sleepMode = RigidbodySleepMode2D.NeverSleep;
-        body.gravityScale = 0f;
+        body.gravityScale = gravityScaleMultiplier;
 
         PolygonCollider2D sourceCollider = uiTile.GetComponent<PolygonCollider2D>();
         if (sourceCollider)

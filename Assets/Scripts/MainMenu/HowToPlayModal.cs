@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 /// <summary>
@@ -16,11 +19,24 @@ public class HowToPlayModal : MonoBehaviour
     public Button cancelButton;
     public CanvasGroup canvasGroup;
 
+    [Header("Scroll")]
+    public ScrollRect scrollRect;
+    public float thumbstickScrollSpeed = 2.2f;
+    public float thumbstickDeadzone = 0.1f;
+    public float thumbstickInputSmoothing = 20f;
+    public float thumbstickScrollPixelsPerSecond = 1200f;
+
     private Action onConfirm;
     private Action onCancel;
+    private float thumbstickInput;
+    private bool suppressNavigate;
+    private InputSystemUIInputModule uiInputModule;
 
     private void Awake()
     {
+        if (scrollRect == null)
+            scrollRect = GetComponentInChildren<ScrollRect>(true);
+
         if (confirmButton != null)
         {
             confirmButton.onClick.AddListener(() =>
@@ -62,11 +78,75 @@ public class HowToPlayModal : MonoBehaviour
 
     private void OnEnable()
     {
+        InputModeTracker.EnsureInstance();
+
+        var jiggle = GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = gameObject.AddComponent<SelectedJiggle>();
+        jiggle.SetScope(transform);
+        jiggle.SetAmplitude(3f);
+
+        var adapter = GetComponent<MenuInputModeAdapter>();
+        if (adapter == null)
+            adapter = gameObject.AddComponent<MenuInputModeAdapter>();
+        adapter.SetScope(transform);
+        adapter.SetPreferred(confirmButton);
+
+        if (
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+        )
+        {
+            MenuFocusUtility.SelectPreferred(gameObject, confirmButton);
+        }
+
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 0;
             StartCoroutine(FadeIn());
         }
+    }
+
+    private void Update()
+    {
+        var pad = Gamepad.current;
+        if (pad == null)
+            return;
+
+        if (pad.buttonEast.wasPressedThisFrame)
+        {
+            onCancel?.Invoke();
+            Hide();
+            return;
+        }
+
+        if (scrollRect == null)
+            return;
+
+        float rawInput = pad.rightStick.ReadUnprocessedValue().y;
+        float target = Mathf.Abs(rawInput) < thumbstickDeadzone ? 0f : rawInput;
+        float t = 1f - Mathf.Exp(-thumbstickInputSmoothing * Time.unscaledDeltaTime);
+        thumbstickInput = Mathf.Lerp(thumbstickInput, target, t);
+
+        if (Mathf.Abs(thumbstickInput) < 0.001f)
+        {
+            if (suppressNavigate)
+            {
+                suppressNavigate = false;
+                InputManager.Instance?.Controls.UI.Navigate.Enable();
+                SetUiNavigateEnabled(true);
+            }
+            return;
+        }
+
+        if (!suppressNavigate)
+        {
+            suppressNavigate = true;
+            InputManager.Instance?.Controls.UI.Navigate.Disable();
+            SetUiNavigateEnabled(false);
+        }
+
+        ApplyThumbstickScroll(scrollRect, thumbstickInput, thumbstickScrollPixelsPerSecond);
     }
 
     public void Hide()
@@ -107,5 +187,49 @@ public class HowToPlayModal : MonoBehaviour
             return;
 
         button.gameObject.SetActive(active);
+    }
+
+    private static void ApplyThumbstickScroll(ScrollRect target, float input, float pixelsPerSecond)
+    {
+        if (target == null || target.content == null)
+            return;
+
+        target.StopMovement();
+        target.velocity = Vector2.zero;
+
+        RectTransform viewport =
+            target.viewport != null ? target.viewport : target.GetComponent<RectTransform>();
+        if (viewport == null)
+            return;
+
+        float contentHeight = target.content.rect.height;
+        float viewHeight = viewport.rect.height;
+        float maxScroll = Mathf.Max(0f, contentHeight - viewHeight);
+        if (maxScroll <= 0.001f)
+            return;
+
+        Vector2 anchored = target.content.anchoredPosition;
+        float delta = -input * pixelsPerSecond * Time.unscaledDeltaTime;
+        anchored.y = Mathf.Clamp(anchored.y + delta, 0f, maxScroll);
+        target.content.anchoredPosition = anchored;
+    }
+
+    private void SetUiNavigateEnabled(bool enabled)
+    {
+        if (uiInputModule == null)
+        {
+            var current = EventSystem.current;
+            if (current != null)
+                uiInputModule = current.GetComponent<InputSystemUIInputModule>();
+        }
+
+        var move = uiInputModule != null ? uiInputModule.move : null;
+        if (move == null || move.action == null)
+            return;
+
+        if (enabled)
+            move.action.Enable();
+        else
+            move.action.Disable();
     }
 }

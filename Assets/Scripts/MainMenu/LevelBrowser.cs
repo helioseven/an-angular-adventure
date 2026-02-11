@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
-using UnityEngine.Events;
 
 public enum LevelBrowserTab
 {
@@ -55,6 +56,15 @@ public class LevelBrowser : MonoBehaviour
     private Coroutine rebuildRoutine;
     private UnityAction<Vector2> scrollListener;
 
+    [Header("Controller Scroll")]
+    public float thumbstickScrollSpeed = 2.2f;
+    public float thumbstickDeadzone = 0.1f;
+    public float thumbstickInputSmoothing = 20f;
+    public float thumbstickScrollPixelsPerSecond = 1200f;
+    private float thumbstickInput;
+    private bool suppressNavigate;
+    private InputSystemUIInputModule uiInputModule;
+
     void OnEnable()
     {
         MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
@@ -95,9 +105,10 @@ public class LevelBrowser : MonoBehaviour
                 menuGM.OpenMainMenu();
             });
 
-        scrollRect = levelListContent != null
-            ? levelListContent.GetComponentInParent<ScrollRect>(true)
-            : GetComponentInParent<ScrollRect>(true);
+        scrollRect =
+            levelListContent != null
+                ? levelListContent.GetComponentInParent<ScrollRect>(true)
+                : GetComponentInParent<ScrollRect>(true);
         if (scrollRect != null)
         {
             if (scrollListener == null)
@@ -143,6 +154,7 @@ public class LevelBrowser : MonoBehaviour
         if (jiggle == null)
             jiggle = gameObject.AddComponent<SelectedJiggle>();
         jiggle.SetScope(transform);
+        jiggle.SetAmplitude(3f);
 
         inputAdapter = GetComponent<MenuInputModeAdapter>();
         if (inputAdapter == null)
@@ -157,9 +169,11 @@ public class LevelBrowser : MonoBehaviour
     IEnumerator SelectStartingTabNextFrame()
     {
         yield return null; // wait one frame
-        if (EventSystem.current != null
+        if (
+            EventSystem.current != null
             && InputModeTracker.Instance != null
-            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+        )
         {
             var target = GetDefaultTabButton();
             if (target != null && target != backButton)
@@ -219,9 +233,39 @@ public class LevelBrowser : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.escapeKey.wasPressedThisFrame
-            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame))
+        if (
+            Keyboard.current.escapeKey.wasPressedThisFrame
+            || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        )
             menuGM.OpenMainMenu();
+
+        if (scrollRect != null && Gamepad.current != null)
+        {
+            float rawInput = Gamepad.current.rightStick.ReadUnprocessedValue().y;
+            float target = Mathf.Abs(rawInput) < thumbstickDeadzone ? 0f : rawInput;
+            float t = 1f - Mathf.Exp(-thumbstickInputSmoothing * Time.unscaledDeltaTime);
+            thumbstickInput = Mathf.Lerp(thumbstickInput, target, t);
+
+            if (Mathf.Abs(thumbstickInput) < 0.001f)
+            {
+                if (suppressNavigate)
+                {
+                    suppressNavigate = false;
+                    InputManager.Instance?.Controls.UI.Navigate.Enable();
+                    SetUiNavigateEnabled(true);
+                }
+                return;
+            }
+
+            if (!suppressNavigate)
+            {
+                suppressNavigate = true;
+                InputManager.Instance?.Controls.UI.Navigate.Disable();
+                SetUiNavigateEnabled(false);
+            }
+
+            ApplyThumbstickScroll(scrollRect, thumbstickInput, thumbstickScrollPixelsPerSecond);
+        }
     }
 
     void SwitchTab(LevelBrowserTab tab)
@@ -477,13 +521,15 @@ public class LevelBrowser : MonoBehaviour
         if (InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
             return;
 
-        var button = firstItem.playButton != null && firstItem.playButton.gameObject.activeInHierarchy
-            ? firstItem.playButton
-            : firstItem.editOrRemixButton != null && firstItem.editOrRemixButton.gameObject.activeInHierarchy
+        var button =
+            firstItem.playButton != null && firstItem.playButton.gameObject.activeInHierarchy
+                ? firstItem.playButton
+            : firstItem.editOrRemixButton != null
+            && firstItem.editOrRemixButton.gameObject.activeInHierarchy
                 ? firstItem.editOrRemixButton
-                : firstItem.deleteButton != null && firstItem.deleteButton.gameObject.activeInHierarchy
-                    ? firstItem.deleteButton
-                    : null;
+            : firstItem.deleteButton != null && firstItem.deleteButton.gameObject.activeInHierarchy
+                ? firstItem.deleteButton
+            : null;
 
         if (button != null)
         {
@@ -503,6 +549,50 @@ public class LevelBrowser : MonoBehaviour
 
         EventSystem.current?.SetSelectedGameObject(null);
         EventSystem.current?.SetSelectedGameObject(button.gameObject);
+    }
+
+    private static void ApplyThumbstickScroll(ScrollRect target, float input, float pixelsPerSecond)
+    {
+        if (target == null || target.content == null)
+            return;
+
+        target.StopMovement();
+        target.velocity = Vector2.zero;
+
+        RectTransform viewport =
+            target.viewport != null ? target.viewport : target.GetComponent<RectTransform>();
+        if (viewport == null)
+            return;
+
+        float contentHeight = target.content.rect.height;
+        float viewHeight = viewport.rect.height;
+        float maxScroll = Mathf.Max(0f, contentHeight - viewHeight);
+        if (maxScroll <= 0.001f)
+            return;
+
+        Vector2 anchored = target.content.anchoredPosition;
+        float delta = -input * pixelsPerSecond * Time.unscaledDeltaTime;
+        anchored.y = Mathf.Clamp(anchored.y + delta, 0f, maxScroll);
+        target.content.anchoredPosition = anchored;
+    }
+
+    private void SetUiNavigateEnabled(bool enabled)
+    {
+        if (uiInputModule == null)
+        {
+            var current = EventSystem.current;
+            if (current != null)
+                uiInputModule = current.GetComponent<InputSystemUIInputModule>();
+        }
+
+        var move = uiInputModule != null ? uiInputModule.move : null;
+        if (move == null || move.action == null)
+            return;
+
+        if (enabled)
+            move.action.Enable();
+        else
+            move.action.Disable();
     }
 
     public void ShowPreview(Sprite sprite, Vector2 screenPos)

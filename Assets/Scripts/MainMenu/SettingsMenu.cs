@@ -232,6 +232,48 @@ public class SettingsMenu : MonoBehaviour
             nav.selectOnRight = null;
             active[i].navigation = nav;
         }
+
+        if (backButton != null && backButton.gameObject.activeInHierarchy && backButton.IsInteractable())
+        {
+            var backNav = backButton.navigation;
+            backNav.mode = Navigation.Mode.Explicit;
+            backNav.selectOnRight = (
+                audioCreditsButton != null
+                && audioCreditsButton.gameObject.activeInHierarchy
+                && audioCreditsButton.IsInteractable()
+            )
+                ? audioCreditsButton
+                : null;
+            backNav.selectOnLeft = null;
+            if (masterVolumeSlider != null && masterVolumeSlider.gameObject.activeInHierarchy && masterVolumeSlider.IsInteractable())
+                backNav.selectOnDown = masterVolumeSlider;
+            if (sfxVolumeSlider != null && sfxVolumeSlider.gameObject.activeInHierarchy && sfxVolumeSlider.IsInteractable())
+                backNav.selectOnUp = sfxVolumeSlider;
+            backButton.navigation = backNav;
+        }
+
+        if (
+            audioCreditsButton != null
+            && audioCreditsButton.gameObject.activeInHierarchy
+            && audioCreditsButton.IsInteractable()
+        )
+        {
+            var creditsNav = audioCreditsButton.navigation;
+            creditsNav.mode = Navigation.Mode.Explicit;
+            creditsNav.selectOnLeft = (
+                backButton != null
+                && backButton.gameObject.activeInHierarchy
+                && backButton.IsInteractable()
+            )
+                ? backButton
+                : null;
+            creditsNav.selectOnRight = null;
+            if (masterVolumeSlider != null && masterVolumeSlider.gameObject.activeInHierarchy && masterVolumeSlider.IsInteractable())
+                creditsNav.selectOnDown = masterVolumeSlider;
+            if (sfxVolumeSlider != null && sfxVolumeSlider.gameObject.activeInHierarchy && sfxVolumeSlider.IsInteractable())
+                creditsNav.selectOnUp = sfxVolumeSlider;
+            audioCreditsButton.navigation = creditsNav;
+        }
     }
 
     private void HandleBackButton()

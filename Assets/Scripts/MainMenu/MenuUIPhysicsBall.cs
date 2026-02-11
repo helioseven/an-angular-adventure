@@ -12,6 +12,13 @@ public class MenuUIPhysicsBall : MonoBehaviour
     public float linearDampingMultiplier = 1f;
     public bool startActive = true;
 
+    [Header("Respawn")]
+    public RectTransform respawnArea;
+    public bool respawnAtCenter = true;
+    public float respawnX = 0f;
+    public float respawnYOffset = 50f;
+    public float killYThreshold = -10f;
+
     private Canvas _canvas;
     private RectTransform _rootRect;
     private Rigidbody2D _uiBody;
@@ -73,7 +80,13 @@ public class MenuUIPhysicsBall : MonoBehaviour
             return;
         }
 
-        Quaternion rotationOffset = uiRect.localRotation * Quaternion.Inverse(_body.transform.rotation);
+        if (_body.position.y < killYThreshold)
+        {
+            RespawnAtTop();
+        }
+
+        Quaternion rotationOffset =
+            uiRect.localRotation * Quaternion.Inverse(_body.transform.rotation);
 
         if (HasScaleChanged())
         {
@@ -284,6 +297,28 @@ public class MenuUIPhysicsBall : MonoBehaviour
                 new Vector2(worldEdge.x, worldEdge.y)
             );
         }
+    }
+
+    private void RespawnAtTop()
+    {
+        if (_body == null || worldCamera == null)
+            return;
+
+        RectTransform area = respawnArea != null ? respawnArea : _rootRect;
+        if (area == null)
+            return;
+
+        float x = respawnAtCenter ? 0f : respawnX;
+        float y = area.rect.yMax + respawnYOffset;
+
+        Vector3 uiWorld = area.TransformPoint(new Vector3(x, y, 0f));
+        float zDistance = physicsPlaneZ - worldCamera.transform.position.z;
+        Vector3 worldPos = ScreenToWorld(uiWorld, zDistance);
+
+        _body.position = new Vector2(worldPos.x, worldPos.y);
+        _body.linearVelocity = Vector2.zero;
+        _body.angularVelocity = 0f;
+        _body.rotation = 0f;
     }
 
     private Vector3 ScreenToWorld(Vector3 uiWorld, float zDistance)

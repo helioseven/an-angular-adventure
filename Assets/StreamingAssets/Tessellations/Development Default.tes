@@ -1,5 +1,6 @@
 {
     "name": "Development Default",
+    "order": 5,
     "data": [
         "-- level comments goes here --",
         "-- player start info goes here --",

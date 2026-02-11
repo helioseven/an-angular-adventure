@@ -1,5 +1,6 @@
 {
     "name": "Glorbbz Revenge",
+    "order": 6,
     "data": [
         "-- level comments goes here --",
         "-- player start info goes here --",

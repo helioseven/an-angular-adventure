@@ -23,6 +23,15 @@ public class SupabaseLevelDTO
     public LevelPreviewDTO preview;
 }
 
+[System.Serializable]
+public class BundledLevelDTO
+{
+    public string name;
+    public string[] data;
+    public LevelPreviewDTO preview;
+    public int order;
+}
+
 public class SupabaseController : MonoBehaviour
 {
     public static SupabaseController Instance { get; private set; }
