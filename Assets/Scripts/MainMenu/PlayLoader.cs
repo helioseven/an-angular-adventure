@@ -47,7 +47,7 @@ public class PlayLoader : MonoBehaviour
 
     void Start()
     {
-        Debug.Log($"[PlayLoader] Start() levelInfo: {levelInfo?.name} ({levelInfo?.id})");
+        Debug.Log($"[PlayLoader] Start: {levelInfo?.name} ({levelInfo?.id})");
         levelName = levelInfo.name;
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
         loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;
@@ -278,7 +278,7 @@ public class PlayLoader : MonoBehaviour
         {
             if (LevelStorage.TryGetBundledLevelPath(levelName, out path))
             {
-                Debug.Log($"[LOAD] Loading bundled from: {path}");
+                Debug.Log($"[Load] Bundled: {Path.GetFileName(path)}");
                 string json = File.ReadAllText(path);
                 var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
                 supabaseLevelPayloadData = levelDTO.data;
@@ -301,7 +301,7 @@ public class PlayLoader : MonoBehaviour
         {
             if (LevelStorage.TryGetLocalLevelPath(levelName, out path))
             {
-                Debug.Log($"[LOAD] Loading from: {path}"); // when loading
+                Debug.Log($"[Load] Local: {Path.GetFileName(path)}"); // when loading
                 string json = File.ReadAllText(path);
                 var levelDTO = JsonUtility.FromJson<SupabaseLevelDTO>(json); // See below
                 supabaseLevelPayloadData = levelDTO.data;

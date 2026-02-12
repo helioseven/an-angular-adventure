@@ -62,40 +62,51 @@ public class LevelListItemUI
             creatorNameText.gameObject.SetActive(!StartupManager.DemoModeEnabled);
         }
 
-        editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
+        if (editOrRemixButtonText != null)
+            editOrRemixButtonText.text = info.isLocal ? "Edit" : "Remix";
 
         parent = browser;
 
         ApplyPreview(info);
 
-        playButton.onClick.RemoveAllListeners();
-        playButton.onClick.AddListener(() => onPlay());
+        if (playButton != null)
+        {
+            playButton.onClick.RemoveAllListeners();
+            playButton.onClick.AddListener(() => onPlay());
+        }
 
-        editOrRemixButton.onClick.RemoveAllListeners();
-        editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
+        if (editOrRemixButton != null)
+        {
+            editOrRemixButton.onClick.RemoveAllListeners();
+            editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
+        }
 
         if (StartupManager.DemoModeEnabled && editOrRemixButton != null)
             editOrRemixButton.gameObject.SetActive(false);
 
         // for the delete button level ownership check, we consider them the owner if
         // they uploaded it OR the level is local
-        bool isOwner = info.uploaderId == AuthState.Instance.SteamId || info.isLocal;
+        string steamId = AuthState.Instance != null ? AuthState.Instance.SteamId : "";
+        bool isOwner = info.uploaderId == steamId || info.isLocal;
         if (StartupManager.DemoModeEnabled)
             isOwner = false;
 
-        // Only show delete for "owned" levels
-        deleteButton.gameObject.SetActive(isOwner);
-        if (isOwner)
+        // Only show delete for "owned" levels (guard in case button is missing in demo mode)
+        if (deleteButton != null)
         {
-            deleteButton.onClick.RemoveAllListeners();
-            deleteButton.onClick.AddListener(() =>
+            deleteButton.gameObject.SetActive(isOwner);
+            if (isOwner)
             {
-                parent.ShowConfirmDelete(
-                    info.isLocal ? info.name : info.id, // pass name for local, id for cloud
-                    info.name,
-                    info.isLocal
-                );
-            });
+                deleteButton.onClick.RemoveAllListeners();
+                deleteButton.onClick.AddListener(() =>
+                {
+                    parent.ShowConfirmDelete(
+                        info.isLocal ? info.name : info.id, // pass name for local, id for cloud
+                        info.name,
+                        info.isLocal
+                    );
+                });
+            }
         }
     }
 

@@ -61,19 +61,16 @@ public class SoundManager : MonoBehaviour
     {
         // apply user preferences (apply modifications from settings menu)
         float savedMasterVolume = PlayerPrefs.GetFloat(masterVolumeKey, 0.8f);
-        Debug.Log("[SoundManagerStart] savedMasterVolume: " + savedMasterVolume);
         float dB = Mathf.Log10(Mathf.Clamp(savedMasterVolume, 0.0001f, 1f)) * 20f;
         audioMixer.SetFloat(masterVolumeKey, dB);
 
         // apply user preferences (apply modifications from settings menu)
         float savedMusic = PlayerPrefs.GetFloat(musicVolumeKey, 0.8f);
-        Debug.Log("[SoundManagerStart] savedMusic: " + savedMusic);
         dB = Mathf.Log10(Mathf.Clamp(savedMusic, 0.0001f, 1f)) * 20f;
         audioMixer.SetFloat(musicVolumeKey, dB);
 
         // apply user preferences (apply modifications from settings menu)
         float savedSFXVolume = PlayerPrefs.GetFloat(sfxVolumeKey, 0.8f);
-        Debug.Log("[SoundManagerStart] savedSFXVolume: " + savedSFXVolume);
         dB = Mathf.Log10(Mathf.Clamp(savedSFXVolume, 0.0001f, 1f)) * 20f;
         audioMixer.SetFloat(sfxVolumeKey, dB);
 

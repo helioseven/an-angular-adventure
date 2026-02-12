@@ -25,6 +25,7 @@ public class LevelCompletePanel : MonoBehaviour
     private TMP_Text nextLevelLabel;
     private bool uploadComplete = false;
     private GameObject activeButtonContainer;
+    private bool nextLevelRequested = false;
 
     private void Start()
     {
@@ -36,6 +37,7 @@ public class LevelCompletePanel : MonoBehaviour
 
     public void Show()
     {
+        nextLevelRequested = false;
         ConfigureDemoButtons();
 
         switch (playModeContext)
@@ -77,15 +79,21 @@ public class LevelCompletePanel : MonoBehaviour
         var jiggle = GetComponent<SelectedJiggle>();
         if (jiggle == null)
             jiggle = gameObject.AddComponent<SelectedJiggle>();
-        jiggle.SetScope(activeButtonContainer != null ? activeButtonContainer.transform : transform);
+        jiggle.SetScope(
+            activeButtonContainer != null ? activeButtonContainer.transform : transform
+        );
 
         var adapter = GetComponent<MenuInputModeAdapter>();
         if (adapter == null)
             adapter = gameObject.AddComponent<MenuInputModeAdapter>();
-        adapter.SetScope(activeButtonContainer != null ? activeButtonContainer.transform : transform);
+        adapter.SetScope(
+            activeButtonContainer != null ? activeButtonContainer.transform : transform
+        );
 
-        if (InputModeTracker.Instance != null
-            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+        if (
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+        )
         {
             if (activeButtonContainer != null)
                 MenuFocusUtility.SelectPreferred(activeButtonContainer);
@@ -184,6 +192,12 @@ public class LevelCompletePanel : MonoBehaviour
 
     public void OnNextLevelButton()
     {
+        if (nextLevelRequested)
+            return;
+        nextLevelRequested = true;
+        if (nextLevelButton != null)
+            nextLevelButton.interactable = false;
+
         if (!StartupManager.DemoModeEnabled)
         {
             if (levelLoader == null)

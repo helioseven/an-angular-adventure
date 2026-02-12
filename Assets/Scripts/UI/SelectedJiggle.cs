@@ -105,14 +105,22 @@ public class SelectedJiggle : MonoBehaviour
         var slider = selectedRect.GetComponent<Slider>();
         if (slider != null && slider.handleRect != null)
         {
-            targetAxis = JiggleAxis.Horizontal;
+            // Sliders should jiggle up/down even if the slider itself is horizontal.
+            targetAxis = JiggleAxis.Vertical;
             return slider.handleRect;
         }
 
         var scrollbar = selectedRect.GetComponent<Scrollbar>();
         if (scrollbar != null && scrollbar.handleRect != null)
         {
-            targetAxis = JiggleAxis.Horizontal;
+            // Only vertical scrollbars should jiggle left/right.
+            if (
+                scrollbar.direction == Scrollbar.Direction.BottomToTop
+                || scrollbar.direction == Scrollbar.Direction.TopToBottom
+            )
+                targetAxis = JiggleAxis.Horizontal;
+            else
+                targetAxis = JiggleAxis.Vertical;
             return scrollbar.handleRect;
         }
 

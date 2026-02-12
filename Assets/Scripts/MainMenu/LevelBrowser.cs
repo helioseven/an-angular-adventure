@@ -55,6 +55,7 @@ public class LevelBrowser : MonoBehaviour
     private ScrollRect scrollRect;
     private Coroutine rebuildRoutine;
     private UnityAction<Vector2> scrollListener;
+    private RectTransform lastScrollTarget;
 
     [Header("Controller Scroll")]
     public float thumbstickScrollSpeed = 2.2f;
@@ -238,6 +239,8 @@ public class LevelBrowser : MonoBehaviour
             || (Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
         )
             menuGM.OpenMainMenu();
+
+        AutoScrollToSelection();
 
         if (scrollRect != null && Gamepad.current != null)
         {
@@ -549,6 +552,208 @@ public class LevelBrowser : MonoBehaviour
 
         EventSystem.current?.SetSelectedGameObject(null);
         EventSystem.current?.SetSelectedGameObject(button.gameObject);
+    }
+
+    private void AutoScrollToSelection()
+    {
+        if (scrollRect == null || scrollRect.content == null)
+            return;
+        if (InputModeTracker.Instance != null)
+        {
+            // Allow keyboard navigation to drive auto-scroll even if the pointer was active recently.
+            if (
+                InputModeTracker.Instance.CurrentMode != InputMode.Navigation
+                && !IsKeyboardNavigationPressed()
+            )
+                return;
+        }
+        if (EventSystem.current == null)
+            return;
+
+        GameObject selected = EventSystem.current.currentSelectedGameObject;
+        if (selected == null)
+        {
+            return;
+        }
+
+        RectTransform target = ResolveScrollTarget(selected);
+        if (target == null)
+        {
+            lastScrollTarget = null;
+            return;
+        }
+
+        if (target == lastScrollTarget && IsSelectionFullyVisible(target))
+        {
+            return;
+        }
+
+        if (IsRightStickScrolling() && !IsSelectionFullyVisible(target))
+        {
+            NudgeSelectionForScroll(selected, thumbstickInput);
+            return;
+        }
+
+        lastScrollTarget = target;
+        ScrollSelectionIntoView(target);
+    }
+
+    private RectTransform ResolveScrollTarget(GameObject selected)
+    {
+        if (selected == null || levelListContent == null)
+            return null;
+
+        Transform selectedTransform = selected.transform;
+        if (!selectedTransform.IsChildOf(levelListContent))
+            return null;
+
+        var listItem = selectedTransform.GetComponentInParent<LevelListItemUI>();
+        if (listItem != null && listItem.transform.IsChildOf(levelListContent))
+        {
+            return listItem.GetComponent<RectTransform>();
+        }
+
+        return selectedTransform.GetComponent<RectTransform>();
+    }
+
+    private bool IsSelectionFullyVisible(RectTransform target)
+    {
+        RectTransform viewport =
+            scrollRect.viewport != null
+                ? scrollRect.viewport
+                : scrollRect.GetComponent<RectTransform>();
+        if (viewport == null || target == null || scrollRect.content == null)
+            return true;
+
+        Canvas.ForceUpdateCanvases();
+
+        Bounds targetInViewport = GetBoundsInLocalSpace(viewport, target);
+        Rect viewRect = viewport.rect;
+        const float padding = 16f;
+        float minY = viewRect.yMin + padding;
+        float maxY = viewRect.yMax - padding;
+        return targetInViewport.min.y >= minY && targetInViewport.max.y <= maxY;
+    }
+
+    private void ScrollSelectionIntoView(RectTransform target)
+    {
+        RectTransform viewport =
+            scrollRect.viewport != null
+                ? scrollRect.viewport
+                : scrollRect.GetComponent<RectTransform>();
+        if (viewport == null || target == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+
+        Bounds viewBounds = GetBoundsInLocalSpace(scrollRect.content, viewport);
+        Bounds targetBounds = GetBoundsInLocalSpace(scrollRect.content, target);
+        float padding = GetPaddingInContentSpace(viewport, scrollRect.content, 16f);
+        float viewMin = viewBounds.min.y + padding;
+        float viewMax = viewBounds.max.y - padding;
+
+        float delta = 0f;
+        if (targetBounds.max.y > viewMax)
+            delta = targetBounds.max.y - viewMax;
+        else if (targetBounds.min.y < viewMin)
+            delta = targetBounds.min.y - viewMin;
+
+        if (Mathf.Abs(delta) <= 0.001f)
+            return;
+
+        scrollRect.StopMovement();
+        scrollRect.velocity = Vector2.zero;
+
+        // Convert delta in content space to normalized scroll change for reliability
+        float contentHeight = scrollRect.content.rect.height;
+        float viewHeight = viewport.rect.height;
+        float scrollable = Mathf.Max(0.0001f, contentHeight - viewHeight);
+
+        float normalizedDelta = delta / scrollable;
+        float nextNorm = Mathf.Clamp01(scrollRect.verticalNormalizedPosition + normalizedDelta);
+        scrollRect.verticalNormalizedPosition = nextNorm;
+    }
+
+    private static bool IsKeyboardNavigationPressed()
+    {
+        var keyboard = Keyboard.current;
+        if (keyboard == null)
+            return false;
+
+        return keyboard.upArrowKey.isPressed
+            || keyboard.downArrowKey.isPressed
+            || keyboard.leftArrowKey.isPressed
+            || keyboard.rightArrowKey.isPressed
+            || keyboard.wKey.isPressed
+            || keyboard.aKey.isPressed
+            || keyboard.sKey.isPressed
+            || keyboard.dKey.isPressed;
+    }
+
+    private bool IsRightStickScrolling()
+    {
+        if (Gamepad.current == null)
+            return false;
+
+        if (!suppressNavigate)
+            return false;
+
+        float raw = Gamepad.current.rightStick.ReadUnprocessedValue().y;
+        return Mathf.Abs(raw) > thumbstickDeadzone;
+    }
+
+    private void NudgeSelectionForScroll(GameObject selected, float input)
+    {
+        if (selected == null)
+            return;
+
+        var selectable = selected.GetComponent<Selectable>();
+        if (selectable == null)
+            return;
+
+        Selectable next =
+            input > 0f ? selectable.FindSelectableOnUp() : selectable.FindSelectableOnDown();
+        if (next == null || !next.gameObject.activeInHierarchy || !next.IsInteractable())
+            return;
+
+        if (inputAdapter != null)
+            inputAdapter.SetPreferred(next);
+
+        EventSystem.current?.SetSelectedGameObject(next.gameObject);
+    }
+
+    private static Bounds GetBoundsInLocalSpace(RectTransform root, RectTransform target)
+    {
+        Vector3[] corners = new Vector3[4];
+        target.GetWorldCorners(corners);
+
+        Vector3 min = new Vector3(float.PositiveInfinity, float.PositiveInfinity, 0f);
+        Vector3 max = new Vector3(float.NegativeInfinity, float.NegativeInfinity, 0f);
+
+        for (int i = 0; i < 4; i++)
+        {
+            Vector3 local = root.InverseTransformPoint(corners[i]);
+            min = Vector3.Min(min, local);
+            max = Vector3.Max(max, local);
+        }
+
+        Bounds bounds = new Bounds();
+        bounds.SetMinMax(min, max);
+        return bounds;
+    }
+
+    private static float GetPaddingInContentSpace(
+        RectTransform viewport,
+        RectTransform content,
+        float padding
+    )
+    {
+        if (viewport == null || content == null)
+            return padding;
+
+        Vector3 delta = viewport.TransformVector(new Vector3(0f, padding, 0f));
+        Vector3 local = content.InverseTransformVector(delta);
+        return Mathf.Abs(local.y);
     }
 
     private static void ApplyThumbstickScroll(ScrollRect target, float input, float pixelsPerSecond)
