@@ -64,6 +64,7 @@ public class LevelBrowser : MonoBehaviour
     private UnityAction<Vector2> scrollListener;
     private RectTransform lastScrollTarget;
     private LevelBrowserFilterInputController filterInputController;
+    private Selectable firstListSelectable;
 
     [Header("Controller Scroll")]
     public float thumbstickScrollSpeed = 2.2f;
@@ -664,6 +665,8 @@ public class LevelBrowser : MonoBehaviour
                 firstItem = itemUI;
         }
 
+        firstListSelectable = GetPrimaryAction(firstItem);
+        ConfigureTopNavigation();
         SelectFirstListItemIfNavigating(firstItem);
         ScheduleProxyRebuild();
     }
@@ -813,6 +816,7 @@ public class LevelBrowser : MonoBehaviour
             ? myTessellationsPublishedToggle
             : null;
         Selectable myLevelsSubToggle = localSelectable ?? publishedSelectable;
+        Selectable downTarget = firstListSelectable;
 
         for (int i = 0; i < visibleTabs.Count; i++)
         {
@@ -825,7 +829,7 @@ public class LevelBrowser : MonoBehaviour
                 current == myLevelsTabToggle && myLevelsSubToggle != null
                     ? myLevelsSubToggle
                     : backSelectable;
-            navigation.selectOnDown = null;
+            navigation.selectOnDown = downTarget;
             current.navigation = navigation;
         }
 

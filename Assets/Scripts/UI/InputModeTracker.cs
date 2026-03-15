@@ -1,5 +1,7 @@
 using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public enum InputMode
@@ -116,6 +118,20 @@ public class InputModeTracker : MonoBehaviour
         if (keyboard == null)
             return false;
 
+        if (IsTextInputFocused())
+        {
+            if (
+                keyboard.tabKey.wasPressedThisFrame
+                || keyboard.enterKey.wasPressedThisFrame
+                || keyboard.escapeKey.wasPressedThisFrame
+            )
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         if (keyboard.upArrowKey.wasPressedThisFrame
             || keyboard.downArrowKey.wasPressedThisFrame
             || keyboard.leftArrowKey.wasPressedThisFrame
@@ -131,6 +147,19 @@ public class InputModeTracker : MonoBehaviour
             return true;
 
         return false;
+    }
+
+    private static bool IsTextInputFocused()
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        GameObject selected = EventSystem.current.currentSelectedGameObject;
+        if (selected == null)
+            return false;
+
+        TMP_InputField inputField = selected.GetComponent<TMP_InputField>();
+        return inputField != null && inputField.isFocused;
     }
 
     private bool IsGamepadActive()

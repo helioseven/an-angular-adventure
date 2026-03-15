@@ -41,10 +41,23 @@ public class LevelBrowserFilterInputController
 
     private void Update()
     {
-        if (!isEditingExplicitly || !IsCurrentlySelected())
+        if (!IsCurrentlySelected())
             return;
 
         var keyboard = Keyboard.current;
+
+        if (!isEditingExplicitly)
+        {
+            if (
+                keyboard != null
+                && (keyboard.deleteKey.wasPressedThisFrame || keyboard.backspaceKey.wasPressedThisFrame)
+            )
+            {
+                ClearFilter();
+            }
+            return;
+        }
+
         bool leaveToTabs = keyboard != null
             && (keyboard.escapeKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame);
 
@@ -147,6 +160,15 @@ public class LevelBrowserFilterInputController
 
         if (target != null)
             EventSystem.current?.SetSelectedGameObject(target.gameObject);
+    }
+
+    private void ClearFilter()
+    {
+        if (inputField == null)
+            return;
+
+        inputField.SetTextWithoutNotify(string.Empty);
+        inputField.onValueChanged?.Invoke(string.Empty);
     }
 
     private bool IsCurrentlySelected()
