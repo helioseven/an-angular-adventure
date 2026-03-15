@@ -16,6 +16,12 @@ public enum LevelBrowserTab
     MyLevels,
 }
 
+public enum MyTessellationsFilter
+{
+    Local = 0,
+    Published,
+}
+
 public class LevelBrowser : MonoBehaviour
 {
     [Header("UI References")]
@@ -32,6 +38,11 @@ public class LevelBrowser : MonoBehaviour
     public Toggle officialTabToggle;
     public Toggle communityTabToggle;
     public Toggle myLevelsTabToggle;
+
+    [Header("My Tessellations")]
+    public GameObject myTessellationsFilterRoot;
+    public Toggle myTessellationsLocalToggle;
+    public Toggle myTessellationsPublishedToggle;
 
     [Header("Controllers")]
     public SupabaseController supabase;
@@ -52,6 +63,7 @@ public class LevelBrowser : MonoBehaviour
     private Coroutine rebuildRoutine;
     private UnityAction<Vector2> scrollListener;
     private RectTransform lastScrollTarget;
+    private LevelBrowserFilterInputController filterInputController;
 
     [Header("Controller Scroll")]
     public float thumbstickScrollSpeed = 2.2f;
@@ -60,10 +72,15 @@ public class LevelBrowser : MonoBehaviour
     public float thumbstickScrollPixelsPerSecond = 1200f;
     private float thumbstickInput;
     private bool suppressNavigate;
+    private bool suppressNavigateForFilterEditing;
     private InputSystemUIInputModule uiInputModule;
     private UnityAction<bool> officialTabListener;
     private UnityAction<bool> communityTabListener;
     private UnityAction<bool> myLevelsTabListener;
+    private UnityAction<bool> myTessellationsLocalListener;
+    private UnityAction<bool> myTessellationsPublishedListener;
+
+    public MyTessellationsFilter currMyTessellationsFilter = MyTessellationsFilter.Local;
 
     void OnEnable()
     {
@@ -83,7 +100,16 @@ public class LevelBrowser : MonoBehaviour
         }
 
         if (filterInput != null)
+        {
             filterInput.onValueChanged.AddListener(_ => RefreshUI());
+            filterInputController = filterInput.GetComponent<LevelBrowserFilterInputController>();
+            if (filterInputController == null)
+            {
+                filterInputController =
+                    filterInput.gameObject.AddComponent<LevelBrowserFilterInputController>();
+            }
+            filterInputController.Configure(this);
+        }
 
         if (officialTabToggle != null)
         {
@@ -112,6 +138,34 @@ public class LevelBrowser : MonoBehaviour
             };
             myLevelsTabToggle.onValueChanged.AddListener(myLevelsTabListener);
         }
+        if (myTessellationsLocalToggle != null)
+        {
+            myTessellationsLocalListener ??= isOn =>
+            {
+                if (!isOn)
+                    return;
+
+                currMyTessellationsFilter = MyTessellationsFilter.Local;
+                if (currTab == LevelBrowserTab.MyLevels)
+                    LoadMyLevels();
+            };
+            myTessellationsLocalToggle.onValueChanged.AddListener(myTessellationsLocalListener);
+        }
+        if (myTessellationsPublishedToggle != null)
+        {
+            myTessellationsPublishedListener ??= isOn =>
+            {
+                if (!isOn)
+                    return;
+
+                currMyTessellationsFilter = MyTessellationsFilter.Published;
+                if (currTab == LevelBrowserTab.MyLevels)
+                    LoadMyLevels();
+            };
+            myTessellationsPublishedToggle.onValueChanged.AddListener(
+                myTessellationsPublishedListener
+            );
+        }
 
         if (backButton != null)
             backButton.onClick.AddListener(() =>
@@ -134,6 +188,7 @@ public class LevelBrowser : MonoBehaviour
         }
 
         hasLocalLevels = LevelStorage.HasLocalLevels();
+        InitializeMyTessellationsFilterState();
 
         if (StartupManager.DemoModeEnabled)
         {
@@ -144,6 +199,10 @@ public class LevelBrowser : MonoBehaviour
             if (myLevelsTabToggle != null)
                 myLevelsTabToggle.gameObject.SetActive(hasLocalLevels);
         }
+
+        UpdateMyTessellationsFilterVisibility();
+        RefreshMyTessellationsFilterOptions();
+        ConfigureTopNavigation();
 
         // Default tab = Official for the main browse experience
         var defaultTab = LevelBrowserTab.Official;
@@ -195,7 +254,8 @@ public class LevelBrowser : MonoBehaviour
 
     void OnDisable()
     {
-        filterInput.onValueChanged.RemoveAllListeners();
+        if (filterInput != null)
+            filterInput.onValueChanged.RemoveAllListeners();
         if (previewPopup != null)
             previewPopup.Hide();
         if (namePopup != null)
@@ -206,6 +266,17 @@ public class LevelBrowser : MonoBehaviour
             communityTabToggle.onValueChanged.RemoveListener(communityTabListener);
         if (myLevelsTabToggle != null && myLevelsTabListener != null)
             myLevelsTabToggle.onValueChanged.RemoveListener(myLevelsTabListener);
+        if (myTessellationsLocalToggle != null && myTessellationsLocalListener != null)
+            myTessellationsLocalToggle.onValueChanged.RemoveListener(myTessellationsLocalListener);
+        if (
+            myTessellationsPublishedToggle != null
+            && myTessellationsPublishedListener != null
+        )
+        {
+            myTessellationsPublishedToggle.onValueChanged.RemoveListener(
+                myTessellationsPublishedListener
+            );
+        }
 
         if (scrollRect != null && scrollListener != null)
         {
@@ -264,6 +335,9 @@ public class LevelBrowser : MonoBehaviour
         currTab = tab;
         SetActiveTabWithoutNotify(tab);
         RefreshTabVisuals();
+        UpdateMyTessellationsFilterVisibility();
+        RefreshMyTessellationsFilterOptions();
+        ConfigureTopNavigation();
 
         // Clear current levels
         allLevels.Clear();
@@ -326,6 +400,54 @@ public class LevelBrowser : MonoBehaviour
         toggle.targetGraphic.color = toggle.isOn ? colors.selectedColor : colors.normalColor;
     }
 
+    private void InitializeMyTessellationsFilterState()
+    {
+        if (!hasLocalLevels)
+            currMyTessellationsFilter = MyTessellationsFilter.Published;
+    }
+
+    private void UpdateMyTessellationsFilterVisibility()
+    {
+        if (myTessellationsFilterRoot == null)
+            return;
+
+        myTessellationsFilterRoot.SetActive(currTab == LevelBrowserTab.MyLevels);
+    }
+
+    private void RefreshMyTessellationsFilterOptions()
+    {
+        if (myTessellationsLocalToggle != null)
+            myTessellationsLocalToggle.gameObject.SetActive(hasLocalLevels);
+
+        if (myTessellationsPublishedToggle != null)
+            myTessellationsPublishedToggle.gameObject.SetActive(!StartupManager.DemoModeEnabled);
+
+        if (currMyTessellationsFilter == MyTessellationsFilter.Local && !hasLocalLevels)
+            currMyTessellationsFilter = MyTessellationsFilter.Published;
+
+        if (
+            currMyTessellationsFilter == MyTessellationsFilter.Published
+            && StartupManager.DemoModeEnabled
+        )
+        {
+            currMyTessellationsFilter = MyTessellationsFilter.Local;
+        }
+
+        if (myTessellationsLocalToggle != null)
+        {
+            myTessellationsLocalToggle.SetIsOnWithoutNotify(
+                currMyTessellationsFilter == MyTessellationsFilter.Local
+            );
+        }
+
+        if (myTessellationsPublishedToggle != null)
+        {
+            myTessellationsPublishedToggle.SetIsOnWithoutNotify(
+                currMyTessellationsFilter == MyTessellationsFilter.Published
+            );
+        }
+    }
+
     private void LoadCommunityLevels()
     {
         if (StartupManager.DemoModeEnabled)
@@ -369,24 +491,46 @@ public class LevelBrowser : MonoBehaviour
 
     private void LoadMyLevels()
     {
-        var merged = new List<LevelInfo>();
-
-        if (hasLocalLevels)
+        switch (currMyTessellationsFilter)
         {
-            Debug.Log($"[LevelBrowser] Local Tessellations path: {LevelStorage.TessellationsFolder}");
-            merged.AddRange(LevelStorage.LoadLocalLevelMetadata());
+            case MyTessellationsFilter.Local:
+                LoadMyLocalLevels();
+                break;
+            case MyTessellationsFilter.Published:
+                LoadMyPublishedLevels();
+                break;
+            default:
+                LoadMyLocalLevels();
+                break;
+        }
+    }
+
+    private void LoadMyLocalLevels()
+    {
+        if (!hasLocalLevels)
+        {
+            allLevels = new List<LevelInfo>();
+            RefreshUI();
+            return;
         }
 
+        Debug.Log($"[LevelBrowser] Local Tessellations path: {LevelStorage.TessellationsFolder}");
+        allLevels = LevelStorage.LoadLocalLevelMetadata();
+        RefreshUI();
+    }
+
+    private void LoadMyPublishedLevels()
+    {
         if (StartupManager.DemoModeEnabled)
         {
-            allLevels = merged;
+            allLevels = new List<LevelInfo>();
             RefreshUI();
             return;
         }
 
         if (supabase == null || AuthState.Instance == null)
         {
-            allLevels = merged;
+            allLevels = new List<LevelInfo>();
             RefreshUI();
             return;
         }
@@ -394,7 +538,7 @@ public class LevelBrowser : MonoBehaviour
         string steamId = AuthState.Instance.SteamId;
         if (string.IsNullOrEmpty(steamId))
         {
-            allLevels = merged;
+            allLevels = new List<LevelInfo>();
             RefreshUI();
             return;
         }
@@ -404,9 +548,7 @@ public class LevelBrowser : MonoBehaviour
                 steamId,
                 levels =>
                 {
-                    if (levels != null)
-                        merged.AddRange(levels);
-                    allLevels = DeduplicateLevels(merged);
+                    allLevels = levels ?? new List<LevelInfo>();
                     RefreshUI();
                 }
             )
@@ -564,16 +706,10 @@ public class LevelBrowser : MonoBehaviour
             return;
         if (InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
             return;
+        if (ShouldPreserveFilterFocus())
+            return;
 
-        var button =
-            firstItem.playButton != null && firstItem.playButton.gameObject.activeInHierarchy
-                ? firstItem.playButton
-            : firstItem.editOrRemixButton != null
-            && firstItem.editOrRemixButton.gameObject.activeInHierarchy
-                ? firstItem.editOrRemixButton
-            : firstItem.deleteButton != null && firstItem.deleteButton.gameObject.activeInHierarchy
-                ? firstItem.deleteButton
-            : null;
+        var button = GetPrimaryAction(firstItem);
 
         if (button != null)
         {
@@ -593,6 +729,162 @@ public class LevelBrowser : MonoBehaviour
 
         EventSystem.current?.SetSelectedGameObject(null);
         EventSystem.current?.SetSelectedGameObject(button.gameObject);
+    }
+
+    private bool ShouldPreserveFilterFocus()
+    {
+        if (filterInput == null)
+            return false;
+        if (filterInput.isFocused)
+            return true;
+
+        return EventSystem.current != null
+            && EventSystem.current.currentSelectedGameObject == filterInput.gameObject;
+    }
+
+    private Selectable GetSelectedOrFirstVisibleTab()
+    {
+        Selectable selectedTab = currTab switch
+        {
+            LevelBrowserTab.Official => officialTabToggle,
+            LevelBrowserTab.Community => communityTabToggle,
+            LevelBrowserTab.MyLevels => myLevelsTabToggle,
+            _ => null,
+        };
+
+        if (IsSelectableActive(selectedTab))
+            return selectedTab;
+
+        return GetVisibleTabs().FirstOrDefault();
+    }
+
+    public Selectable GetActiveTabSelectable()
+    {
+        return GetSelectedOrFirstVisibleTab();
+    }
+
+    public void SetFilterEditingNavigationSuppressed(bool suppressed)
+    {
+        suppressNavigateForFilterEditing = suppressed;
+
+        bool shouldEnableNavigate = !suppressNavigate && !suppressNavigateForFilterEditing;
+        if (shouldEnableNavigate)
+            InputManager.Instance?.Controls.UI.Navigate.Enable();
+        else
+            InputManager.Instance?.Controls.UI.Navigate.Disable();
+
+        SetUINavigateEnabled(shouldEnableNavigate);
+    }
+
+    private List<Selectable> GetVisibleTabs()
+    {
+        var visibleTabs = new List<Selectable>(3);
+        if (IsSelectableActive(officialTabToggle))
+            visibleTabs.Add(officialTabToggle);
+        if (IsSelectableActive(communityTabToggle))
+            visibleTabs.Add(communityTabToggle);
+        if (IsSelectableActive(myLevelsTabToggle))
+            visibleTabs.Add(myLevelsTabToggle);
+        return visibleTabs;
+    }
+
+    private static bool IsSelectableActive(Selectable selectable)
+    {
+        return selectable != null
+            && selectable.gameObject.activeInHierarchy
+            && selectable.IsInteractable();
+    }
+
+    private void ConfigureTopNavigation()
+    {
+        var visibleTabs = GetVisibleTabs();
+        Selectable selectedTab = GetSelectedOrFirstVisibleTab();
+        Selectable filterSelectable =
+            filterInput != null
+            && filterInput.gameObject.activeInHierarchy
+            && filterInput.IsInteractable()
+                ? filterInput
+                : null;
+        Selectable backSelectable = IsSelectableActive(backButton) ? backButton : null;
+        Selectable localSelectable = IsSelectableActive(myTessellationsLocalToggle)
+            ? myTessellationsLocalToggle
+            : null;
+        Selectable publishedSelectable = IsSelectableActive(myTessellationsPublishedToggle)
+            ? myTessellationsPublishedToggle
+            : null;
+        Selectable myLevelsSubToggle = localSelectable ?? publishedSelectable;
+
+        for (int i = 0; i < visibleTabs.Count; i++)
+        {
+            Selectable current = visibleTabs[i];
+            Navigation navigation = current.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnLeft = i > 0 ? visibleTabs[i - 1] : null;
+            navigation.selectOnRight = i < visibleTabs.Count - 1 ? visibleTabs[i + 1] : null;
+            navigation.selectOnUp =
+                current == myLevelsTabToggle && myLevelsSubToggle != null
+                    ? myLevelsSubToggle
+                    : backSelectable;
+            navigation.selectOnDown = null;
+            current.navigation = navigation;
+        }
+
+        if (backButton != null)
+        {
+            Navigation navigation = backButton.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnLeft = null;
+            navigation.selectOnRight = filterSelectable;
+            navigation.selectOnUp = null;
+            navigation.selectOnDown = selectedTab;
+            backButton.navigation = navigation;
+        }
+
+        if (filterInput != null)
+        {
+            Navigation navigation = filterInput.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnLeft = backSelectable;
+            navigation.selectOnRight = localSelectable;
+            navigation.selectOnUp = null;
+            navigation.selectOnDown = selectedTab;
+            filterInput.navigation = navigation;
+        }
+
+        if (myTessellationsLocalToggle != null)
+        {
+            Navigation navigation = myTessellationsLocalToggle.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnLeft = filterSelectable;
+            navigation.selectOnRight = publishedSelectable;
+            navigation.selectOnUp = null;
+            navigation.selectOnDown = myLevelsTabToggle;
+            myTessellationsLocalToggle.navigation = navigation;
+        }
+
+        if (myTessellationsPublishedToggle != null)
+        {
+            Navigation navigation = myTessellationsPublishedToggle.navigation;
+            navigation.mode = Navigation.Mode.Explicit;
+            navigation.selectOnLeft = localSelectable;
+            navigation.selectOnRight = null;
+            navigation.selectOnUp = null;
+            navigation.selectOnDown = myLevelsTabToggle;
+            myTessellationsPublishedToggle.navigation = navigation;
+        }
+    }
+
+    private static Button GetPrimaryAction(LevelListItemUI item)
+    {
+        if (item == null)
+            return null;
+        if (item.playButton != null && item.playButton.gameObject.activeInHierarchy)
+            return item.playButton;
+        if (item.editOrRemixButton != null && item.editOrRemixButton.gameObject.activeInHierarchy)
+            return item.editOrRemixButton;
+        if (item.deleteButton != null && item.deleteButton.gameObject.activeInHierarchy)
+            return item.deleteButton;
+        return null;
     }
 
     private void AutoScrollToSelection()
