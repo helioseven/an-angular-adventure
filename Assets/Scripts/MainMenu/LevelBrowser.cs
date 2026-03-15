@@ -11,11 +11,9 @@ using UnityEngine.UI;
 
 public enum LevelBrowserTab
 {
-    Local = 0,
-    DeveloperLevels,
-    Bundled,
-    MyRemote,
+    Official = 0,
     Community,
+    MyLevels,
 }
 
 public class LevelBrowser : MonoBehaviour
@@ -31,11 +29,9 @@ public class LevelBrowser : MonoBehaviour
     public Button backButton;
 
     [Header("Tabs")]
-    public Button localTabButton;
-    public Button developerTabButton;
-    public Button bundledTabButton;
-    public Button communityTabButton;
-    public Button myTessellationsButton;
+    public Toggle officialTabToggle;
+    public Toggle communityTabToggle;
+    public Toggle myLevelsTabToggle;
 
     [Header("Controllers")]
     public SupabaseController supabase;
@@ -47,7 +43,7 @@ public class LevelBrowser : MonoBehaviour
     [Header("Name Popup")]
     public LevelNamePopup namePopup;
 
-    public LevelBrowserTab currTab = LevelBrowserTab.Local;
+    public LevelBrowserTab currTab = LevelBrowserTab.Official;
 
     private List<LevelInfo> allLevels = new();
     private bool hasLocalLevels;
@@ -65,6 +61,9 @@ public class LevelBrowser : MonoBehaviour
     private float thumbstickInput;
     private bool suppressNavigate;
     private InputSystemUIInputModule uiInputModule;
+    private UnityAction<bool> officialTabListener;
+    private UnityAction<bool> communityTabListener;
+    private UnityAction<bool> myLevelsTabListener;
 
     void OnEnable()
     {
@@ -86,19 +85,33 @@ public class LevelBrowser : MonoBehaviour
         if (filterInput != null)
             filterInput.onValueChanged.AddListener(_ => RefreshUI());
 
-        if (localTabButton != null)
-            localTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Local));
-
-        if (developerTabButton != null)
-            developerTabButton.onClick.AddListener(
-                () => SwitchTab(LevelBrowserTab.DeveloperLevels)
-            );
-        if (bundledTabButton != null)
-            bundledTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Bundled));
-        if (communityTabButton != null)
-            communityTabButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.Community));
-        if (myTessellationsButton != null)
-            myTessellationsButton.onClick.AddListener(() => SwitchTab(LevelBrowserTab.MyRemote));
+        if (officialTabToggle != null)
+        {
+            officialTabListener ??= isOn =>
+            {
+                if (isOn)
+                    SwitchTab(LevelBrowserTab.Official);
+            };
+            officialTabToggle.onValueChanged.AddListener(officialTabListener);
+        }
+        if (communityTabToggle != null)
+        {
+            communityTabListener ??= isOn =>
+            {
+                if (isOn)
+                    SwitchTab(LevelBrowserTab.Community);
+            };
+            communityTabToggle.onValueChanged.AddListener(communityTabListener);
+        }
+        if (myLevelsTabToggle != null)
+        {
+            myLevelsTabListener ??= isOn =>
+            {
+                if (isOn)
+                    SwitchTab(LevelBrowserTab.MyLevels);
+            };
+            myLevelsTabToggle.onValueChanged.AddListener(myLevelsTabListener);
+        }
 
         if (backButton != null)
             backButton.onClick.AddListener(() =>
@@ -121,33 +134,19 @@ public class LevelBrowser : MonoBehaviour
         }
 
         hasLocalLevels = LevelStorage.HasLocalLevels();
-        if (localTabButton != null)
-            localTabButton.gameObject.SetActive(hasLocalLevels);
 
         if (StartupManager.DemoModeEnabled)
         {
             if (filterInput != null)
                 filterInput.gameObject.SetActive(false);
-            if (bundledTabButton != null)
-                bundledTabButton.gameObject.SetActive(false);
-            if (developerTabButton != null)
-                developerTabButton.gameObject.SetActive(false);
-            if (communityTabButton != null)
-                communityTabButton.gameObject.SetActive(false);
-            if (myTessellationsButton != null)
-                myTessellationsButton.gameObject.SetActive(false);
-            if (!hasLocalLevels)
-            {
-                if (localTabButton != null)
-                    localTabButton.gameObject.SetActive(false);
-            }
+            if (communityTabToggle != null)
+                communityTabToggle.gameObject.SetActive(false);
+            if (myLevelsTabToggle != null)
+                myLevelsTabToggle.gameObject.SetActive(hasLocalLevels);
         }
 
-        // Default tab = Bundled in demo mode or when no locals, DeveloperLevels otherwise
-        var defaultTab =
-            StartupManager.DemoModeEnabled || !hasLocalLevels
-                ? LevelBrowserTab.Bundled
-                : LevelBrowserTab.DeveloperLevels;
+        // Default tab = Official for the main browse experience
+        var defaultTab = LevelBrowserTab.Official;
         SwitchTab(defaultTab);
 
         InputModeTracker.EnsureInstance();
@@ -182,28 +181,14 @@ public class LevelBrowser : MonoBehaviour
         }
     }
 
-    private Button GetDefaultTabButton()
+    private Selectable GetDefaultTabButton()
     {
-        if (StartupManager.DemoModeEnabled || !hasLocalLevels)
-        {
-            if (bundledTabButton != null && bundledTabButton.gameObject.activeInHierarchy)
-                return bundledTabButton;
-        }
-        else if (developerTabButton != null && developerTabButton.gameObject.activeInHierarchy)
-        {
-            return developerTabButton;
-        }
-
-        if (localTabButton != null && localTabButton.gameObject.activeInHierarchy)
-            return localTabButton;
-        if (bundledTabButton != null && bundledTabButton.gameObject.activeInHierarchy)
-            return bundledTabButton;
-        if (developerTabButton != null && developerTabButton.gameObject.activeInHierarchy)
-            return developerTabButton;
-        if (communityTabButton != null && communityTabButton.gameObject.activeInHierarchy)
-            return communityTabButton;
-        if (myTessellationsButton != null && myTessellationsButton.gameObject.activeInHierarchy)
-            return myTessellationsButton;
+        if (officialTabToggle != null && officialTabToggle.gameObject.activeInHierarchy)
+            return officialTabToggle;
+        if (communityTabToggle != null && communityTabToggle.gameObject.activeInHierarchy)
+            return communityTabToggle;
+        if (myLevelsTabToggle != null && myLevelsTabToggle.gameObject.activeInHierarchy)
+            return myLevelsTabToggle;
 
         return backButton;
     }
@@ -215,16 +200,12 @@ public class LevelBrowser : MonoBehaviour
             previewPopup.Hide();
         if (namePopup != null)
             namePopup.Hide();
-        if (localTabButton != null)
-            localTabButton.onClick.RemoveAllListeners();
-        if (developerTabButton != null)
-            developerTabButton.onClick.RemoveAllListeners();
-        if (bundledTabButton != null)
-            bundledTabButton.onClick.RemoveAllListeners();
-        if (communityTabButton != null)
-            communityTabButton.onClick.RemoveAllListeners();
-        if (myTessellationsButton != null)
-            myTessellationsButton.onClick.RemoveAllListeners();
+        if (officialTabToggle != null && officialTabListener != null)
+            officialTabToggle.onValueChanged.RemoveListener(officialTabListener);
+        if (communityTabToggle != null && communityTabListener != null)
+            communityTabToggle.onValueChanged.RemoveListener(communityTabListener);
+        if (myLevelsTabToggle != null && myLevelsTabListener != null)
+            myLevelsTabToggle.onValueChanged.RemoveListener(myLevelsTabListener);
 
         if (scrollRect != null && scrollListener != null)
         {
@@ -273,10 +254,7 @@ public class LevelBrowser : MonoBehaviour
 
     void SwitchTab(LevelBrowserTab tab)
     {
-        bool usesSupabase =
-            tab == LevelBrowserTab.MyRemote
-            || tab == LevelBrowserTab.Community
-            || tab == LevelBrowserTab.DeveloperLevels;
+        bool usesSupabase = tab == LevelBrowserTab.Community;
         if (supabase == null && usesSupabase)
         {
             Debug.LogError("[LevelBrowser] Cannot switch tab: SupabaseController is missing.");
@@ -284,6 +262,8 @@ public class LevelBrowser : MonoBehaviour
         }
 
         currTab = tab;
+        SetActiveTabWithoutNotify(tab);
+        RefreshTabVisuals();
 
         // Clear current levels
         allLevels.Clear();
@@ -292,103 +272,20 @@ public class LevelBrowser : MonoBehaviour
         // Fetch new data
         switch (tab)
         {
-            case LevelBrowserTab.MyRemote:
-            {
-                if (StartupManager.DemoModeEnabled)
-                {
-                    allLevels = new List<LevelInfo>();
-                    RefreshUI();
-                    break;
-                }
-
-                if (AuthState.Instance == null)
-                {
-                    Debug.LogError("[LevelBrowser] AuthState not ready; cannot fetch MyRemote.");
-                    break;
-                }
-
-                string steamId = AuthState.Instance.SteamId;
-                StartCoroutine(
-                    supabase.FetchPublishedLevelsBySteamId(
-                        steamId,
-                        levels =>
-                        {
-                            allLevels = levels;
-                            RefreshUI();
-                        }
-                    )
-                );
-                break;
-            }
             case LevelBrowserTab.Community:
             {
-                if (StartupManager.DemoModeEnabled)
-                {
-                    allLevels = new List<LevelInfo>();
-                    RefreshUI();
-                    break;
-                }
-
-                StartCoroutine(
-                    supabase.FetchPublishedLevels(levels =>
-                    {
-                        allLevels = levels;
-                        RefreshUI();
-                    })
-                );
+                LoadCommunityLevels();
                 break;
             }
-            case LevelBrowserTab.Local:
-            {
-                if (!hasLocalLevels)
-                {
-                    SwitchTab(LevelBrowserTab.Bundled);
-                    break;
-                }
-
-                Debug.Log(
-                    $"[LevelBrowser] Local Tessellations path: {LevelStorage.TessellationsFolder}"
-                );
-                allLevels = LevelStorage.LoadLocalLevelMetadata();
-                RefreshUI();
-                break;
-            }
-            case LevelBrowserTab.Bundled:
+            case LevelBrowserTab.Official:
             {
                 allLevels = LevelStorage.LoadBundledLevelMetadata();
                 RefreshUI();
                 break;
             }
-            case LevelBrowserTab.DeveloperLevels:
+            case LevelBrowserTab.MyLevels:
             {
-                var bundledLevels = LevelStorage.LoadBundledLevelMetadata();
-                if (StartupManager.DemoModeEnabled)
-                {
-                    allLevels = bundledLevels;
-                    RefreshUI();
-                    break;
-                }
-
-                if (AuthState.Instance == null)
-                {
-                    Debug.LogWarning(
-                        "[LevelBrowser] AuthState not ready; showing bundled Tessellations only."
-                    );
-                    allLevels = bundledLevels;
-                    RefreshUI();
-                    break;
-                }
-
-                string steamId = AuthState.Instance.SteamId;
-                StartCoroutine(
-                    supabase.FetchPublishedLevelsFromDevelopers(levels =>
-                    {
-                        allLevels = levels;
-                        if (bundledLevels.Count > 0)
-                            allLevels.AddRange(bundledLevels);
-                        RefreshUI();
-                    })
-                );
+                LoadMyLevels();
                 break;
             }
             default:
@@ -396,6 +293,150 @@ public class LevelBrowser : MonoBehaviour
                 break;
             }
         }
+    }
+
+    private void SetActiveTabWithoutNotify(LevelBrowserTab tab)
+    {
+        SetToggleValueWithoutNotify(officialTabToggle, tab == LevelBrowserTab.Official);
+        SetToggleValueWithoutNotify(communityTabToggle, tab == LevelBrowserTab.Community);
+        SetToggleValueWithoutNotify(myLevelsTabToggle, tab == LevelBrowserTab.MyLevels);
+    }
+
+    private static void SetToggleValueWithoutNotify(Toggle toggle, bool value)
+    {
+        if (toggle == null)
+            return;
+
+        toggle.SetIsOnWithoutNotify(value);
+    }
+
+    private void RefreshTabVisuals()
+    {
+        ApplyTabVisualState(officialTabToggle);
+        ApplyTabVisualState(communityTabToggle);
+        ApplyTabVisualState(myLevelsTabToggle);
+    }
+
+    private static void ApplyTabVisualState(Toggle toggle)
+    {
+        if (toggle == null || toggle.targetGraphic == null)
+            return;
+
+        ColorBlock colors = toggle.colors;
+        toggle.targetGraphic.color = toggle.isOn ? colors.selectedColor : colors.normalColor;
+    }
+
+    private void LoadCommunityLevels()
+    {
+        if (StartupManager.DemoModeEnabled)
+        {
+            allLevels = new List<LevelInfo>();
+            RefreshUI();
+            return;
+        }
+
+        var merged = new List<LevelInfo>();
+        int pending = 2;
+
+        void Complete()
+        {
+            pending--;
+            if (pending > 0)
+                return;
+
+            allLevels = DeduplicateLevels(merged);
+            RefreshUI();
+        }
+
+        StartCoroutine(
+            supabase.FetchPublishedLevelsFromDevelopers(levels =>
+            {
+                if (levels != null)
+                    merged.AddRange(levels);
+                Complete();
+            })
+        );
+
+        StartCoroutine(
+            supabase.FetchPublishedLevels(levels =>
+            {
+                if (levels != null)
+                    merged.AddRange(levels);
+                Complete();
+            })
+        );
+    }
+
+    private void LoadMyLevels()
+    {
+        var merged = new List<LevelInfo>();
+
+        if (hasLocalLevels)
+        {
+            Debug.Log($"[LevelBrowser] Local Tessellations path: {LevelStorage.TessellationsFolder}");
+            merged.AddRange(LevelStorage.LoadLocalLevelMetadata());
+        }
+
+        if (StartupManager.DemoModeEnabled)
+        {
+            allLevels = merged;
+            RefreshUI();
+            return;
+        }
+
+        if (supabase == null || AuthState.Instance == null)
+        {
+            allLevels = merged;
+            RefreshUI();
+            return;
+        }
+
+        string steamId = AuthState.Instance.SteamId;
+        if (string.IsNullOrEmpty(steamId))
+        {
+            allLevels = merged;
+            RefreshUI();
+            return;
+        }
+
+        StartCoroutine(
+            supabase.FetchPublishedLevelsBySteamId(
+                steamId,
+                levels =>
+                {
+                    if (levels != null)
+                        merged.AddRange(levels);
+                    allLevels = DeduplicateLevels(merged);
+                    RefreshUI();
+                }
+            )
+        );
+    }
+
+    private static List<LevelInfo> DeduplicateLevels(List<LevelInfo> levels)
+    {
+        if (levels == null || levels.Count == 0)
+            return new List<LevelInfo>();
+
+        var deduped = new List<LevelInfo>(levels.Count);
+        var seenKeys = new HashSet<string>();
+
+        foreach (var level in levels)
+        {
+            if (level == null)
+                continue;
+
+            string key = !string.IsNullOrEmpty(level.id)
+                ? level.id
+                : $"{level.name}:{level.uploaderId}:{level.isLocal}:{level.isBundled}";
+
+            if (!seenKeys.Add(key))
+                continue;
+
+            deduped.Add(level);
+        }
+
+        return deduped;
     }
 
     public void ShowConfirmDelete(string levelIdOrName, string levelName, bool isLocal = false)

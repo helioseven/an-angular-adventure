@@ -333,12 +333,24 @@ public partial class EditGM
         var loaderGO = Instantiate(playLoader);
         var loader = loaderGO.GetComponent<PlayLoader>();
 
-        // overwrite the levelname with most recent
-        levelInfo.name = autosaveName;
-        // even if this level was loaded from supabase, its all local from here baby
-        levelInfo.isLocal = true;
+        // Playtests always load from the autosaved local copy, even when the
+        // source level originally came from bundled content or Supabase.
+        var playtestLevelInfo = new LevelInfo
+        {
+            id = levelInfo.id,
+            name = autosaveName,
+            isLocal = true,
+            isBundled = false,
+            uploaderId = levelInfo.uploaderId,
+            uploaderDisplayName = levelInfo.uploaderDisplayName,
+            createdAt = levelInfo.createdAt,
+            preview = levelInfo.preview,
+            dataHash = levelInfo.dataHash,
+            sortOrder = levelInfo.sortOrder,
+        };
+
         // set the level info in the loader (this is the passoff)
-        loader.levelInfo = levelInfo;
+        loader.levelInfo = playtestLevelInfo;
 
         // let the play loader know it's coming from edit mode
         loader.playModeContext = PlayGM.PlayModeContext.FromEditor;
