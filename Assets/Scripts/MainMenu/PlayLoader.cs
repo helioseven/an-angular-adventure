@@ -52,6 +52,14 @@ public class PlayLoader : MonoBehaviour
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
         loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;
 
+        if (playModeContext == PlayModeContext.FromEditor)
+        {
+            // Editor playtests always source from the local autosave copy.
+            levelInfo.isLocal = true;
+            levelInfo.isBundled = false;
+            loadFromSupabase = false;
+        }
+
         // this loader stays awake when next scene is loaded
         DontDestroyOnLoad(gameObject);
 
