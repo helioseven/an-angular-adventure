@@ -112,6 +112,18 @@ public partial class PlayGM : MonoBehaviour
 #endif
     }
 
+    private void OnEnable()
+    {
+        InputSystem.onDeviceChange += HandleDeviceChange;
+        StartupManager.SteamOverlayActiveChanged += HandleSteamOverlayActiveChanged;
+    }
+
+    private void OnDisable()
+    {
+        InputSystem.onDeviceChange -= HandleDeviceChange;
+        StartupManager.SteamOverlayActiveChanged -= HandleSteamOverlayActiveChanged;
+    }
+
     void Start()
     {
         InputManager.Instance.SetSceneInputs("Playing");
@@ -188,5 +200,29 @@ public partial class PlayGM : MonoBehaviour
         {
             SceneManager.LoadScene("MainMenu");
         }
+    }
+
+    private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (pauseMenu == null)
+            return;
+        if (device is not Gamepad)
+            return;
+        if (change != InputDeviceChange.Disconnected && change != InputDeviceChange.Removed)
+            return;
+        if (pauseMenu.IsPaused || victoryAchieved)
+            return;
+
+        pauseMenu.Pause();
+    }
+
+    private void HandleSteamOverlayActiveChanged(bool isActive)
+    {
+        if (!isActive)
+            return;
+        if (pauseMenu == null || pauseMenu.IsPaused || victoryAchieved)
+            return;
+
+        pauseMenu.Pause();
     }
 }

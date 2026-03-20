@@ -10,6 +10,7 @@ using Steamworks;
 public class StartupManager : MonoBehaviour
 {
     public const string WelcomeSeenKey = "MainMenuWelcomeSeen";
+    public static event Action<bool> SteamOverlayActiveChanged;
 
     [Header("Demo Mode")]
     [SerializeField]
@@ -41,6 +42,7 @@ public class StartupManager : MonoBehaviour
 #if !UNITY_IOS
     private bool steamInitialized;
     private bool steamInitAttempted;
+    private Callback<GameOverlayActivated_t> gameOverlayActivatedCallback;
     public bool SteamInitialized => steamInitialized;
 #endif
 
@@ -95,6 +97,12 @@ public class StartupManager : MonoBehaviour
         {
             steamInitialized = SteamAPI.Init();
             Debug.Log($"[Steam] Init {(steamInitialized ? "OK" : "FAILED")}");
+            if (steamInitialized)
+            {
+                gameOverlayActivatedCallback = Callback<GameOverlayActivated_t>.Create(
+                    HandleGameOverlayActivated
+                );
+            }
         }
         catch (Exception e)
         {
@@ -103,6 +111,11 @@ public class StartupManager : MonoBehaviour
         }
 
         return steamInitialized;
+    }
+
+    private void HandleGameOverlayActivated(GameOverlayActivated_t callback)
+    {
+        SteamOverlayActiveChanged?.Invoke(callback.m_bActive != 0);
     }
 #endif
 

@@ -21,8 +21,11 @@ public class InputModeTracker : MonoBehaviour
     private Vector2 lastMousePos;
     [SerializeField]
     private float pointerGraceSeconds = 0.5f;
+    [SerializeField]
+    private bool hideCursorDuringGamepadNavigation = true;
     private float startTime;
     private bool pointerBaselineReady;
+    private bool _cursorHiddenByTracker;
 
     public static void EnsureInstance()
     {
@@ -48,6 +51,21 @@ public class InputModeTracker : MonoBehaviour
 
         if (Mouse.current != null)
             lastMousePos = Mouse.current.position.ReadValue();
+
+        ApplyCursorVisibility();
+    }
+
+    private void OnDisable()
+    {
+        RestoreCursorIfNeeded();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+
+        RestoreCursorIfNeeded();
     }
 
     private void Update()
@@ -55,20 +73,14 @@ public class InputModeTracker : MonoBehaviour
         if (IsPointerActive())
         {
             IsGamepadNavigationActive = false;
+            ApplyCursorVisibility();
             SetMode(InputMode.Pointer);
             return;
         }
 
-        if (IsGamepadActive())
+        if (IsNavigationActive())
         {
-            IsGamepadNavigationActive = true;
-            SetMode(InputMode.Navigation);
-            return;
-        }
-
-        if (IsKeyboardNavigationActive())
-        {
-            IsGamepadNavigationActive = false;
+            ApplyCursorVisibility();
             SetMode(InputMode.Navigation);
         }
     }
@@ -121,8 +133,16 @@ public class InputModeTracker : MonoBehaviour
         return false;
     }
 
-    private bool IsKeyboardNavigationActive()
+    private bool IsNavigationActive()
     {
+        if (IsGamepadActive())
+        {
+            IsGamepadNavigationActive = true;
+            return true;
+        }
+
+        IsGamepadNavigationActive = false;
+
         var keyboard = Keyboard.current;
         if (keyboard == null)
             return false;
@@ -197,5 +217,21 @@ public class InputModeTracker : MonoBehaviour
             return true;
 
         return false;
+    }
+
+    private void ApplyCursorVisibility()
+    {
+        bool shouldHideCursor = hideCursorDuringGamepadNavigation && IsGamepadNavigationActive;
+        Cursor.visible = !shouldHideCursor;
+        _cursorHiddenByTracker = shouldHideCursor;
+    }
+
+    private void RestoreCursorIfNeeded()
+    {
+        if (!_cursorHiddenByTracker)
+            return;
+
+        Cursor.visible = true;
+        _cursorHiddenByTracker = false;
     }
 }

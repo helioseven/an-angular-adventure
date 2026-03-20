@@ -17,7 +17,6 @@ public class InputManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         Controls = new InputControls();
-        PointerSource.EnsureInstance();
 
         // Enable UI by default (main menu)
         Controls.UI.Enable();

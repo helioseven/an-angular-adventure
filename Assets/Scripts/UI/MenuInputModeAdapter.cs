@@ -45,6 +45,7 @@ public class MenuInputModeAdapter : MonoBehaviour
     {
         if (mode == InputMode.Navigation)
         {
+            ClearPointerHoverState();
             ApplyControllerHighlighting();
             if (preferred != null)
                 MenuFocusUtility.SelectPreferred(preferred.gameObject);
@@ -56,6 +57,26 @@ public class MenuInputModeAdapter : MonoBehaviour
             RestoreSelectedColors();
             if (clearSelectionOnPointer && EventSystem.current != null)
                 EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
+    private void ClearPointerHoverState()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        var eventData = new PointerEventData(EventSystem.current);
+        var selectables = GetScopeRoot().GetComponentsInChildren<Selectable>(true);
+        foreach (var selectable in selectables)
+        {
+            if (selectable == null)
+                continue;
+
+            ExecuteEvents.Execute(
+                selectable.gameObject,
+                eventData,
+                ExecuteEvents.pointerExitHandler
+            );
         }
     }
 
