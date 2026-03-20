@@ -44,10 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8db427ae629d2ee4f8bb0cfd4b2d48e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioMixer: {fileID: 0}
-  masterGroup: {fileID: 0}
-  musicGroup: {fileID: 0}
-  sfxGroup: {fileID: 0}
+  audioMixer: {fileID: 24100000, guid: 88feab21252f04fcaa8f117bd51743e8, type: 2}
+  masterGroup: {fileID: 24300002, guid: 88feab21252f04fcaa8f117bd51743e8, type: 2}
+  musicGroup: {fileID: -8686042588965536596, guid: 88feab21252f04fcaa8f117bd51743e8,
+    type: 2}
+  sfxGroup: {fileID: -450487402688507255, guid: 88feab21252f04fcaa8f117bd51743e8,
+    type: 2}
   sounds:
   - clip: {fileID: 8300000, guid: 7b614806cd6f28e44be074fe5dfde3d6, type: 3}
     loop: 1
@@ -61,7 +63,7 @@ MonoBehaviour:
     name: bounce
     volume: 0.219
     source: {fileID: 0}
-  - clip: {fileID: 8300000, guid: 8f9dab9b70a260e4f8a44996f9e24e97, type: 3}
+  - clip: {fileID: 8300000, guid: c26a5504ff368450fa8975e87931cb3b, type: 3}
     loop: 0
     pitch: 1
     name: jump
@@ -102,4 +104,148 @@ MonoBehaviour:
     pitch: 1
     name: victory
     volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 0e36905eee6da448ea60788663bc2e2a, type: 3}
+    loop: 0
+    pitch: 1
+    name: loading-1
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 00b62a381f32642e3acca10683b91114, type: 3}
+    loop: 0
+    pitch: 1
+    name: loading-2
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: f8b01ffe32add4a7687080801a0286de, type: 3}
+    loop: 0
+    pitch: 1
+    name: anchor
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 3cc46fc9ffe6d4be988d3923bd31db11, type: 3}
+    loop: 0
+    pitch: 1
+    name: delete
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: f6f671dff5f454a26b47300f113cdb1c, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-1
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 75c55eb8cac8d46898c5f656a6002ea3, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-2
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 7be311819bfba44df8a2a172bf1bb68c, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-3
+    volume: 0.219
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 179bfb60095de4af4a10bc01707b792f, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-4
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: b5b7aed638582423db5bbd1aa500e537, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-5
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 8ba89ee9431374dc683a993ffeea8e59, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-6
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 424634f2d88cf46d5b65e304158ef40e, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-7
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 50dcfac90d9e64cf58108960a7b4d3a2, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-8
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: a97a1983aeae540dd98fa569618d150f, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-9
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: a97a1983aeae540dd98fa569618d150f, type: 3}
+    loop: 0
+    pitch: 1
+    name: drawing-9
+    volume: 0.562
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 27b8195c141b748bf8223193e689236d, type: 3}
+    loop: 0
+    pitch: 1
+    name: superJump
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 74ba56956d0054a0b9d347575f4bd1ea, type: 3}
+    loop: 0
+    pitch: 1
+    name: door
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 5a97edc1a3c9c4451aac2b2ba0e0c287, type: 3}
+    loop: 0
+    pitch: 1
+    name: mainMenuClick
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 5c5e6663d70fe4560a8f07cb37d7cb6c, type: 3}
+    loop: 0
+    pitch: 1
+    name: mainMenuHover
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: bcf8b9736243c4a0e8016fa255d2485d, type: 3}
+    loop: 0
+    pitch: 1
+    name: key
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 9d59ea6061f144347969bc793138c506, type: 3}
+    loop: 0
+    pitch: 1
+    name: brownStick
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 03dadc07dc597ab419f0790f920c769c, type: 3}
+    loop: 0
+    pitch: 1
+    name: thud
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: e1cda851b06bb17498b23718cca0f7d1, type: 3}
+    loop: 1
+    pitch: 1
+    name: air-woosh
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 8754eb83a394b004e91ea1d28a19369c, type: 3}
+    loop: 1
+    pitch: 1
+    name: rolling-loud
+    volume: 0.557
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 2f4a478836296da4b868a963d77a8b50, type: 3}
+    loop: 1
+    pitch: 1
+    name: rolling-soft
+    volume: 0.557
     source: {fileID: 0}

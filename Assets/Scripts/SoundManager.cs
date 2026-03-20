@@ -59,20 +59,7 @@ public class SoundManager : MonoBehaviour
 
     void Start()
     {
-        // apply user preferences (apply modifications from settings menu)
-        float savedMasterVolume = PlayerPrefs.GetFloat(masterVolumeKey, 0.8f);
-        float dB = Mathf.Log10(Mathf.Clamp(savedMasterVolume, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(masterVolumeKey, dB);
-
-        // apply user preferences (apply modifications from settings menu)
-        float savedMusic = PlayerPrefs.GetFloat(musicVolumeKey, 0.8f);
-        dB = Mathf.Log10(Mathf.Clamp(savedMusic, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(musicVolumeKey, dB);
-
-        // apply user preferences (apply modifications from settings menu)
-        float savedSFXVolume = PlayerPrefs.GetFloat(sfxVolumeKey, 0.8f);
-        dB = Mathf.Log10(Mathf.Clamp(savedSFXVolume, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(sfxVolumeKey, dB);
+        ApplySavedMixerVolumes();
 
         // Kick off the theme song
         Play("main-theme");
@@ -81,14 +68,13 @@ public class SoundManager : MonoBehaviour
     /* Public Functions */
 
     // play our sounds; option to set volume too
-    public void Play(string name, float volume = 0.5f)
+    public void Play(string name, float volume = -1f)
     {
         if (!TryGetSound(name, out Sound s))
             return;
 
-        // set the volume
-        s.volume = volume;
-        s.source.volume = volume;
+        float targetVolume = volume >= 0f ? volume : s.volume;
+        s.source.volume = targetVolume;
         s.source.pitch = s.pitch;
 
         // play the sound
@@ -138,23 +124,41 @@ public class SoundManager : MonoBehaviour
 
     public void SetMasterVolume(float volume)
     {
-        float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(masterVolumeKey, dB);
+        SetMixerVolume(masterVolumeKey, volume);
         PlayerPrefs.SetFloat(masterVolumeKey, volume);
     }
 
     public void SetMusicVolume(float volume)
     {
-        float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(musicVolumeKey, dB);
+        SetMixerVolume(musicVolumeKey, volume);
         PlayerPrefs.SetFloat(musicVolumeKey, volume);
     }
 
     public void SetSFXVolume(float volume)
     {
-        float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
-        audioMixer.SetFloat(sfxVolumeKey, dB);
+        SetMixerVolume(sfxVolumeKey, volume);
         PlayerPrefs.SetFloat(sfxVolumeKey, volume);
+    }
+
+    private void ApplySavedMixerVolumes()
+    {
+        float savedMasterVolume = PlayerPrefs.GetFloat(masterVolumeKey, 0.8f);
+        SetMixerVolume(masterVolumeKey, savedMasterVolume);
+
+        float savedMusic = PlayerPrefs.GetFloat(musicVolumeKey, 0.8f);
+        SetMixerVolume(musicVolumeKey, savedMusic);
+
+        float savedSFXVolume = PlayerPrefs.GetFloat(sfxVolumeKey, 0.8f);
+        SetMixerVolume(sfxVolumeKey, savedSFXVolume);
+    }
+
+    private void SetMixerVolume(string parameterName, float volume)
+    {
+        if (audioMixer == null)
+            return;
+
+        float dB = Mathf.Log10(Mathf.Clamp(volume, 0.0001f, 1f)) * 20f;
+        audioMixer.SetFloat(parameterName, dB);
     }
 
     private bool TryGetSound(string name, out Sound sound)
