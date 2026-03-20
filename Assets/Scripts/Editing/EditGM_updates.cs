@@ -296,13 +296,19 @@ public partial class EditGM
         }
 
         // --- Update tile color ---
-        if (edit.CycleColorPrev.WasPressedThisFrame())
+        if (
+            edit.CycleColorPrev.WasPressedThisFrame()
+            || (Gamepad.current?.dpad.left.wasPressedThisFrame ?? false)
+        )
         {
             soundManager.Play("bounce");
             tileCreator.CycleColor(false);
         }
 
-        if (edit.CycleColorNext.WasPressedThisFrame())
+        if (
+            edit.CycleColorNext.WasPressedThisFrame()
+            || (Gamepad.current?.dpad.right.wasPressedThisFrame ?? false)
+        )
         {
             soundManager.Play("bounce");
             tileCreator.CycleColor(true);
