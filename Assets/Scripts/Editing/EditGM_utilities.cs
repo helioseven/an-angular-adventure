@@ -4,6 +4,8 @@ using circleXsquares;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
+using TMPro;
 
 public partial class EditGM
 {
@@ -789,8 +791,9 @@ public partial class EditGM
 
     public Collider2D GetObjectClicked()
     {
-        // get mouse position from new Input System
-        Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector2 screenPos = PointerSource.Instance != null
+            ? PointerSource.Instance.ScreenPosition
+            : Vector2.zero;
 
         // convert screen position to ray
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
@@ -971,10 +974,309 @@ public partial class EditGM
 
     public bool ShouldBlockWorldClick()
     {
-        // palette open, typing into an input, or pointer over UI element
-        return paletteMode
+        bool pointerOverUi = PointerSource.Instance != null
+            && PointerSource.Instance.IsHardwareActive
+            && EventSystem.current != null
+            && EventSystem.current.IsPointerOverGameObject();
+
+        return IsPointerSuppressed()
+            || paletteMode
             || hoveringHUD
             || inputMode
-            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
+            || IsControllerUiCaptureActive()
+            || pointerOverUi;
+    }
+
+    public void ClearUISelectionForWorldInput()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    public void SuppressPointerForFrames(int frameCount = 2)
+    {
+        _suppressPointerUntilFrame = Mathf.Max(_suppressPointerUntilFrame, Time.frameCount + frameCount);
+        if (PointerSource.Instance != null)
+        {
+            PointerSource.Instance.ConsumeVirtualPrimary();
+            PointerSource.Instance.ConsumeVirtualSecondary();
+        }
+    }
+
+    public bool IsPointerSuppressed()
+    {
+        return Time.frameCount <= _suppressPointerUntilFrame;
+    }
+
+    public void RefreshHudHover()
+    {
+        _currentHUDhover = raycastAllHUD();
+        hoveringHUD = hudPanel.activeSelf && checkHUDHover();
+    }
+
+    public bool TryClickHudAtPointer()
+    {
+        RefreshHudHover();
+        if (IsPointerSuppressed() || !hoveringHUD)
+            return false;
+
+        ClickHoveredHud();
+        return true;
+    }
+
+    public void ClickHoveredHud()
+    {
+        if (_currentHUDhover == null || _currentHUDhover.Count == 0 || eventSystem == null)
+            return;
+
+        PointerEventData eventData = new PointerEventData(eventSystem)
+        {
+            button = PointerEventData.InputButton.Left,
+            position = PointerSource.Instance != null ? PointerSource.Instance.ScreenPosition : Vector2.zero,
+            clickCount = 1,
+        };
+
+        for (int i = 0; i < _currentHUDhover.Count; i++)
+        {
+            GameObject hoveredObject = _currentHUDhover[i].gameObject;
+            GameObject target = ResolveHudClickTarget(hoveredObject);
+            if (target == null)
+                continue;
+
+            if (TryHandleNamedHudButton(target))
+            {
+                eventSystem.SetSelectedGameObject(null);
+                PointerSource.Instance?.ConsumeVirtualPrimary();
+                return;
+            }
+
+            eventSystem.SetSelectedGameObject(target, eventData);
+            ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerUpHandler);
+            Button button = target.GetComponent<Button>();
+            if (button != null && button.IsActive() && button.IsInteractable())
+                button.onClick.Invoke();
+            else
+                ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerClickHandler);
+            eventSystem.SetSelectedGameObject(null);
+            PointerSource.Instance?.ConsumeVirtualPrimary();
+            return;
+        }
+    }
+
+    private bool TryHandleNamedHudButton(GameObject target)
+    {
+        if (target == null)
+            return false;
+
+        switch (target.name)
+        {
+            case "Exit":
+            {
+                QuitDialogControl quitDialog = null;
+                if (quitDialogPanel != null)
+                    quitDialog = quitDialogPanel.GetComponent<QuitDialogControl>();
+
+                if (quitDialog == null)
+                {
+                    quitDialog = UnityEngine.Object.FindFirstObjectByType<QuitDialogControl>(
+                        FindObjectsInactive.Include
+                    );
+                }
+
+                if (quitDialog == null)
+                    return false;
+
+                if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+                    quitDialog.InvokeDialogFromPointer();
+                else
+                    quitDialog.InvokeDialogDeferred();
+                return true;
+            }
+            case "Save":
+            {
+                SaveDialogControl saveDialog =
+                    UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+                        FindObjectsInactive.Include
+                    );
+                if (saveDialog == null)
+                    return false;
+
+                if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+                    saveDialog.InvokeDialogFromPointer();
+                else
+                    saveDialog.invokeDialog();
+                return true;
+            }
+            case "Test":
+                TestLevel();
+                return true;
+            case "Layer Down Button":
+                MoveDownLayer();
+                return true;
+            case "Layer Up Button":
+                MoveUpLayer();
+                return true;
+            case "Increase Layers Button":
+                AddLayer();
+                return true;
+            case "Decrease Layers Button":
+                RemoveLayer();
+                return true;
+            case "Create Mode Button":
+                EnterCreate();
+                return true;
+            case "Edit Mode Button":
+                EnterEdit();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static GameObject ResolveHudClickTarget(GameObject hoveredObject)
+    {
+        if (hoveredObject == null)
+            return null;
+
+        Button button = hoveredObject.GetComponentInParent<Button>();
+        if (button != null && button.IsActive() && button.IsInteractable())
+            return button.gameObject;
+
+        Selectable selectable = hoveredObject.GetComponentInParent<Selectable>();
+        if (selectable != null && selectable.IsActive() && selectable.IsInteractable())
+            return selectable.gameObject;
+
+        return hoveredObject;
+    }
+
+    public void HandleControllerCancelWorld()
+    {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
+            _selectedItem = SelectedItem.noSelection;
+            return;
+        }
+
+        if (isEditorInEditMode)
+            EnterCreate();
+    }
+
+    public void HandleControllerDeleteWorld()
+    {
+        if (!isEditorInEditMode || _selectedItem == SelectedItem.noSelection || _selectedItem.instance == null)
+            return;
+
+        soundManager.Play("delete");
+        removeSelectedItem();
+        Destroy(_selectedItem.instance);
+        _selectedItem = SelectedItem.noSelection;
+    }
+
+    public void HandleControllerRotateTile(bool rotateLeft)
+    {
+        if (!isEditorInCreateMode || currentCreatorTool != EditCreatorTool.Tile)
+            return;
+
+        int rotation = tileCreator.tileOrient.rotation + (rotateLeft ? 1 : -1);
+        soundManager.Play("bounce");
+        tileCreator.SetRotation(rotation);
+    }
+
+    public void HandleHudSelectorPressed(int selectorIndex)
+    {
+        EnterCreate();
+
+        if (selectorIndex >= 0 && selectorIndex < Constants.NUM_SHAPES)
+        {
+            soundManager.Play("bounce");
+            tileCreator.SelectType(selectorIndex);
+            setTool(EditCreatorTool.Tile);
+            return;
+        }
+
+        switch (selectorIndex)
+        {
+            case 6:
+                soundManager.Play("checkpoint");
+                setTool(EditCreatorTool.Checkpoint);
+                break;
+            case 7:
+                soundManager.Play("victory");
+                setTool(EditCreatorTool.Victory);
+                break;
+            case 8:
+                soundManager.Play("warp");
+                setTool(EditCreatorTool.Warp);
+                break;
+        }
+    }
+
+    public bool IsControllerWorldInputAllowed()
+    {
+        return !paletteMode && !inputMode && !IsBlockingUiPanelOpen();
+    }
+
+    public bool IsControllerUiCaptureActive()
+    {
+        return GetActiveModalRoot() != null;
+    }
+
+    public void EnsureControllerUiSelection()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        GameObject root = GetPreferredControllerUiRoot();
+        if (root == null)
+            return;
+
+        GameObject current = EventSystem.current.currentSelectedGameObject;
+        if (current != null && current.transform.IsChildOf(root.transform))
+            return;
+
+        MenuFocusUtility.SelectPreferred(root);
+    }
+
+    public GameObject GetPreferredControllerUiRoot()
+    {
+        return GetActiveModalRoot();
+    }
+
+    private bool IsBlockingUiPanelOpen()
+    {
+        return GetActiveModalRoot() != null || !gameObject.activeInHierarchy;
+    }
+
+    public bool IsBlockingModalOpenForCamera()
+    {
+        return IsBlockingUiPanelOpen();
+    }
+
+    private GameObject GetActiveModalRoot()
+    {
+        if (quitDialogPanel != null && quitDialogPanel.activeInHierarchy)
+            return quitDialogPanel;
+
+        SaveDialogControl[] saveDialogs = UnityEngine.Object.FindObjectsByType<SaveDialogControl>(
+            FindObjectsSortMode.None
+        );
+        for (int i = 0; i < saveDialogs.Length; i++)
+        {
+            if (saveDialogs[i] != null && saveDialogs[i].gameObject.activeInHierarchy)
+                return saveDialogs[i].gameObject;
+        }
+
+        OverwriteDialogControl[] overwriteDialogs =
+            UnityEngine.Object.FindObjectsByType<OverwriteDialogControl>(FindObjectsSortMode.None);
+        for (int i = 0; i < overwriteDialogs.Length; i++)
+        {
+            if (overwriteDialogs[i] != null && overwriteDialogs[i].gameObject.activeInHierarchy)
+                return overwriteDialogs[i].gameObject;
+        }
+
+        return null;
     }
 }

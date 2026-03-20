@@ -1542,7 +1542,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 52.25
+  m_fontSize: 61.1
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1991,13 +1991,48 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
         type: 3}
+      propertyPath: m_Pivot.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
+        type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1164
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 120.125
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 127170988874800308, guid: d5eeb23a6add340acaccdcec5ffb0017,
         type: 3}
@@ -13916,7 +13951,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.45
+  m_fontSize: 35.25
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -14688,6 +14723,14 @@ MonoBehaviour:
     isBundled: 0
     uploaderId: 
     uploaderDisplayName: 
+    preview:
+      format: 
+      width: 0
+      height: 0
+      encoding: 
+      data: 
+    dataHash: 
+    sortOrder: 0
   quitDialogPanel: {fileID: 897251555}
 --- !u!4 &1421947833
 Transform:
@@ -16546,7 +16589,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19.3
+  m_fontSize: 20.7
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -20531,8 +20574,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "[Q] / [E] - Rotate Tessel\n    [W]\n [A][S][D]  - Move Screen\n  [Z]/[X]
-    - Cycle Color\n[F] / [R] - Layer Up / Down\n[       Space       ] - Toggle Display\n[
-    Right Click ] - Set Anchor"
+    - Cycle Color\n[R] / [F] - Layer Forward / Back\n[       Space       ] - Toggle
+    Display\n[ Right Click ] - Set Anchor"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a130bb71a7cb74353b80ce0299a632a4, type: 2}
   m_sharedMaterial: {fileID: -4882160366957244897, guid: a130bb71a7cb74353b80ce0299a632a4,
@@ -20560,7 +20603,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13.8
+  m_fontSize: 15.35
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

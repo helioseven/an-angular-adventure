@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class OverwriteDialogControl : MonoBehaviour
@@ -23,6 +24,8 @@ public class OverwriteDialogControl : MonoBehaviour
     )
     {
         gameObject.SetActive(true);
+        transform.SetAsLastSibling();
+        MenuFocusUtility.EnsureSelectedJiggle(gameObject);
         MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         promptText.text = $"A tessellation named \"{levelName}\" already exists.";
         incrementButton.GetComponentInChildren<TMP_Text>().text =
@@ -52,11 +55,27 @@ public class OverwriteDialogControl : MonoBehaviour
             Close();
         });
 
-        MenuFocusUtility.SelectPreferred(gameObject, cancelButton);
+        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, cancelButton);
     }
 
     private void Close()
     {
         gameObject.SetActive(false);
+        EditGM.instance.SuppressPointerForFrames();
+    }
+
+    void Update()
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        if (
+            (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
+        )
+        {
+            onCancel?.Invoke();
+            Close();
+        }
     }
 }

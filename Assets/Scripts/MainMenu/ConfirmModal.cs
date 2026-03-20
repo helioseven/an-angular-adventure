@@ -34,7 +34,6 @@ public class ConfirmModal : MonoBehaviour
         });
         if (canvasGroup != null)
             canvasGroup.alpha = 0;
-        gameObject.SetActive(false);
     }
 
     /// <summary>

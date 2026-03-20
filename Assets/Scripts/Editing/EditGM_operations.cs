@@ -376,7 +376,9 @@ public partial class EditGM
     private List<RaycastResult> raycastAllHUD()
     {
         PointerEventData ped = new PointerEventData(eventSystem);
-        ped.position = Mouse.current.position.ReadValue();
+        ped.position = PointerSource.Instance != null
+            ? PointerSource.Instance.ScreenPosition
+            : Vector2.zero;
 
         List<RaycastResult> results = new List<RaycastResult>();
         uiRaycaster.Raycast(ped, results);

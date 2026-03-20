@@ -8,17 +8,25 @@ public partial class EditGM
     private void updateLevel()
     {
         var edit = InputManager.Instance.Controls.Edit;
+        bool altClick =
+            PointerSource.Instance != null && PointerSource.Instance.SecondaryPressedThisFrame();
 
         // --- Right-click or alternate click updates snap cursor location ---
-        if (edit.ClickAlt.WasPressedThisFrame())
+        if (edit.ClickAlt.WasPressedThisFrame() || altClick)
             anchorIcon.FindNewAnchor();
 
         // --- Layer change inputs ---
-        if (edit.LayerUp.WasPressedThisFrame())
-            MoveUpLayer();
-
-        if (edit.LayerDown.WasPressedThisFrame())
+        if (
+            edit.LayerUp.WasPressedThisFrame()
+            || (Gamepad.current?.dpad.up.wasPressedThisFrame ?? false)
+        )
             MoveDownLayer();
+
+        if (
+            edit.LayerDown.WasPressedThisFrame()
+            || (Gamepad.current?.dpad.down.wasPressedThisFrame ?? false)
+        )
+            MoveUpLayer();
     }
 
     // updates UI Overlay and Palette panels
@@ -35,6 +43,14 @@ public partial class EditGM
 
         // --- HUD hover logic ---
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
+
+        if (
+            !IsPointerSuppressed()
+            && hoveringHUD
+            && PointerSource.Instance != null
+            && PointerSource.Instance.PrimaryPressedThisFrame()
+        )
+            ClickHoveredHud();
 
         // --- Show/hide current creator tool based on palette/HUD state ---
         if (hoveringHUD || paletteMode)
@@ -120,9 +136,12 @@ public partial class EditGM
         TileData td;
 
         // --- Primary click  ---
-        bool clickMain = edit.Click.WasPressedThisFrame();
+        bool clickMain =
+            PointerSource.Instance != null && PointerSource.Instance.PrimaryPressedThisFrame();
         // --- Delete key ---
-        bool deletePressed = edit.Delete.WasPressedThisFrame();
+        bool deletePressed =
+            edit.Delete.WasPressedThisFrame()
+            || (Gamepad.current?.buttonWest.wasPressedThisFrame ?? false);
 
         // first, handle the case where an item is currently selected
         if (!noItemCurrentlySelected)
@@ -229,7 +248,7 @@ public partial class EditGM
         var edit = InputManager.Instance.Controls.Edit;
 
         // In select mode, clicking is the only function
-        if (edit.Click.WasPressedThisFrame())
+        if (PointerSource.Instance != null && PointerSource.Instance.PrimaryPressedThisFrame())
         {
             // First find out what (if anything) was clicked on
             Collider2D c2d = GetObjectClicked();
@@ -322,7 +341,8 @@ public partial class EditGM
             return; // skip world interaction this frame
 
         var edit = InputManager.Instance.Controls.Edit;
-        bool isMainClick = edit.Click.WasPressedThisFrame();
+        bool isMainClick =
+            PointerSource.Instance != null && PointerSource.Instance.PrimaryPressedThisFrame();
 
         switch (_currentCreatorTool)
         {

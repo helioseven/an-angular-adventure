@@ -46,4 +46,40 @@ public static class MenuFocusUtility
             return;
         }
     }
+
+    public static void SeedModalSelectionIfNeeded(GameObject root, Selectable preferred = null)
+    {
+        if (EventSystem.current == null)
+            return;
+
+        InputModeTracker.EnsureInstance();
+
+        bool pointerMode =
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Pointer;
+        bool controllerVirtualPointer =
+            PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive;
+
+        if (pointerMode && !controllerVirtualPointer)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            return;
+        }
+
+        SelectPreferred(root, preferred);
+    }
+
+    public static void EnsureSelectedJiggle(GameObject root)
+    {
+        if (root == null)
+            return;
+
+        InputModeTracker.EnsureInstance();
+
+        SelectedJiggle jiggle = root.GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            jiggle = root.AddComponent<SelectedJiggle>();
+
+        jiggle.SetScope(root.transform);
+    }
 }

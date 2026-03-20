@@ -8,7 +8,6 @@ public class TileSelectControl : MonoBehaviour
     // private variables
     private int _activeColor;
     private int _activeSelected;
-    private int _activeTile;
     private EditGM _gmRef;
     private EditCreatorTool _gmTool;
     private bool _isActive;
@@ -23,6 +22,8 @@ public class TileSelectControl : MonoBehaviour
         _isActive = true;
         _activeSelected = 0;
         _activeColor = 0;
+
+        WireSelectorButtons();
     }
 
     void Update()
@@ -59,7 +60,7 @@ public class TileSelectControl : MonoBehaviour
     {
         _isActive = !_isActive;
         // the active selected is only turned on if _isActive
-        transform.GetChild(_activeTile).GetComponent<Image>().enabled = _isActive;
+        transform.GetChild(_activeSelected).GetComponent<Image>().enabled = _isActive;
     }
 
     // updates active state for old and new selected
@@ -97,5 +98,37 @@ public class TileSelectControl : MonoBehaviour
             Sprite newSprite = t.GetComponent<SpriteRenderer>().sprite;
             selected.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite;
         }
+    }
+
+    private void WireSelectorButtons()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            int selectorIndex = i;
+            GameObject selector = transform.GetChild(i).gameObject;
+            WireButton(selector, selectorIndex);
+
+            Button[] childButtons = selector.GetComponentsInChildren<Button>(true);
+            for (int j = 0; j < childButtons.Length; j++)
+            {
+                if (childButtons[j] == null || childButtons[j].gameObject == selector)
+                    continue;
+
+                WireButton(childButtons[j].gameObject, selectorIndex);
+            }
+        }
+    }
+
+    private void WireButton(GameObject buttonObject, int selectorIndex)
+    {
+        Button button = buttonObject.GetComponent<Button>();
+        if (button == null)
+        {
+            button = buttonObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = buttonObject.GetComponent<Image>();
+        }
+
+        button.onClick.AddListener(() => _gmRef.HandleHudSelectorPressed(selectorIndex));
     }
 }

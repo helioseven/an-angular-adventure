@@ -119,6 +119,7 @@ public partial class EditGM : MonoBehaviour
     private Dictionary<GameObject, WarpData> _warpLookup;
     private Dictionary<GameObject, VictoryData> _victoryLookup;
     private bool _suppressClickThisFrame = false;
+    private int _suppressPointerUntilFrame = -1;
 
     void Awake()
     {
@@ -179,6 +180,13 @@ public partial class EditGM : MonoBehaviour
     void Start()
     {
         InputManager.Instance.SetSceneInputs("Editing");
+        PointerSource.EnsureInstance();
+
+        if (FindFirstObjectByType<EditControllerPointer>() == null)
+        {
+            var controllerPointer = new GameObject("EditControllerPointer");
+            controllerPointer.AddComponent<EditControllerPointer>();
+        }
     }
 
     void Update()

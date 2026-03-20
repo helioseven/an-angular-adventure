@@ -16,6 +16,7 @@ public class InputModeTracker : MonoBehaviour
     public static event Action<InputMode> OnModeChanged;
 
     public InputMode CurrentMode { get; private set; } = InputMode.Navigation;
+    public bool IsGamepadNavigationActive { get; private set; }
 
     private Vector2 lastMousePos;
     [SerializeField]
@@ -53,12 +54,23 @@ public class InputModeTracker : MonoBehaviour
     {
         if (IsPointerActive())
         {
+            IsGamepadNavigationActive = false;
             SetMode(InputMode.Pointer);
             return;
         }
 
-        if (IsNavigationActive())
+        if (IsGamepadActive())
+        {
+            IsGamepadNavigationActive = true;
             SetMode(InputMode.Navigation);
+            return;
+        }
+
+        if (IsKeyboardNavigationActive())
+        {
+            IsGamepadNavigationActive = false;
+            SetMode(InputMode.Navigation);
+        }
     }
 
     private void SetMode(InputMode mode)
@@ -109,11 +121,8 @@ public class InputModeTracker : MonoBehaviour
         return false;
     }
 
-    private bool IsNavigationActive()
+    private bool IsKeyboardNavigationActive()
     {
-        if (IsGamepadActive())
-            return true;
-
         var keyboard = Keyboard.current;
         if (keyboard == null)
             return false;

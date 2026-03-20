@@ -28,10 +28,7 @@ public class SelectedJiggle : MonoBehaviour
 
     private void Update()
     {
-        if (
-            InputModeTracker.Instance != null
-            && InputModeTracker.Instance.CurrentMode != InputMode.Navigation
-        )
+        if (!ShouldAnimateInCurrentMode())
         {
             ResetCurrent();
             return;
@@ -125,5 +122,30 @@ public class SelectedJiggle : MonoBehaviour
         }
 
         return selectedRect;
+    }
+
+    private bool ShouldAnimateInCurrentMode()
+    {
+        if (InputModeTracker.Instance == null)
+            return false;
+
+        if (
+            InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            && InputModeTracker.Instance.IsGamepadNavigationActive
+        )
+            return true;
+
+        if (scopeRoot == null)
+            return false;
+
+        var editGm = EditGM.instance;
+        if (editGm == null || !editGm.IsControllerUiCaptureActive())
+            return false;
+
+        if (!InputModeTracker.Instance.IsGamepadNavigationActive)
+            return false;
+
+        GameObject modalRoot = editGm.GetPreferredControllerUiRoot();
+        return modalRoot != null && scopeRoot == modalRoot.transform;
     }
 }

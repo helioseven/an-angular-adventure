@@ -1,7 +1,10 @@
+using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class SaveDialogControl : MonoBehaviour
 {
@@ -10,17 +13,57 @@ public class SaveDialogControl : MonoBehaviour
     [SerializeField]
     private TMP_InputField _inputField;
 
+    [SerializeField]
+    private Selectable _defaultSelection;
+
+    [SerializeField]
+    private Selectable _saveButton;
+
+    [SerializeField]
+    private Selectable _cancelButton;
+
+    private Coroutine _selectionSeedRoutine;
+
     void Awake()
     {
         // establishes a reference to the relevant text component
         _inputField = transform.Find("Save Name Input").GetComponent<TMP_InputField>();
+        _inputField.onFocusSelectAll = false;
+        if (_inputField.GetComponent<SaveDialogInputController>() == null)
+            _inputField.gameObject.AddComponent<SaveDialogInputController>();
 
-        gameObject.SetActive(false);
+        if (_saveButton == null)
+        {
+            Transform saveButton = transform.Find("Save");
+            if (saveButton != null)
+                _saveButton = saveButton.GetComponent<Selectable>();
+        }
+
+        if (_cancelButton == null)
+        {
+            Transform cancelButton = transform.Find("Cancel");
+            if (cancelButton != null)
+                _cancelButton = cancelButton.GetComponent<Selectable>();
+        }
+
+        if (_defaultSelection == null)
+            _defaultSelection = _saveButton;
+
+        ConfigureNavigation();
     }
 
     void Start()
     {
         _inputField.text = EditGM.instance.levelName;
+    }
+
+    void OnDisable()
+    {
+        if (_selectionSeedRoutine != null)
+        {
+            StopCoroutine(_selectionSeedRoutine);
+            _selectionSeedRoutine = null;
+        }
     }
 
     /* Public Functions */
@@ -30,9 +73,14 @@ public class SaveDialogControl : MonoBehaviour
     {
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
-        gameObject.SetActive(true);
-        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
-        _inputField.Select();
+        ShowDialogUi();
+    }
+
+    public void InvokeDialogFromPointer()
+    {
+        _inputField.text = EditGM.instance.levelName;
+        EditGM.instance.SuppressPointerForFrames();
+        ShowDialogUi();
     }
 
     // cancels the save dialog by deactivating the panel and resuming EditGM
@@ -40,6 +88,7 @@ public class SaveDialogControl : MonoBehaviour
     {
         gameObject.SetActive(false);
         EditGM.instance.gameObject.SetActive(true);
+        EditGM.instance.SuppressPointerForFrames();
     }
 
     // confirms the file save by passing the entered filename to the EditGM
@@ -113,6 +162,78 @@ public class SaveDialogControl : MonoBehaviour
             return match.Groups[1].Value;
         }
         return name;
+    }
+
+    void Update()
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        if (
+            (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
+        )
+            cancelDialog();
+    }
+
+    private void ShowDialogUi()
+    {
+        gameObject.SetActive(true);
+        transform.SetAsLastSibling();
+        MenuFocusUtility.EnsureSelectedJiggle(gameObject);
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
+
+        if (_selectionSeedRoutine != null)
+            StopCoroutine(_selectionSeedRoutine);
+        _selectionSeedRoutine = StartCoroutine(ReseedSelectionNextFrame());
+    }
+
+    private void ConfigureNavigation()
+    {
+        if (_inputField != null)
+        {
+            Navigation inputNavigation = _inputField.navigation;
+            inputNavigation.mode = Navigation.Mode.Explicit;
+            inputNavigation.selectOnDown = _saveButton != null ? _saveButton : _cancelButton;
+            inputNavigation.selectOnUp = _cancelButton != null ? _cancelButton : _saveButton;
+            inputNavigation.selectOnLeft = _cancelButton;
+            inputNavigation.selectOnRight = _saveButton;
+            _inputField.navigation = inputNavigation;
+        }
+
+        if (_saveButton != null)
+        {
+            Navigation saveNavigation = _saveButton.navigation;
+            saveNavigation.mode = Navigation.Mode.Explicit;
+            saveNavigation.selectOnLeft = _cancelButton;
+            saveNavigation.selectOnRight = _cancelButton;
+            saveNavigation.selectOnUp = _inputField;
+            saveNavigation.selectOnDown = _inputField;
+            _saveButton.navigation = saveNavigation;
+        }
+
+        if (_cancelButton != null)
+        {
+            Navigation cancelNavigation = _cancelButton.navigation;
+            cancelNavigation.mode = Navigation.Mode.Explicit;
+            cancelNavigation.selectOnLeft = _saveButton;
+            cancelNavigation.selectOnRight = _saveButton;
+            cancelNavigation.selectOnUp = _inputField;
+            cancelNavigation.selectOnDown = _inputField;
+            _cancelButton.navigation = cancelNavigation;
+        }
+    }
+
+    private IEnumerator ReseedSelectionNextFrame()
+    {
+        yield return null;
+        _selectionSeedRoutine = null;
+
+        if (!gameObject.activeInHierarchy)
+            yield break;
+
+        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
     }
 
 }

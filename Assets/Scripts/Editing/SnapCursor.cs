@@ -140,9 +140,9 @@ public class SnapCursor : MonoBehaviour
         float distance;
 
         // --- get pointer position from new Input System ---
-        Vector2 screenPos =
-            Touchscreen.current?.primaryTouch.position.ReadValue()
-            ?? Mouse.current.position.ReadValue();
+        Vector2 screenPos = PointerSource.Instance != null
+            ? PointerSource.Instance.ScreenPosition
+            : Vector2.zero;
 
         // --- build ray from camera ---
         Ray inputRay = Camera.main.ScreenPointToRay(screenPos);
