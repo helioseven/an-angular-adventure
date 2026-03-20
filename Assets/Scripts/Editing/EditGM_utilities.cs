@@ -922,54 +922,158 @@ public partial class EditGM
 
     public void SetSelectedItemSpecial(string s)
     {
-        int newId = int.Parse(s);
+        if (!int.TryParse(s, out int newId) || !_selectedItem.tileData.HasValue)
+            return;
 
-        if (_selectedItem.tileData.HasValue)
+        TileData td = _selectedItem.tileData.Value;
+        if (td.color == TileColor.Orange)
         {
-            TileData td = _selectedItem.tileData.Value;
-            TileData tileDataModified = new TileData(
-                td.type,
-                td.color,
-                newId,
-                td.orient,
-                td.doorID
-            );
-
-            if (_selectedItem.instance)
-            {
-                removeTile(_selectedItem.instance);
-                GameObject newTile = addTile(tileDataModified);
-                _selectedItem = new SelectedItem(newTile, tileDataModified);
-            }
-            else
-                _selectedItem = new SelectedItem(tileDataModified);
+            newId = (newId % 4 + 4) % 4;
         }
+
+        TileData tileDataModified = new TileData(td.type, td.color, newId, td.orient, td.doorID);
+
+        if (_selectedItem.instance)
+        {
+            removeTile(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem = new SelectedItem(newTile, tileDataModified);
+        }
+        else
+            _selectedItem = new SelectedItem(tileDataModified);
     }
 
     public void SetSelectedItemDoorID(string s)
     {
-        int newId = int.Parse(s);
+        if (!int.TryParse(s, out int newId) || !_selectedItem.tileData.HasValue)
+            return;
 
-        if (_selectedItem.tileData.HasValue)
+        newId = Mathf.Max(0, newId);
+
+        TileData td = _selectedItem.tileData.Value;
+        TileData tileDataModified = new TileData(td.type, td.color, td.special, td.orient, newId);
+
+        if (_selectedItem.instance)
+        {
+            removeTile(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem = new SelectedItem(newTile, tileDataModified);
+        }
+        else
+            _selectedItem = new SelectedItem(tileDataModified);
+    }
+
+    public void IncrementKeyId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            TileData td = tileCreator.GetTileData();
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue = td.color == TileColor.Orange ? (td.special + 1) % 4 : td.special + 1;
+            tileCreator.SetSpecial(nextValue.ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
         {
             TileData td = _selectedItem.tileData.Value;
-            TileData tileDataModified = new TileData(
-                td.type,
-                td.color,
-                td.special,
-                td.orient,
-                newId
-            );
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
 
-            if (_selectedItem.instance)
-            {
-                removeTile(_selectedItem.instance);
-                GameObject newTile = addTile(tileDataModified);
-                _selectedItem = new SelectedItem(newTile, tileDataModified);
-            }
-            else
-                _selectedItem = new SelectedItem(tileDataModified);
+            int nextValue = td.color == TileColor.Orange ? (td.special + 1) % 4 : td.special + 1;
+            SetSelectedItemSpecial(nextValue.ToString());
+            changed = true;
         }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void DecrementKeyId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            TileData td = tileCreator.GetTileData();
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue = td.color == TileColor.Orange
+                ? (td.special + 3) % 4
+                : Mathf.Max(0, td.special - 1);
+            tileCreator.SetSpecial(nextValue.ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            TileData td = _selectedItem.tileData.Value;
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue = td.color == TileColor.Orange
+                ? (td.special + 3) % 4
+                : Mathf.Max(0, td.special - 1);
+            SetSelectedItemSpecial(nextValue.ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void IncrementDoorId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            tileCreator.SetDoorID((tileCreator.tileDoorID + 1).ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            SetSelectedItemDoorID((_selectedItem.tileData.Value.doorID + 1).ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void DecrementDoorId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            tileCreator.SetDoorID(Mathf.Max(0, tileCreator.tileDoorID - 1).ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            int nextValue = Mathf.Max(0, _selectedItem.tileData.Value.doorID - 1);
+            SetSelectedItemDoorID(nextValue.ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
     }
 
     public bool ShouldBlockWorldClick()

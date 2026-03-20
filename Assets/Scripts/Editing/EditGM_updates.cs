@@ -48,6 +48,7 @@ public partial class EditGM
             !IsPointerSuppressed()
             && hoveringHUD
             && PointerSource.Instance != null
+            && PointerSource.Instance.IsVirtualActive
             && PointerSource.Instance.PrimaryPressedThisFrame()
         )
             ClickHoveredHud();
