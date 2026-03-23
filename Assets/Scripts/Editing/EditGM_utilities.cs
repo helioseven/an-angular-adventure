@@ -1318,6 +1318,17 @@ public partial class EditGM
         }
     }
 
+    public void HandleHudColorPressed(int colorIndex)
+    {
+        EnterCreate();
+        soundManager.Play("bounce");
+
+        if (currentCreatorTool != EditCreatorTool.Tile)
+            setTool(EditCreatorTool.Tile);
+
+        tileCreator.SelectColor(colorIndex);
+    }
+
     public bool IsControllerWorldInputAllowed()
     {
         return !paletteMode && !inputMode && !IsBlockingUiPanelOpen();

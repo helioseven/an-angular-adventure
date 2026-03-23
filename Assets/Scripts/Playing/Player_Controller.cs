@@ -65,6 +65,7 @@ public class Player_Controller : MonoBehaviour
     private bool _inputEnabled = true;
     private bool _suppressJumpUntilRelease;
     private float _airWooshVolume;
+    private bool _loopingAudioSuppressed;
     private bool _rollingMuted;
     private const float PROBE_SKIN = 0.01f;
     private const float ROLLING_FADE_START_SPEED = 0.1f;
@@ -125,6 +126,7 @@ public class Player_Controller : MonoBehaviour
     void Start()
     {
         _gmRef = PlayGM.instance;
+        _loopingAudioSuppressed = false;
         int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
         _spriteRenderer.sprite = skinDB.skins[index];
         UpdateJumpForce();
@@ -353,6 +355,12 @@ public class Player_Controller : MonoBehaviour
 
     public void UpdateRollingSound()
     {
+        if (_loopingAudioSuppressed)
+        {
+            StopRollingSound();
+            return;
+        }
+
         if (_gmRef.victoryAchieved)
         {
             StopRollingSound();
@@ -405,6 +413,11 @@ public class Player_Controller : MonoBehaviour
     {
         if (_gmRef == null)
             return;
+        if (_loopingAudioSuppressed)
+        {
+            StopAirWooshSound();
+            return;
+        }
 
         float targetVolume = 0f;
         if (!_gmRef.victoryAchieved && !_groundCheckCollider.IsTouchingLayers())
@@ -455,6 +468,15 @@ public class Player_Controller : MonoBehaviour
         _rollingMuted = muted;
         if (muted)
             StopRollingSound();
+    }
+
+    public void PrepareForSceneExit()
+    {
+        _loopingAudioSuppressed = true;
+        SetInputEnabled(false);
+        SetRollingMuted(true);
+        StopAirWooshSound();
+        StopRollingSound();
     }
 
     private void CleanupStalePurpleTouches()

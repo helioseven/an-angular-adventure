@@ -126,6 +126,8 @@ public partial class PlayGM : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Playing");
 
         Debug.Log("[PlayGM] Start: " + levelLoader.levelName);
@@ -190,15 +192,41 @@ public partial class PlayGM : MonoBehaviour
 
     public void QuitToMenu()
     {
+        PrepareForSceneExit();
+        SceneExitTransition.Show();
+
         if (playModeContext == PlayModeContext.FromEditor)
         {
-            var loaderGO = Instantiate(editLoader);
-            var loader = loaderGO.GetComponent<EditLoader>();
+            var loader = Instantiate(editLoader);
             loader.levelInfo = levelInfo;
+            SceneManager.LoadScene("Editing");
         }
         else
         {
             SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    public void PrepareForSceneExit()
+    {
+        StopPlayerLoopingAudio();
+        player?.PrepareForSceneExit();
+        soundManager?.ResetLoopingSounds();
+    }
+
+    private void StopPlayerLoopingAudio()
+    {
+        if (player != null)
+        {
+            player.StopAirWooshSound();
+            player.StopRollingSound();
+        }
+
+        if (soundManager != null)
+        {
+            soundManager.StopSound("air-woosh");
+            soundManager.StopSound("rolling-soft");
+            soundManager.StopSound("rolling-loud");
         }
     }
 

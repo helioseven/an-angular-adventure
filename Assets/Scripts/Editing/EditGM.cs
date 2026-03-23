@@ -179,6 +179,8 @@ public partial class EditGM : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Editing");
         PointerSource.EnsureInstance();
 

@@ -8,6 +8,7 @@ public class EditCamControl : MonoBehaviour
     public float zoomSpeed = 100f;
     public float minZoomAmount = -25f;
     public float maxZoomAmount = 5f;
+    public float startingZoomAmount = -8f;
 
     // private variables
     private EditGM _gmRef;
@@ -22,6 +23,7 @@ public class EditCamControl : MonoBehaviour
     {
         _gmRef = EditGM.instance;
         _controls = InputManager.Instance.Controls;
+        _zoomAmount = Mathf.Clamp(startingZoomAmount, minZoomAmount, maxZoomAmount);
 
         // enable Editing map
         var edit = _controls.Edit;

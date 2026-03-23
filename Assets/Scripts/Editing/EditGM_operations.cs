@@ -233,6 +233,7 @@ public partial class EditGM
     public void ReturnToMainMenu()
     {
         // (!!) should prompt if unsaved
+        EditLoader.CancelPendingLoads();
         SceneManager.LoadScene(0);
     }
 

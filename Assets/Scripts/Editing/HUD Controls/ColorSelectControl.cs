@@ -1,11 +1,13 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ColorSelectControl : MonoBehaviour
 {
     // private variables
     private int _activeColor;
+    private EditGM _gmRef;
     private RectTransform _rtRef;
     private Quaternion _rotationTarget;
     private Quaternion _rotationOrigin;
@@ -14,10 +16,13 @@ public class ColorSelectControl : MonoBehaviour
 
     void Start()
     {
-        _tcRef = EditGM.instance.tileCreator;
+        _gmRef = EditGM.instance;
+        _tcRef = _gmRef.tileCreator;
         _rtRef = transform.GetChild(0).GetComponent<RectTransform>();
         _activeColor = 0;
         _startTime = 0f;
+
+        WireColorButtons();
 
         // bump scale for default color
         _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.5f;
@@ -51,5 +56,37 @@ public class ColorSelectControl : MonoBehaviour
             // rotation for this frame is calculated and applied
             _rtRef.transform.rotation = q;
         }
+    }
+
+    private void WireColorButtons()
+    {
+        for (int i = 0; i < _rtRef.childCount; i++)
+        {
+            int colorIndex = i;
+            GameObject colorObject = _rtRef.GetChild(i).gameObject;
+            WireButton(colorObject, colorIndex);
+
+            Button[] childButtons = colorObject.GetComponentsInChildren<Button>(true);
+            for (int j = 0; j < childButtons.Length; j++)
+            {
+                if (childButtons[j] == null || childButtons[j].gameObject == colorObject)
+                    continue;
+
+                WireButton(childButtons[j].gameObject, colorIndex);
+            }
+        }
+    }
+
+    private void WireButton(GameObject buttonObject, int colorIndex)
+    {
+        Button button = buttonObject.GetComponent<Button>();
+        if (button == null)
+        {
+            button = buttonObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = buttonObject.GetComponent<Image>();
+        }
+
+        button.onClick.AddListener(() => _gmRef.HandleHudColorPressed(colorIndex));
     }
 }

@@ -103,12 +103,21 @@ public class SoundManager : MonoBehaviour
         if (!TryGetSound(name, out Sound s))
             return;
 
+        if (volume <= 0f)
+        {
+            StopSound(name);
+            return;
+        }
+
         s.volume = volume;
         s.source.volume = volume;
         s.source.pitch = pitch;
 
         if (!s.source.isPlaying)
+        {
+            s.source.time = 0f;
             s.source.Play();
+        }
     }
 
     public void StopSound(string name)
@@ -120,6 +129,26 @@ public class SoundManager : MonoBehaviour
         s.source.volume = 0f;
         if (s.source.isPlaying)
             s.source.Stop();
+        s.source.time = 0f;
+        s.source.pitch = s.pitch;
+    }
+
+    public void ResetLoopingSounds(bool includeMusic = false)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s == null || s.source == null || !s.loop)
+                continue;
+            if (!includeMusic && s.source.outputAudioMixerGroup == musicGroup)
+                continue;
+
+            s.volume = 0f;
+            s.source.volume = 0f;
+            if (s.source.isPlaying)
+                s.source.Stop();
+            s.source.time = 0f;
+            s.source.pitch = s.pitch;
+        }
     }
 
     public void SetMasterVolume(float volume)

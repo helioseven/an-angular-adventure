@@ -31,14 +31,24 @@ public class EditLoader : MonoBehaviour
     // Once this flips to true we hand off to the play scene
     private bool levelReady = false;
 
+    void Awake()
+    {
+        GameObject[] loaders = GameObject.FindGameObjectsWithTag("Loader");
+        foreach (GameObject loader in loaders)
+        {
+            if (loader != gameObject)
+                Destroy(loader);
+        }
+
+        // this loader stays awake when next scene is loaded
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Start()
     {
         levelName = levelInfo.name;
         supabase_uuid = levelInfo.id; // note this might not be a supabase level
         loadFromSupabase = !levelInfo.isLocal && !levelInfo.isBundled;
-
-        // this loader stays awake when next scene is loaded
-        DontDestroyOnLoad(gameObject);
 
         if (string.IsNullOrEmpty(levelName))
         {
@@ -122,7 +132,7 @@ public class EditLoader : MonoBehaviour
 
     void Update()
     {
-        if (levelReady)
+        if (levelReady && SceneManager.GetActiveScene().name != "Editing")
         {
             // load Editing scene (EditGM will call supplyLevel)
             SceneManager.LoadScene("Editing");
@@ -150,5 +160,16 @@ public class EditLoader : MonoBehaviour
         // when script is done, it schedules self-termination and returns
         Destroy(gameObject);
         return levelData;
+    }
+
+    public static void CancelPendingLoads()
+    {
+        GameObject[] loaders = GameObject.FindGameObjectsWithTag("Loader");
+        foreach (GameObject loader in loaders)
+        {
+            EditLoader editLoader = loader.GetComponent<EditLoader>();
+            if (editLoader != null)
+                Destroy(loader);
+        }
     }
 }
