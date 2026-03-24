@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -34,19 +35,15 @@ public class SaveDialogControl : MonoBehaviour
 
         if (_saveButton == null)
         {
-            Transform saveButton = transform.Find("Save");
-            if (saveButton != null)
-                _saveButton = saveButton.GetComponent<Selectable>();
+            _saveButton = FindSelectableByName("Save");
         }
 
         if (_cancelButton == null)
         {
-            Transform cancelButton = transform.Find("Cancel");
-            if (cancelButton != null)
-                _cancelButton = cancelButton.GetComponent<Selectable>();
+            _cancelButton = FindSelectableByName("Cancel");
         }
 
-        if (_defaultSelection == null)
+        if (_saveButton != null)
             _defaultSelection = _saveButton;
 
         ConfigureNavigation();
@@ -180,9 +177,13 @@ public class SaveDialogControl : MonoBehaviour
     {
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
+        if (_inputField != null)
+            _inputField.DeactivateInputField();
         MenuFocusUtility.EnsureSelectedJiggle(gameObject);
         MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
+        if (_defaultSelection != null && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(_defaultSelection.gameObject);
 
         if (_selectionSeedRoutine != null)
             StopCoroutine(_selectionSeedRoutine);
@@ -236,5 +237,17 @@ public class SaveDialogControl : MonoBehaviour
         MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
     }
 
+    private Selectable FindSelectableByName(string objectName)
+    {
+        Selectable[] selectables = GetComponentsInChildren<Selectable>(true);
+        for (int i = 0; i < selectables.Length; i++)
+        {
+            Selectable selectable = selectables[i];
+            if (selectable != null && selectable.gameObject.name == objectName)
+                return selectable;
+        }
+
+        return null;
+    }
 }
 

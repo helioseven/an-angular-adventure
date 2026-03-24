@@ -54,6 +54,15 @@ public partial class EditGM
         }
     }
 
+    private void SetHudVisibility(bool isVisible)
+    {
+        if (hudPanel != null)
+            hudPanel.SetActive(isVisible);
+
+        if (showUiHint != null)
+            showUiHint.SetActive(!isVisible);
+    }
+
     // cycles through all layers, calculates distance, and sets opacity accordingly
     private void activateLayer(int inLayer)
     {
@@ -734,28 +743,35 @@ public partial class EditGM
     // sets the currently active tool
     private void setTool(EditCreatorTool inTool)
     {
+        GameObject previousTool = _currentCreatorToolGameObject;
+        GameObject nextTool = previousTool;
+
         switch (inTool)
         {
             case EditCreatorTool.Tile:
-                _currentCreatorToolGameObject = tileCreator.gameObject;
+                nextTool = tileCreator.gameObject;
                 break;
             case EditCreatorTool.Checkpoint:
-                _currentCreatorToolGameObject = checkpointTool;
+                nextTool = checkpointTool;
                 break;
             case EditCreatorTool.Warp:
-                _currentCreatorToolGameObject = warpTool;
+                nextTool = warpTool;
                 break;
             case EditCreatorTool.Victory:
-                _currentCreatorToolGameObject = victoryTool;
+                nextTool = victoryTool;
                 break;
             case EditCreatorTool.Eraser:
                 // missing implementation
-                _currentCreatorToolGameObject = null;
+                nextTool = null;
                 break;
             default:
                 break;
         }
 
+        if (previousTool != null && previousTool != nextTool)
+            previousTool.SetActive(false);
+
+        _currentCreatorToolGameObject = nextTool;
         _currentCreatorTool = inTool;
     }
 
@@ -1179,39 +1195,12 @@ public partial class EditGM
         {
             case "Exit":
             {
-                QuitDialogControl quitDialog = null;
-                if (quitDialogPanel != null)
-                    quitDialog = quitDialogPanel.GetComponent<QuitDialogControl>();
-
-                if (quitDialog == null)
-                {
-                    quitDialog = UnityEngine.Object.FindFirstObjectByType<QuitDialogControl>(
-                        FindObjectsInactive.Include
-                    );
-                }
-
-                if (quitDialog == null)
-                    return false;
-
-                if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
-                    quitDialog.InvokeDialogFromPointer();
-                else
-                    quitDialog.InvokeDialogDeferred();
+                OpenExitDialog();
                 return true;
             }
             case "Save":
             {
-                SaveDialogControl saveDialog =
-                    UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
-                        FindObjectsInactive.Include
-                    );
-                if (saveDialog == null)
-                    return false;
-
-                if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
-                    saveDialog.InvokeDialogFromPointer();
-                else
-                    saveDialog.invokeDialog();
+                OpenSaveDialog();
                 return true;
             }
             case "Test":
@@ -1289,6 +1278,50 @@ public partial class EditGM
         tileCreator.SetRotation(rotation);
     }
 
+    public void OpenExitDialog()
+    {
+        QuitDialogControl quitDialog = null;
+        if (quitDialogPanel != null)
+            quitDialog = quitDialogPanel.GetComponent<QuitDialogControl>();
+
+        if (quitDialog == null)
+        {
+            quitDialog = UnityEngine.Object.FindFirstObjectByType<QuitDialogControl>(
+                FindObjectsInactive.Include
+            );
+        }
+
+        if (quitDialog == null)
+            return;
+
+        if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+            quitDialog.InvokeDialogFromPointer();
+        else
+            quitDialog.InvokeDialogDeferred();
+    }
+
+    public void OpenSaveDialog()
+    {
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+            FindObjectsInactive.Include
+        );
+        if (saveDialog == null)
+            return;
+
+        if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+            saveDialog.InvokeDialogFromPointer();
+        else
+            saveDialog.invokeDialog();
+    }
+
+    public void HandleControllerToggleCreateEditMode()
+    {
+        if (isEditorInCreateMode)
+            EnterEdit();
+        else
+            EnterCreate();
+    }
+
     public void HandleHudSelectorPressed(int selectorIndex)
     {
         EnterCreate();
@@ -1318,6 +1351,17 @@ public partial class EditGM
         }
     }
 
+    public void HandleControllerCycleToolSelector(bool moveRight)
+    {
+        int selectorCount = 9;
+        int currentSelectorIndex = GetCurrentHudSelectorIndex();
+        int direction = moveRight ? 1 : -1;
+        int nextSelectorIndex =
+            (currentSelectorIndex + direction + selectorCount) % selectorCount;
+
+        HandleHudSelectorPressed(nextSelectorIndex);
+    }
+
     public void HandleHudColorPressed(int colorIndex)
     {
         EnterCreate();
@@ -1327,6 +1371,23 @@ public partial class EditGM
             setTool(EditCreatorTool.Tile);
 
         tileCreator.SelectColor(colorIndex);
+    }
+
+    private int GetCurrentHudSelectorIndex()
+    {
+        switch (currentCreatorTool)
+        {
+            case EditCreatorTool.Tile:
+                return Mathf.Clamp(tileCreator.tileType, 0, Constants.NUM_SHAPES - 1);
+            case EditCreatorTool.Checkpoint:
+                return 6;
+            case EditCreatorTool.Victory:
+                return 7;
+            case EditCreatorTool.Warp:
+                return 8;
+            default:
+                return 0;
+        }
     }
 
     public bool IsControllerWorldInputAllowed()

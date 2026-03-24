@@ -19,6 +19,7 @@ public partial class EditGM : MonoBehaviour
     public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
+    public GameObject showUiHint;
     public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
@@ -143,12 +144,10 @@ public partial class EditGM : MonoBehaviour
             _warpLookup = new Dictionary<GameObject, WarpData>();
             _victoryLookup = new Dictionary<GameObject, VictoryData>();
 
-            // initializations for connected state variables
-            hudPanel.SetActive(true);
-
             activeLayer = 0;
             hoveringHUD = false;
             paletteMode = false;
+            SetHudVisibility(hudPanel != null && hudPanel.activeSelf);
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
@@ -194,9 +193,12 @@ public partial class EditGM : MonoBehaviour
     void Update()
     {
         // Check for escape key and pop up the quit (exit to main menu) dialog
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (
+            (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.selectButton.wasPressedThisFrame ?? false)
+        )
         {
-            quitDialogPanel.gameObject.SetActive(true);
+            OpenExitDialog();
         }
         // get raycast results for this frame's mouse position
         _currentHUDhover = raycastAllHUD();

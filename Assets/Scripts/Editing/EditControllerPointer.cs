@@ -44,11 +44,11 @@ public class EditControllerPointer : MonoBehaviour
             return;
 
         bool worldPrimaryPressed = pad.buttonSouth.wasPressedThisFrame;
-        bool worldSecondaryPressed = pad.buttonNorth.wasPressedThisFrame;
-        bool worldCancelPressed = pad.buttonEast.wasPressedThisFrame;
-        bool worldDeletePressed = pad.buttonWest.wasPressedThisFrame;
+        bool worldSavePressed = pad.buttonEast.wasPressedThisFrame;
         bool rotateLeftPressed = pad.leftShoulder.wasPressedThisFrame;
         bool rotateRightPressed = pad.rightShoulder.wasPressedThisFrame;
+        bool toggleModePressed = pad.leftStickButton.wasPressedThisFrame;
+        bool setAnchorPressed = pad.rightStickButton.wasPressedThisFrame;
 
         if (HandleUiCancel(pad))
             return;
@@ -57,8 +57,6 @@ public class EditControllerPointer : MonoBehaviour
         {
             if (worldPrimaryPressed)
                 PointerSource.Instance.ConsumeVirtualPrimary();
-            if (worldSecondaryPressed)
-                PointerSource.Instance.ConsumeVirtualSecondary();
             _gmRef.EnsureControllerUiSelection();
             return;
         }
@@ -85,19 +83,17 @@ public class EditControllerPointer : MonoBehaviour
                 return;
         }
 
-        if (worldSecondaryPressed)
+        if (worldSavePressed)
+            _gmRef.OpenSaveDialog();
+
+        if (toggleModePressed)
+        {
+            _gmRef.HandleControllerToggleCreateEditMode();
+        }
+
+        if (setAnchorPressed)
         {
             PointerSource.Instance.PressVirtualSecondary();
-        }
-
-        if (worldCancelPressed)
-        {
-            _gmRef.HandleControllerCancelWorld();
-        }
-
-        if (worldDeletePressed)
-        {
-            _gmRef.HandleControllerDeleteWorld();
         }
 
         if (rotateLeftPressed)

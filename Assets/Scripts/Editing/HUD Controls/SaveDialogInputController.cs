@@ -19,6 +19,7 @@ public class SaveDialogInputController
     private Coroutine deactivateRoutine;
     private bool isEditingExplicitly;
     private InputSystemUIInputModule uiInputModule;
+    private bool wasGamepadMoveDownPressed;
 
     private void Awake()
     {
@@ -39,6 +40,7 @@ public class SaveDialogInputController
 
         SetNavigationSuppressed(false);
         isEditingExplicitly = false;
+        wasGamepadMoveDownPressed = false;
     }
 
     private void Update()
@@ -54,7 +56,7 @@ public class SaveDialogInputController
             if (!moveAway)
             {
                 var gamepad = Gamepad.current;
-                moveAway = gamepad != null && gamepad.dpad.down.wasPressedThisFrame;
+                moveAway = WasGamepadMoveDownPressed(gamepad);
             }
 
             if (moveAway)
@@ -79,7 +81,7 @@ public class SaveDialogInputController
             leaveToButtons = gamepad != null
                 && (
                     gamepad.buttonEast.wasPressedThisFrame
-                    || gamepad.dpad.down.wasPressedThisFrame
+                    || WasGamepadMoveDownPressed(gamepad)
                 );
         }
 
@@ -118,6 +120,7 @@ public class SaveDialogInputController
 
         SetNavigationSuppressed(false);
         isEditingExplicitly = false;
+        wasGamepadMoveDownPressed = false;
     }
 
     public void OnSubmit(BaseEventData eventData)
@@ -205,6 +208,19 @@ public class SaveDialogInputController
         return EventSystem.current != null
             && inputField != null
             && EventSystem.current.currentSelectedGameObject == inputField.gameObject;
+    }
+
+    private bool WasGamepadMoveDownPressed(Gamepad gamepad)
+    {
+        bool isPressed =
+            gamepad != null
+            && (
+                gamepad.dpad.down.isPressed
+                || gamepad.leftStick.ReadValue().y <= -0.5f
+            );
+        bool wasPressedThisFrame = isPressed && !wasGamepadMoveDownPressed;
+        wasGamepadMoveDownPressed = isPressed;
+        return wasPressedThisFrame;
     }
 
     private void SetNavigationSuppressed(bool suppressed)

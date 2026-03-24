@@ -7,6 +7,9 @@ public partial class EditGM
     // Makes changes associated with anchorIcon and layer changes
     private void updateLevel()
     {
+        if (IsBlockingModalOpenForCamera())
+            return;
+
         var edit = InputManager.Instance.Controls.Edit;
         bool altClick =
             PointerSource.Instance != null && PointerSource.Instance.SecondaryPressedThisFrame();
@@ -18,15 +21,21 @@ public partial class EditGM
         // --- Layer change inputs ---
         if (
             edit.LayerUp.WasPressedThisFrame()
-            || (Gamepad.current?.dpad.up.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonNorth.wasPressedThisFrame ?? false)
         )
             MoveDownLayer();
 
         if (
             edit.LayerDown.WasPressedThisFrame()
-            || (Gamepad.current?.dpad.down.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonWest.wasPressedThisFrame ?? false)
         )
             MoveUpLayer();
+
+        if (Gamepad.current?.dpad.left.wasPressedThisFrame ?? false)
+            HandleControllerCycleToolSelector(false);
+
+        if (Gamepad.current?.dpad.right.wasPressedThisFrame ?? false)
+            HandleControllerCycleToolSelector(true);
     }
 
     // updates UI Overlay and Palette panels
@@ -38,8 +47,11 @@ public partial class EditGM
         var edit = InputManager.Instance.Controls.Edit;
 
         // --- HUD toggle (was spacebar before) ---
-        if (edit.Palette.WasPressedThisFrame())
-            hudPanel.SetActive(!hudPanel.activeSelf);
+        if (
+            edit.Palette.WasPressedThisFrame()
+            || (Gamepad.current?.startButton.wasPressedThisFrame ?? false)
+        )
+            SetHudVisibility(hudPanel != null && !hudPanel.activeSelf);
 
         // --- HUD hover logic ---
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
@@ -69,6 +81,9 @@ public partial class EditGM
     // makes changes associated with being in isEditorInCreateMode
     private void updateCreate()
     {
+        if (IsBlockingModalOpenForCamera())
+            return;
+
         if (_suppressClickThisFrame)
         {
             _suppressClickThisFrame = false;
@@ -140,9 +155,7 @@ public partial class EditGM
         bool clickMain =
             PointerSource.Instance != null && PointerSource.Instance.PrimaryPressedThisFrame();
         // --- Delete key ---
-        bool deletePressed =
-            edit.Delete.WasPressedThisFrame()
-            || (Gamepad.current?.buttonWest.wasPressedThisFrame ?? false);
+        bool deletePressed = edit.Delete.WasPressedThisFrame();
 
         // first, handle the case where an item is currently selected
         if (!noItemCurrentlySelected)
@@ -298,7 +311,7 @@ public partial class EditGM
         // --- Update tile color ---
         if (
             edit.CycleColorPrev.WasPressedThisFrame()
-            || (Gamepad.current?.dpad.left.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.dpad.down.wasPressedThisFrame ?? false)
         )
         {
             soundManager.Play("bounce");
@@ -307,7 +320,7 @@ public partial class EditGM
 
         if (
             edit.CycleColorNext.WasPressedThisFrame()
-            || (Gamepad.current?.dpad.right.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.dpad.up.wasPressedThisFrame ?? false)
         )
         {
             soundManager.Play("bounce");
