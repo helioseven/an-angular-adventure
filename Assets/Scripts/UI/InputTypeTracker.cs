@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+#if !UNITY_IOS
+using Steamworks;
+#endif
 
 [ExecuteAlways]
 public class InputTypeTracker : MonoBehaviour
@@ -30,6 +33,7 @@ public class InputTypeTracker : MonoBehaviour
         {
             InputModeTracker.EnsureInstance();
             InputModeTracker.OnModeChanged += HandleInputModeChanged;
+            InputSystem.onDeviceChange += HandleDeviceChange;
             _latchedRuntimeDevice = PromptDeviceFamily.KeyboardMouse;
         }
 
@@ -42,6 +46,7 @@ public class InputTypeTracker : MonoBehaviour
             return;
 
         InputModeTracker.OnModeChanged -= HandleInputModeChanged;
+        InputSystem.onDeviceChange -= HandleDeviceChange;
     }
 
     private void Update()
@@ -120,7 +125,10 @@ public class InputTypeTracker : MonoBehaviour
         }
 
         if (HasGamepadInputThisFrame())
-            _latchedRuntimeDevice = DetectGamepadFamily(Gamepad.current);
+        {
+            Gamepad current = Gamepad.current;
+            _latchedRuntimeDevice = DetectGamepadFamily(current);
+        }
     }
 
     private static bool HasKeyboardOrPointerInputThisFrame()
@@ -183,6 +191,9 @@ public class InputTypeTracker : MonoBehaviour
         if (gamepad == null)
             return PromptDeviceFamily.Xbox;
 
+        if (SteamInputPromptResolver.TryGetPromptDeviceFamily(gamepad, out PromptDeviceFamily family))
+            return family;
+
         string probe =
             $"{gamepad.layout} {gamepad.displayName} {gamepad.description.interfaceName} "
             + $"{gamepad.description.manufacturer} {gamepad.description.product}";
@@ -200,6 +211,24 @@ public class InputTypeTracker : MonoBehaviour
         }
 
         return PromptDeviceFamily.Xbox;
+    }
+
+    private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (
+            device is not Gamepad gamepad
+            || (
+                change != InputDeviceChange.Added
+                && change != InputDeviceChange.Reconnected
+                && change != InputDeviceChange.ConfigurationChanged
+            )
+        )
+        {
+            return;
+        }
+
+        if (Gamepad.current == gamepad)
+            _latchedRuntimeDevice = DetectGamepadFamily(gamepad);
     }
 
     private PromptRowView[] CollectRows()
@@ -232,4 +261,89 @@ public class InputTypeTracker : MonoBehaviour
         RebuildRows();
         Refresh();
     }
+}
+
+internal static class SteamInputPromptResolver
+{
+    public static bool TryGetPromptDeviceFamily(Gamepad gamepad, out PromptDeviceFamily family)
+    {
+        family = PromptDeviceFamily.Xbox;
+
+#if UNITY_IOS
+        return false;
+#else
+        if (gamepad == null)
+            return false;
+
+        if (StartupManager.Instance == null || !StartupManager.Instance.SteamInputInitialized)
+            return false;
+
+        if (!StartupManager.Instance.SteamOverlayAvailable)
+            return false;
+
+        int xinputIndex = GetSteamGamepadIndex(gamepad);
+        if (xinputIndex < 0)
+            return false;
+
+        InputHandle_t inputHandle = SteamInput.GetControllerForGamepadIndex(xinputIndex);
+        if (inputHandle.m_InputHandle == 0)
+            return false;
+
+        switch (SteamInput.GetInputTypeForHandle(inputHandle))
+        {
+            case ESteamInputType.k_ESteamInputType_PS3Controller:
+            case ESteamInputType.k_ESteamInputType_PS4Controller:
+            case ESteamInputType.k_ESteamInputType_PS5Controller:
+                family = PromptDeviceFamily.PlayStation;
+                return true;
+
+            case ESteamInputType.k_ESteamInputType_XBox360Controller:
+            case ESteamInputType.k_ESteamInputType_XBoxOneController:
+            case ESteamInputType.k_ESteamInputType_SteamController:
+            case ESteamInputType.k_ESteamInputType_SteamDeckController:
+                family = PromptDeviceFamily.Xbox;
+                return true;
+
+            default:
+                return false;
+        }
+#endif
+    }
+
+#if !UNITY_IOS
+    private static int GetSteamGamepadIndex(Gamepad gamepad)
+    {
+        if (gamepad == null)
+            return -1;
+
+        int xinputIndex = 0;
+        foreach (Gamepad candidate in Gamepad.all)
+        {
+            if (candidate == null)
+                continue;
+
+            if (!IsXInputLike(candidate))
+                continue;
+
+            if (candidate.deviceId == gamepad.deviceId)
+                return xinputIndex;
+
+            xinputIndex++;
+        }
+
+        return -1;
+    }
+
+    private static bool IsXInputLike(Gamepad gamepad)
+    {
+        if (gamepad == null)
+            return false;
+
+        string probe =
+            $"{gamepad.layout} {gamepad.displayName} {gamepad.description.interfaceName} "
+            + $"{gamepad.description.product}";
+        string normalized = probe.ToLowerInvariant();
+        return normalized.Contains("xinput") || normalized.Contains("xbox");
+    }
+#endif
 }

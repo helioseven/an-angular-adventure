@@ -42,8 +42,12 @@ public class StartupManager : MonoBehaviour
 #if !UNITY_IOS
     private bool steamInitialized;
     private bool steamInitAttempted;
+    private bool steamInputInitialized;
+    private bool steamOverlayAvailable;
     private Callback<GameOverlayActivated_t> gameOverlayActivatedCallback;
     public bool SteamInitialized => steamInitialized;
+    public bool SteamInputInitialized => steamInputInitialized;
+    public bool SteamOverlayAvailable => steamOverlayAvailable;
 #endif
 
     private void Awake()
@@ -99,6 +103,14 @@ public class StartupManager : MonoBehaviour
             Debug.Log($"[Steam] Init {(steamInitialized ? "OK" : "FAILED")}");
             if (steamInitialized)
             {
+                steamInputInitialized = SteamInput.Init(false);
+                steamOverlayAvailable = SteamUtils.IsOverlayEnabled();
+                Debug.Log(
+                    $"[SteamInput] Init {(steamInputInitialized ? "OK" : "FAILED")}"
+                );
+                Debug.Log(
+                    $"[Steam] Overlay available {(steamOverlayAvailable ? "YES" : "NO")}"
+                );
                 gameOverlayActivatedCallback = Callback<GameOverlayActivated_t>.Create(
                     HandleGameOverlayActivated
                 );
@@ -108,9 +120,29 @@ public class StartupManager : MonoBehaviour
         {
             Debug.LogError("[Steam] Init exception: " + e);
             steamInitialized = false;
+            steamInputInitialized = false;
+            steamOverlayAvailable = false;
         }
 
         return steamInitialized;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance != this)
+            return;
+
+        if (steamInputInitialized)
+        {
+            SteamInput.Shutdown();
+            steamInputInitialized = false;
+        }
+
+        if (steamInitialized)
+        {
+            SteamAPI.Shutdown();
+            steamInitialized = false;
+        }
     }
 
     private void HandleGameOverlayActivated(GameOverlayActivated_t callback)
