@@ -1113,11 +1113,6 @@ public partial class EditGM
         EventSystem.current.SetSelectedGameObject(null);
     }
 
-    public void SuppressPointerForFrames(int frameCount = 2)
-    {
-        SuppressPointerTransition();
-    }
-
     public bool IsPointerSuppressed()
     {
         if (!_suppressHardwarePointerUntilRelease)
