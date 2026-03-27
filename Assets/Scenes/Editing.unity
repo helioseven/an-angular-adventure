@@ -7565,7 +7565,7 @@ PrefabInstance:
     - target: {fileID: 5564358398822633170, guid: 97588024deac8e4489647627d322e3d8,
         type: 3}
       propertyPath: m_fontSize
-      value: 24.4
+      value: 27.05
       objectReference: {fileID: 0}
     - target: {fileID: 5564358398822633170, guid: 97588024deac8e4489647627d322e3d8,
         type: 3}
@@ -24654,7 +24654,7 @@ MonoBehaviour:
   checkpointTool: {fileID: 571577402752261496}
   eventSystem: {fileID: 355242748}
   hudPanel: {fileID: 1249965603}
-  showUiHint: {fileID: 927532462}
+  showUIHint: {fileID: 927532462}
   soundManager: {fileID: 0}
   tileCreator: {fileID: 1136852627}
   tileMap: {fileID: 1833171069}

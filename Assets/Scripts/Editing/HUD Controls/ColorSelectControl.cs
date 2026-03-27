@@ -22,7 +22,7 @@ public class ColorSelectControl : MonoBehaviour
         _activeColor = 0;
         _startTime = 0f;
 
-        WireColorButtons();
+        InitializeColorButtons();
 
         // bump scale for default color
         _rtRef.transform.GetChild(_activeColor).localScale = Vector3.one * 1.5f;
@@ -58,7 +58,7 @@ public class ColorSelectControl : MonoBehaviour
         }
     }
 
-    private void WireColorButtons()
+    private void InitializeColorButtons()
     {
         for (int i = 0; i < _rtRef.childCount; i++)
         {

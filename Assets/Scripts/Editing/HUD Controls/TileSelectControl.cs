@@ -27,7 +27,7 @@ public class TileSelectControl : MonoBehaviour
         _activeSelected = 0;
         _activeColor = 0;
 
-        WireSelectorButtons();
+        InitializeSelectorButtons();
     }
 
     void Update()
@@ -119,7 +119,7 @@ public class TileSelectControl : MonoBehaviour
         }
     }
 
-    private void WireSelectorButtons()
+    private void InitializeSelectorButtons()
     {
         for (int i = 0; i < transform.childCount; i++)
         {

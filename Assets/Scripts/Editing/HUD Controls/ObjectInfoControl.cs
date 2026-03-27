@@ -86,24 +86,28 @@ public class ObjectInfoControl : MonoBehaviour
 
         Transform t = transform.GetChild(1);
         _standardAttributesPanel = t;
-        _typeDisplay = FindText(t, "Type Display");
-        _colorDisplay = FindText(t, "Color Display");
-        _rotationDisplay = FindText(t, "Rotation Display");
-        _locusDisplay = FindText(t, "Position Display");
+        _typeDisplay = GetTextObjectFromParent(t, "Type Display");
+        _colorDisplay = GetTextObjectFromParent(t, "Color Display");
+        _rotationDisplay = GetTextObjectFromParent(t, "Rotation Display");
+        _locusDisplay = GetTextObjectFromParent(t, "Position Display");
 
         t = transform.GetChild(3);
         _specialPanel = t;
-        _specialLabel = FindText(t, "Special Label");
-        _specialDisplay = FindText(t, "Special Display");
+        _specialLabel = GetTextObjectFromParent(t, "Special Label");
+        _specialDisplay = GetTextObjectFromParent(t, "Special Display");
         _specialInputField = t.GetComponentInChildren<TMP_InputField>(true);
-        CachePanelButtons(t, out _decreaseSpecialButton, out _increaseSpecialButton);
+        InitializeSpecialInfoPanelButtons(
+            t,
+            out _decreaseSpecialButton,
+            out _increaseSpecialButton
+        );
 
         t = transform.GetChild(2);
         _doorIdPanel = t;
-        _doorIDLabel = FindText(t, "DoorID Label");
-        _doorIDDisplay = FindText(t, "DoorID Display");
+        _doorIDLabel = GetTextObjectFromParent(t, "DoorID Label");
+        _doorIDDisplay = GetTextObjectFromParent(t, "DoorID Display");
         _doorIdInputField = t.GetComponentInChildren<TMP_InputField>(true);
-        CachePanelButtons(t, out _decreaseDoorIdButton, out _increaseDoorIdButton);
+        InitializeSpecialInfoPanelButtons(t, out _decreaseDoorIdButton, out _increaseDoorIdButton);
 
         BindRuntimeListeners();
     }
@@ -419,25 +423,50 @@ public class ObjectInfoControl : MonoBehaviour
 
         // Type (Not displayed at the moment)
         if (_typeDisplay != null && _isAnyItemSelected && infoPack.type >= 0 && infoPack.type < 6)
-            SafeSetText(ref _typeDisplay, _standardAttributesPanel, "Type Display", _typeStrings[infoPack.type]);
+            SafeSetText(
+                ref _typeDisplay,
+                _standardAttributesPanel,
+                "Type Display",
+                _typeStrings[infoPack.type]
+            );
         else if (_typeDisplay != null)
             SafeSetText(ref _typeDisplay, _standardAttributesPanel, "Type Display", "[N/A]");
 
         // Color (Not displayed at the moment)
         if (_colorDisplay != null && _isAnyItemSelected && infoPack.color >= 0)
-            SafeSetText(ref _colorDisplay, _standardAttributesPanel, "Color Display", _colorStrings[infoPack.color]);
+            SafeSetText(
+                ref _colorDisplay,
+                _standardAttributesPanel,
+                "Color Display",
+                _colorStrings[infoPack.color]
+            );
         else if (_colorDisplay != null)
             SafeSetText(ref _colorDisplay, _standardAttributesPanel, "Color Display", "[N/A]");
 
         // Rotation
         if (_rotationDisplay != null && _isAnyItemSelected && infoPack.rot >= 0)
-            SafeSetText(ref _rotationDisplay, _standardAttributesPanel, "Rotation Display", infoPack.rot.ToString());
+            SafeSetText(
+                ref _rotationDisplay,
+                _standardAttributesPanel,
+                "Rotation Display",
+                infoPack.rot.ToString()
+            );
         else if (_rotationDisplay != null)
-            SafeSetText(ref _rotationDisplay, _standardAttributesPanel, "Rotation Display", "[N/A]");
+            SafeSetText(
+                ref _rotationDisplay,
+                _standardAttributesPanel,
+                "Rotation Display",
+                "[N/A]"
+            );
 
         // Locus
         if (_locusDisplay != null && _isAnyItemSelected)
-            SafeSetText(ref _locusDisplay, _standardAttributesPanel, "Position Display", infoPack.locus.PrettyPrint());
+            SafeSetText(
+                ref _locusDisplay,
+                _standardAttributesPanel,
+                "Position Display",
+                infoPack.locus.PrettyPrint()
+            );
         else if (_locusDisplay != null)
             SafeSetText(ref _locusDisplay, _standardAttributesPanel, "Position Display", "[N/A]");
 
@@ -446,27 +475,42 @@ public class ObjectInfoControl : MonoBehaviour
         if (_specialLabel != null && _specialDisplay != null && infoPack.color == 3)
         {
             SafeSetText(ref _specialLabel, _specialPanel, "Special Label", "Key Id:");
-            SafeSetText(ref _specialDisplay, _specialPanel, "Special Display", infoPack.spec.ToString());
+            SafeSetText(
+                ref _specialDisplay,
+                _specialPanel,
+                "Special Display",
+                infoPack.spec.ToString()
+            );
         }
 
         // Orange - Special Text
         if (_specialLabel != null && _specialDisplay != null && infoPack.color == 4)
         {
             SafeSetText(ref _specialLabel, _specialPanel, "Special Label", "Gravity Direction:");
-            SafeSetText(ref _specialDisplay, _specialPanel, "Special Display", infoPack.spec.ToString());
+            SafeSetText(
+                ref _specialDisplay,
+                _specialPanel,
+                "Special Display",
+                infoPack.spec.ToString()
+            );
         }
 
         // Door ID
         // Only show door id tiles
         transform.GetChild(2).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
         if (_doorIDDisplay != null)
-            SafeSetText(ref _doorIDDisplay, _doorIdPanel, "DoorID Display", infoPack.doorID.ToString());
+            SafeSetText(
+                ref _doorIDDisplay,
+                _doorIdPanel,
+                "DoorID Display",
+                infoPack.doorID.ToString()
+            );
 
         // Only show special attributes for green and orange tiles
         transform.GetChild(3).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
     }
 
-    private static TMP_Text FindText(Transform root, string childName)
+    private static TMP_Text GetTextObjectFromParent(Transform root, string childName)
     {
         if (root == null)
             return null;
@@ -477,7 +521,7 @@ public class ObjectInfoControl : MonoBehaviour
 
         for (int i = 0; i < root.childCount; i++)
         {
-            TMP_Text nested = FindText(root.GetChild(i), childName);
+            TMP_Text nested = GetTextObjectFromParent(root.GetChild(i), childName);
             if (nested != null)
                 return nested;
         }
@@ -495,29 +539,37 @@ public class ObjectInfoControl : MonoBehaviour
             _specialPanel = transform.GetChild(3);
 
         if (_combinedNameDisplay == null)
-            _combinedNameDisplay = FindText(transform, "Combined Name");
+            _combinedNameDisplay = GetTextObjectFromParent(transform, "Combined Name");
         if (_typeDisplay == null)
-            _typeDisplay = FindText(_standardAttributesPanel, "Type Display");
+            _typeDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Type Display");
         if (_colorDisplay == null)
-            _colorDisplay = FindText(_standardAttributesPanel, "Color Display");
+            _colorDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Color Display");
         if (_rotationDisplay == null)
-            _rotationDisplay = FindText(_standardAttributesPanel, "Rotation Display");
+            _rotationDisplay = GetTextObjectFromParent(
+                _standardAttributesPanel,
+                "Rotation Display"
+            );
         if (_locusDisplay == null)
-            _locusDisplay = FindText(_standardAttributesPanel, "Position Display");
+            _locusDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Position Display");
         if (_specialLabel == null)
-            _specialLabel = FindText(_specialPanel, "Special Label");
+            _specialLabel = GetTextObjectFromParent(_specialPanel, "Special Label");
         if (_specialDisplay == null)
-            _specialDisplay = FindText(_specialPanel, "Special Display");
+            _specialDisplay = GetTextObjectFromParent(_specialPanel, "Special Display");
         if (_doorIDLabel == null)
-            _doorIDLabel = FindText(_doorIdPanel, "DoorID Label");
+            _doorIDLabel = GetTextObjectFromParent(_doorIdPanel, "DoorID Label");
         if (_doorIDDisplay == null)
-            _doorIDDisplay = FindText(_doorIdPanel, "DoorID Display");
+            _doorIDDisplay = GetTextObjectFromParent(_doorIdPanel, "DoorID Display");
     }
 
-    private static void SafeSetText(ref TMP_Text textComponent, Transform searchRoot, string childName, string value)
+    private static void SafeSetText(
+        ref TMP_Text textComponent,
+        Transform searchRoot,
+        string childName,
+        string value
+    )
     {
         if (textComponent == null)
-            textComponent = FindText(searchRoot, childName);
+            textComponent = GetTextObjectFromParent(searchRoot, childName);
         if (textComponent == null)
             return;
 
@@ -527,7 +579,7 @@ public class ObjectInfoControl : MonoBehaviour
         }
         catch (System.NullReferenceException)
         {
-            textComponent = FindText(searchRoot, childName);
+            textComponent = GetTextObjectFromParent(searchRoot, childName);
             if (textComponent != null)
                 textComponent.text = value;
         }
@@ -557,7 +609,7 @@ public class ObjectInfoControl : MonoBehaviour
         }
     }
 
-    private static void CachePanelButtons(
+    private static void InitializeSpecialInfoPanelButtons(
         Transform panel,
         out Button decreaseButton,
         out Button increaseButton
