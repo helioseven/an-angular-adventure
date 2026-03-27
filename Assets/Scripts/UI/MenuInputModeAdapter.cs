@@ -30,6 +30,20 @@ public class MenuInputModeAdapter : MonoBehaviour
         InputModeTracker.OnModeChanged -= HandleModeChanged;
     }
 
+    private void Update()
+    {
+        if (InputModeTracker.Instance == null)
+            return;
+
+        if (
+            InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            && InputModeTracker.Instance.IsGamepadNavigationActive
+        )
+        {
+            ClearPointerHoverState();
+        }
+    }
+
     public void SetScope(Transform scope)
     {
         scopeRoot = scope;
@@ -62,22 +76,7 @@ public class MenuInputModeAdapter : MonoBehaviour
 
     private void ClearPointerHoverState()
     {
-        if (EventSystem.current == null)
-            return;
-
-        var eventData = new PointerEventData(EventSystem.current);
-        var selectables = GetScopeRoot().GetComponentsInChildren<Selectable>(true);
-        foreach (var selectable in selectables)
-        {
-            if (selectable == null)
-                continue;
-
-            ExecuteEvents.Execute(
-                selectable.gameObject,
-                eventData,
-                ExecuteEvents.pointerExitHandler
-            );
-        }
+        MenuFocusUtility.ClearPointerHoverState(GetScopeRoot().gameObject);
     }
 
     private void CacheSelectables()

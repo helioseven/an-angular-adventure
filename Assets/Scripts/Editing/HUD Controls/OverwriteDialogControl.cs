@@ -14,6 +14,7 @@ public class OverwriteDialogControl : MonoBehaviour
     private Action onCancel;
     private Action onOverwrite;
     private Action onIncrement;
+    private bool _openedFromPointer;
 
     public void ShowPrompt(
         string levelName,
@@ -23,10 +24,18 @@ public class OverwriteDialogControl : MonoBehaviour
         Action onIncrement
     )
     {
+        EditGM.instance?.CloseOtherEditModals(gameObject);
+        _openedFromPointer = PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         MenuFocusUtility.EnsureSelectedJiggle(gameObject);
-        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+        if (!_openedFromPointer)
+        {
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, true);
+            MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+        }
+        else
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, false);
         promptText.text = $"A tessellation named \"{levelName}\" already exists.";
         incrementButton.GetComponentInChildren<TMP_Text>().text =
             $"Save As...\n \"{levelNameIncremented}\"";
@@ -55,7 +64,10 @@ public class OverwriteDialogControl : MonoBehaviour
             Close();
         });
 
-        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, cancelButton);
+        if (_openedFromPointer)
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+        else
+            MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, cancelButton);
     }
 
     private void Close()

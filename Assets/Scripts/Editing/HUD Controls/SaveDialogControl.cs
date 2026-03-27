@@ -24,6 +24,7 @@ public class SaveDialogControl : MonoBehaviour
     private Selectable _cancelButton;
 
     private Coroutine _selectionSeedRoutine;
+    private bool _openedFromPointer;
 
     void Awake()
     {
@@ -66,8 +67,9 @@ public class SaveDialogControl : MonoBehaviour
     /* Public Functions */
 
     // pauses what the EditGM is doing to invoke the save dialog
-    public void invokeDialog()
+    public void InvokeDialog()
     {
+        _openedFromPointer = false;
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
         ShowDialogUi();
@@ -75,13 +77,26 @@ public class SaveDialogControl : MonoBehaviour
 
     public void InvokeDialogFromPointer()
     {
+        _openedFromPointer = true;
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.SuppressPointerForFrames();
         ShowDialogUi();
     }
 
+    public void InvokeDialogForCurrentInput()
+    {
+        bool pointerOpen =
+            PointerSource.Instance == null
+            || PointerSource.Instance.IsHardwareActive;
+
+        if (pointerOpen)
+            InvokeDialogFromPointer();
+        else
+            InvokeDialog();
+    }
+
     // cancels the save dialog by deactivating the panel and resuming EditGM
-    public void cancelDialog()
+    public void CancelDialog()
     {
         gameObject.SetActive(false);
         EditGM.instance.gameObject.SetActive(true);
@@ -89,7 +104,7 @@ public class SaveDialogControl : MonoBehaviour
     }
 
     // confirms the file save by passing the entered filename to the EditGM
-    public void confirmSave()
+    public void ConfirmSave()
     {
         string name = _inputField.text;
 
@@ -106,7 +121,7 @@ public class SaveDialogControl : MonoBehaviour
         if (!levelExists)
         {
             ForceSaveLocalLevel(name);
-            cancelDialog();
+            CancelDialog();
         }
         else
         {
@@ -114,13 +129,19 @@ public class SaveDialogControl : MonoBehaviour
             overwriteDialogControl.ShowPrompt(
                 name,
                 levelNameIncremented,
-                onCancel: () => invokeDialog(),
+                onCancel: () =>
+                {
+                    if (_openedFromPointer)
+                        InvokeDialogFromPointer();
+                    else
+                        InvokeDialog();
+                },
                 onOverwrite: () => ForceSaveLocalLevel(name, true),
                 onIncrement: () => ForceSaveLocalLevel(levelNameIncremented)
             );
 
             // close the save dialog
-            cancelDialog();
+            CancelDialog();
         }
     }
 
@@ -170,7 +191,7 @@ public class SaveDialogControl : MonoBehaviour
             (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
             || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
         )
-            cancelDialog();
+            CancelDialog();
     }
 
     private void ShowDialogUi()
@@ -180,10 +201,26 @@ public class SaveDialogControl : MonoBehaviour
         if (_inputField != null)
             _inputField.DeactivateInputField();
         MenuFocusUtility.EnsureSelectedJiggle(gameObject);
-        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
-        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
-        if (_defaultSelection != null && EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(_defaultSelection.gameObject);
+        if (_openedFromPointer)
+        {
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, false);
+            EventSystem.current?.SetSelectedGameObject(null);
+        }
+        else
+        {
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, true);
+            MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+            MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
+            if (
+                _defaultSelection != null
+                && EventSystem.current != null
+                && InputModeTracker.Instance != null
+                && InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            )
+            {
+                EventSystem.current.SetSelectedGameObject(_defaultSelection.gameObject);
+            }
+        }
 
         if (_selectionSeedRoutine != null)
             StopCoroutine(_selectionSeedRoutine);
@@ -234,7 +271,8 @@ public class SaveDialogControl : MonoBehaviour
         if (!gameObject.activeInHierarchy)
             yield break;
 
-        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
+        if (!_openedFromPointer)
+            MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject, _defaultSelection);
     }
 
     private Selectable FindSelectableByName(string objectName)

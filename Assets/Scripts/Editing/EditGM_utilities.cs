@@ -1294,7 +1294,9 @@ public partial class EditGM
         if (quitDialog == null)
             return;
 
-        if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+        CloseOtherEditModals(quitDialog.gameObject);
+
+        if (PointerSource.Instance != null && PointerSource.Instance.IsHardwareActive)
             quitDialog.InvokeDialogFromPointer();
         else
             quitDialog.InvokeDialogDeferred();
@@ -1302,16 +1304,65 @@ public partial class EditGM
 
     public void OpenSaveDialog()
     {
+        bool pointerOpen =
+            PointerSource.Instance != null
+            && PointerSource.Instance.IsHardwareActive
+            && InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Pointer;
+
+        OpenSaveDialog(pointerOpen);
+    }
+
+    public void OpenSaveDialogForNavigation()
+    {
+        OpenSaveDialog(false);
+    }
+
+    private void OpenSaveDialog(bool openedFromPointer)
+    {
         SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
             FindObjectsInactive.Include
         );
         if (saveDialog == null)
             return;
 
-        if (PointerSource.Instance != null && PointerSource.Instance.IsVirtualActive)
+        CloseOtherEditModals(saveDialog.gameObject);
+
+        if (openedFromPointer)
             saveDialog.InvokeDialogFromPointer();
         else
-            saveDialog.invokeDialog();
+            saveDialog.InvokeDialog();
+    }
+
+    public void CloseOtherEditModals(GameObject keepOpen)
+    {
+        if (quitDialogPanel != null && quitDialogPanel != keepOpen && quitDialogPanel.activeInHierarchy)
+            quitDialogPanel.SetActive(false);
+
+        SaveDialogControl[] saveDialogs = UnityEngine.Object.FindObjectsByType<SaveDialogControl>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None
+        );
+        for (int i = 0; i < saveDialogs.Length; i++)
+        {
+            GameObject dialogObject = saveDialogs[i] != null ? saveDialogs[i].gameObject : null;
+            if (dialogObject != null && dialogObject != keepOpen && dialogObject.activeInHierarchy)
+                dialogObject.SetActive(false);
+        }
+
+        OverwriteDialogControl[] overwriteDialogs =
+            UnityEngine.Object.FindObjectsByType<OverwriteDialogControl>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None
+            );
+        for (int i = 0; i < overwriteDialogs.Length; i++)
+        {
+            GameObject dialogObject = overwriteDialogs[i] != null
+                ? overwriteDialogs[i].gameObject
+                : null;
+            if (dialogObject != null && dialogObject != keepOpen && dialogObject.activeInHierarchy)
+                dialogObject.SetActive(false);
+        }
     }
 
     public void HandleControllerToggleCreateEditMode()
@@ -1408,6 +1459,11 @@ public partial class EditGM
         GameObject root = GetPreferredControllerUiRoot();
         if (root == null)
             return;
+
+        MenuFocusUtility.ClearPointerHoverState(root);
+        MenuFocusUtility.EnsureSelectedJiggle(root);
+        MenuFocusUtility.SetSelectedJiggleEnabled(root, true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(root);
 
         GameObject current = EventSystem.current.currentSelectedGameObject;
         if (current != null && current.transform.IsChildOf(root.transform))

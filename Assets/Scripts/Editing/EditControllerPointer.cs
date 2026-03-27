@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.DualShock;
 
 public class EditControllerPointer : MonoBehaviour
 {
@@ -44,9 +45,13 @@ public class EditControllerPointer : MonoBehaviour
             return;
 
         bool worldPrimaryPressed = pad.buttonSouth.wasPressedThisFrame;
-        bool worldSavePressed = pad.buttonEast.wasPressedThisFrame;
-        bool rotateLeftPressed = pad.leftShoulder.wasPressedThisFrame;
-        bool rotateRightPressed = pad.rightShoulder.wasPressedThisFrame;
+        bool worldSavePressed = pad.startButton.wasPressedThisFrame;
+        // Xbox uses a shoulder chord for Test because the Share button is not reliably exposed.
+        bool shoulderChordPressed = WasShoulderChordPressed(pad);
+        // PlayStation gets a dedicated Test shortcut via the touchpad press.
+        bool worldTestPressed = shoulderChordPressed || WasPlayStationTouchpadPressed(pad);
+        bool rotateLeftPressed = pad.leftShoulder.wasPressedThisFrame && !shoulderChordPressed;
+        bool rotateRightPressed = pad.rightShoulder.wasPressedThisFrame && !shoulderChordPressed;
         bool toggleModePressed = pad.leftStickButton.wasPressedThisFrame;
         bool setAnchorPressed = pad.rightStickButton.wasPressedThisFrame;
 
@@ -57,7 +62,10 @@ public class EditControllerPointer : MonoBehaviour
         {
             if (worldPrimaryPressed)
                 PointerSource.Instance.ConsumeVirtualPrimary();
-            _gmRef.EnsureControllerUiSelection();
+
+            if (ShouldClaimModalSelection(pad, worldPrimaryPressed))
+                _gmRef.EnsureControllerUiSelection();
+
             return;
         }
 
@@ -84,7 +92,10 @@ public class EditControllerPointer : MonoBehaviour
         }
 
         if (worldSavePressed)
-            _gmRef.OpenSaveDialog();
+            _gmRef.OpenSaveDialogForNavigation();
+
+        if (worldTestPressed)
+            _gmRef.TestLevel();
 
         if (toggleModePressed)
         {
@@ -153,6 +164,56 @@ public class EditControllerPointer : MonoBehaviour
             ExecuteEvents.cancelHandler
         );
         return true;
+    }
+
+    private static bool WasPlayStationTouchpadPressed(Gamepad pad)
+    {
+        return pad is DualShockGamepad dualShock
+            && dualShock.touchpadButton != null
+            && dualShock.touchpadButton.wasPressedThisFrame;
+    }
+
+    private bool ShouldClaimModalSelection(Gamepad pad, bool primaryPressed)
+    {
+        if (pad == null || _gmRef == null || ModalAlreadyHasSelection())
+            return false;
+
+        return HasControllerModalIntent(pad, primaryPressed);
+    }
+
+    private bool ModalAlreadyHasSelection()
+    {
+        if (_gmRef == null || EventSystem.current == null)
+            return false;
+
+        GameObject modalRoot = _gmRef.GetPreferredControllerUiRoot();
+        GameObject current = EventSystem.current.currentSelectedGameObject;
+        return current != null
+            && modalRoot != null
+            && current.transform.IsChildOf(modalRoot.transform);
+    }
+
+    private bool HasControllerModalIntent(Gamepad pad, bool primaryPressed)
+    {
+        return primaryPressed
+            || pad.buttonEast.wasPressedThisFrame
+            || pad.startButton.wasPressedThisFrame
+            || pad.selectButton.wasPressedThisFrame
+            || pad.dpad.up.wasPressedThisFrame
+            || pad.dpad.down.wasPressedThisFrame
+            || pad.dpad.left.wasPressedThisFrame
+            || pad.dpad.right.wasPressedThisFrame
+            || pad.leftStick.ReadValue().sqrMagnitude > stickDeadzone * stickDeadzone;
+    }
+
+    private static bool WasShoulderChordPressed(Gamepad pad)
+    {
+        bool leftPressedThisFrame = pad.leftShoulder.wasPressedThisFrame;
+        bool rightPressedThisFrame = pad.rightShoulder.wasPressedThisFrame;
+
+        // Treat either shoulder as the "second half" of the chord if the other is already held.
+        return (leftPressedThisFrame && pad.rightShoulder.isPressed)
+            || (rightPressedThisFrame && pad.leftShoulder.isPressed);
     }
 
     private void EnsureCursorTexture()

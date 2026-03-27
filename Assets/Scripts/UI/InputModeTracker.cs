@@ -17,6 +17,8 @@ public class InputModeTracker : MonoBehaviour
 
     public InputMode CurrentMode { get; private set; } = InputMode.Navigation;
     public bool IsGamepadNavigationActive { get; private set; }
+    public PromptDeviceFamily LastPromptDeviceFamily { get; private set; } =
+        PromptDeviceFamily.KeyboardMouse;
 
     private Vector2 lastMousePos;
     [SerializeField]
@@ -73,6 +75,7 @@ public class InputModeTracker : MonoBehaviour
         if (IsPointerActive())
         {
             IsGamepadNavigationActive = false;
+            LastPromptDeviceFamily = PromptDeviceFamily.KeyboardMouse;
             ApplyCursorVisibility();
             SetMode(InputMode.Pointer);
             return;
@@ -198,11 +201,20 @@ public class InputModeTracker : MonoBehaviour
             return false;
 
         if (pad.leftStick.ReadValue().sqrMagnitude > 0.04f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
         if (pad.rightStick.ReadValue().sqrMagnitude > 0.04f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
         if (pad.dpad.ReadValue().sqrMagnitude > 0.1f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
 
         if (pad.buttonSouth.wasPressedThisFrame
             || pad.buttonNorth.wasPressedThisFrame
@@ -214,9 +226,17 @@ public class InputModeTracker : MonoBehaviour
             || pad.rightShoulder.wasPressedThisFrame
             || pad.leftTrigger.ReadValue() > 0.5f
             || pad.rightTrigger.ReadValue() > 0.5f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
 
         return false;
+    }
+
+    private static PromptDeviceFamily DetectPromptDeviceFamily(Gamepad gamepad)
+    {
+        return InputTypeTracker.DetectGamepadFamily(gamepad);
     }
 
     private void ApplyCursorVisibility()

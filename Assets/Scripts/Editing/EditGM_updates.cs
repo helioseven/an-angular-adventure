@@ -4,6 +4,84 @@ using UnityEngine.InputSystem;
 
 public partial class EditGM
 {
+    private void HandleKeyboardActionHotkeys()
+    {
+        if (_inputMode || IsBlockingModalOpenForCamera())
+            return;
+
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null)
+            return;
+
+        if (keyboard.yKey.wasPressedThisFrame)
+        {
+            OpenSaveDialog();
+            return;
+        }
+
+        if (keyboard.tKey.wasPressedThisFrame)
+            TestLevel();
+    }
+
+    private void HandleKeyboardToolSelectorHotkeys()
+    {
+        if (_inputMode || IsBlockingModalOpenForCamera())
+            return;
+
+        var edit = InputManager.Instance.Controls.Edit;
+
+        if (edit.Triangle.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(0);
+            return;
+        }
+
+        if (edit.Diamond.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(1);
+            return;
+        }
+
+        if (edit.Trapezoid.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(2);
+            return;
+        }
+
+        if (edit.Hexagon.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(3);
+            return;
+        }
+
+        if (edit.Square.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(4);
+            return;
+        }
+
+        if (edit.Wedge.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(5);
+            return;
+        }
+
+        if (edit.CheckpointTool.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(6);
+            return;
+        }
+
+        if (edit.VictoryTool.WasPressedThisFrame())
+        {
+            HandleHudSelectorPressed(7);
+            return;
+        }
+
+        if (edit.WarpTool.WasPressedThisFrame())
+            HandleHudSelectorPressed(8);
+    }
+
     // Makes changes associated with anchorIcon and layer changes
     private void updateLevel()
     {
@@ -41,15 +119,18 @@ public partial class EditGM
     // updates UI Overlay and Palette panels
     private void updateUI()
     {
-        if (_inputMode)
+        if (_inputMode || IsBlockingModalOpenForCamera())
+        {
+            hoveringHUD = false;
             return;
+        }
 
         var edit = InputManager.Instance.Controls.Edit;
 
         // --- HUD toggle (was spacebar before) ---
         if (
             edit.Palette.WasPressedThisFrame()
-            || (Gamepad.current?.startButton.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
         )
             SetHudVisibility(hudPanel != null && !hudPanel.activeSelf);
 

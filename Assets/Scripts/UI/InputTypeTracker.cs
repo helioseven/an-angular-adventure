@@ -34,7 +34,7 @@ public class InputTypeTracker : MonoBehaviour
             InputModeTracker.EnsureInstance();
             InputModeTracker.OnModeChanged += HandleInputModeChanged;
             InputSystem.onDeviceChange += HandleDeviceChange;
-            _latchedRuntimeDevice = PromptDeviceFamily.KeyboardMouse;
+            _latchedRuntimeDevice = ResolveInitialRuntimeDevice();
         }
 
         Refresh();
@@ -131,6 +131,19 @@ public class InputTypeTracker : MonoBehaviour
         }
     }
 
+    private PromptDeviceFamily ResolveInitialRuntimeDevice()
+    {
+        if (
+            InputModeTracker.Instance != null
+            && InputModeTracker.Instance.LastPromptDeviceFamily != PromptDeviceFamily.KeyboardMouse
+        )
+        {
+            return InputModeTracker.Instance.LastPromptDeviceFamily;
+        }
+
+        return PromptDeviceFamily.KeyboardMouse;
+    }
+
     private static bool HasKeyboardOrPointerInputThisFrame()
     {
         Keyboard keyboard = Keyboard.current;
@@ -186,7 +199,7 @@ public class InputTypeTracker : MonoBehaviour
             || pad.rightTrigger.ReadValue() > 0.5f;
     }
 
-    private static PromptDeviceFamily DetectGamepadFamily(Gamepad gamepad)
+    internal static PromptDeviceFamily DetectGamepadFamily(Gamepad gamepad)
     {
         if (gamepad == null)
             return PromptDeviceFamily.Xbox;

@@ -38,6 +38,7 @@ public class SelectedJiggle : MonoBehaviour
     private GameObject currentOwner;
     private Vector2 basePosition;
     private float selectionStartTime;
+    private bool? forceAnimate;
 
     private void Update()
     {
@@ -116,6 +117,18 @@ public class SelectedJiggle : MonoBehaviour
         ResetCurrent();
     }
 
+    public void SetAnimationEnabled(bool enabled)
+    {
+        forceAnimate = enabled;
+        if (!enabled)
+            ResetCurrent();
+    }
+
+    public void ClearAnimationOverride()
+    {
+        forceAnimate = null;
+    }
+
     private static RectTransform ResolveJiggleTarget(
         RectTransform selectedRect,
         out JiggleAxis targetAxis
@@ -152,6 +165,9 @@ public class SelectedJiggle : MonoBehaviour
 
     private bool ShouldAnimateInCurrentMode()
     {
+        if (forceAnimate.HasValue)
+            return forceAnimate.Value;
+
         if (InputModeTracker.Instance == null)
             return false;
 

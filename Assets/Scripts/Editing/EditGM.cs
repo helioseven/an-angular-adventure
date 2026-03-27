@@ -209,6 +209,12 @@ public partial class EditGM : MonoBehaviour
         // G key to not show green tiles
         HandleKeyDoorLinkHotkey();
 
+        // Keyboard shortcuts for shared editor actions.
+        HandleKeyboardActionHotkeys();
+
+        // Mirror the HUD selector buttons for keyboard shortcuts, even outside create mode.
+        HandleKeyboardToolSelectorHotkeys();
+
         // if the palette is active, skip the rest
         if (hoveringHUD || paletteMode || inputMode)
             return;

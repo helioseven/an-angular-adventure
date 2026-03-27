@@ -4,6 +4,26 @@ using UnityEngine.UI;
 
 public static class MenuFocusUtility
 {
+    public static void ClearPointerHoverState(GameObject root)
+    {
+        if (root == null || EventSystem.current == null)
+            return;
+
+        var eventData = new PointerEventData(EventSystem.current);
+        Selectable[] selectables = root.GetComponentsInChildren<Selectable>(true);
+        foreach (Selectable selectable in selectables)
+        {
+            if (selectable == null)
+                continue;
+
+            ExecuteEvents.Execute(
+                selectable.gameObject,
+                eventData,
+                ExecuteEvents.pointerExitHandler
+            );
+        }
+    }
+
     public static void ApplyHighlightedAsSelected(GameObject root)
     {
         if (root == null)
@@ -81,5 +101,18 @@ public static class MenuFocusUtility
             jiggle = root.AddComponent<SelectedJiggle>();
 
         jiggle.SetScope(root.transform);
+    }
+
+    public static void SetSelectedJiggleEnabled(GameObject root, bool enabled)
+    {
+        if (root == null)
+            return;
+
+        SelectedJiggle jiggle = root.GetComponent<SelectedJiggle>();
+        if (jiggle == null)
+            return;
+
+        jiggle.SetScope(root.transform);
+        jiggle.SetAnimationEnabled(enabled);
     }
 }

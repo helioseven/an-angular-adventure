@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class QuitDialogControl : MonoBehaviour
 {
     private Button _openDialogButton;
+    private bool _openedFromPointer;
 
     void Start()
     {
@@ -17,18 +18,19 @@ public class QuitDialogControl : MonoBehaviour
         if (_openDialogButton == null)
             return;
 
-        _openDialogButton.onClick.AddListener(InvokeDialog);
+        _openDialogButton.onClick.AddListener(InvokeDialogForCurrentInput);
     }
 
     void OnDestroy()
     {
         if (_openDialogButton != null)
-            _openDialogButton.onClick.RemoveListener(InvokeDialog);
+            _openDialogButton.onClick.RemoveListener(InvokeDialogForCurrentInput);
     }
 
     // pauses what the EditGM is doing to invoke the quit dialog
     public void InvokeDialog()
     {
+        _openedFromPointer = false;
         if (EditGM.instance != null)
             EditGM.instance.gameObject.SetActive(false);
 
@@ -43,10 +45,23 @@ public class QuitDialogControl : MonoBehaviour
 
     public void InvokeDialogFromPointer()
     {
+        _openedFromPointer = true;
         if (EditGM.instance != null)
             EditGM.instance.SuppressPointerForFrames();
 
         ShowDialogUi();
+    }
+
+    public void InvokeDialogForCurrentInput()
+    {
+        bool pointerOpen =
+            PointerSource.Instance == null
+            || PointerSource.Instance.IsHardwareActive;
+
+        if (pointerOpen)
+            InvokeDialogFromPointer();
+        else
+            InvokeDialog();
     }
 
     // cancels the quit dialog by deactivating the panel and resuming EditGM
@@ -75,6 +90,14 @@ public class QuitDialogControl : MonoBehaviour
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         MenuFocusUtility.EnsureSelectedJiggle(gameObject);
+        if (_openedFromPointer)
+        {
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, false);
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+            return;
+        }
+
+        MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, true);
         MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
         MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject);
     }
