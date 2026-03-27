@@ -1117,23 +1117,45 @@ public partial class EditGM
 
     public void SuppressPointerForFrames(int frameCount = 2)
     {
-        _suppressPointerUntilFrame = Mathf.Max(_suppressPointerUntilFrame, Time.frameCount + frameCount);
-        if (PointerSource.Instance != null)
-        {
-            PointerSource.Instance.ConsumeVirtualPrimary();
-            PointerSource.Instance.ConsumeVirtualSecondary();
-        }
+        SuppressPointerTransition();
     }
 
     public bool IsPointerSuppressed()
     {
-        return Time.frameCount <= _suppressPointerUntilFrame;
+        if (!_suppressHardwarePointerUntilRelease)
+            return false;
+
+        if (IsHardwarePointerPressed())
+            return true;
+
+        _suppressHardwarePointerUntilRelease = false;
+        return false;
+    }
+
+    public void SuppressPointerTransition()
+    {
+        if (PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive)
+        {
+            if (IsHardwarePointerPressed())
+                _suppressHardwarePointerUntilRelease = true;
+
+            return;
+        }
+
+        PointerSource.Instance.ConsumeVirtualPrimary();
+        PointerSource.Instance.ConsumeVirtualSecondary();
     }
 
     public void RefreshHudHover()
     {
         _currentHUDhover = raycastAllHUD();
         hoveringHUD = hudPanel.activeSelf && checkHUDHover();
+    }
+
+    private static bool IsHardwarePointerPressed()
+    {
+        return (Mouse.current?.leftButton.isPressed ?? false)
+            || (Touchscreen.current?.primaryTouch.press.isPressed ?? false);
     }
 
     public bool TryClickHudAtPointer()

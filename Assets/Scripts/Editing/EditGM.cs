@@ -120,7 +120,7 @@ public partial class EditGM : MonoBehaviour
     private Dictionary<GameObject, WarpData> _warpLookup;
     private Dictionary<GameObject, VictoryData> _victoryLookup;
     private bool _suppressClickThisFrame = false;
-    private int _suppressPointerUntilFrame = -1;
+    private bool _suppressHardwarePointerUntilRelease;
 
     void Awake()
     {

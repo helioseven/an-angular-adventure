@@ -73,7 +73,7 @@ public class OverwriteDialogControl : MonoBehaviour
     private void Close()
     {
         gameObject.SetActive(false);
-        EditGM.instance.SuppressPointerForFrames();
+        EditGM.instance.SuppressPointerTransition();
     }
 
     void Update()

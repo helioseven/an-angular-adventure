@@ -79,7 +79,7 @@ public class SaveDialogControl : MonoBehaviour
     {
         _openedFromPointer = true;
         _inputField.text = EditGM.instance.levelName;
-        EditGM.instance.SuppressPointerForFrames();
+        EditGM.instance.SuppressPointerTransition();
         ShowDialogUi();
     }
 
@@ -100,7 +100,7 @@ public class SaveDialogControl : MonoBehaviour
     {
         gameObject.SetActive(false);
         EditGM.instance.gameObject.SetActive(true);
-        EditGM.instance.SuppressPointerForFrames();
+        EditGM.instance.SuppressPointerTransition();
     }
 
     // confirms the file save by passing the entered filename to the EditGM

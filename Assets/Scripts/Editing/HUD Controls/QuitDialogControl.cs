@@ -47,7 +47,7 @@ public class QuitDialogControl : MonoBehaviour
     {
         _openedFromPointer = true;
         if (EditGM.instance != null)
-            EditGM.instance.SuppressPointerForFrames();
+            EditGM.instance.SuppressPointerTransition();
 
         ShowDialogUi();
     }
@@ -69,7 +69,7 @@ public class QuitDialogControl : MonoBehaviour
     {
         gameObject.SetActive(false);
         EditGM.instance.gameObject.SetActive(true);
-        EditGM.instance.SuppressPointerForFrames();
+        EditGM.instance.SuppressPointerTransition();
     }
 
     // quits out of the editor via EditGM
