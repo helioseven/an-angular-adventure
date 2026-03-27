@@ -89,8 +89,7 @@ public class SelectedJiggle : MonoBehaviour
         float currentFrequency =
             frequency * Mathf.Lerp(initialFrequencyMultiplier, 1f, settleProgress);
         float offset =
-            Mathf.Sin(elapsedSinceSelection * Mathf.PI * 2f * currentFrequency)
-            * currentAmplitude;
+            Mathf.Sin(elapsedSinceSelection * Mathf.PI * 2f * currentFrequency) * currentAmplitude;
         if (axis == JiggleAxis.Horizontal)
             current.anchoredPosition = new Vector2(basePosition.x + offset, basePosition.y);
         else
@@ -178,10 +177,10 @@ public class SelectedJiggle : MonoBehaviour
             return false;
 
         var editGm = EditGM.instance;
-        if (editGm == null || !editGm.IsControllerUiCaptureActive())
+        if (editGm == null || !editGm.IsControllerUICaptureActive())
             return false;
 
-        GameObject modalRoot = editGm.GetPreferredControllerUiRoot();
+        GameObject modalRoot = editGm.GetPreferredControllerUIRoot();
         return modalRoot != null && scopeRoot == modalRoot.transform;
     }
 }

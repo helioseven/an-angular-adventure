@@ -19,7 +19,7 @@ public partial class EditGM : MonoBehaviour
     public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
-    public GameObject showUiHint;
+    public GameObject showUIHint;
     public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;

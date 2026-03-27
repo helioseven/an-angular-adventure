@@ -34,7 +34,7 @@ public class QuitDialogControl : MonoBehaviour
         if (EditGM.instance != null)
             EditGM.instance.gameObject.SetActive(false);
 
-        ShowDialogUi();
+        ShowDialogUI();
     }
 
     public void InvokeDialogDeferred()
@@ -49,14 +49,13 @@ public class QuitDialogControl : MonoBehaviour
         if (EditGM.instance != null)
             EditGM.instance.SuppressPointerTransition();
 
-        ShowDialogUi();
+        ShowDialogUI();
     }
 
     public void InvokeDialogForCurrentInput()
     {
         bool pointerOpen =
-            PointerSource.Instance == null
-            || PointerSource.Instance.IsHardwareActive;
+            PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
 
         if (pointerOpen)
             InvokeDialogFromPointer();
@@ -85,7 +84,7 @@ public class QuitDialogControl : MonoBehaviour
         InvokeDialog();
     }
 
-    private void ShowDialogUi()
+    private void ShowDialogUI()
     {
         gameObject.SetActive(true);
         transform.SetAsLastSibling();

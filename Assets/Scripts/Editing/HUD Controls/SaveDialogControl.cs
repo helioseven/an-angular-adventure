@@ -72,7 +72,7 @@ public class SaveDialogControl : MonoBehaviour
         _openedFromPointer = false;
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.gameObject.SetActive(false);
-        ShowDialogUi();
+        ShowDialogUI();
     }
 
     public void InvokeDialogFromPointer()
@@ -80,14 +80,13 @@ public class SaveDialogControl : MonoBehaviour
         _openedFromPointer = true;
         _inputField.text = EditGM.instance.levelName;
         EditGM.instance.SuppressPointerTransition();
-        ShowDialogUi();
+        ShowDialogUI();
     }
 
     public void InvokeDialogForCurrentInput()
     {
         bool pointerOpen =
-            PointerSource.Instance == null
-            || PointerSource.Instance.IsHardwareActive;
+            PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
 
         if (pointerOpen)
             InvokeDialogFromPointer();
@@ -194,7 +193,7 @@ public class SaveDialogControl : MonoBehaviour
             CancelDialog();
     }
 
-    private void ShowDialogUi()
+    private void ShowDialogUI()
     {
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
@@ -288,4 +287,3 @@ public class SaveDialogControl : MonoBehaviour
         return null;
     }
 }
-

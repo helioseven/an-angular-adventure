@@ -55,16 +55,16 @@ public class EditControllerPointer : MonoBehaviour
         bool toggleModePressed = pad.leftStickButton.wasPressedThisFrame;
         bool setAnchorPressed = pad.rightStickButton.wasPressedThisFrame;
 
-        if (HandleUiCancel(pad))
+        if (HandleUICancel(pad))
             return;
 
-        if (_gmRef.IsControllerUiCaptureActive())
+        if (_gmRef.IsControllerUICaptureActive())
         {
             if (worldPrimaryPressed)
                 PointerSource.Instance.ConsumeVirtualPrimary();
 
             if (ShouldClaimModalSelection(pad, worldPrimaryPressed))
-                _gmRef.EnsureControllerUiSelection();
+                _gmRef.EnsureControllerUISelection();
 
             return;
         }
@@ -120,10 +120,12 @@ public class EditControllerPointer : MonoBehaviour
 
     private void OnGUI()
     {
-        if (_gmRef == null
+        if (
+            _gmRef == null
             || PointerSource.Instance == null
             || !PointerSource.Instance.IsVirtualActive
-            || !_gmRef.IsControllerWorldInputAllowed())
+            || !_gmRef.IsControllerWorldInputAllowed()
+        )
         {
             return;
         }
@@ -141,20 +143,19 @@ public class EditControllerPointer : MonoBehaviour
         GUI.color = Color.white;
     }
 
-    private bool HandleUiCancel(Gamepad pad)
+    private bool HandleUICancel(Gamepad pad)
     {
         if (!pad.buttonEast.wasPressedThisFrame)
             return false;
 
-        if (!_gmRef.IsControllerUiCaptureActive())
+        if (!_gmRef.IsControllerUICaptureActive())
             return false;
 
         if (PointerSource.Instance != null)
             PointerSource.Instance.ConsumeVirtualPrimary();
 
-        GameObject current = EventSystem.current != null
-            ? EventSystem.current.currentSelectedGameObject
-            : null;
+        GameObject current =
+            EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
         if (current == null)
             return false;
 
@@ -186,7 +187,7 @@ public class EditControllerPointer : MonoBehaviour
         if (_gmRef == null || EventSystem.current == null)
             return false;
 
-        GameObject modalRoot = _gmRef.GetPreferredControllerUiRoot();
+        GameObject modalRoot = _gmRef.GetPreferredControllerUIRoot();
         GameObject current = EventSystem.current.currentSelectedGameObject;
         return current != null
             && modalRoot != null
@@ -226,21 +227,9 @@ public class EditControllerPointer : MonoBehaviour
         _cursorTexture.Apply();
     }
 
-    private static void DrawCross(
-        float x,
-        float y,
-        float size,
-        float thickness,
-        Texture2D texture
-    )
+    private static void DrawCross(float x, float y, float size, float thickness, Texture2D texture)
     {
-        GUI.DrawTexture(
-            new Rect(x - thickness * 0.5f, y - size, thickness, size * 2f),
-            texture
-        );
-        GUI.DrawTexture(
-            new Rect(x - size, y - thickness * 0.5f, size * 2f, thickness),
-            texture
-        );
+        GUI.DrawTexture(new Rect(x - thickness * 0.5f, y - size, thickness, size * 2f), texture);
+        GUI.DrawTexture(new Rect(x - size, y - thickness * 0.5f, size * 2f, thickness), texture);
     }
 }

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using TMPro;
 
 public partial class EditGM
 {
@@ -59,8 +59,8 @@ public partial class EditGM
         if (hudPanel != null)
             hudPanel.SetActive(isVisible);
 
-        if (showUiHint != null)
-            showUiHint.SetActive(!isVisible);
+        if (showUIHint != null)
+            showUIHint.SetActive(!isVisible);
     }
 
     // cycles through all layers, calculates distance, and sets opacity accordingly
@@ -807,9 +807,8 @@ public partial class EditGM
 
     public Collider2D GetObjectClicked()
     {
-        Vector2 screenPos = PointerSource.Instance != null
-            ? PointerSource.Instance.ScreenPosition
-            : Vector2.zero;
+        Vector2 screenPos =
+            PointerSource.Instance != null ? PointerSource.Instance.ScreenPosition : Vector2.zero;
 
         // convert screen position to ray
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
@@ -1024,9 +1023,8 @@ public partial class EditGM
             if (td.color != TileColor.Green && td.color != TileColor.Orange)
                 return;
 
-            int nextValue = td.color == TileColor.Orange
-                ? (td.special + 3) % 4
-                : Mathf.Max(0, td.special - 1);
+            int nextValue =
+                td.color == TileColor.Orange ? (td.special + 3) % 4 : Mathf.Max(0, td.special - 1);
             tileCreator.SetSpecial(nextValue.ToString());
             changed = true;
         }
@@ -1036,9 +1034,8 @@ public partial class EditGM
             if (td.color != TileColor.Green && td.color != TileColor.Orange)
                 return;
 
-            int nextValue = td.color == TileColor.Orange
-                ? (td.special + 3) % 4
-                : Mathf.Max(0, td.special - 1);
+            int nextValue =
+                td.color == TileColor.Orange ? (td.special + 3) % 4 : Mathf.Max(0, td.special - 1);
             SetSelectedItemSpecial(nextValue.ToString());
             changed = true;
         }
@@ -1094,7 +1091,8 @@ public partial class EditGM
 
     public bool ShouldBlockWorldClick()
     {
-        bool pointerOverUi = PointerSource.Instance != null
+        bool pointerOverUI =
+            PointerSource.Instance != null
             && PointerSource.Instance.IsHardwareActive
             && EventSystem.current != null
             && EventSystem.current.IsPointerOverGameObject();
@@ -1103,8 +1101,8 @@ public partial class EditGM
             || paletteMode
             || hoveringHUD
             || inputMode
-            || IsControllerUiCaptureActive()
-            || pointerOverUi;
+            || IsControllerUICaptureActive()
+            || pointerOverUI;
     }
 
     public void ClearUISelectionForWorldInput()
@@ -1176,7 +1174,10 @@ public partial class EditGM
         PointerEventData eventData = new PointerEventData(eventSystem)
         {
             button = PointerEventData.InputButton.Left,
-            position = PointerSource.Instance != null ? PointerSource.Instance.ScreenPosition : Vector2.zero,
+            position =
+                PointerSource.Instance != null
+                    ? PointerSource.Instance.ScreenPosition
+                    : Vector2.zero,
             clickCount = 1,
         };
 
@@ -1201,7 +1202,11 @@ public partial class EditGM
             if (button != null && button.IsActive() && button.IsInteractable())
                 button.onClick.Invoke();
             else
-                ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerClickHandler);
+                ExecuteEvents.ExecuteHierarchy(
+                    target,
+                    eventData,
+                    ExecuteEvents.pointerClickHandler
+                );
             eventSystem.SetSelectedGameObject(null);
             PointerSource.Instance?.ConsumeVirtualPrimary();
             return;
@@ -1281,7 +1286,11 @@ public partial class EditGM
 
     public void HandleControllerDeleteWorld()
     {
-        if (!isEditorInEditMode || _selectedItem == SelectedItem.noSelection || _selectedItem.instance == null)
+        if (
+            !isEditorInEditMode
+            || _selectedItem == SelectedItem.noSelection
+            || _selectedItem.instance == null
+        )
             return;
 
         soundManager.Play("delete");
@@ -1358,7 +1367,11 @@ public partial class EditGM
 
     public void CloseOtherEditModals(GameObject keepOpen)
     {
-        if (quitDialogPanel != null && quitDialogPanel != keepOpen && quitDialogPanel.activeInHierarchy)
+        if (
+            quitDialogPanel != null
+            && quitDialogPanel != keepOpen
+            && quitDialogPanel.activeInHierarchy
+        )
             quitDialogPanel.SetActive(false);
 
         SaveDialogControl[] saveDialogs = UnityEngine.Object.FindObjectsByType<SaveDialogControl>(
@@ -1379,9 +1392,8 @@ public partial class EditGM
             );
         for (int i = 0; i < overwriteDialogs.Length; i++)
         {
-            GameObject dialogObject = overwriteDialogs[i] != null
-                ? overwriteDialogs[i].gameObject
-                : null;
+            GameObject dialogObject =
+                overwriteDialogs[i] != null ? overwriteDialogs[i].gameObject : null;
             if (dialogObject != null && dialogObject != keepOpen && dialogObject.activeInHierarchy)
                 dialogObject.SetActive(false);
         }
@@ -1429,8 +1441,7 @@ public partial class EditGM
         int selectorCount = 9;
         int currentSelectorIndex = GetCurrentHudSelectorIndex();
         int direction = moveRight ? 1 : -1;
-        int nextSelectorIndex =
-            (currentSelectorIndex + direction + selectorCount) % selectorCount;
+        int nextSelectorIndex = (currentSelectorIndex + direction + selectorCount) % selectorCount;
 
         HandleHudSelectorPressed(nextSelectorIndex);
     }
@@ -1465,20 +1476,20 @@ public partial class EditGM
 
     public bool IsControllerWorldInputAllowed()
     {
-        return !paletteMode && !inputMode && !IsBlockingUiPanelOpen();
+        return !paletteMode && !inputMode && !IsBlockingUIPanelOpen();
     }
 
-    public bool IsControllerUiCaptureActive()
+    public bool IsControllerUICaptureActive()
     {
         return GetActiveModalRoot() != null;
     }
 
-    public void EnsureControllerUiSelection()
+    public void EnsureControllerUISelection()
     {
         if (EventSystem.current == null)
             return;
 
-        GameObject root = GetPreferredControllerUiRoot();
+        GameObject root = GetPreferredControllerUIRoot();
         if (root == null)
             return;
 
@@ -1494,19 +1505,19 @@ public partial class EditGM
         MenuFocusUtility.SelectPreferred(root);
     }
 
-    public GameObject GetPreferredControllerUiRoot()
+    public GameObject GetPreferredControllerUIRoot()
     {
         return GetActiveModalRoot();
     }
 
-    private bool IsBlockingUiPanelOpen()
+    private bool IsBlockingUIPanelOpen()
     {
         return GetActiveModalRoot() != null || !gameObject.activeInHierarchy;
     }
 
     public bool IsBlockingModalOpenForCamera()
     {
-        return IsBlockingUiPanelOpen();
+        return IsBlockingUIPanelOpen();
     }
 
     private GameObject GetActiveModalRoot()
