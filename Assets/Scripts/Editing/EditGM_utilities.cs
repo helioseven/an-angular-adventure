@@ -1369,29 +1369,29 @@ public partial class EditGM
         )
             quitDialogPanel.SetActive(false);
 
-        SaveDialogControl[] saveDialogs = UnityEngine.Object.FindObjectsByType<SaveDialogControl>(
-            FindObjectsInactive.Include,
-            FindObjectsSortMode.None
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+            FindObjectsInactive.Include
         );
-        for (int i = 0; i < saveDialogs.Length; i++)
-        {
-            GameObject dialogObject = saveDialogs[i] != null ? saveDialogs[i].gameObject : null;
-            if (dialogObject != null && dialogObject != keepOpen && dialogObject.activeInHierarchy)
-                dialogObject.SetActive(false);
-        }
+        GameObject saveDialogObject = saveDialog != null ? saveDialog.gameObject : null;
+        if (
+            saveDialogObject != null
+            && saveDialogObject != keepOpen
+            && saveDialogObject.activeInHierarchy
+        )
+            saveDialogObject.SetActive(false);
 
-        OverwriteDialogControl[] overwriteDialogs =
-            UnityEngine.Object.FindObjectsByType<OverwriteDialogControl>(
-                FindObjectsInactive.Include,
-                FindObjectsSortMode.None
+        OverwriteDialogControl overwriteDialog =
+            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>(
+                FindObjectsInactive.Include
             );
-        for (int i = 0; i < overwriteDialogs.Length; i++)
-        {
-            GameObject dialogObject =
-                overwriteDialogs[i] != null ? overwriteDialogs[i].gameObject : null;
-            if (dialogObject != null && dialogObject != keepOpen && dialogObject.activeInHierarchy)
-                dialogObject.SetActive(false);
-        }
+        GameObject overwriteDialogObject =
+            overwriteDialog != null ? overwriteDialog.gameObject : null;
+        if (
+            overwriteDialogObject != null
+            && overwriteDialogObject != keepOpen
+            && overwriteDialogObject.activeInHierarchy
+        )
+            overwriteDialogObject.SetActive(false);
     }
 
     public void HandleControllerToggleCreateEditMode()
@@ -1520,22 +1520,14 @@ public partial class EditGM
         if (quitDialogPanel != null && quitDialogPanel.activeInHierarchy)
             return quitDialogPanel;
 
-        SaveDialogControl[] saveDialogs = UnityEngine.Object.FindObjectsByType<SaveDialogControl>(
-            FindObjectsSortMode.None
-        );
-        for (int i = 0; i < saveDialogs.Length; i++)
-        {
-            if (saveDialogs[i] != null && saveDialogs[i].gameObject.activeInHierarchy)
-                return saveDialogs[i].gameObject;
-        }
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>();
+        if (saveDialog != null && saveDialog.gameObject.activeInHierarchy)
+            return saveDialog.gameObject;
 
-        OverwriteDialogControl[] overwriteDialogs =
-            UnityEngine.Object.FindObjectsByType<OverwriteDialogControl>(FindObjectsSortMode.None);
-        for (int i = 0; i < overwriteDialogs.Length; i++)
-        {
-            if (overwriteDialogs[i] != null && overwriteDialogs[i].gameObject.activeInHierarchy)
-                return overwriteDialogs[i].gameObject;
-        }
+        OverwriteDialogControl overwriteDialog =
+            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>();
+        if (overwriteDialog != null && overwriteDialog.gameObject.activeInHierarchy)
+            return overwriteDialog.gameObject;
 
         return null;
     }

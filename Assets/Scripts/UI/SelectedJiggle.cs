@@ -176,11 +176,11 @@ public class SelectedJiggle : MonoBehaviour
         if (scopeRoot == null)
             return false;
 
-        var editGm = EditGM.instance;
-        if (editGm == null || !editGm.IsControllerUICaptureActive())
+        var editGM = EditGM.instance;
+        if (editGM == null || !editGM.IsControllerUICaptureActive())
             return false;
 
-        GameObject modalRoot = editGm.GetPreferredControllerUIRoot();
+        GameObject modalRoot = editGM.GetPreferredControllerUIRoot();
         return modalRoot != null && scopeRoot == modalRoot.transform;
     }
 }
