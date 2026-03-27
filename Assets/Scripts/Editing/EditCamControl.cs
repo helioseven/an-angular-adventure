@@ -54,7 +54,11 @@ public class EditCamControl : MonoBehaviour
         var pad = Gamepad.current;
 
         // --- Keyboard camera movement ---
-        if (!_gmRef.inputMode && !_gmRef.IsBlockingModalOpenForCamera() && _moveInput != Vector2.zero)
+        if (
+            !_gmRef.inputMode
+            && !_gmRef.IsBlockingModalOpenForCamera()
+            && _moveInput != Vector2.zero
+        )
         {
             Vector3 v3 = transform.position;
             float zScale = 5f - (0.5f * _zoomAmount);
@@ -80,7 +84,8 @@ public class EditCamControl : MonoBehaviour
 
         var mouse = Mouse.current;
         bool allowMouseCameraControls =
-            mouse != null && (PointerSource.Instance == null || !PointerSource.Instance.IsVirtualActive);
+            mouse != null
+            && (PointerSource.Instance == null || !PointerSource.Instance.IsVirtualActive);
 
         if (allowMouseCameraControls)
         {

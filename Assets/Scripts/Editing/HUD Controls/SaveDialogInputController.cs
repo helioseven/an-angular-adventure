@@ -69,20 +69,18 @@ public class SaveDialogInputController
             return;
         }
 
-        bool leaveToButtons = keyboard != null
+        bool leaveToButtons =
+            keyboard != null
             && (
-                keyboard.escapeKey.wasPressedThisFrame
-                || keyboard.downArrowKey.wasPressedThisFrame
+                keyboard.escapeKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame
             );
 
         if (!leaveToButtons)
         {
             var gamepad = Gamepad.current;
-            leaveToButtons = gamepad != null
-                && (
-                    gamepad.buttonEast.wasPressedThisFrame
-                    || WasGamepadMoveDownPressed(gamepad)
-                );
+            leaveToButtons =
+                gamepad != null
+                && (gamepad.buttonEast.wasPressedThisFrame || WasGamepadMoveDownPressed(gamepad));
         }
 
         if (!leaveToButtons)
@@ -96,7 +94,10 @@ public class SaveDialogInputController
         if (inputField == null)
             return;
 
-        if (InputModeTracker.Instance == null || InputModeTracker.Instance.CurrentMode == InputMode.Pointer)
+        if (
+            InputModeTracker.Instance == null
+            || InputModeTracker.Instance.CurrentMode == InputMode.Pointer
+        )
         {
             isEditingExplicitly = true;
             return;
@@ -172,15 +173,20 @@ public class SaveDialogInputController
 
     private Selectable FindNextSelectable()
     {
-        Selectable[] selectables = transform.parent != null
-            ? transform.parent.GetComponentsInChildren<Selectable>(true)
-            : GetComponentsInParent<Selectable>(true);
+        Selectable[] selectables =
+            transform.parent != null
+                ? transform.parent.GetComponentsInChildren<Selectable>(true)
+                : GetComponentsInParent<Selectable>(true);
 
         bool foundCurrent = false;
         for (int i = 0; i < selectables.Length; i++)
         {
             Selectable selectable = selectables[i];
-            if (selectable == null || !selectable.gameObject.activeInHierarchy || !selectable.IsInteractable())
+            if (
+                selectable == null
+                || !selectable.gameObject.activeInHierarchy
+                || !selectable.IsInteractable()
+            )
                 continue;
 
             if (foundCurrent && selectable != inputField)
@@ -214,10 +220,7 @@ public class SaveDialogInputController
     {
         bool isPressed =
             gamepad != null
-            && (
-                gamepad.dpad.down.isPressed
-                || gamepad.leftStick.ReadValue().y <= -0.5f
-            );
+            && (gamepad.dpad.down.isPressed || gamepad.leftStick.ReadValue().y <= -0.5f);
         bool wasPressedThisFrame = isPressed && !wasGamepadMoveDownPressed;
         wasGamepadMoveDownPressed = isPressed;
         return wasPressedThisFrame;

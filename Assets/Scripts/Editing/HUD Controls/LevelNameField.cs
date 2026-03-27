@@ -40,13 +40,16 @@ public class LevelNameField : MonoBehaviour
 
     void Update()
     {
-        bool click = PointerSource.Instance != null
+        bool click =
+            PointerSource.Instance != null
             && PointerSource.Instance.IsHardwareActive
             && PointerSource.Instance.PrimaryPressedThisFrame();
-        bool submit = InputManager.Instance != null
+        bool submit =
+            InputManager.Instance != null
             && InputManager.Instance.Controls.UI.Submit.WasPressedThisFrame();
         bool selectedByController =
-            EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
+            EventSystem.current != null
+            && EventSystem.current.currentSelectedGameObject == gameObject;
 
         if (_gmRef.IsLevelNameFieldHovered(this) && click)
             ActivateField();

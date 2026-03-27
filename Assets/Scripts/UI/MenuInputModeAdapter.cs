@@ -7,8 +7,10 @@ public class MenuInputModeAdapter : MonoBehaviour
 {
     [SerializeField]
     private Transform scopeRoot;
+
     [SerializeField]
     private bool clearSelectionOnPointer = true;
+
     [SerializeField]
     private Selectable preferred;
 
@@ -20,9 +22,11 @@ public class MenuInputModeAdapter : MonoBehaviour
         CacheSelectables();
 
         InputModeTracker.OnModeChanged += HandleModeChanged;
-        HandleModeChanged(InputModeTracker.Instance != null
-            ? InputModeTracker.Instance.CurrentMode
-            : InputMode.Pointer);
+        HandleModeChanged(
+            InputModeTracker.Instance != null
+                ? InputModeTracker.Instance.CurrentMode
+                : InputMode.Pointer
+        );
     }
 
     private void OnDisable()
@@ -64,7 +68,9 @@ public class MenuInputModeAdapter : MonoBehaviour
             if (preferred != null)
                 MenuFocusUtility.SelectPreferred(preferred.gameObject);
             else
-                MenuFocusUtility.SelectPreferred(scopeRoot != null ? scopeRoot.gameObject : gameObject);
+                MenuFocusUtility.SelectPreferred(
+                    scopeRoot != null ? scopeRoot.gameObject : gameObject
+                );
         }
         else
         {

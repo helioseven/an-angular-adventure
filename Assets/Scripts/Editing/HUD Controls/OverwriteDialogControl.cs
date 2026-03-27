@@ -25,7 +25,8 @@ public class OverwriteDialogControl : MonoBehaviour
     )
     {
         EditGM.instance?.CloseOtherEditModals(gameObject);
-        _openedFromPointer = PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
+        _openedFromPointer =
+            PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
         gameObject.SetActive(true);
         transform.SetAsLastSibling();
         MenuFocusUtility.EnsureSelectedJiggle(gameObject);

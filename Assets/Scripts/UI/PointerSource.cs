@@ -80,7 +80,10 @@ public class PointerSource : MonoBehaviour
     public bool SecondaryPressedThisFrame()
     {
         if (CurrentSource == PointerSourceKind.Virtual)
-            return WasPressedRecently(_virtualSecondaryPressedFrame, _virtualSecondaryConsumedFrame);
+            return WasPressedRecently(
+                _virtualSecondaryPressedFrame,
+                _virtualSecondaryConsumedFrame
+            );
 
         return Mouse.current?.rightButton.wasPressedThisFrame ?? false;
     }
@@ -134,10 +137,12 @@ public class PointerSource : MonoBehaviour
     {
         if (Mouse.current != null)
         {
-            if (Mouse.current.leftButton.wasPressedThisFrame
+            if (
+                Mouse.current.leftButton.wasPressedThisFrame
                 || Mouse.current.rightButton.wasPressedThisFrame
                 || Mouse.current.middleButton.wasPressedThisFrame
-                || Mouse.current.scroll.ReadValue().sqrMagnitude > 0.01f)
+                || Mouse.current.scroll.ReadValue().sqrMagnitude > 0.01f
+            )
             {
                 InitializeHardwareBaseline();
                 return true;

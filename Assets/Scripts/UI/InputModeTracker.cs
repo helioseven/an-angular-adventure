@@ -21,8 +21,10 @@ public class InputModeTracker : MonoBehaviour
         PromptDeviceFamily.KeyboardMouse;
 
     private Vector2 lastMousePos;
+
     [SerializeField]
     private float pointerGraceSeconds = 0.5f;
+
     [SerializeField]
     private bool hideCursorDuringGamepadNavigation = true;
     private float startTime;
@@ -104,10 +106,12 @@ public class InputModeTracker : MonoBehaviour
 
         if (Mouse.current != null)
         {
-            if (Mouse.current.leftButton.wasPressedThisFrame
+            if (
+                Mouse.current.leftButton.wasPressedThisFrame
                 || Mouse.current.rightButton.wasPressedThisFrame
                 || Mouse.current.middleButton.wasPressedThisFrame
-                || Mouse.current.scroll.ReadValue().sqrMagnitude > 0.01f)
+                || Mouse.current.scroll.ReadValue().sqrMagnitude > 0.01f
+            )
                 return true;
 
             Vector2 pos = Mouse.current.position.ReadValue();
@@ -164,7 +168,8 @@ public class InputModeTracker : MonoBehaviour
             return false;
         }
 
-        if (keyboard.upArrowKey.wasPressedThisFrame
+        if (
+            keyboard.upArrowKey.wasPressedThisFrame
             || keyboard.downArrowKey.wasPressedThisFrame
             || keyboard.leftArrowKey.wasPressedThisFrame
             || keyboard.rightArrowKey.wasPressedThisFrame
@@ -175,7 +180,8 @@ public class InputModeTracker : MonoBehaviour
             || keyboard.tabKey.wasPressedThisFrame
             || keyboard.enterKey.wasPressedThisFrame
             || keyboard.spaceKey.wasPressedThisFrame
-            || keyboard.escapeKey.wasPressedThisFrame)
+            || keyboard.escapeKey.wasPressedThisFrame
+        )
             return true;
 
         return false;
@@ -216,7 +222,8 @@ public class InputModeTracker : MonoBehaviour
             return true;
         }
 
-        if (pad.buttonSouth.wasPressedThisFrame
+        if (
+            pad.buttonSouth.wasPressedThisFrame
             || pad.buttonNorth.wasPressedThisFrame
             || pad.buttonEast.wasPressedThisFrame
             || pad.buttonWest.wasPressedThisFrame
@@ -225,7 +232,8 @@ public class InputModeTracker : MonoBehaviour
             || pad.leftShoulder.wasPressedThisFrame
             || pad.rightShoulder.wasPressedThisFrame
             || pad.leftTrigger.ReadValue() > 0.5f
-            || pad.rightTrigger.ReadValue() > 0.5f)
+            || pad.rightTrigger.ReadValue() > 0.5f
+        )
         {
             LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;

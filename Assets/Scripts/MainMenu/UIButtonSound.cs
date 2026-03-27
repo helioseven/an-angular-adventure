@@ -36,8 +36,10 @@ public class UIButtonSound
         if (Time.unscaledTime < suppressUntilTime)
             return;
 
-        if (InputModeTracker.Instance == null
-            || InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
+        if (
+            InputModeTracker.Instance == null
+            || InputModeTracker.Instance.CurrentMode != InputMode.Navigation
+        )
             return;
 
         if (SoundManager.instance != null)
@@ -46,8 +48,10 @@ public class UIButtonSound
 
     public void OnSubmit(BaseEventData eventData)
     {
-        if (InputModeTracker.Instance == null
-            || InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
+        if (
+            InputModeTracker.Instance == null
+            || InputModeTracker.Instance.CurrentMode != InputMode.Navigation
+        )
             return;
 
         if (SoundManager.instance != null)

@@ -204,7 +204,12 @@ public class InputTypeTracker : MonoBehaviour
         if (gamepad == null)
             return PromptDeviceFamily.Xbox;
 
-        if (SteamInputPromptResolver.TryGetPromptDeviceFamily(gamepad, out PromptDeviceFamily family))
+        if (
+            SteamInputPromptResolver.TryGetPromptDeviceFamily(
+                gamepad,
+                out PromptDeviceFamily family
+            )
+        )
             return family;
 
         string probe =

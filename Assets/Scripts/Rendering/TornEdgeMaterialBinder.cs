@@ -3,22 +3,53 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class TornEdgeMaterialBinder : MonoBehaviour
 {
-    [SerializeField] private Boundary _boundary;
-    [SerializeField] private bool _followActiveLayer = true;
-    [SerializeField] private float _layerDepthOffset = -0.5f;
-    [SerializeField] private Color _baseColor = new Color(0.95f, 0.92f, 0.86f, 1f);
-    [SerializeField, Range(0f, 1f)] private float _alpha = 1f;
-    [SerializeField, Range(0f, 0.5f)] private float _edgeWidth = 0.08f;
-    [SerializeField, Range(-0.5f, 0.5f)] private float _edgeOffset = 0.05f;
-    [SerializeField] private float _noiseScale = 1f;
-    [SerializeField, Min(0.1f)] private float _noiseTileWorldSize = 1f;
-    [SerializeField, Range(0f, 0.5f)] private float _noiseStrength = 0.08f;
-    [SerializeField, Range(0f, 0.2f)] private float _feather = 0.02f;
-    [SerializeField, Range(0f, 0.2f)] private float _grainStrength = 0.05f;
-    [SerializeField, Range(0f, 0.4f)] private float _burnWidth = 0.32f;
-    [SerializeField, Range(0f, 2f)] private float _burnStrength = 1.6f;
-    [SerializeField, Range(0f, 1f)] private float _burnGlow = 0.08f;
-    [SerializeField] private int _edgeDirectionOverride = -1;
+    [SerializeField]
+    private Boundary _boundary;
+
+    [SerializeField]
+    private bool _followActiveLayer = true;
+
+    [SerializeField]
+    private float _layerDepthOffset = -0.5f;
+
+    [SerializeField]
+    private Color _baseColor = new Color(0.95f, 0.92f, 0.86f, 1f);
+
+    [SerializeField, Range(0f, 1f)]
+    private float _alpha = 1f;
+
+    [SerializeField, Range(0f, 0.5f)]
+    private float _edgeWidth = 0.08f;
+
+    [SerializeField, Range(-0.5f, 0.5f)]
+    private float _edgeOffset = 0.05f;
+
+    [SerializeField]
+    private float _noiseScale = 1f;
+
+    [SerializeField, Min(0.1f)]
+    private float _noiseTileWorldSize = 1f;
+
+    [SerializeField, Range(0f, 0.5f)]
+    private float _noiseStrength = 0.08f;
+
+    [SerializeField, Range(0f, 0.2f)]
+    private float _feather = 0.02f;
+
+    [SerializeField, Range(0f, 0.2f)]
+    private float _grainStrength = 0.05f;
+
+    [SerializeField, Range(0f, 0.4f)]
+    private float _burnWidth = 0.32f;
+
+    [SerializeField, Range(0f, 2f)]
+    private float _burnStrength = 1.6f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float _burnGlow = 0.08f;
+
+    [SerializeField]
+    private int _edgeDirectionOverride = -1;
 
     private SpriteRenderer _renderer;
     private MaterialPropertyBlock _mpb;

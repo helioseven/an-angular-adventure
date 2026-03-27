@@ -50,7 +50,10 @@ public class LevelBrowserFilterInputController
         {
             if (
                 keyboard != null
-                && (keyboard.deleteKey.wasPressedThisFrame || keyboard.backspaceKey.wasPressedThisFrame)
+                && (
+                    keyboard.deleteKey.wasPressedThisFrame
+                    || keyboard.backspaceKey.wasPressedThisFrame
+                )
             )
             {
                 ClearFilter();
@@ -58,15 +61,20 @@ public class LevelBrowserFilterInputController
             return;
         }
 
-        bool leaveToTabs = keyboard != null
-            && (keyboard.escapeKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame);
+        bool leaveToTabs =
+            keyboard != null
+            && (
+                keyboard.escapeKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame
+            );
 
         if (!leaveToTabs)
         {
             var gamepad = Gamepad.current;
-            leaveToTabs = gamepad != null && (
-                gamepad.buttonEast.wasPressedThisFrame || gamepad.dpad.down.wasPressedThisFrame
-            );
+            leaveToTabs =
+                gamepad != null
+                && (
+                    gamepad.buttonEast.wasPressedThisFrame || gamepad.dpad.down.wasPressedThisFrame
+                );
         }
 
         if (!leaveToTabs)
@@ -87,7 +95,10 @@ public class LevelBrowserFilterInputController
         if (inputField == null)
             return;
 
-        if (InputModeTracker.Instance == null || InputModeTracker.Instance.CurrentMode == InputMode.Pointer)
+        if (
+            InputModeTracker.Instance == null
+            || InputModeTracker.Instance.CurrentMode == InputMode.Pointer
+        )
         {
             isEditingExplicitly = true;
             return;

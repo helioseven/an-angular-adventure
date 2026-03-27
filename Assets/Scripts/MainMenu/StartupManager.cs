@@ -105,12 +105,8 @@ public class StartupManager : MonoBehaviour
             {
                 steamInputInitialized = SteamInput.Init(false);
                 steamOverlayAvailable = SteamUtils.IsOverlayEnabled();
-                Debug.Log(
-                    $"[SteamInput] Init {(steamInputInitialized ? "OK" : "FAILED")}"
-                );
-                Debug.Log(
-                    $"[Steam] Overlay available {(steamOverlayAvailable ? "YES" : "NO")}"
-                );
+                Debug.Log($"[SteamInput] Init {(steamInputInitialized ? "OK" : "FAILED")}");
+                Debug.Log($"[Steam] Overlay available {(steamOverlayAvailable ? "YES" : "NO")}");
                 gameOverlayActivatedCallback = Callback<GameOverlayActivated_t>.Create(
                     HandleGameOverlayActivated
                 );

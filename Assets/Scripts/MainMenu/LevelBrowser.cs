@@ -269,10 +269,7 @@ public class LevelBrowser : MonoBehaviour
             myLevelsTabToggle.onValueChanged.RemoveListener(myLevelsTabListener);
         if (myTessellationsLocalToggle != null && myTessellationsLocalListener != null)
             myTessellationsLocalToggle.onValueChanged.RemoveListener(myTessellationsLocalListener);
-        if (
-            myTessellationsPublishedToggle != null
-            && myTessellationsPublishedListener != null
-        )
+        if (myTessellationsPublishedToggle != null && myTessellationsPublishedListener != null)
         {
             myTessellationsPublishedToggle.onValueChanged.RemoveListener(
                 myTessellationsPublishedListener

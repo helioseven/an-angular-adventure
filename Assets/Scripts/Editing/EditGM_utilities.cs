@@ -1520,7 +1520,8 @@ public partial class EditGM
         if (quitDialogPanel != null && quitDialogPanel.activeInHierarchy)
             return quitDialogPanel;
 
-        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>();
+        SaveDialogControl saveDialog =
+            UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>();
         if (saveDialog != null && saveDialog.gameObject.activeInHierarchy)
             return saveDialog.gameObject;
 
