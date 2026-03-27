@@ -147,7 +147,7 @@ public partial class EditGM : MonoBehaviour
             activeLayer = 0;
             hoveringHUD = false;
             paletteMode = false;
-            SetHudVisibility(hudPanel != null && hudPanel.activeSelf);
+            SetHUDVisibility(hudPanel != null && hudPanel.activeSelf);
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();

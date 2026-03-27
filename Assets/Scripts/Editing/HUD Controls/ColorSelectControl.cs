@@ -87,6 +87,6 @@ public class ColorSelectControl : MonoBehaviour
             button.targetGraphic = buttonObject.GetComponent<Image>();
         }
 
-        button.onClick.AddListener(() => _gmRef.HandleHudColorPressed(colorIndex));
+        button.onClick.AddListener(() => _gmRef.HandleHUDColorPressed(colorIndex));
     }
 }

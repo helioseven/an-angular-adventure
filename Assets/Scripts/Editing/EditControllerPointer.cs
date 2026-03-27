@@ -87,7 +87,7 @@ public class EditControllerPointer : MonoBehaviour
         if (worldPrimaryPressed)
         {
             PointerSource.Instance.PressVirtualPrimary();
-            if (_gmRef.TryClickHudAtPointer())
+            if (_gmRef.TryClickHUDAtPointer())
                 return;
         }
 

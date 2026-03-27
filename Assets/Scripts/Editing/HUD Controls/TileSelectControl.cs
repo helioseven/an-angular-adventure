@@ -94,7 +94,11 @@ public class TileSelectControl : MonoBehaviour
     {
         _activeColor = _tcRef.tileColor;
 
-        int selectorCount = Mathf.Min(Constants.NUM_SHAPES, transform.childCount, _tcRef.transform.childCount);
+        int selectorCount = Mathf.Min(
+            Constants.NUM_SHAPES,
+            transform.childCount,
+            _tcRef.transform.childCount
+        );
         for (int i = 0; i < selectorCount; i++)
         {
             Transform selected = transform.GetChild(i);
@@ -144,7 +148,7 @@ public class TileSelectControl : MonoBehaviour
             button.targetGraphic = buttonObject.GetComponent<Image>();
         }
 
-        button.onClick.AddListener(() => _gmRef.HandleHudSelectorPressed(selectorIndex));
+        button.onClick.AddListener(() => _gmRef.HandleHUDSelectorPressed(selectorIndex));
     }
 
     private void SetHighlightEnabled(int selectorIndex, bool isEnabled)

@@ -32,54 +32,54 @@ public partial class EditGM
 
         if (edit.Triangle.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(0);
+            HandleHUDSelectorPressed(0);
             return;
         }
 
         if (edit.Diamond.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(1);
+            HandleHUDSelectorPressed(1);
             return;
         }
 
         if (edit.Trapezoid.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(2);
+            HandleHUDSelectorPressed(2);
             return;
         }
 
         if (edit.Hexagon.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(3);
+            HandleHUDSelectorPressed(3);
             return;
         }
 
         if (edit.Square.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(4);
+            HandleHUDSelectorPressed(4);
             return;
         }
 
         if (edit.Wedge.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(5);
+            HandleHUDSelectorPressed(5);
             return;
         }
 
         if (edit.CheckpointTool.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(6);
+            HandleHUDSelectorPressed(6);
             return;
         }
 
         if (edit.VictoryTool.WasPressedThisFrame())
         {
-            HandleHudSelectorPressed(7);
+            HandleHUDSelectorPressed(7);
             return;
         }
 
         if (edit.WarpTool.WasPressedThisFrame())
-            HandleHudSelectorPressed(8);
+            HandleHUDSelectorPressed(8);
     }
 
     // Makes changes associated with anchorIcon and layer changes
@@ -132,7 +132,7 @@ public partial class EditGM
             edit.Palette.WasPressedThisFrame()
             || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
         )
-            SetHudVisibility(hudPanel != null && !hudPanel.activeSelf);
+            SetHUDVisibility(hudPanel != null && !hudPanel.activeSelf);
 
         // --- HUD hover logic ---
         hoveringHUD = hudPanel.activeSelf ? checkHUDHover() : false;
@@ -144,7 +144,7 @@ public partial class EditGM
             && PointerSource.Instance.IsVirtualActive
             && PointerSource.Instance.PrimaryPressedThisFrame()
         )
-            ClickHoveredHud();
+            ClickHoveredHUD();
 
         // --- Show/hide current creator tool based on palette/HUD state ---
         if (hoveringHUD || paletteMode)

@@ -54,7 +54,7 @@ public partial class EditGM
         }
     }
 
-    private void SetHudVisibility(bool isVisible)
+    private void SetHUDVisibility(bool isVisible)
     {
         if (hudPanel != null)
             hudPanel.SetActive(isVisible);
@@ -1139,7 +1139,7 @@ public partial class EditGM
         PointerSource.Instance.ConsumeVirtualSecondary();
     }
 
-    public void RefreshHudHover()
+    public void RefreshHUDHover()
     {
         _currentHUDhover = raycastAllHUD();
         hoveringHUD = hudPanel.activeSelf && checkHUDHover();
@@ -1151,17 +1151,17 @@ public partial class EditGM
             || (Touchscreen.current?.primaryTouch.press.isPressed ?? false);
     }
 
-    public bool TryClickHudAtPointer()
+    public bool TryClickHUDAtPointer()
     {
-        RefreshHudHover();
+        RefreshHUDHover();
         if (IsPointerSuppressed() || !hoveringHUD)
             return false;
 
-        ClickHoveredHud();
+        ClickHoveredHUD();
         return true;
     }
 
-    public void ClickHoveredHud()
+    public void ClickHoveredHUD()
     {
         if (_currentHUDhover == null || _currentHUDhover.Count == 0 || eventSystem == null)
             return;
@@ -1179,11 +1179,11 @@ public partial class EditGM
         for (int i = 0; i < _currentHUDhover.Count; i++)
         {
             GameObject hoveredObject = _currentHUDhover[i].gameObject;
-            GameObject target = ResolveHudClickTarget(hoveredObject);
+            GameObject target = ResolveHUDClickTarget(hoveredObject);
             if (target == null)
                 continue;
 
-            if (TryHandleNamedHudButton(target))
+            if (TryHandleNamedHUDButton(target))
             {
                 eventSystem.SetSelectedGameObject(null);
                 PointerSource.Instance?.ConsumeVirtualPrimary();
@@ -1208,7 +1208,7 @@ public partial class EditGM
         }
     }
 
-    private bool TryHandleNamedHudButton(GameObject target)
+    private bool TryHandleNamedHUDButton(GameObject target)
     {
         if (target == null)
             return false;
@@ -1251,7 +1251,7 @@ public partial class EditGM
         }
     }
 
-    private static GameObject ResolveHudClickTarget(GameObject hoveredObject)
+    private static GameObject ResolveHUDClickTarget(GameObject hoveredObject)
     {
         if (hoveredObject == null)
             return null;
@@ -1402,7 +1402,7 @@ public partial class EditGM
             EnterCreate();
     }
 
-    public void HandleHudSelectorPressed(int selectorIndex)
+    public void HandleHUDSelectorPressed(int selectorIndex)
     {
         EnterCreate();
 
@@ -1434,14 +1434,14 @@ public partial class EditGM
     public void HandleControllerCycleToolSelector(bool moveRight)
     {
         int selectorCount = 9;
-        int currentSelectorIndex = GetCurrentHudSelectorIndex();
+        int currentSelectorIndex = GetCurrentHUDSelectorIndex();
         int direction = moveRight ? 1 : -1;
         int nextSelectorIndex = (currentSelectorIndex + direction + selectorCount) % selectorCount;
 
-        HandleHudSelectorPressed(nextSelectorIndex);
+        HandleHUDSelectorPressed(nextSelectorIndex);
     }
 
-    public void HandleHudColorPressed(int colorIndex)
+    public void HandleHUDColorPressed(int colorIndex)
     {
         EnterCreate();
         soundManager.Play("bounce");
@@ -1452,7 +1452,7 @@ public partial class EditGM
         tileCreator.SelectColor(colorIndex);
     }
 
-    private int GetCurrentHudSelectorIndex()
+    private int GetCurrentHUDSelectorIndex()
     {
         switch (currentCreatorTool)
         {
