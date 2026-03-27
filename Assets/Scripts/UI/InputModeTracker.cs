@@ -16,12 +16,18 @@ public class InputModeTracker : MonoBehaviour
     public static event Action<InputMode> OnModeChanged;
 
     public InputMode CurrentMode { get; private set; } = InputMode.Navigation;
+    public bool IsGamepadNavigationActive { get; private set; }
+    public PromptDeviceFamily LastPromptDeviceFamily { get; private set; } =
+        PromptDeviceFamily.KeyboardMouse;
 
     private Vector2 lastMousePos;
     [SerializeField]
     private float pointerGraceSeconds = 0.5f;
+    [SerializeField]
+    private bool hideCursorDuringGamepadNavigation = true;
     private float startTime;
     private bool pointerBaselineReady;
+    private bool _cursorHiddenByTracker;
 
     public static void EnsureInstance()
     {
@@ -47,18 +53,39 @@ public class InputModeTracker : MonoBehaviour
 
         if (Mouse.current != null)
             lastMousePos = Mouse.current.position.ReadValue();
+
+        ApplyCursorVisibility();
+    }
+
+    private void OnDisable()
+    {
+        RestoreCursorIfNeeded();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+
+        RestoreCursorIfNeeded();
     }
 
     private void Update()
     {
         if (IsPointerActive())
         {
+            IsGamepadNavigationActive = false;
+            LastPromptDeviceFamily = PromptDeviceFamily.KeyboardMouse;
+            ApplyCursorVisibility();
             SetMode(InputMode.Pointer);
             return;
         }
 
         if (IsNavigationActive())
+        {
+            ApplyCursorVisibility();
             SetMode(InputMode.Navigation);
+        }
     }
 
     private void SetMode(InputMode mode)
@@ -112,7 +139,12 @@ public class InputModeTracker : MonoBehaviour
     private bool IsNavigationActive()
     {
         if (IsGamepadActive())
+        {
+            IsGamepadNavigationActive = true;
             return true;
+        }
+
+        IsGamepadNavigationActive = false;
 
         var keyboard = Keyboard.current;
         if (keyboard == null)
@@ -169,11 +201,20 @@ public class InputModeTracker : MonoBehaviour
             return false;
 
         if (pad.leftStick.ReadValue().sqrMagnitude > 0.04f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
         if (pad.rightStick.ReadValue().sqrMagnitude > 0.04f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
         if (pad.dpad.ReadValue().sqrMagnitude > 0.1f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
 
         if (pad.buttonSouth.wasPressedThisFrame
             || pad.buttonNorth.wasPressedThisFrame
@@ -185,8 +226,32 @@ public class InputModeTracker : MonoBehaviour
             || pad.rightShoulder.wasPressedThisFrame
             || pad.leftTrigger.ReadValue() > 0.5f
             || pad.rightTrigger.ReadValue() > 0.5f)
+        {
+            LastPromptDeviceFamily = DetectPromptDeviceFamily(pad);
             return true;
+        }
 
         return false;
+    }
+
+    private static PromptDeviceFamily DetectPromptDeviceFamily(Gamepad gamepad)
+    {
+        return InputTypeTracker.DetectGamepadFamily(gamepad);
+    }
+
+    private void ApplyCursorVisibility()
+    {
+        bool shouldHideCursor = hideCursorDuringGamepadNavigation && IsGamepadNavigationActive;
+        Cursor.visible = !shouldHideCursor;
+        _cursorHiddenByTracker = shouldHideCursor;
+    }
+
+    private void RestoreCursorIfNeeded()
+    {
+        if (!_cursorHiddenByTracker)
+            return;
+
+        Cursor.visible = true;
+        _cursorHiddenByTracker = false;
     }
 }

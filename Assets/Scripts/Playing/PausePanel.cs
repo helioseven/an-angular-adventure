@@ -118,6 +118,16 @@ public class PausePanel : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void LockForSceneChange()
+    {
+        StopAllCoroutines();
+        if (canvasGroup != null)
+        {
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+        }
+    }
+
     public void ShowMainMenu()
     {
         if (mainButtonContainer != null)

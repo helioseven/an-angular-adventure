@@ -8,6 +8,7 @@ public class EditCamControl : MonoBehaviour
     public float zoomSpeed = 100f;
     public float minZoomAmount = -25f;
     public float maxZoomAmount = 5f;
+    public float startingZoomAmount = -8f;
 
     // private variables
     private EditGM _gmRef;
@@ -22,6 +23,7 @@ public class EditCamControl : MonoBehaviour
     {
         _gmRef = EditGM.instance;
         _controls = InputManager.Instance.Controls;
+        _zoomAmount = Mathf.Clamp(startingZoomAmount, minZoomAmount, maxZoomAmount);
 
         // enable Editing map
         var edit = _controls.Edit;
@@ -49,8 +51,10 @@ public class EditCamControl : MonoBehaviour
 
     void Update()
     {
+        var pad = Gamepad.current;
+
         // --- Keyboard camera movement ---
-        if (!_gmRef.inputMode && _moveInput != Vector2.zero)
+        if (!_gmRef.inputMode && !_gmRef.IsBlockingModalOpenForCamera() && _moveInput != Vector2.zero)
         {
             Vector3 v3 = transform.position;
             float zScale = 5f - (0.5f * _zoomAmount);
@@ -59,42 +63,60 @@ public class EditCamControl : MonoBehaviour
             transform.position = v3;
         }
 
-        var mouse = Mouse.current;
-        if (mouse == null)
-            return;
-
-        // --- Middle mouse drag (pan) ---
-        if (mouse.middleButton.wasPressedThisFrame)
-            _dragOrigin = mouse.position.ReadValue();
-
-        if (mouse.middleButton.isPressed)
+        // --- Controller trigger zoom ---
+        if (pad != null)
         {
-            Vector2 currentPos = mouse.position.ReadValue();
-            Vector2 delta = currentPos - _dragOrigin;
+            float triggerZoom = pad.rightTrigger.ReadValue() - pad.leftTrigger.ReadValue();
 
-            Camera cam = Camera.main;
-            float camHeight = cam.orthographicSize * 2f;
-            float camWidth = camHeight * cam.aspect;
-
-            Vector3 move = new Vector3(
-                -delta.x / Screen.width * camWidth,
-                -delta.y / Screen.height * camHeight,
-                0f
-            );
-
-            cam.transform.Translate(move * dragSpeed * Time.deltaTime, Space.World);
-            _dragOrigin = currentPos;
+            if (Mathf.Abs(triggerZoom) > 0.05f)
+            {
+                _zoomAmount = Mathf.Clamp(
+                    _zoomAmount + triggerZoom * zoomSpeed * Time.deltaTime,
+                    minZoomAmount,
+                    maxZoomAmount
+                );
+            }
         }
 
-        // --- Hardware scroll wheel (for fallback / legacy mice) ---
-        float scroll = mouse.scroll.ReadValue().y;
-        if (Mathf.Abs(scroll) > 0.01f)
+        var mouse = Mouse.current;
+        bool allowMouseCameraControls =
+            mouse != null && (PointerSource.Instance == null || !PointerSource.Instance.IsVirtualActive);
+
+        if (allowMouseCameraControls)
         {
-            _zoomAmount = Mathf.Clamp(
-                _zoomAmount + scroll * zoomSpeed * Time.deltaTime,
-                minZoomAmount,
-                maxZoomAmount
-            );
+            // --- Middle mouse drag (pan) ---
+            if (mouse.middleButton.wasPressedThisFrame)
+                _dragOrigin = mouse.position.ReadValue();
+
+            if (mouse.middleButton.isPressed)
+            {
+                Vector2 currentPos = mouse.position.ReadValue();
+                Vector2 delta = currentPos - _dragOrigin;
+
+                Camera cam = Camera.main;
+                float camHeight = cam.orthographicSize * 2f;
+                float camWidth = camHeight * cam.aspect;
+
+                Vector3 move = new Vector3(
+                    -delta.x / Screen.width * camWidth,
+                    -delta.y / Screen.height * camHeight,
+                    0f
+                );
+
+                cam.transform.Translate(move * dragSpeed * Time.deltaTime, Space.World);
+                _dragOrigin = currentPos;
+            }
+
+            // --- Hardware scroll wheel (for fallback / legacy mice) ---
+            float scroll = mouse.scroll.ReadValue().y;
+            if (Mathf.Abs(scroll) > 0.01f)
+            {
+                _zoomAmount = Mathf.Clamp(
+                    _zoomAmount + scroll * zoomSpeed * Time.deltaTime,
+                    minZoomAmount,
+                    maxZoomAmount
+                );
+            }
         }
 
         // --- Apply zoom ---

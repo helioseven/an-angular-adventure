@@ -40,13 +40,18 @@ public class LevelNameField : MonoBehaviour
 
     void Update()
     {
-        // TODO - this does not seem to be working
-        // read left-click (or primary tap) from new Input System
-        bool click =
-            (Mouse.current?.leftButton.wasPressedThisFrame ?? false)
-            || (Touchscreen.current?.primaryTouch.press.wasPressedThisFrame ?? false);
+        bool click = PointerSource.Instance != null
+            && PointerSource.Instance.IsHardwareActive
+            && PointerSource.Instance.PrimaryPressedThisFrame();
+        bool submit = InputManager.Instance != null
+            && InputManager.Instance.Controls.UI.Submit.WasPressedThisFrame();
+        bool selectedByController =
+            EventSystem.current != null && EventSystem.current.currentSelectedGameObject == gameObject;
 
         if (_gmRef.IsLevelNameFieldHovered(this) && click)
+            ActivateField();
+
+        if (selectedByController && submit)
             ActivateField();
     }
 

@@ -19,6 +19,7 @@ public partial class EditGM : MonoBehaviour
     public GameObject checkpointTool;
     public EventSystem eventSystem;
     public GameObject hudPanel;
+    public GameObject showUIHint;
     public SoundManager soundManager;
     public TileCreator tileCreator;
     public GameObject tileMap;
@@ -119,6 +120,7 @@ public partial class EditGM : MonoBehaviour
     private Dictionary<GameObject, WarpData> _warpLookup;
     private Dictionary<GameObject, VictoryData> _victoryLookup;
     private bool _suppressClickThisFrame = false;
+    private bool _suppressHardwarePointerUntilRelease;
 
     void Awake()
     {
@@ -142,12 +144,10 @@ public partial class EditGM : MonoBehaviour
             _warpLookup = new Dictionary<GameObject, WarpData>();
             _victoryLookup = new Dictionary<GameObject, VictoryData>();
 
-            // initializations for connected state variables
-            hudPanel.SetActive(true);
-
             activeLayer = 0;
             hoveringHUD = false;
             paletteMode = false;
+            SetHUDVisibility(hudPanel != null && hudPanel.activeSelf);
 
             // file is loaded and parsed
             _lvlLoad = GameObject.FindWithTag("Loader").GetComponent<EditLoader>();
@@ -178,15 +178,27 @@ public partial class EditGM : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Editing");
+        PointerSource.EnsureInstance();
+
+        if (FindFirstObjectByType<EditControllerPointer>() == null)
+        {
+            var controllerPointer = new GameObject("EditControllerPointer");
+            controllerPointer.AddComponent<EditControllerPointer>();
+        }
     }
 
     void Update()
     {
         // Check for escape key and pop up the quit (exit to main menu) dialog
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (
+            (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.selectButton.wasPressedThisFrame ?? false)
+        )
         {
-            quitDialogPanel.gameObject.SetActive(true);
+            OpenExitDialog();
         }
         // get raycast results for this frame's mouse position
         _currentHUDhover = raycastAllHUD();
@@ -196,6 +208,12 @@ public partial class EditGM : MonoBehaviour
 
         // G key to not show green tiles
         HandleKeyDoorLinkHotkey();
+
+        // Keyboard shortcuts for shared editor actions.
+        HandleKeyboardActionHotkeys();
+
+        // Mirror the HUD selector buttons for keyboard shortcuts, even outside create mode.
+        HandleKeyboardToolSelectorHotkeys();
 
         // if the palette is active, skip the rest
         if (hoveringHUD || paletteMode || inputMode)

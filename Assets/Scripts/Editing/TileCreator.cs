@@ -131,6 +131,19 @@ public class TileCreator : MonoBehaviour
         _tileRenderers[tileType, tileColor].enabled = true;
     }
 
+    public void SelectColor(int inColor)
+    {
+        int count = _tileRenderers.GetLength(1);
+        int normalizedColor = ((inColor % count) + count) % count;
+
+        if (tileColor == normalizedColor)
+            return;
+
+        _tileRenderers[tileType, tileColor].enabled = false;
+        tileColor = normalizedColor;
+        _tileRenderers[tileType, tileColor].enabled = true;
+    }
+
     // set door id
     public void SetDoorID(string inId)
     {

@@ -112,8 +112,22 @@ public partial class PlayGM : MonoBehaviour
 #endif
     }
 
+    private void OnEnable()
+    {
+        InputSystem.onDeviceChange += HandleDeviceChange;
+        StartupManager.SteamOverlayActiveChanged += HandleSteamOverlayActiveChanged;
+    }
+
+    private void OnDisable()
+    {
+        InputSystem.onDeviceChange -= HandleDeviceChange;
+        StartupManager.SteamOverlayActiveChanged -= HandleSteamOverlayActiveChanged;
+    }
+
     void Start()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Playing");
 
         Debug.Log("[PlayGM] Start: " + levelLoader.levelName);
@@ -178,15 +192,65 @@ public partial class PlayGM : MonoBehaviour
 
     public void QuitToMenu()
     {
+        PrepareForSceneExit();
+        SceneExitTransition.Show();
+
         if (playModeContext == PlayModeContext.FromEditor)
         {
-            var loaderGO = Instantiate(editLoader);
-            var loader = loaderGO.GetComponent<EditLoader>();
+            var loader = Instantiate(editLoader);
             loader.levelInfo = levelInfo;
+            SceneManager.LoadScene("Editing");
         }
         else
         {
             SceneManager.LoadScene("MainMenu");
         }
+    }
+
+    public void PrepareForSceneExit()
+    {
+        StopPlayerLoopingAudio();
+        player?.PrepareForSceneExit();
+        soundManager?.ResetLoopingSounds();
+    }
+
+    private void StopPlayerLoopingAudio()
+    {
+        if (player != null)
+        {
+            player.StopAirWooshSound();
+            player.StopRollingSound();
+        }
+
+        if (soundManager != null)
+        {
+            soundManager.StopSound("air-woosh");
+            soundManager.StopSound("rolling-soft");
+            soundManager.StopSound("rolling-loud");
+        }
+    }
+
+    private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (pauseMenu == null)
+            return;
+        if (device is not Gamepad)
+            return;
+        if (change != InputDeviceChange.Disconnected && change != InputDeviceChange.Removed)
+            return;
+        if (pauseMenu.IsPaused || victoryAchieved)
+            return;
+
+        pauseMenu.Pause();
+    }
+
+    private void HandleSteamOverlayActiveChanged(bool isActive)
+    {
+        if (!isActive)
+            return;
+        if (pauseMenu == null || pauseMenu.IsPaused || victoryAchieved)
+            return;
+
+        pauseMenu.Pause();
     }
 }

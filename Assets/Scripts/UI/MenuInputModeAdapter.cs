@@ -30,6 +30,20 @@ public class MenuInputModeAdapter : MonoBehaviour
         InputModeTracker.OnModeChanged -= HandleModeChanged;
     }
 
+    private void Update()
+    {
+        if (InputModeTracker.Instance == null)
+            return;
+
+        if (
+            InputModeTracker.Instance.CurrentMode == InputMode.Navigation
+            && InputModeTracker.Instance.IsGamepadNavigationActive
+        )
+        {
+            ClearPointerHoverState();
+        }
+    }
+
     public void SetScope(Transform scope)
     {
         scopeRoot = scope;
@@ -45,6 +59,7 @@ public class MenuInputModeAdapter : MonoBehaviour
     {
         if (mode == InputMode.Navigation)
         {
+            ClearPointerHoverState();
             ApplyControllerHighlighting();
             if (preferred != null)
                 MenuFocusUtility.SelectPreferred(preferred.gameObject);
@@ -57,6 +72,11 @@ public class MenuInputModeAdapter : MonoBehaviour
             if (clearSelectionOnPointer && EventSystem.current != null)
                 EventSystem.current.SetSelectedGameObject(null);
         }
+    }
+
+    private void ClearPointerHoverState()
+    {
+        MenuFocusUtility.ClearPointerHoverState(GetScopeRoot().gameObject);
     }
 
     private void CacheSelectables()

@@ -8,8 +8,19 @@ public class UIButtonSound
         ISelectHandler,
         ISubmitHandler
 {
+    private float suppressUntilTime;
+
+    private void OnEnable()
+    {
+        // Menu activation can trigger synthetic select/hover events before the user interacts.
+        suppressUntilTime = Time.unscaledTime + 0.1f;
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (Time.unscaledTime < suppressUntilTime)
+            return;
+
         if (SoundManager.instance != null)
             SoundManager.instance.Play("mainMenuHover");
     }
@@ -22,6 +33,9 @@ public class UIButtonSound
 
     public void OnSelect(BaseEventData eventData)
     {
+        if (Time.unscaledTime < suppressUntilTime)
+            return;
+
         if (InputModeTracker.Instance == null
             || InputModeTracker.Instance.CurrentMode != InputMode.Navigation)
             return;

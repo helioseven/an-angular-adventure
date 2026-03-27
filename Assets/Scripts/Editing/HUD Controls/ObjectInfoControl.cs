@@ -23,11 +23,20 @@ public class ObjectInfoControl : MonoBehaviour
     private TMP_Text _doorIDDisplay;
     private TMP_Text _typeDisplay;
     private TMP_Text _combinedNameDisplay;
+    private TMP_InputField _doorIdInputField;
+    private TMP_InputField _specialInputField;
+    private Button _decreaseDoorIdButton;
+    private Button _increaseDoorIdButton;
+    private Button _decreaseSpecialButton;
+    private Button _increaseSpecialButton;
 
     /* Private Variables */
 
     private bool _isAnyItemSelected;
     private bool _isInstanceNull;
+    private Transform _standardAttributesPanel;
+    private Transform _doorIdPanel;
+    private Transform _specialPanel;
 
     private readonly float[] _aspectRatios = new float[] { 1f, 2f, 2f, 1f, 1f, 2f };
     private readonly string[] _colorStrings = new string[]
@@ -76,18 +85,31 @@ public class ObjectInfoControl : MonoBehaviour
         _combinedNameDisplay = transform.GetChild(4).GetComponent<TMP_Text>();
 
         Transform t = transform.GetChild(1);
-        _typeDisplay = t.GetChild(1).GetComponent<TMP_Text>();
-        _colorDisplay = t.GetChild(3).GetComponent<TMP_Text>();
-        _rotationDisplay = t.GetChild(5).GetComponent<TMP_Text>();
-        _locusDisplay = t.GetChild(7).GetComponent<TMP_Text>();
+        _standardAttributesPanel = t;
+        _typeDisplay = GetTextObjectFromParent(t, "Type Display");
+        _colorDisplay = GetTextObjectFromParent(t, "Color Display");
+        _rotationDisplay = GetTextObjectFromParent(t, "Rotation Display");
+        _locusDisplay = GetTextObjectFromParent(t, "Position Display");
 
         t = transform.GetChild(3);
-        _specialLabel = t.GetChild(0).GetComponent<TMP_Text>();
-        _specialDisplay = t.GetChild(1).GetComponent<TMP_Text>();
+        _specialPanel = t;
+        _specialLabel = GetTextObjectFromParent(t, "Special Label");
+        _specialDisplay = GetTextObjectFromParent(t, "Special Display");
+        _specialInputField = t.GetComponentInChildren<TMP_InputField>(true);
+        InitializeSpecialInfoPanelButtons(
+            t,
+            out _decreaseSpecialButton,
+            out _increaseSpecialButton
+        );
 
         t = transform.GetChild(2);
-        _doorIDLabel = t.GetChild(0).GetComponent<TMP_Text>();
-        _doorIDDisplay = t.GetChild(1).GetComponent<TMP_Text>();
+        _doorIdPanel = t;
+        _doorIDLabel = GetTextObjectFromParent(t, "DoorID Label");
+        _doorIDDisplay = GetTextObjectFromParent(t, "DoorID Display");
+        _doorIdInputField = t.GetComponentInChildren<TMP_InputField>(true);
+        InitializeSpecialInfoPanelButtons(t, out _decreaseDoorIdButton, out _increaseDoorIdButton);
+
+        BindRuntimeListeners();
     }
 
     void Update()
@@ -187,36 +209,30 @@ public class ObjectInfoControl : MonoBehaviour
         //   update object panel InfoPack based on active and enabled CreatorTool status
         if (_editGM.isEditorInCreateMode)
         {
-            if (_tileCreator.isActiveAndEnabled)
+            switch (_editGM.currentCreatorTool)
             {
-                type = _tileCreator.tileType;
-                color = _tileCreator.tileColor;
-                spec = _tileCreator.tileSpecial;
-                rot = _tileCreator.tileOrient.rotation;
-                locus = _tileCreator.tileOrient.locus;
-                doorID = _tileCreator.tileDoorID;
-            }
-            else if (_checkpointCreator.isActiveAndEnabled)
-            {
-                type = 6;
-                locus = _checkpointCreator.specOrient.locus;
-            }
-            else if (_warpCreator.isActiveAndEnabled)
-            {
-                type = 7;
-                locus = _warpCreator.specOrient.locus;
-            }
-            else if (_victoryCreator.isActiveAndEnabled)
-            {
-                type = 8;
-                locus = _victoryCreator.specOrient.locus;
-            }
-            else
-            {
-                // Default (Create Mode) Case (no creators are active)
-                //   This happens when HUD hover is active (or palette mode/hover)
-                //   We simply hang onto the same info pack until we have an active creator again
-                return _lastFrameInfoPack;
+                case EditGM.EditCreatorTool.Tile:
+                    type = _tileCreator.tileType;
+                    color = _tileCreator.tileColor;
+                    spec = _tileCreator.tileSpecial;
+                    rot = _tileCreator.tileOrient.rotation;
+                    locus = _tileCreator.tileOrient.locus;
+                    doorID = _tileCreator.tileDoorID;
+                    break;
+                case EditGM.EditCreatorTool.Checkpoint:
+                    type = 6;
+                    locus = _checkpointCreator.specOrient.locus;
+                    break;
+                case EditGM.EditCreatorTool.Warp:
+                    type = 7;
+                    locus = _warpCreator.specOrient.locus;
+                    break;
+                case EditGM.EditCreatorTool.Victory:
+                    type = 8;
+                    locus = _victoryCreator.specOrient.locus;
+                    break;
+                default:
+                    return _lastFrameInfoPack;
             }
         }
         // Otherwise - In this case the editor is in edit mode
@@ -295,6 +311,8 @@ public class ObjectInfoControl : MonoBehaviour
     // updates the display image
     private void updateUI(InfoPack infoPack)
     {
+        EnsureReferences();
+
         if (_isAnyItemSelected && infoPack.type >= 0)
         {
             // set sprite source transform and aspect ratio for object image
@@ -345,79 +363,277 @@ public class ObjectInfoControl : MonoBehaviour
         {
             if (infoPack.type >= 0 && infoPack.color >= 0 && infoPack.type < 6)
             {
-                _combinedNameDisplay.text =
-                    _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type];
+                if (_combinedNameDisplay != null)
+                {
+                    SafeSetText(
+                        ref _combinedNameDisplay,
+                        transform,
+                        "Combined Name",
+                        _colorStrings[infoPack.color] + " " + _typeStrings[infoPack.type]
+                    );
+                }
             }
             else
             {
                 // special names switcher
-                switch (infoPack.type)
+                if (_combinedNameDisplay != null)
                 {
-                    case 6:
-                        _combinedNameDisplay.text = "Checkpoint";
-                        break;
-                    case 7:
-                        _combinedNameDisplay.text = "Warp";
-                        break;
-                    case 8:
-                        _combinedNameDisplay.text = "Victory";
-                        break;
-                    default:
-                        _combinedNameDisplay.text = "Unknown Special Type";
-                        break;
+                    switch (infoPack.type)
+                    {
+                        case 6:
+                            SafeSetText(
+                                ref _combinedNameDisplay,
+                                transform,
+                                "Combined Name",
+                                "Checkpoint"
+                            );
+                            break;
+                        case 7:
+                            SafeSetText(
+                                ref _combinedNameDisplay,
+                                transform,
+                                "Combined Name",
+                                "Warp"
+                            );
+                            break;
+                        case 8:
+                            SafeSetText(
+                                ref _combinedNameDisplay,
+                                transform,
+                                "Combined Name",
+                                "Victory"
+                            );
+                            break;
+                        default:
+                            SafeSetText(
+                                ref _combinedNameDisplay,
+                                transform,
+                                "Combined Name",
+                                "Unknown Special Type"
+                            );
+                            break;
+                    }
                 }
             }
         }
-        else
+        else if (_combinedNameDisplay != null)
         {
-            _combinedNameDisplay.text = "None Selected";
+            SafeSetText(ref _combinedNameDisplay, transform, "Combined Name", "None Selected");
         }
 
         // Type (Not displayed at the moment)
-        if (_isAnyItemSelected && infoPack.type >= 0 && infoPack.type < 6)
-            _typeDisplay.text = _typeStrings[infoPack.type];
-        else
-            _typeDisplay.text = "[N/A]";
+        if (_typeDisplay != null && _isAnyItemSelected && infoPack.type >= 0 && infoPack.type < 6)
+            SafeSetText(
+                ref _typeDisplay,
+                _standardAttributesPanel,
+                "Type Display",
+                _typeStrings[infoPack.type]
+            );
+        else if (_typeDisplay != null)
+            SafeSetText(ref _typeDisplay, _standardAttributesPanel, "Type Display", "[N/A]");
 
         // Color (Not displayed at the moment)
-        if (_isAnyItemSelected && infoPack.color >= 0)
-            _colorDisplay.text = _colorStrings[infoPack.color];
-        else
-            _colorDisplay.text = "[N/A]";
+        if (_colorDisplay != null && _isAnyItemSelected && infoPack.color >= 0)
+            SafeSetText(
+                ref _colorDisplay,
+                _standardAttributesPanel,
+                "Color Display",
+                _colorStrings[infoPack.color]
+            );
+        else if (_colorDisplay != null)
+            SafeSetText(ref _colorDisplay, _standardAttributesPanel, "Color Display", "[N/A]");
 
         // Rotation
-        if (_isAnyItemSelected && infoPack.rot >= 0)
-            _rotationDisplay.text = infoPack.rot.ToString();
-        else
-            _rotationDisplay.text = "[N/A]";
+        if (_rotationDisplay != null && _isAnyItemSelected && infoPack.rot >= 0)
+            SafeSetText(
+                ref _rotationDisplay,
+                _standardAttributesPanel,
+                "Rotation Display",
+                infoPack.rot.ToString()
+            );
+        else if (_rotationDisplay != null)
+            SafeSetText(
+                ref _rotationDisplay,
+                _standardAttributesPanel,
+                "Rotation Display",
+                "[N/A]"
+            );
 
         // Locus
-        if (_isAnyItemSelected)
-            _locusDisplay.text = infoPack.locus.PrettyPrint();
-        else
-            _locusDisplay.text = "[N/A]";
+        if (_locusDisplay != null && _isAnyItemSelected)
+            SafeSetText(
+                ref _locusDisplay,
+                _standardAttributesPanel,
+                "Position Display",
+                infoPack.locus.PrettyPrint()
+            );
+        else if (_locusDisplay != null)
+            SafeSetText(ref _locusDisplay, _standardAttributesPanel, "Position Display", "[N/A]");
 
         // set special dropdown values, activate if appropriate
         // Green - Special Text
-        if (infoPack.color == 3)
+        if (_specialLabel != null && _specialDisplay != null && infoPack.color == 3)
         {
-            _specialLabel.text = "Key Id:";
-            _specialDisplay.text = infoPack.spec.ToString();
+            SafeSetText(ref _specialLabel, _specialPanel, "Special Label", "Key Id:");
+            SafeSetText(
+                ref _specialDisplay,
+                _specialPanel,
+                "Special Display",
+                infoPack.spec.ToString()
+            );
         }
 
         // Orange - Special Text
-        if (infoPack.color == 4)
+        if (_specialLabel != null && _specialDisplay != null && infoPack.color == 4)
         {
-            _specialLabel.text = "Gravity Direction:";
-            _specialDisplay.text = infoPack.spec.ToString();
+            SafeSetText(ref _specialLabel, _specialPanel, "Special Label", "Gravity Direction:");
+            SafeSetText(
+                ref _specialDisplay,
+                _specialPanel,
+                "Special Display",
+                infoPack.spec.ToString()
+            );
         }
 
         // Door ID
         // Only show door id tiles
         transform.GetChild(2).gameObject.SetActive(infoPack.type >= 0 && infoPack.type < 6);
-        _doorIDDisplay.text = infoPack.doorID.ToString();
+        if (_doorIDDisplay != null)
+            SafeSetText(
+                ref _doorIDDisplay,
+                _doorIdPanel,
+                "DoorID Display",
+                infoPack.doorID.ToString()
+            );
 
         // Only show special attributes for green and orange tiles
         transform.GetChild(3).gameObject.SetActive(infoPack.color == 3 || infoPack.color == 4);
+    }
+
+    private static TMP_Text GetTextObjectFromParent(Transform root, string childName)
+    {
+        if (root == null)
+            return null;
+
+        Transform child = root.Find(childName);
+        if (child != null)
+            return child.GetComponent<TMP_Text>();
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            TMP_Text nested = GetTextObjectFromParent(root.GetChild(i), childName);
+            if (nested != null)
+                return nested;
+        }
+
+        return null;
+    }
+
+    private void EnsureReferences()
+    {
+        if (_standardAttributesPanel == null && transform.childCount > 1)
+            _standardAttributesPanel = transform.GetChild(1);
+        if (_doorIdPanel == null && transform.childCount > 2)
+            _doorIdPanel = transform.GetChild(2);
+        if (_specialPanel == null && transform.childCount > 3)
+            _specialPanel = transform.GetChild(3);
+
+        if (_combinedNameDisplay == null)
+            _combinedNameDisplay = GetTextObjectFromParent(transform, "Combined Name");
+        if (_typeDisplay == null)
+            _typeDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Type Display");
+        if (_colorDisplay == null)
+            _colorDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Color Display");
+        if (_rotationDisplay == null)
+            _rotationDisplay = GetTextObjectFromParent(
+                _standardAttributesPanel,
+                "Rotation Display"
+            );
+        if (_locusDisplay == null)
+            _locusDisplay = GetTextObjectFromParent(_standardAttributesPanel, "Position Display");
+        if (_specialLabel == null)
+            _specialLabel = GetTextObjectFromParent(_specialPanel, "Special Label");
+        if (_specialDisplay == null)
+            _specialDisplay = GetTextObjectFromParent(_specialPanel, "Special Display");
+        if (_doorIDLabel == null)
+            _doorIDLabel = GetTextObjectFromParent(_doorIdPanel, "DoorID Label");
+        if (_doorIDDisplay == null)
+            _doorIDDisplay = GetTextObjectFromParent(_doorIdPanel, "DoorID Display");
+    }
+
+    private static void SafeSetText(
+        ref TMP_Text textComponent,
+        Transform searchRoot,
+        string childName,
+        string value
+    )
+    {
+        if (textComponent == null)
+            textComponent = GetTextObjectFromParent(searchRoot, childName);
+        if (textComponent == null)
+            return;
+
+        try
+        {
+            textComponent.text = value;
+        }
+        catch (System.NullReferenceException)
+        {
+            textComponent = GetTextObjectFromParent(searchRoot, childName);
+            if (textComponent != null)
+                textComponent.text = value;
+        }
+    }
+
+    private void BindRuntimeListeners()
+    {
+        if (_increaseDoorIdButton != null)
+            _increaseDoorIdButton.onClick.AddListener(_editGM.IncrementDoorId);
+        if (_decreaseDoorIdButton != null)
+            _decreaseDoorIdButton.onClick.AddListener(_editGM.DecrementDoorId);
+        if (_increaseSpecialButton != null)
+            _increaseSpecialButton.onClick.AddListener(_editGM.IncrementKeyId);
+        if (_decreaseSpecialButton != null)
+            _decreaseSpecialButton.onClick.AddListener(_editGM.DecrementKeyId);
+
+        if (_doorIdInputField != null)
+        {
+            _doorIdInputField.onEndEdit.AddListener(_tileCreator.SetDoorID);
+            _doorIdInputField.onEndEdit.AddListener(_editGM.SetSelectedItemDoorID);
+        }
+
+        if (_specialInputField != null)
+        {
+            _specialInputField.onEndEdit.AddListener(_editGM.SetSelectedItemSpecial);
+            _specialInputField.onEndEdit.AddListener(_tileCreator.SetSpecial);
+        }
+    }
+
+    private static void InitializeSpecialInfoPanelButtons(
+        Transform panel,
+        out Button decreaseButton,
+        out Button increaseButton
+    )
+    {
+        decreaseButton = null;
+        increaseButton = null;
+
+        Button[] buttons = panel.GetComponentsInChildren<Button>(true);
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            Button button = buttons[i];
+            if (button == null)
+                continue;
+
+            switch (button.gameObject.name)
+            {
+                case "Decrease Button":
+                    decreaseButton = button;
+                    break;
+                case "Increase Button":
+                    increaseButton = button;
+                    break;
+            }
+        }
     }
 }

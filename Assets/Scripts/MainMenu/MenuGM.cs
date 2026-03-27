@@ -206,6 +206,8 @@ public class MenuGM : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("MainMenu");
 
         if (showWelcomeOnFirstLaunch && StartupManager.DemoModeEnabled)

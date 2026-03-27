@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public partial class EditGM
 {
@@ -50,6 +52,15 @@ public partial class EditGM
             _keyDoorLinksVisible = !_keyDoorLinksVisible;
             NotifyKeyDoorVisibilityChanged();
         }
+    }
+
+    private void SetHUDVisibility(bool isVisible)
+    {
+        if (hudPanel != null)
+            hudPanel.SetActive(isVisible);
+
+        if (showUIHint != null)
+            showUIHint.SetActive(!isVisible);
     }
 
     // cycles through all layers, calculates distance, and sets opacity accordingly
@@ -732,28 +743,35 @@ public partial class EditGM
     // sets the currently active tool
     private void setTool(EditCreatorTool inTool)
     {
+        GameObject previousTool = _currentCreatorToolGameObject;
+        GameObject nextTool = previousTool;
+
         switch (inTool)
         {
             case EditCreatorTool.Tile:
-                _currentCreatorToolGameObject = tileCreator.gameObject;
+                nextTool = tileCreator.gameObject;
                 break;
             case EditCreatorTool.Checkpoint:
-                _currentCreatorToolGameObject = checkpointTool;
+                nextTool = checkpointTool;
                 break;
             case EditCreatorTool.Warp:
-                _currentCreatorToolGameObject = warpTool;
+                nextTool = warpTool;
                 break;
             case EditCreatorTool.Victory:
-                _currentCreatorToolGameObject = victoryTool;
+                nextTool = victoryTool;
                 break;
             case EditCreatorTool.Eraser:
                 // missing implementation
-                _currentCreatorToolGameObject = null;
+                nextTool = null;
                 break;
             default:
                 break;
         }
 
+        if (previousTool != null && previousTool != nextTool)
+            previousTool.SetActive(false);
+
+        _currentCreatorToolGameObject = nextTool;
         _currentCreatorTool = inTool;
     }
 
@@ -789,8 +807,8 @@ public partial class EditGM
 
     public Collider2D GetObjectClicked()
     {
-        // get mouse position from new Input System
-        Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector2 screenPos =
+            PointerSource.Instance != null ? PointerSource.Instance.ScreenPosition : Vector2.zero;
 
         // convert screen position to ray
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
@@ -919,62 +937,598 @@ public partial class EditGM
 
     public void SetSelectedItemSpecial(string s)
     {
-        int newId = int.Parse(s);
+        if (!int.TryParse(s, out int newId) || !_selectedItem.tileData.HasValue)
+            return;
 
-        if (_selectedItem.tileData.HasValue)
+        TileData td = _selectedItem.tileData.Value;
+        if (td.color == TileColor.Orange)
         {
-            TileData td = _selectedItem.tileData.Value;
-            TileData tileDataModified = new TileData(
-                td.type,
-                td.color,
-                newId,
-                td.orient,
-                td.doorID
-            );
-
-            if (_selectedItem.instance)
-            {
-                removeTile(_selectedItem.instance);
-                GameObject newTile = addTile(tileDataModified);
-                _selectedItem = new SelectedItem(newTile, tileDataModified);
-            }
-            else
-                _selectedItem = new SelectedItem(tileDataModified);
+            newId = (newId % 4 + 4) % 4;
         }
+
+        TileData tileDataModified = new TileData(td.type, td.color, newId, td.orient, td.doorID);
+
+        if (_selectedItem.instance)
+        {
+            removeTile(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem = new SelectedItem(newTile, tileDataModified);
+        }
+        else
+            _selectedItem = new SelectedItem(tileDataModified);
     }
 
     public void SetSelectedItemDoorID(string s)
     {
-        int newId = int.Parse(s);
+        if (!int.TryParse(s, out int newId) || !_selectedItem.tileData.HasValue)
+            return;
 
-        if (_selectedItem.tileData.HasValue)
+        newId = Mathf.Max(0, newId);
+
+        TileData td = _selectedItem.tileData.Value;
+        TileData tileDataModified = new TileData(td.type, td.color, td.special, td.orient, newId);
+
+        if (_selectedItem.instance)
+        {
+            removeTile(_selectedItem.instance);
+            GameObject newTile = addTile(tileDataModified);
+            _selectedItem = new SelectedItem(newTile, tileDataModified);
+        }
+        else
+            _selectedItem = new SelectedItem(tileDataModified);
+    }
+
+    public void IncrementKeyId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            TileData td = tileCreator.GetTileData();
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue = td.color == TileColor.Orange ? (td.special + 1) % 4 : td.special + 1;
+            tileCreator.SetSpecial(nextValue.ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
         {
             TileData td = _selectedItem.tileData.Value;
-            TileData tileDataModified = new TileData(
-                td.type,
-                td.color,
-                td.special,
-                td.orient,
-                newId
-            );
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
 
-            if (_selectedItem.instance)
-            {
-                removeTile(_selectedItem.instance);
-                GameObject newTile = addTile(tileDataModified);
-                _selectedItem = new SelectedItem(newTile, tileDataModified);
-            }
-            else
-                _selectedItem = new SelectedItem(tileDataModified);
+            int nextValue = td.color == TileColor.Orange ? (td.special + 1) % 4 : td.special + 1;
+            SetSelectedItemSpecial(nextValue.ToString());
+            changed = true;
         }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void DecrementKeyId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            TileData td = tileCreator.GetTileData();
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue =
+                td.color == TileColor.Orange ? (td.special + 3) % 4 : Mathf.Max(0, td.special - 1);
+            tileCreator.SetSpecial(nextValue.ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            TileData td = _selectedItem.tileData.Value;
+            if (td.color != TileColor.Green && td.color != TileColor.Orange)
+                return;
+
+            int nextValue =
+                td.color == TileColor.Orange ? (td.special + 3) % 4 : Mathf.Max(0, td.special - 1);
+            SetSelectedItemSpecial(nextValue.ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void IncrementDoorId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            tileCreator.SetDoorID((tileCreator.tileDoorID + 1).ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            SetSelectedItemDoorID((_selectedItem.tileData.Value.doorID + 1).ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
+    }
+
+    public void DecrementDoorId()
+    {
+        bool changed = false;
+
+        if (isEditorInCreateMode)
+        {
+            if (currentCreatorTool != EditCreatorTool.Tile)
+                return;
+
+            tileCreator.SetDoorID(Mathf.Max(0, tileCreator.tileDoorID - 1).ToString());
+            changed = true;
+        }
+        else if (_selectedItem.tileData.HasValue)
+        {
+            int nextValue = Mathf.Max(0, _selectedItem.tileData.Value.doorID - 1);
+            SetSelectedItemDoorID(nextValue.ToString());
+            changed = true;
+        }
+
+        if (changed)
+            soundManager.Play("bounce");
     }
 
     public bool ShouldBlockWorldClick()
     {
-        // palette open, typing into an input, or pointer over UI element
-        return paletteMode
+        bool pointerOverUI =
+            PointerSource.Instance != null
+            && PointerSource.Instance.IsHardwareActive
+            && EventSystem.current != null
+            && EventSystem.current.IsPointerOverGameObject();
+
+        return IsPointerSuppressed()
+            || paletteMode
             || hoveringHUD
             || inputMode
-            || (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject());
+            || IsControllerUICaptureActive()
+            || pointerOverUI;
+    }
+
+    public void ClearUISelectionForWorldInput()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    public bool IsPointerSuppressed()
+    {
+        if (!_suppressHardwarePointerUntilRelease)
+            return false;
+
+        if (IsHardwarePointerPressed())
+            return true;
+
+        _suppressHardwarePointerUntilRelease = false;
+        return false;
+    }
+
+    public void SuppressPointerTransition()
+    {
+        if (PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive)
+        {
+            if (IsHardwarePointerPressed())
+                _suppressHardwarePointerUntilRelease = true;
+
+            return;
+        }
+
+        PointerSource.Instance.ConsumeVirtualPrimary();
+        PointerSource.Instance.ConsumeVirtualSecondary();
+    }
+
+    public void RefreshHUDHover()
+    {
+        _currentHUDhover = raycastAllHUD();
+        hoveringHUD = hudPanel.activeSelf && checkHUDHover();
+    }
+
+    private static bool IsHardwarePointerPressed()
+    {
+        return (Mouse.current?.leftButton.isPressed ?? false)
+            || (Touchscreen.current?.primaryTouch.press.isPressed ?? false);
+    }
+
+    public bool TryClickHUDAtPointer()
+    {
+        RefreshHUDHover();
+        if (IsPointerSuppressed() || !hoveringHUD)
+            return false;
+
+        ClickHoveredHUD();
+        return true;
+    }
+
+    public void ClickHoveredHUD()
+    {
+        if (_currentHUDhover == null || _currentHUDhover.Count == 0 || eventSystem == null)
+            return;
+
+        PointerEventData eventData = new PointerEventData(eventSystem)
+        {
+            button = PointerEventData.InputButton.Left,
+            position =
+                PointerSource.Instance != null
+                    ? PointerSource.Instance.ScreenPosition
+                    : Vector2.zero,
+            clickCount = 1,
+        };
+
+        for (int i = 0; i < _currentHUDhover.Count; i++)
+        {
+            GameObject hoveredObject = _currentHUDhover[i].gameObject;
+            GameObject target = ResolveHUDClickTarget(hoveredObject);
+            if (target == null)
+                continue;
+
+            if (TryHandleNamedHUDButton(target))
+            {
+                eventSystem.SetSelectedGameObject(null);
+                PointerSource.Instance?.ConsumeVirtualPrimary();
+                return;
+            }
+
+            eventSystem.SetSelectedGameObject(target, eventData);
+            ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerDownHandler);
+            ExecuteEvents.ExecuteHierarchy(target, eventData, ExecuteEvents.pointerUpHandler);
+            Button button = target.GetComponent<Button>();
+            if (button != null && button.IsActive() && button.IsInteractable())
+                button.onClick.Invoke();
+            else
+                ExecuteEvents.ExecuteHierarchy(
+                    target,
+                    eventData,
+                    ExecuteEvents.pointerClickHandler
+                );
+            eventSystem.SetSelectedGameObject(null);
+            PointerSource.Instance?.ConsumeVirtualPrimary();
+            return;
+        }
+    }
+
+    private bool TryHandleNamedHUDButton(GameObject target)
+    {
+        if (target == null)
+            return false;
+
+        switch (target.name)
+        {
+            case "Exit":
+            {
+                OpenExitDialog();
+                return true;
+            }
+            case "Save":
+            {
+                OpenSaveDialog();
+                return true;
+            }
+            case "Test":
+                TestLevel();
+                return true;
+            case "Layer Down Button":
+                MoveDownLayer();
+                return true;
+            case "Layer Up Button":
+                MoveUpLayer();
+                return true;
+            case "Increase Layers Button":
+                AddLayer();
+                return true;
+            case "Decrease Layers Button":
+                RemoveLayer();
+                return true;
+            case "Create Mode Button":
+                EnterCreate();
+                return true;
+            case "Edit Mode Button":
+                EnterEdit();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static GameObject ResolveHUDClickTarget(GameObject hoveredObject)
+    {
+        if (hoveredObject == null)
+            return null;
+
+        Button button = hoveredObject.GetComponentInParent<Button>();
+        if (button != null && button.IsActive() && button.IsInteractable())
+            return button.gameObject;
+
+        Selectable selectable = hoveredObject.GetComponentInParent<Selectable>();
+        if (selectable != null && selectable.IsActive() && selectable.IsInteractable())
+            return selectable.gameObject;
+
+        return hoveredObject;
+    }
+
+    public void HandleControllerCancelWorld()
+    {
+        if (_selectedItem != SelectedItem.noSelection)
+        {
+            _selectedItem = SelectedItem.noSelection;
+            return;
+        }
+
+        if (isEditorInEditMode)
+            EnterCreate();
+    }
+
+    public void HandleControllerDeleteWorld()
+    {
+        if (
+            !isEditorInEditMode
+            || _selectedItem == SelectedItem.noSelection
+            || _selectedItem.instance == null
+        )
+            return;
+
+        soundManager.Play("delete");
+        removeSelectedItem();
+        Destroy(_selectedItem.instance);
+        _selectedItem = SelectedItem.noSelection;
+    }
+
+    public void HandleControllerRotateTile(bool rotateLeft)
+    {
+        if (!isEditorInCreateMode || currentCreatorTool != EditCreatorTool.Tile)
+            return;
+
+        int rotation = tileCreator.tileOrient.rotation + (rotateLeft ? 1 : -1);
+        soundManager.Play("bounce");
+        tileCreator.SetRotation(rotation);
+    }
+
+    public void OpenExitDialog()
+    {
+        QuitDialogControl quitDialog = null;
+        if (quitDialogPanel != null)
+            quitDialog = quitDialogPanel.GetComponent<QuitDialogControl>();
+
+        if (quitDialog == null)
+        {
+            quitDialog = UnityEngine.Object.FindFirstObjectByType<QuitDialogControl>(
+                FindObjectsInactive.Include
+            );
+        }
+
+        if (quitDialog == null)
+            return;
+
+        CloseOtherEditModals(quitDialog.gameObject);
+
+        if (PointerSource.Instance != null && PointerSource.Instance.IsHardwareActive)
+            quitDialog.InvokeDialogFromPointer();
+        else
+            quitDialog.InvokeDialogDeferred();
+    }
+
+    public void OpenSaveDialog()
+    {
+        bool pointerOpen =
+            PointerSource.Instance != null
+            && PointerSource.Instance.IsHardwareActive
+            && InputModeTracker.Instance != null
+            && InputModeTracker.Instance.CurrentMode == InputMode.Pointer;
+
+        OpenSaveDialog(pointerOpen);
+    }
+
+    public void OpenSaveDialogForNavigation()
+    {
+        OpenSaveDialog(false);
+    }
+
+    private void OpenSaveDialog(bool openedFromPointer)
+    {
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+            FindObjectsInactive.Include
+        );
+        if (saveDialog == null)
+            return;
+
+        CloseOtherEditModals(saveDialog.gameObject);
+
+        if (openedFromPointer)
+            saveDialog.InvokeDialogFromPointer();
+        else
+            saveDialog.InvokeDialog();
+    }
+
+    public void CloseOtherEditModals(GameObject keepOpen)
+    {
+        if (
+            quitDialogPanel != null
+            && quitDialogPanel != keepOpen
+            && quitDialogPanel.activeInHierarchy
+        )
+            quitDialogPanel.SetActive(false);
+
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+            FindObjectsInactive.Include
+        );
+        GameObject saveDialogObject = saveDialog != null ? saveDialog.gameObject : null;
+        if (
+            saveDialogObject != null
+            && saveDialogObject != keepOpen
+            && saveDialogObject.activeInHierarchy
+        )
+            saveDialogObject.SetActive(false);
+
+        OverwriteDialogControl overwriteDialog =
+            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>(
+                FindObjectsInactive.Include
+            );
+        GameObject overwriteDialogObject =
+            overwriteDialog != null ? overwriteDialog.gameObject : null;
+        if (
+            overwriteDialogObject != null
+            && overwriteDialogObject != keepOpen
+            && overwriteDialogObject.activeInHierarchy
+        )
+            overwriteDialogObject.SetActive(false);
+    }
+
+    public void HandleControllerToggleCreateEditMode()
+    {
+        if (isEditorInCreateMode)
+            EnterEdit();
+        else
+            EnterCreate();
+    }
+
+    public void HandleHUDSelectorPressed(int selectorIndex)
+    {
+        EnterCreate();
+
+        if (selectorIndex >= 0 && selectorIndex < Constants.NUM_SHAPES)
+        {
+            soundManager.Play("bounce");
+            tileCreator.SelectType(selectorIndex);
+            setTool(EditCreatorTool.Tile);
+            return;
+        }
+
+        switch (selectorIndex)
+        {
+            case 6:
+                soundManager.Play("checkpoint");
+                setTool(EditCreatorTool.Checkpoint);
+                break;
+            case 7:
+                soundManager.Play("victory");
+                setTool(EditCreatorTool.Victory);
+                break;
+            case 8:
+                soundManager.Play("warp");
+                setTool(EditCreatorTool.Warp);
+                break;
+        }
+    }
+
+    public void HandleControllerCycleToolSelector(bool moveRight)
+    {
+        int selectorCount = 9;
+        int currentSelectorIndex = GetCurrentHUDSelectorIndex();
+        int direction = moveRight ? 1 : -1;
+        int nextSelectorIndex = (currentSelectorIndex + direction + selectorCount) % selectorCount;
+
+        HandleHUDSelectorPressed(nextSelectorIndex);
+    }
+
+    public void HandleHUDColorPressed(int colorIndex)
+    {
+        EnterCreate();
+        soundManager.Play("bounce");
+
+        if (currentCreatorTool != EditCreatorTool.Tile)
+            setTool(EditCreatorTool.Tile);
+
+        tileCreator.SelectColor(colorIndex);
+    }
+
+    private int GetCurrentHUDSelectorIndex()
+    {
+        switch (currentCreatorTool)
+        {
+            case EditCreatorTool.Tile:
+                return Mathf.Clamp(tileCreator.tileType, 0, Constants.NUM_SHAPES - 1);
+            case EditCreatorTool.Checkpoint:
+                return 6;
+            case EditCreatorTool.Victory:
+                return 7;
+            case EditCreatorTool.Warp:
+                return 8;
+            default:
+                return 0;
+        }
+    }
+
+    public bool IsControllerWorldInputAllowed()
+    {
+        return !paletteMode && !inputMode && !IsBlockingUIPanelOpen();
+    }
+
+    public bool IsControllerUICaptureActive()
+    {
+        return GetActiveModalRoot() != null;
+    }
+
+    public void EnsureControllerUISelection()
+    {
+        if (EventSystem.current == null)
+            return;
+
+        GameObject root = GetPreferredControllerUIRoot();
+        if (root == null)
+            return;
+
+        MenuFocusUtility.ClearPointerHoverState(root);
+        MenuFocusUtility.EnsureSelectedJiggle(root);
+        MenuFocusUtility.SetSelectedJiggleEnabled(root, true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(root);
+
+        GameObject current = EventSystem.current.currentSelectedGameObject;
+        if (current != null && current.transform.IsChildOf(root.transform))
+            return;
+
+        MenuFocusUtility.SelectPreferred(root);
+    }
+
+    public GameObject GetPreferredControllerUIRoot()
+    {
+        return GetActiveModalRoot();
+    }
+
+    private bool IsBlockingUIPanelOpen()
+    {
+        return GetActiveModalRoot() != null || !gameObject.activeInHierarchy;
+    }
+
+    public bool IsBlockingModalOpenForCamera()
+    {
+        return IsBlockingUIPanelOpen();
+    }
+
+    private GameObject GetActiveModalRoot()
+    {
+        if (quitDialogPanel != null && quitDialogPanel.activeInHierarchy)
+            return quitDialogPanel;
+
+        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>();
+        if (saveDialog != null && saveDialog.gameObject.activeInHierarchy)
+            return saveDialog.gameObject;
+
+        OverwriteDialogControl overwriteDialog =
+            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>();
+        if (overwriteDialog != null && overwriteDialog.gameObject.activeInHierarchy)
+            return overwriteDialog.gameObject;
+
+        return null;
     }
 }

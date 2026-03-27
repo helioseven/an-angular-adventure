@@ -1,24 +1,66 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class QuitDialogControl : MonoBehaviour
 {
-    void Awake()
+    private Button _openDialogButton;
+    private bool _openedFromPointer;
+
+    void Start()
     {
-        gameObject.SetActive(false);
+        GameObject exitButtonObject = GameObject.Find("Exit");
+        if (exitButtonObject == null)
+            return;
+
+        _openDialogButton = exitButtonObject.GetComponent<Button>();
+        if (_openDialogButton == null)
+            return;
+
+        _openDialogButton.onClick.AddListener(InvokeDialogForCurrentInput);
     }
 
-    /* Public Functions */
+    void OnDestroy()
+    {
+        if (_openDialogButton != null)
+            _openDialogButton.onClick.RemoveListener(InvokeDialogForCurrentInput);
+    }
 
     // pauses what the EditGM is doing to invoke the quit dialog
     public void InvokeDialog()
     {
-        EditGM.instance.gameObject.SetActive(false);
-        gameObject.SetActive(true);
-        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
-        MenuFocusUtility.SelectPreferred(gameObject);
+        _openedFromPointer = false;
+        if (EditGM.instance != null)
+            EditGM.instance.gameObject.SetActive(false);
+
+        ShowDialogUI();
+    }
+
+    public void InvokeDialogDeferred()
+    {
+        if (EditGM.instance != null)
+            EditGM.instance.StartCoroutine(InvokeDialogNextFrame());
+    }
+
+    public void InvokeDialogFromPointer()
+    {
+        _openedFromPointer = true;
+        if (EditGM.instance != null)
+            EditGM.instance.SuppressPointerTransition();
+
+        ShowDialogUI();
+    }
+
+    public void InvokeDialogForCurrentInput()
+    {
+        bool pointerOpen =
+            PointerSource.Instance == null || PointerSource.Instance.IsHardwareActive;
+
+        if (pointerOpen)
+            InvokeDialogFromPointer();
+        else
+            InvokeDialog();
     }
 
     // cancels the quit dialog by deactivating the panel and resuming EditGM
@@ -26,6 +68,7 @@ public class QuitDialogControl : MonoBehaviour
     {
         gameObject.SetActive(false);
         EditGM.instance.gameObject.SetActive(true);
+        EditGM.instance.SuppressPointerTransition();
     }
 
     // quits out of the editor via EditGM
@@ -33,5 +76,40 @@ public class QuitDialogControl : MonoBehaviour
     {
         CancelDialog();
         EditGM.instance.ReturnToMainMenu();
+    }
+
+    private IEnumerator InvokeDialogNextFrame()
+    {
+        yield return null;
+        InvokeDialog();
+    }
+
+    private void ShowDialogUI()
+    {
+        gameObject.SetActive(true);
+        transform.SetAsLastSibling();
+        MenuFocusUtility.EnsureSelectedJiggle(gameObject);
+        if (_openedFromPointer)
+        {
+            MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, false);
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+            return;
+        }
+
+        MenuFocusUtility.SetSelectedJiggleEnabled(gameObject, true);
+        MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
+        MenuFocusUtility.SeedModalSelectionIfNeeded(gameObject);
+    }
+
+    void Update()
+    {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        if (
+            (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false)
+            || (Gamepad.current?.buttonEast.wasPressedThisFrame ?? false)
+        )
+            CancelDialog();
     }
 }

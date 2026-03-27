@@ -9,10 +9,12 @@ public class PauseMenu : MonoBehaviour
     private PlayGM _playGM;
     private float _previousTimeScale = 1f;
     private bool _isPaused;
+    private bool _isSceneExitInProgress;
     private bool _settingsOpen;
 
     public bool IsPaused => _isPaused;
     public bool IsSettingsOpen => _settingsOpen;
+    public bool IsSceneExitInProgress => _isSceneExitInProgress;
 
     private void Awake()
     {
@@ -21,6 +23,9 @@ public class PauseMenu : MonoBehaviour
 
     public void TogglePause()
     {
+        if (_isSceneExitInProgress)
+            return;
+
         if (_isPaused)
             Resume();
         else
@@ -29,6 +34,8 @@ public class PauseMenu : MonoBehaviour
 
     public void Pause()
     {
+        if (_isSceneExitInProgress)
+            return;
         if (_isPaused)
             return;
         if (_playGM != null && _playGM.victoryAchieved)
@@ -56,6 +63,8 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
+        if (_isSceneExitInProgress)
+            return;
         if (!_isPaused)
             return;
 
@@ -74,13 +83,22 @@ public class PauseMenu : MonoBehaviour
 
     public void PrepareForSceneChange()
     {
-        _isPaused = false;
+        if (_isSceneExitInProgress)
+            return;
+
+        _isSceneExitInProgress = true;
         _settingsOpen = false;
-        Time.timeScale = 1f;
-        AudioListener.pause = false;
         if (InputManager.Instance != null)
-            InputManager.Instance.Controls.Player.Enable();
-        _playGM?.player?.SetInputEnabled(true);
-        pausePanel.Hide();
+        {
+            InputManager.Instance.Controls.Player.Disable();
+            InputManager.Instance.Controls.UI.Disable();
+        }
+        pausePanel.LockForSceneChange();
+        SceneExitTransition.Show();
+        if (_playGM?.player != null)
+        {
+            _playGM.player.PrepareForSceneExit();
+        }
+        _playGM?.PrepareForSceneExit();
     }
 }

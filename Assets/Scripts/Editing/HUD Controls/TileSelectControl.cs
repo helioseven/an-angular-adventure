@@ -5,10 +5,13 @@ using EditCreatorTool = EditGM.EditCreatorTool;
 
 public class TileSelectControl : MonoBehaviour
 {
+    private const string HighlightObjectName = "BG";
+    private const string PreviewButtonObjectName = "Button";
+    private const string PreviewImageObjectName = "Image";
+
     // private variables
     private int _activeColor;
     private int _activeSelected;
-    private int _activeTile;
     private EditGM _gmRef;
     private EditCreatorTool _gmTool;
     private bool _isActive;
@@ -23,6 +26,8 @@ public class TileSelectControl : MonoBehaviour
         _isActive = true;
         _activeSelected = 0;
         _activeColor = 0;
+
+        InitializeSelectorButtons();
     }
 
     void Update()
@@ -59,16 +64,16 @@ public class TileSelectControl : MonoBehaviour
     {
         _isActive = !_isActive;
         // the active selected is only turned on if _isActive
-        transform.GetChild(_activeTile).GetComponent<Image>().enabled = _isActive;
+        SetHighlightEnabled(_activeSelected, _isActive);
     }
 
     // updates active state for old and new selected
     private void updateHighlightedTool(int inSelected)
     {
         // turn off the image renderer for the previous selected
-        transform.GetChild(_activeSelected).GetComponent<Image>().enabled = false;
+        SetHighlightEnabled(_activeSelected, false);
         // turn on the image renderer for the now selected
-        transform.GetChild(inSelected).GetComponent<Image>().enabled = true;
+        SetHighlightEnabled(inSelected, true);
         // update selected
         _activeSelected = inSelected;
     }
@@ -89,13 +94,93 @@ public class TileSelectControl : MonoBehaviour
     {
         _activeColor = _tcRef.tileColor;
 
-        for (int i = 0; i < Constants.NUM_SHAPES; i++)
+        int selectorCount = Mathf.Min(
+            Constants.NUM_SHAPES,
+            transform.childCount,
+            _tcRef.transform.childCount
+        );
+        for (int i = 0; i < selectorCount; i++)
         {
             Transform selected = transform.GetChild(i);
-            Transform t = _tcRef.transform.GetChild(i).GetChild(_activeColor).GetChild(0);
+            Transform tileType = _tcRef.transform.GetChild(i);
+            if (_activeColor < 0 || _activeColor >= tileType.childCount)
+                continue;
 
-            Sprite newSprite = t.GetComponent<SpriteRenderer>().sprite;
-            selected.GetChild(0).GetChild(0).GetComponent<Image>().sprite = newSprite;
+            Transform spriteRoot = tileType.GetChild(_activeColor);
+            if (spriteRoot.childCount == 0)
+                continue;
+
+            SpriteRenderer spriteRenderer = spriteRoot.GetChild(0).GetComponent<SpriteRenderer>();
+            Image previewImage = GetSelectorPreviewImage(selected);
+            if (spriteRenderer == null || previewImage == null)
+                continue;
+
+            previewImage.sprite = spriteRenderer.sprite;
         }
+    }
+
+    private void InitializeSelectorButtons()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            int selectorIndex = i;
+            GameObject selector = transform.GetChild(i).gameObject;
+            WireButton(selector, selectorIndex);
+
+            Button[] childButtons = selector.GetComponentsInChildren<Button>(true);
+            for (int j = 0; j < childButtons.Length; j++)
+            {
+                if (childButtons[j] == null || childButtons[j].gameObject == selector)
+                    continue;
+
+                WireButton(childButtons[j].gameObject, selectorIndex);
+            }
+        }
+    }
+
+    private void WireButton(GameObject buttonObject, int selectorIndex)
+    {
+        Button button = buttonObject.GetComponent<Button>();
+        if (button == null)
+        {
+            button = buttonObject.AddComponent<Button>();
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = buttonObject.GetComponent<Image>();
+        }
+
+        button.onClick.AddListener(() => _gmRef.HandleHUDSelectorPressed(selectorIndex));
+    }
+
+    private void SetHighlightEnabled(int selectorIndex, bool isEnabled)
+    {
+        GameObject highlightObject = GetHighlightObject(selectorIndex);
+        if (highlightObject != null && highlightObject.activeSelf != isEnabled)
+            highlightObject.SetActive(isEnabled);
+    }
+
+    private GameObject GetHighlightObject(int selectorIndex)
+    {
+        if (selectorIndex < 0 || selectorIndex >= transform.childCount)
+            return null;
+
+        Transform selector = transform.GetChild(selectorIndex);
+        Transform highlight = selector.Find(HighlightObjectName);
+        if (highlight != null)
+            return highlight.gameObject;
+
+        return null;
+    }
+
+    private Image GetSelectorPreviewImage(Transform selector)
+    {
+        if (selector == null)
+            return null;
+
+        Transform button = selector.Find(PreviewButtonObjectName);
+        if (button == null)
+            return null;
+
+        Transform previewImage = button.Find(PreviewImageObjectName);
+        return previewImage != null ? previewImage.GetComponent<Image>() : null;
     }
 }

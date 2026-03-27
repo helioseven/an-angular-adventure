@@ -233,6 +233,7 @@ public partial class EditGM
     public void ReturnToMainMenu()
     {
         // (!!) should prompt if unsaved
+        EditLoader.CancelPendingLoads();
         SceneManager.LoadScene(0);
     }
 
@@ -376,7 +377,9 @@ public partial class EditGM
     private List<RaycastResult> raycastAllHUD()
     {
         PointerEventData ped = new PointerEventData(eventSystem);
-        ped.position = Mouse.current.position.ReadValue();
+        ped.position = PointerSource.Instance != null
+            ? PointerSource.Instance.ScreenPosition
+            : Vector2.zero;
 
         List<RaycastResult> results = new List<RaycastResult>();
         uiRaycaster.Raycast(ped, results);

@@ -17,6 +17,18 @@ public class SelectedJiggle : MonoBehaviour
     private float frequency = 2.5f;
 
     [SerializeField]
+    private float selectionSettleSeconds = 0.5f;
+
+    [SerializeField]
+    private float initialAmplitudeMultiplier = 1.5f;
+
+    [SerializeField]
+    private float settledAmplitudeMultiplier = 0.5f;
+
+    [SerializeField]
+    private float initialFrequencyMultiplier = 1.1f;
+
+    [SerializeField]
     private Transform scopeRoot;
 
     [SerializeField]
@@ -25,13 +37,12 @@ public class SelectedJiggle : MonoBehaviour
     private RectTransform current;
     private GameObject currentOwner;
     private Vector2 basePosition;
+    private float selectionStartTime;
+    private bool? forceAnimate;
 
     private void Update()
     {
-        if (
-            InputModeTracker.Instance != null
-            && InputModeTracker.Instance.CurrentMode != InputMode.Navigation
-        )
+        if (!ShouldAnimateInCurrentMode())
         {
             ResetCurrent();
             return;
@@ -64,9 +75,21 @@ public class SelectedJiggle : MonoBehaviour
                 return;
             }
             basePosition = current.anchoredPosition;
+            selectionStartTime = Time.unscaledTime;
         }
 
-        float offset = Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f * frequency) * amplitude;
+        float settleProgress =
+            selectionSettleSeconds > 0f
+                ? Mathf.Clamp01((Time.unscaledTime - selectionStartTime) / selectionSettleSeconds)
+                : 1f;
+        float elapsedSinceSelection = Time.unscaledTime - selectionStartTime;
+        float currentAmplitude =
+            amplitude
+            * Mathf.Lerp(initialAmplitudeMultiplier, settledAmplitudeMultiplier, settleProgress);
+        float currentFrequency =
+            frequency * Mathf.Lerp(initialFrequencyMultiplier, 1f, settleProgress);
+        float offset =
+            Mathf.Sin(elapsedSinceSelection * Mathf.PI * 2f * currentFrequency) * currentAmplitude;
         if (axis == JiggleAxis.Horizontal)
             current.anchoredPosition = new Vector2(basePosition.x + offset, basePosition.y);
         else
@@ -91,6 +114,18 @@ public class SelectedJiggle : MonoBehaviour
     {
         amplitude = newAmplitude;
         ResetCurrent();
+    }
+
+    public void SetAnimationEnabled(bool enabled)
+    {
+        forceAnimate = enabled;
+        if (!enabled)
+            ResetCurrent();
+    }
+
+    public void ClearAnimationOverride()
+    {
+        forceAnimate = null;
     }
 
     private static RectTransform ResolveJiggleTarget(
@@ -125,5 +160,27 @@ public class SelectedJiggle : MonoBehaviour
         }
 
         return selectedRect;
+    }
+
+    private bool ShouldAnimateInCurrentMode()
+    {
+        if (forceAnimate.HasValue)
+            return forceAnimate.Value;
+
+        if (InputModeTracker.Instance == null)
+            return false;
+
+        if (InputModeTracker.Instance.CurrentMode == InputMode.Navigation)
+            return true;
+
+        if (scopeRoot == null)
+            return false;
+
+        var editGM = EditGM.instance;
+        if (editGM == null || !editGM.IsControllerUICaptureActive())
+            return false;
+
+        GameObject modalRoot = editGM.GetPreferredControllerUIRoot();
+        return modalRoot != null && scopeRoot == modalRoot.transform;
     }
 }
