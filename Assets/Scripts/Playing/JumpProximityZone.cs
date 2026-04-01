@@ -33,31 +33,7 @@ public class JumpProximityZone : MonoBehaviour
     {
         if (other.name.Contains("Purple") && other.gameObject.layer == gameObject.layer)
         {
-            // NOTE: should these also be removed on taking a warp?
-
-            // remove from hashset
             nearbyPurpleTiles.Remove(other);
-
-            // remove from player controller
-            Player_Controller playerController =
-                gameObject.GetComponentInParent<Player_Controller>();
-
-            if (playerController)
-            {
-                playerController.recentlyTouchedPurpleTiles.Remove(other);
-                playerController.queueSuperJumpOnPurpleTouch = false;
-            }
-            // This logs when we decide to cancel superjump
-            //   (when we enter the expetent purple incoming state but the purple never comes before leaving the area of the player purple collider)
-            // if (
-            //     gameObject.GetComponentInParent<Player_Controller>().queueSuperJumpOnPurpleTouch
-            //     == true
-            // )
-            // {
-            //     Debug.Log("[JumpProximityZone] [OnTriggerExit2D] CANCELLING---superjump---");
-            // }
-            // gameObject
-            //     .GetComponentInParent<Player_Controller>()
         }
     }
 }
