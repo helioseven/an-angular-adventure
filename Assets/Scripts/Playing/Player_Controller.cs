@@ -135,6 +135,7 @@ public class Player_Controller : MonoBehaviour
     private int _resolvedPurpleSessionId;
     private float _resolvedPurpleUntilTime;
     private bool _resolvedPurpleExitObserved;
+    private bool _resolvedPurpleUsesStrictRelatch;
     private float _resolvedPurpleLastSeparation;
     private const float PURPLE_LOG_REPEAT_WINDOW = 0.2f;
     private const float PURPLE_FOLLOW_CAST_SKIN = 0.005f;
@@ -1037,10 +1038,11 @@ public class Player_Controller : MonoBehaviour
         _resolvedPurpleSessionId = sessionId;
         _resolvedPurpleUntilTime = Time.time + Mathf.Max(0f, purpleResolvedRelatchCooldownDuration);
         _resolvedPurpleExitObserved = false;
+        _resolvedPurpleUsesStrictRelatch = reason != "resolveNormal" && reason != "resolveSuper";
         _resolvedPurpleLastSeparation = 0f;
         LogPurpleBounce(
             "EnterCooldown",
-            $"reason={reason} session={sessionId} collider={collider?.name ?? "null"} until={_resolvedPurpleUntilTime:F3}"
+            $"reason={reason} session={sessionId} collider={collider?.name ?? "null"} until={_resolvedPurpleUntilTime:F3} strictRelatch={_resolvedPurpleUsesStrictRelatch}"
         );
     }
 
@@ -1083,7 +1085,10 @@ public class Player_Controller : MonoBehaviour
         if (_resolvedPurpleExitObserved)
             return true;
 
-        if (GetResolvedPurpleCooldownRemaining() <= GetResolvedPurpleNearExpiryWindow())
+        if (
+            !_resolvedPurpleUsesStrictRelatch
+            && GetResolvedPurpleCooldownRemaining() <= GetResolvedPurpleNearExpiryWindow()
+        )
         {
             relatchReason = $"{relatchReason} gate=nearExpiry";
             return true;
@@ -1123,7 +1128,7 @@ public class Player_Controller : MonoBehaviour
         if (!TryGetResolvedPurpleSeparation(out separation))
             return false;
 
-        return separation >= Mathf.Max(0f, purpleResolvedRelatchSeparation);
+        return separation >= GetResolvedPurpleRequiredSeparation();
     }
 
     private bool TryGetResolvedPurpleSeparation(out float separation)
@@ -1184,6 +1189,7 @@ public class Player_Controller : MonoBehaviour
         _resolvedPurpleSessionId = 0;
         _resolvedPurpleUntilTime = 0f;
         _resolvedPurpleExitObserved = false;
+        _resolvedPurpleUsesStrictRelatch = false;
         _resolvedPurpleLastSeparation = 0f;
     }
 
@@ -1191,7 +1197,7 @@ public class Player_Controller : MonoBehaviour
     {
         float timeRemaining = GetResolvedPurpleCooldownRemaining();
         return
-            $"cooldownRemaining={timeRemaining:F3} exitObserved={_resolvedPurpleExitObserved} separation={_resolvedPurpleLastSeparation:F3} threshold={purpleResolvedRelatchSeparation:F3}";
+            $"cooldownRemaining={timeRemaining:F3} exitObserved={_resolvedPurpleExitObserved} strictRelatch={_resolvedPurpleUsesStrictRelatch} separation={_resolvedPurpleLastSeparation:F3} threshold={GetResolvedPurpleRequiredSeparation():F3}";
     }
 
     private float GetResolvedPurpleCooldownRemaining()
@@ -1202,6 +1208,14 @@ public class Player_Controller : MonoBehaviour
     private float GetResolvedPurpleNearExpiryWindow()
     {
         return Mathf.Max(PURPLE_RELATCH_NEAR_EXPIRY_WINDOW, Time.fixedDeltaTime);
+    }
+
+    private float GetResolvedPurpleRequiredSeparation()
+    {
+        if (!_resolvedPurpleUsesStrictRelatch)
+            return Mathf.Max(0f, purpleResolvedRelatchSeparation);
+
+        return Mathf.Max(0f, purpleResolvedRelatchSeparation + purpleLatchProbeDistance);
     }
 
     private void RestoreDefaultGravityScale()
