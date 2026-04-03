@@ -173,8 +173,6 @@ MonoBehaviour:
   jumpForce: 600
   isOnIce: 0
   isIceScalingBlockingJump: 0
-  purpleGroundCheckCollider: {fileID: 0}
-  queueSuperJumpOnPurpleTouch: 0
   skinDB: {fileID: 11400000, guid: 9ca44747d890444809d63ba87bf619f5, type: 2}
   groundProbeDistance: 0.02
   torqueStrength: 8

@@ -13,8 +13,8 @@ public class Player_Controller : MonoBehaviour
     }
 
     // public variables
-    public int speed = 420;
-    public float jumpForce = 600;
+    public int speed = 600;
+    public float jumpForce = 420;
     public bool isOnIce;
     public bool isIceScalingBlockingJump;
     public BallSkinDatabase skinDB;
@@ -33,6 +33,7 @@ public class Player_Controller : MonoBehaviour
     public float purpleDeformDuration = 0.2f;
     public float purpleSuperJumpReadyDelay = 0f;
     public float purpleMinImpactSpeed = 0.5f;
+
     [FormerlySerializedAs("purpleCancelRecontactGraceDuration")]
     public float purpleResolvedRelatchCooldownDuration = 0.12f;
     public float purpleResolvedRelatchSeparation = 0.08f;
@@ -47,10 +48,6 @@ public class Player_Controller : MonoBehaviour
     public float purpleSuperMaxSpeed = 15.5f;
     public float purpleLaunchSeparation = 0.08f;
     public float purpleFollowGlideDuration = 0.04f;
-    public float purpleOverlayAlpha = 0.72f;
-    public float purpleOverlayTangentialScale = 1.24f;
-    public float purpleOverlayGravityScale = 0.76f;
-    public float purpleOverlayOffset = 0.18f;
     public float purpleAngularDampingDuringDeform = 0.9f;
     public bool debugPurpleBounceLogging = true;
 
@@ -103,6 +100,7 @@ public class Player_Controller : MonoBehaviour
     private const float ROLLING_PITCH = 1f;
     private string rollingSoftSoundName = "rolling-soft";
     private string rollingLoudSoundName = "rolling-loud";
+
     // Active latched session state.
     private PurpleBounceState _purpleBounceState;
     private Collider2D _activePurpleCollider;
@@ -129,6 +127,7 @@ public class Player_Controller : MonoBehaviour
     private Vector2 _purpleLastFollowOffset;
     private bool _activePurpleContactCached;
     private int _activePurpleLostContactSteps;
+
     // Post-resolve same-tile relatch gate.
     private Collider2D _resolvedPurpleCollider;
     private Tile_Purple _resolvedPurpleTile;
@@ -277,10 +276,7 @@ public class Player_Controller : MonoBehaviour
         if (_activePurpleCollider == other.collider)
         {
             _activePurpleContactCached = false;
-            LogPurpleBounce(
-                "Exit",
-                $"{other.collider.name} {DescribePurpleState()}"
-            );
+            LogPurpleBounce("Exit", $"{other.collider.name} {DescribePurpleState()}");
         }
         if (MatchesResolvedPurple(other.collider))
         {
@@ -615,10 +611,7 @@ public class Player_Controller : MonoBehaviour
                     "CancelFollowLostContact",
                     $"{_activePurpleCollider?.name} target={FormatVector2(_activePurpleTile.CurrentSurfaceWorldOffset)} missSteps={_activePurpleLostContactSteps} separation={contactSeparation:F3} {DescribePurpleState()}"
                 );
-                CancelPurpleBounceWindow(
-                    enterResolvedCooldown: true,
-                    reason: "lostContact"
-                );
+                CancelPurpleBounceWindow(enterResolvedCooldown: true, reason: "lostContact");
                 return;
             }
 
@@ -646,7 +639,11 @@ public class Player_Controller : MonoBehaviour
             purpleFollowGlideDuration <= 0f
                 ? 1f
                 : Mathf.Clamp01(Time.fixedDeltaTime / purpleFollowGlideDuration);
-        Vector2 nextFollowOffset = Vector2.Lerp(_purpleLastFollowOffset, targetFollowOffset, glideT);
+        Vector2 nextFollowOffset = Vector2.Lerp(
+            _purpleLastFollowOffset,
+            targetFollowOffset,
+            glideT
+        );
         Vector2 followDelta = nextFollowOffset - _purpleLastFollowOffset;
         if (followDelta.sqrMagnitude <= PURPLE_FOLLOW_DELTA_EPSILON)
             return;
@@ -663,10 +660,7 @@ public class Player_Controller : MonoBehaviour
             "CancelFollowBlocked",
             $"{_activePurpleCollider?.name} target={FormatVector2(targetFollowOffset)} requested={FormatVector2(followDelta)} blocked={FormatVector2(clampedFollowDelta)} {DescribePurpleState()}"
         );
-        CancelPurpleBounceWindow(
-            enterResolvedCooldown: true,
-            reason: "followBlocked"
-        );
+        CancelPurpleBounceWindow(enterResolvedCooldown: true, reason: "followBlocked");
     }
 
     private void ResolveQueuedPurpleBounce()
@@ -780,7 +774,10 @@ public class Player_Controller : MonoBehaviour
             return;
         }
 
-        if (_purpleBounceState == PurpleBounceState.ResolvedCooldown && MatchesResolvedPurple(collision.collider))
+        if (
+            _purpleBounceState == PurpleBounceState.ResolvedCooldown
+            && MatchesResolvedPurple(collision.collider)
+        )
         {
             if (!CanRelatchResolvedPurple(collision, out string relatchReason))
             {
@@ -834,12 +831,10 @@ public class Player_Controller : MonoBehaviour
             out Vector2 surfaceNormal
         );
         _activePurpleSupportNormal =
-            surfaceNormal.sqrMagnitude > 0.001f ? surfaceNormal.normalized : GetJumpDirectionVector();
-        _activePurpleTile?.BeginDeformation(
-            surfaceNormal,
-            _purpleBounceTimer,
-            surfaceAnchorPoint
-        );
+            surfaceNormal.sqrMagnitude > 0.001f
+                ? surfaceNormal.normalized
+                : GetJumpDirectionVector();
+        _activePurpleTile?.BeginDeformation(surfaceNormal, _purpleBounceTimer, surfaceAnchorPoint);
         LogPurpleBounce(
             "Begin",
             $"{collision.collider.name} phase=Enter session={_activePurpleSessionId} impact={impactSpeed:F2} support={FormatVector2(_activePurpleSupportNormal)} anchor={FormatVector2(surfaceAnchorPoint)} tangential={_purpleHeldTangentialSpeed:F2}"
@@ -931,7 +926,9 @@ public class Player_Controller : MonoBehaviour
         out Vector2 supportNormal
     )
     {
-        if (TryGetPurpleSupportAnchor(collision, jumpDir, out anchorPoint, out supportNormal, out _))
+        if (
+            TryGetPurpleSupportAnchor(collision, jumpDir, out anchorPoint, out supportNormal, out _)
+        )
             return;
 
         anchorPoint = collision.transform.position;
@@ -969,7 +966,11 @@ public class Player_Controller : MonoBehaviour
         _jumpHoldForce = _jumpForceVec.magnitude * JUMP_HOLD_FORCE_SCALE;
         _jumpHoldActive = asSuperJump && _jumpPressed;
 
-        float volume = Mathf.Lerp(0.3f, 0.95f, Mathf.InverseLerp(0f, purpleSuperMaxSpeed, launchSpeed));
+        float volume = Mathf.Lerp(
+            0.3f,
+            0.95f,
+            Mathf.InverseLerp(0f, purpleSuperMaxSpeed, launchSpeed)
+        );
         if (asSuperJump)
             _gmRef.soundManager.PlayWithPitchVariance("superJump", jumpPitchVariance, volume);
         else
@@ -985,7 +986,10 @@ public class Player_Controller : MonoBehaviour
         );
     }
 
-    private void CancelPurpleBounceWindow(bool enterResolvedCooldown = false, string reason = "cancel")
+    private void CancelPurpleBounceWindow(
+        bool enterResolvedCooldown = false,
+        string reason = "cancel"
+    )
     {
         if (_purpleBounceState == PurpleBounceState.Latched)
         {
@@ -1116,8 +1120,7 @@ public class Player_Controller : MonoBehaviour
             return false;
 
         Tile_Purple tile = collider.GetComponentInParent<Tile_Purple>();
-        bool sameCollider =
-            _resolvedPurpleCollider != null && collider == _resolvedPurpleCollider;
+        bool sameCollider = _resolvedPurpleCollider != null && collider == _resolvedPurpleCollider;
         bool sameTile = _resolvedPurpleTile != null && tile == _resolvedPurpleTile;
         return sameCollider || sameTile;
     }
@@ -1196,8 +1199,7 @@ public class Player_Controller : MonoBehaviour
     private string DescribePurpleCooldownGate()
     {
         float timeRemaining = GetResolvedPurpleCooldownRemaining();
-        return
-            $"cooldownRemaining={timeRemaining:F3} exitObserved={_resolvedPurpleExitObserved} strictRelatch={_resolvedPurpleUsesStrictRelatch} separation={_resolvedPurpleLastSeparation:F3} threshold={GetResolvedPurpleRequiredSeparation():F3}";
+        return $"cooldownRemaining={timeRemaining:F3} exitObserved={_resolvedPurpleExitObserved} strictRelatch={_resolvedPurpleUsesStrictRelatch} separation={_resolvedPurpleLastSeparation:F3} threshold={GetResolvedPurpleRequiredSeparation():F3}";
     }
 
     private float GetResolvedPurpleCooldownRemaining()
@@ -1226,15 +1228,16 @@ public class Player_Controller : MonoBehaviour
 
     private void UpdatePurpleBounceVisual()
     {
-        if (_purpleOverlayRenderer == null || _purpleOverlayTransform == null || _spriteRenderer == null)
+        if (
+            _purpleOverlayRenderer == null
+            || _purpleOverlayTransform == null
+            || _spriteRenderer == null
+        )
         {
             if (!_loggedPurpleVisualMissingRefs)
             {
                 _loggedPurpleVisualMissingRefs = true;
-                LogPurpleBounce(
-                    "VisualMissingRefs",
-                    "missing refs"
-                );
+                LogPurpleBounce("VisualMissingRefs", "missing refs");
             }
             return;
         }
@@ -1302,7 +1305,7 @@ public class Player_Controller : MonoBehaviour
 
     private bool IsPurpleCollider(Collider2D other)
     {
-        return other != null && other.name.Contains("Purple");
+        return other != null && other.GetComponentInParent<Tile_Purple>() != null;
     }
 
     private bool HasActivePurpleContact(out string contactSource, out float contactSeparation)
@@ -1364,7 +1367,12 @@ public class Player_Controller : MonoBehaviour
             useDepth = false,
             useNormalAngle = false,
         };
-        int hitCount = _groundCheckCollider.Cast(direction, filter, _purpleFollowCastHits, distance);
+        int hitCount = _groundCheckCollider.Cast(
+            direction,
+            filter,
+            _purpleFollowCastHits,
+            distance
+        );
         float allowedDistance = distance;
 
         for (int i = 0; i < hitCount; i++)
@@ -1417,8 +1425,7 @@ public class Player_Controller : MonoBehaviour
 
     private string DescribePurpleState()
     {
-        return
-            $"state={_purpleBounceState} activeSession={_activePurpleSessionId} active={_activePurpleCollider?.name ?? "null"} cached={_activePurpleContactCached} lostSteps={_activePurpleLostContactSteps} consumedPress={_activePurpleConsumedJumpSerial} cooldownSession={_resolvedPurpleSessionId} cooldown={_resolvedPurpleCollider?.name ?? "null"} {DescribePurpleCooldownGate()} vel={FormatVector2(_rb2d != null ? _rb2d.linearVelocity : Vector2.zero)} pre={FormatVector2(_prePhysicsVelocity)} follow={FormatVector2(_purpleLastFollowOffset)}";
+        return $"state={_purpleBounceState} activeSession={_activePurpleSessionId} active={_activePurpleCollider?.name ?? "null"} cached={_activePurpleContactCached} lostSteps={_activePurpleLostContactSteps} consumedPress={_activePurpleConsumedJumpSerial} cooldownSession={_resolvedPurpleSessionId} cooldown={_resolvedPurpleCollider?.name ?? "null"} {DescribePurpleCooldownGate()} vel={FormatVector2(_rb2d != null ? _rb2d.linearVelocity : Vector2.zero)} pre={FormatVector2(_prePhysicsVelocity)} follow={FormatVector2(_purpleLastFollowOffset)}";
     }
 
     private string FormatImpactDetails(
@@ -1429,8 +1436,7 @@ public class Player_Controller : MonoBehaviour
         float cachedImpact
     )
     {
-        return
-            $"{collision.collider.name} phase={phase} contacts={collision.contactCount} rel={relativeImpact:F2} body={bodyImpact:F2} cached={cachedImpact:F2} rv={FormatVector2(collision.relativeVelocity)} vel={FormatVector2(_rb2d != null ? _rb2d.linearVelocity : Vector2.zero)} pre={FormatVector2(_prePhysicsVelocity)}";
+        return $"{collision.collider.name} phase={phase} contacts={collision.contactCount} rel={relativeImpact:F2} body={bodyImpact:F2} cached={cachedImpact:F2} rv={FormatVector2(collision.relativeVelocity)} vel={FormatVector2(_rb2d != null ? _rb2d.linearVelocity : Vector2.zero)} pre={FormatVector2(_prePhysicsVelocity)}";
     }
 
     private void LogPurpleBounce(string eventName, string message = null)
