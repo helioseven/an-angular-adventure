@@ -146,7 +146,6 @@ public class MenuGM : MonoBehaviour
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
         settingsButton.onClick.AddListener(OpenSettingsMenu);
-        // howToPlay.onClick.AddListener(OpenAccountMenu);
         if (tutorialButton != null)
         {
             bool isModalButton =
@@ -187,12 +186,12 @@ public class MenuGM : MonoBehaviour
             editButton.gameObject.SetActive(false);
         }
 
-        // Only keep Play button on iOS for now
+        // Disable some buttons for iOS
 #if UNITY_IOS
         editButton.gameObject.SetActive(false);
-        settingsButton.gameObject.SetActive(false);
-        howToPlay.gameObject.SetActive(false);
-        browseButton.gameObject.SetActive(false);
+        // settingsButton.gameObject.SetActive(false);
+        // howToPlayButton.gameObject.SetActive(false);
+        // browseButton.gameObject.SetActive(false);
         quitButton.gameObject.SetActive(false);
 #endif
 

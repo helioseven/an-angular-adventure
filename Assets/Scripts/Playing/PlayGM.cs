@@ -104,12 +104,6 @@ public partial class PlayGM : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // turn off mobile controls on non mobile
-#if !UNITY_IOS
-        if (mobileControlsLayer != null)
-            mobileControlsLayer.SetActive(false);
-#endif
     }
 
     private void OnEnable()
@@ -129,6 +123,7 @@ public partial class PlayGM : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Playing");
+        SetMobileControlsVisibleAtLevelStart();
 
         Debug.Log("[PlayGM] Start: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
@@ -228,6 +223,21 @@ public partial class PlayGM : MonoBehaviour
             soundManager.StopSound("rolling-soft");
             soundManager.StopSound("rolling-loud");
         }
+    }
+
+    private void SetMobileControlsVisibleAtLevelStart()
+    {
+#if UNITY_IOS
+        SetMobileControlsVisible(true);
+#else
+        SetMobileControlsVisible(false);
+#endif
+    }
+
+    public void SetMobileControlsVisible(bool visible)
+    {
+        if (mobileControlsLayer != null)
+            mobileControlsLayer.SetActive(visible);
     }
 
     private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
