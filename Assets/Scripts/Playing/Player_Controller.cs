@@ -248,7 +248,7 @@ public class Player_Controller : MonoBehaviour
             _gmRef.soundManager.Play("thud", volume);
         }
 
-        if (IsPurpleCollider(other.collider))
+        if (IsSameLayerPurpleCollider(other.collider))
         {
             if (_activePurpleCollider == other.collider)
                 _activePurpleContactCached = true;
@@ -264,9 +264,9 @@ public class Player_Controller : MonoBehaviour
 
     void OnCollisionStay2D(Collision2D other)
     {
-        if (_activePurpleCollider == other.collider)
+        if (_activePurpleCollider == other.collider && IsSameGameplayLayer(other.collider))
             _activePurpleContactCached = true;
-        if (MatchesResolvedPurple(other.collider))
+        if (MatchesResolvedPurple(other.collider) && IsSameGameplayLayer(other.collider))
             _resolvedPurpleLastSeparation = 0f;
         MaintainPurpleBounceContact(other);
     }
@@ -738,7 +738,7 @@ public class Player_Controller : MonoBehaviour
 
     private void MaintainPurpleBounceContact(Collision2D collision)
     {
-        if (!IsPurpleCollider(collision.collider))
+        if (!IsSameLayerPurpleCollider(collision.collider))
             return;
 
         if (_purpleBounceState == PurpleBounceState.Latched)
@@ -762,7 +762,7 @@ public class Player_Controller : MonoBehaviour
 
     private void TryBeginPurpleBounceFromEnter(Collision2D collision)
     {
-        if (!IsPurpleCollider(collision.collider))
+        if (!IsSameLayerPurpleCollider(collision.collider))
             return;
 
         if (_purpleBounceState == PurpleBounceState.Latched)
@@ -1308,12 +1308,22 @@ public class Player_Controller : MonoBehaviour
         return other != null && other.GetComponentInParent<Tile_Purple>() != null;
     }
 
+    private bool IsSameGameplayLayer(Collider2D other)
+    {
+        return other != null && other.gameObject.layer == gameObject.layer;
+    }
+
+    private bool IsSameLayerPurpleCollider(Collider2D other)
+    {
+        return IsSameGameplayLayer(other) && IsPurpleCollider(other);
+    }
+
     private bool HasActivePurpleContact(out string contactSource, out float contactSeparation)
     {
         contactSource = "none";
         contactSeparation = float.PositiveInfinity;
 
-        if (_activePurpleCollider == null)
+        if (_activePurpleCollider == null || !IsSameGameplayLayer(_activePurpleCollider))
             return false;
 
         if (_activePurpleContactCached)
@@ -1363,7 +1373,8 @@ public class Player_Controller : MonoBehaviour
         Vector2 direction = followDelta / distance;
         ContactFilter2D filter = new ContactFilter2D
         {
-            useLayerMask = false,
+            useLayerMask = true,
+            layerMask = 1 << gameObject.layer,
             useDepth = false,
             useNormalAngle = false,
         };
@@ -1379,6 +1390,8 @@ public class Player_Controller : MonoBehaviour
         {
             Collider2D hitCollider = _purpleFollowCastHits[i].collider;
             if (hitCollider == null || hitCollider == _groundCheckCollider)
+                continue;
+            if (!IsSameGameplayLayer(hitCollider))
                 continue;
             if (hitCollider.isTrigger || IsPurpleCollider(hitCollider))
                 continue;
