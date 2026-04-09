@@ -1312,7 +1312,7 @@ public partial class EditGM
 
         if (quitDialog == null)
         {
-            quitDialog = UnityEngine.Object.FindFirstObjectByType<QuitDialogControl>(
+            quitDialog = UnityEngine.Object.FindAnyObjectByType<QuitDialogControl>(
                 FindObjectsInactive.Include
             );
         }
@@ -1346,7 +1346,7 @@ public partial class EditGM
 
     private void OpenSaveDialog(bool openedFromPointer)
     {
-        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+        SaveDialogControl saveDialog = UnityEngine.Object.FindAnyObjectByType<SaveDialogControl>(
             FindObjectsInactive.Include
         );
         if (saveDialog == null)
@@ -1369,7 +1369,7 @@ public partial class EditGM
         )
             quitDialogPanel.SetActive(false);
 
-        SaveDialogControl saveDialog = UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>(
+        SaveDialogControl saveDialog = UnityEngine.Object.FindAnyObjectByType<SaveDialogControl>(
             FindObjectsInactive.Include
         );
         GameObject saveDialogObject = saveDialog != null ? saveDialog.gameObject : null;
@@ -1381,7 +1381,7 @@ public partial class EditGM
             saveDialogObject.SetActive(false);
 
         OverwriteDialogControl overwriteDialog =
-            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>(
+            UnityEngine.Object.FindAnyObjectByType<OverwriteDialogControl>(
                 FindObjectsInactive.Include
             );
         GameObject overwriteDialogObject =
@@ -1521,12 +1521,12 @@ public partial class EditGM
             return quitDialogPanel;
 
         SaveDialogControl saveDialog =
-            UnityEngine.Object.FindFirstObjectByType<SaveDialogControl>();
+            UnityEngine.Object.FindAnyObjectByType<SaveDialogControl>();
         if (saveDialog != null && saveDialog.gameObject.activeInHierarchy)
             return saveDialog.gameObject;
 
         OverwriteDialogControl overwriteDialog =
-            UnityEngine.Object.FindFirstObjectByType<OverwriteDialogControl>();
+            UnityEngine.Object.FindAnyObjectByType<OverwriteDialogControl>();
         if (overwriteDialog != null && overwriteDialog.gameObject.activeInHierarchy)
             return overwriteDialog.gameObject;
 

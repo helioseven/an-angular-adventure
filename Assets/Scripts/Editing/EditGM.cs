@@ -183,7 +183,7 @@ public partial class EditGM : MonoBehaviour
         InputManager.Instance.SetSceneInputs("Editing");
         PointerSource.EnsureInstance();
 
-        if (FindFirstObjectByType<EditControllerPointer>() == null)
+        if (FindAnyObjectByType<EditControllerPointer>() == null)
         {
             var controllerPointer = new GameObject("EditControllerPointer");
             controllerPointer.AddComponent<EditControllerPointer>();
