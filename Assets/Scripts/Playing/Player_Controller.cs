@@ -197,8 +197,14 @@ public class Player_Controller : MonoBehaviour
     {
         _gmRef = PlayGM.instance;
         _loopingAudioSuppressed = false;
-        int index = PlayerPrefs.GetInt("SelectedBallSkin", 0);
-        _spriteRenderer.sprite = skinDB.skins[index];
+        int index = PlayerPrefs.GetInt(BallSkinDatabase.SelectedSkinPrefKey, 0);
+        if (skinDB == null || !skinDB.IsValidIndex(index) || !skinDB.IsUnlocked(index))
+        {
+            index = skinDB != null ? skinDB.GetFirstUnlockedIndex() : 0;
+            PlayerPrefs.SetInt(BallSkinDatabase.SelectedSkinPrefKey, index);
+            PlayerPrefs.Save();
+        }
+        _spriteRenderer.sprite = skinDB != null ? skinDB.GetSprite(index) : _spriteRenderer.sprite;
         SyncPurpleOverlaySprite();
         UpdateJumpForce();
     }
