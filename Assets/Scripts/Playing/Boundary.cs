@@ -45,7 +45,7 @@ public class Boundary : MonoBehaviour
         float maxX = 0f;
         float minY = 0f;
         float maxY = 0f;
-        bool hasTiles = false;
+
         foreach (Transform layer in _gmRef.tileMap.transform)
         {
             foreach (Transform tile in layer)
@@ -53,30 +53,52 @@ public class Boundary : MonoBehaviour
                 if (!TryGetTileBounds(tile, out Bounds bounds))
                     continue;
 
-                if (!hasTiles)
-                {
+                if (bounds.min.x < minX)
                     minX = bounds.min.x;
+                if (bounds.max.x > maxX)
                     maxX = bounds.max.x;
+                if (bounds.min.y < minY)
                     minY = bounds.min.y;
+                if (bounds.max.y > maxY)
                     maxY = bounds.max.y;
-                    hasTiles = true;
-                }
-                else
-                {
-                    if (bounds.min.x < minX)
-                        minX = bounds.min.x;
-                    if (bounds.max.x > maxX)
-                        maxX = bounds.max.x;
-                    if (bounds.min.y < minY)
-                        minY = bounds.min.y;
-                    if (bounds.max.y > maxY)
-                        maxY = bounds.max.y;
-                }
             }
         }
 
-        if (!hasTiles)
-            return;
+        foreach (Transform checkpoint in _gmRef.checkpointMap.transform)
+        {
+            if (checkpoint.position.x - 0.8f < minX)
+                minX = checkpoint.position.x - 0.8f;
+            if (checkpoint.position.x + 0.8f > maxX)
+                maxX = checkpoint.position.x + 0.8f;
+            if (checkpoint.position.y - 0.8f < minY)
+                minY = checkpoint.position.y - 0.8f;
+            if (checkpoint.position.y + 0.8f > maxY)
+                maxY = checkpoint.position.y + 0.8f;
+        }
+
+        foreach (Transform warp in _gmRef.warpMap.transform)
+        {
+            if (warp.position.x - 1f < minX)
+                minX = warp.position.x - 1f;
+            if (warp.position.x + 1f > maxX)
+                maxX = warp.position.x + 1f;
+            if (warp.position.y - 1f < minY)
+                minY = warp.position.y - 1f;
+            if (warp.position.y + 1f > maxY)
+                maxY = warp.position.y + 1f;
+        }
+
+        foreach (Transform victory in _gmRef.victoryMap.transform)
+        {
+            if (victory.position.x - 0.75f < minX)
+                minX = victory.position.x - 0.75f;
+            if (victory.position.x + 0.75f > maxX)
+                maxX = victory.position.x + 0.75f;
+            if (victory.position.y - 0.75f < minY)
+                minY = victory.position.y - 0.75f;
+            if (victory.position.y + 0.75f > maxY)
+                maxY = victory.position.y + 0.75f;
+        }
 
         float edge = isVertical ? (isPositive ? maxY : minY) : (isPositive ? maxX : minX);
         float centerX = (minX + maxX) * 0.5f;
