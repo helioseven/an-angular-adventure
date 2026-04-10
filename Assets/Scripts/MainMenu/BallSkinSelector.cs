@@ -7,23 +7,39 @@ public class BallSkinSelector : MonoBehaviour
     public Image previewImage; // Drag the button's own Image here
 
     private int currentIndex;
-    private const string SkinPrefKey = "SelectedBallSkin";
 
     void Start()
     {
-        currentIndex = PlayerPrefs.GetInt(SkinPrefKey, 0);
+        currentIndex = PlayerPrefs.GetInt(BallSkinDatabase.SelectedSkinPrefKey, 0);
+        if (
+            skinDB == null
+            || !skinDB.IsValidIndex(currentIndex)
+            || !skinDB.IsUnlocked(currentIndex)
+        )
+        {
+            currentIndex = skinDB != null ? skinDB.GetFirstUnlockedIndex() : 0;
+            PlayerPrefs.SetInt(BallSkinDatabase.SelectedSkinPrefKey, currentIndex);
+            PlayerPrefs.Save();
+        }
         UpdatePreview();
     }
 
     public void CycleSkin()
     {
-        currentIndex = (currentIndex + 1) % skinDB.skins.Length;
-        PlayerPrefs.SetInt(SkinPrefKey, currentIndex);
+        if (skinDB == null || skinDB.Count <= 0)
+            return;
+
+        currentIndex = skinDB.GetNextUnlockedIndex(currentIndex);
+        PlayerPrefs.SetInt(BallSkinDatabase.SelectedSkinPrefKey, currentIndex);
+        PlayerPrefs.Save();
         UpdatePreview();
     }
 
     private void UpdatePreview()
     {
-        previewImage.sprite = skinDB.skins[currentIndex];
+        if (previewImage == null || skinDB == null)
+            return;
+
+        previewImage.sprite = skinDB.GetSprite(currentIndex);
     }
 }
