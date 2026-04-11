@@ -43,6 +43,7 @@ public partial class PlayGM
         _gravDir = inDirect;
         soundManager.Play("gravity");
         player.UpdateJumpForceVector(inDirect);
+        RefreshMobileDpadControls();
     }
 
     // kills the player

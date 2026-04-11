@@ -87,6 +87,7 @@ public partial class PlayGM : MonoBehaviour
     // for swapping mobile controls on and off
     [SerializeField]
     private GameObject mobileControlsLayer;
+    private MobileDpadController _mobileDpadController;
     private GravityDirection _gravDir;
 
     void Awake()
@@ -147,6 +148,7 @@ public partial class PlayGM : MonoBehaviour
         _gravDir = GravityDirection.Down;
         Physics2D.gravity = new Vector2(0.0f, -9.81f);
         player.UpdateJumpForceVector(GravityDirection.Down);
+        RefreshMobileDpadControls();
 
         Boundary[] bs = { boundaryDown, boundaryLeft, boundaryRight, boundaryUp };
         foreach (Boundary b in bs)
@@ -240,11 +242,26 @@ public partial class PlayGM : MonoBehaviour
             mobileControlsLayer.SetActive(visible);
     }
 
+    private void RefreshMobileDpadControls()
+    {
+        if (mobileControlsLayer == null)
+            return;
+
+        if (_mobileDpadController == null)
+            _mobileDpadController = mobileControlsLayer.GetComponentInChildren<MobileDpadController>(
+                true
+            );
+
+        _mobileDpadController?.RefreshForGravity(_gravDir);
+    }
+
     private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (pauseMenu == null)
             return;
         if (device is not Gamepad)
+            return;
+        if (IsOnScreenGamepad(device))
             return;
         if (change != InputDeviceChange.Disconnected && change != InputDeviceChange.Removed)
             return;
@@ -252,6 +269,20 @@ public partial class PlayGM : MonoBehaviour
             return;
 
         pauseMenu.Pause();
+    }
+
+    private static bool IsOnScreenGamepad(InputDevice device)
+    {
+        if (device == null)
+            return false;
+
+        foreach (var usage in device.usages)
+        {
+            if (string.Equals(usage.ToString(), "OnScreen", System.StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
     }
 
     private void HandleSteamOverlayActiveChanged(bool isActive)

@@ -83,6 +83,15 @@ public class LevelBrowser : MonoBehaviour
 
     public MyTessellationsFilter currMyTessellationsFilter = MyTessellationsFilter.Local;
 
+    private static bool ShouldHideMyTessellationsOnIOS()
+    {
+#if UNITY_IOS && !UNITY_EDITOR
+        return true;
+#else
+        return false;
+#endif
+    }
+
     void OnEnable()
     {
         MenuFocusUtility.ApplyHighlightedAsSelected(gameObject);
@@ -191,6 +200,16 @@ public class LevelBrowser : MonoBehaviour
         hasLocalLevels = LevelStorage.HasLocalLevels();
         InitializeMyTessellationsFilterState();
 
+        if (ShouldHideMyTessellationsOnIOS())
+        {
+            if (myLevelsTabToggle != null)
+                myLevelsTabToggle.gameObject.SetActive(false);
+            if (myTessellationsFilterRoot != null)
+                myTessellationsFilterRoot.SetActive(false);
+            if (currTab == LevelBrowserTab.MyLevels)
+                currTab = LevelBrowserTab.Official;
+        }
+
         if (StartupManager.DemoModeEnabled)
         {
             if (filterInput != null)
@@ -198,7 +217,9 @@ public class LevelBrowser : MonoBehaviour
             if (communityTabToggle != null)
                 communityTabToggle.gameObject.SetActive(false);
             if (myLevelsTabToggle != null)
-                myLevelsTabToggle.gameObject.SetActive(hasLocalLevels);
+                myLevelsTabToggle.gameObject.SetActive(
+                    hasLocalLevels && !ShouldHideMyTessellationsOnIOS()
+                );
         }
 
         UpdateMyTessellationsFilterVisibility();
@@ -323,6 +344,9 @@ public class LevelBrowser : MonoBehaviour
 
     void SwitchTab(LevelBrowserTab tab)
     {
+        if (tab == LevelBrowserTab.MyLevels && ShouldHideMyTessellationsOnIOS())
+            tab = LevelBrowserTab.Official;
+
         bool usesSupabase = tab == LevelBrowserTab.Community;
         if (supabase == null && usesSupabase)
         {
@@ -409,11 +433,22 @@ public class LevelBrowser : MonoBehaviour
         if (myTessellationsFilterRoot == null)
             return;
 
-        myTessellationsFilterRoot.SetActive(currTab == LevelBrowserTab.MyLevels);
+        myTessellationsFilterRoot.SetActive(
+            !ShouldHideMyTessellationsOnIOS() && currTab == LevelBrowserTab.MyLevels
+        );
     }
 
     private void RefreshMyTessellationsFilterOptions()
     {
+        if (ShouldHideMyTessellationsOnIOS())
+        {
+            if (myTessellationsLocalToggle != null)
+                myTessellationsLocalToggle.gameObject.SetActive(false);
+            if (myTessellationsPublishedToggle != null)
+                myTessellationsPublishedToggle.gameObject.SetActive(false);
+            return;
+        }
+
         if (myTessellationsLocalToggle != null)
             myTessellationsLocalToggle.gameObject.SetActive(hasLocalLevels);
 
