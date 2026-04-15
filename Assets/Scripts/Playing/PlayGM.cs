@@ -110,13 +110,17 @@ public partial class PlayGM : MonoBehaviour
     private void OnEnable()
     {
         InputSystem.onDeviceChange += HandleDeviceChange;
+#if !UNITY_IOS
         StartupManager.SteamOverlayActiveChanged += HandleSteamOverlayActiveChanged;
+#endif
     }
 
     private void OnDisable()
     {
         InputSystem.onDeviceChange -= HandleDeviceChange;
+#if !UNITY_IOS
         StartupManager.SteamOverlayActiveChanged -= HandleSteamOverlayActiveChanged;
+#endif
     }
 
     void Start()
@@ -285,6 +289,7 @@ public partial class PlayGM : MonoBehaviour
         return false;
     }
 
+#if !UNITY_IOS
     private void HandleSteamOverlayActiveChanged(bool isActive)
     {
         if (!isActive)
@@ -294,4 +299,5 @@ public partial class PlayGM : MonoBehaviour
 
         pauseMenu.Pause();
     }
+#endif
 }

@@ -180,19 +180,24 @@ public class MenuGM : MonoBehaviour
         }
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
-        // turn off create mode for demo
-        if (StartupManager.DemoModeEnabled)
+    }
+
+    void Start()
+    {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        InputManager.Instance.SetSceneInputs("MainMenu");
+
+        if (StartupManager.DemoModeEnabled && editButton != null)
         {
             editButton.gameObject.SetActive(false);
         }
 
-        // Disable some buttons for iOS
 #if UNITY_IOS
-        editButton.gameObject.SetActive(false);
-        // settingsButton.gameObject.SetActive(false);
-        // howToPlayButton.gameObject.SetActive(false);
-        // browseButton.gameObject.SetActive(false);
-        quitButton.gameObject.SetActive(false);
+        if (editButton != null)
+            editButton.gameObject.SetActive(false);
+        if (quitButton != null)
+            quitButton.gameObject.SetActive(false);
 #endif
 
         if (physicsProxy)
@@ -201,13 +206,6 @@ public class MenuGM : MonoBehaviour
         }
 
         OpenMainMenu();
-    }
-
-    void Start()
-    {
-        Time.timeScale = 1f;
-        AudioListener.pause = false;
-        InputManager.Instance.SetSceneInputs("MainMenu");
 
         if (showWelcomeOnFirstLaunch && StartupManager.DemoModeEnabled)
             StartCoroutine(ShowWelcomeNextFrame());

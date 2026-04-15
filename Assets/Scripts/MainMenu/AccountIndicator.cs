@@ -19,16 +19,20 @@ public class AccountIndicator : MonoBehaviour
     [SerializeField]
     private RawImage avatarImage;
 
+#if !UNITY_IOS
     [SerializeField]
     private float spinSpeed = 180f; // degrees per second
+#endif
 
     [SerializeField]
     private Vector2 avatarSize = new Vector2(64, 64);
 
     private bool steamInitialized;
     private bool isEditor => Application.isEditor;
+#if !UNITY_IOS
     private string ticketHex = "";
     private bool isLoading = true;
+#endif
     private bool lastAuthSucceeded;
     private bool isSubscribed;
 
