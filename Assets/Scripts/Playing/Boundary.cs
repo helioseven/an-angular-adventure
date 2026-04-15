@@ -45,7 +45,7 @@ public class Boundary : MonoBehaviour
         float maxX = 0f;
         float minY = 0f;
         float maxY = 0f;
-        bool hasTiles = false;
+
         foreach (Transform layer in _gmRef.tileMap.transform)
         {
             foreach (Transform tile in layer)
@@ -53,30 +53,61 @@ public class Boundary : MonoBehaviour
                 if (!TryGetTileBounds(tile, out Bounds bounds))
                     continue;
 
-                if (!hasTiles)
-                {
+                if (bounds.min.x < minX)
                     minX = bounds.min.x;
+                if (bounds.max.x > maxX)
                     maxX = bounds.max.x;
+                if (bounds.min.y < minY)
                     minY = bounds.min.y;
+                if (bounds.max.y > maxY)
                     maxY = bounds.max.y;
-                    hasTiles = true;
-                }
-                else
-                {
-                    if (bounds.min.x < minX)
-                        minX = bounds.min.x;
-                    if (bounds.max.x > maxX)
-                        maxX = bounds.max.x;
-                    if (bounds.min.y < minY)
-                        minY = bounds.min.y;
-                    if (bounds.max.y > maxY)
-                        maxY = bounds.max.y;
-                }
             }
         }
 
-        if (!hasTiles)
-            return;
+        foreach (Transform checkpoint in _gmRef.checkpointMap.transform)
+        {
+            CircleCollider2D c2d = checkpoint.GetComponent<CircleCollider2D>();
+            float radius = c2d != null ? c2d.radius : 1f;
+
+            if (checkpoint.position.x - radius < minX)
+                minX = checkpoint.position.x - radius;
+            if (checkpoint.position.x + radius > maxX)
+                maxX = checkpoint.position.x + radius;
+            if (checkpoint.position.y - radius < minY)
+                minY = checkpoint.position.y - radius;
+            if (checkpoint.position.y + radius > maxY)
+                maxY = checkpoint.position.y + radius;
+        }
+
+        foreach (Transform warp in _gmRef.warpMap.transform)
+        {
+            CircleCollider2D c2d = warp.GetComponent<CircleCollider2D>();
+            float radius = c2d != null ? c2d.radius : 1f;
+
+            if (warp.position.x - radius < minX)
+                minX = warp.position.x - radius;
+            if (warp.position.x + radius > maxX)
+                maxX = warp.position.x + radius;
+            if (warp.position.y - radius < minY)
+                minY = warp.position.y - radius;
+            if (warp.position.y + radius > maxY)
+                maxY = warp.position.y + radius;
+        }
+
+        foreach (Transform victory in _gmRef.victoryMap.transform)
+        {
+            CircleCollider2D c2d = victory.GetComponent<CircleCollider2D>();
+            float radius = c2d != null ? c2d.radius : 1f;
+
+            if (victory.position.x - radius < minX)
+                minX = victory.position.x - radius;
+            if (victory.position.x + radius > maxX)
+                maxX = victory.position.x + radius;
+            if (victory.position.y - radius < minY)
+                minY = victory.position.y - radius;
+            if (victory.position.y + radius > maxY)
+                maxY = victory.position.y + radius;
+        }
 
         float edge = isVertical ? (isPositive ? maxY : minY) : (isPositive ? maxX : minX);
         float centerX = (minX + maxX) * 0.5f;

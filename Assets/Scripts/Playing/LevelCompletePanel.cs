@@ -23,6 +23,26 @@ public class LevelCompletePanel : MonoBehaviour
 
     [SerializeField]
     private TMP_Text nextLevelLabel;
+
+    [SerializeField]
+    private BallSkinDatabase skinDB;
+
+    [Header("Skin Unlock UI")]
+    [SerializeField]
+    private GameObject unlockPopup;
+
+    [SerializeField]
+    private Image unlockSkinImage;
+
+    [SerializeField]
+    private TMP_Text unlockTitleText;
+
+    [SerializeField]
+    private TMP_Text unlockNameText;
+
+    [SerializeField]
+    private RectTransform unlockShineRect;
+
     private bool uploadComplete = false;
     private GameObject activeButtonContainer;
     private bool nextLevelRequested = false;
@@ -59,6 +79,8 @@ public class LevelCompletePanel : MonoBehaviour
 
         // set level name
         levelCompleteNameText.text = PlayGM.instance.levelName;
+
+        ConfigureUnlockPopup();
 
         gameObject.SetActive(true);
         StartCoroutine(EnableUIAfterFade());
@@ -130,6 +152,11 @@ public class LevelCompletePanel : MonoBehaviour
 
     void Update()
     {
+        if (unlockShineRect != null && unlockPopup != null && unlockPopup.activeSelf)
+        {
+            unlockShineRect.Rotate(Vector3.forward, -30f * Time.unscaledDeltaTime);
+        }
+
         if (uploadComplete)
         {
             // load editing scene
@@ -265,6 +292,50 @@ public class LevelCompletePanel : MonoBehaviour
         nextLevelLabel.text = demo ? "Next Level" : "Retry Level";
         nextLevelButton.onClick.RemoveAllListeners();
         nextLevelButton.onClick.AddListener(OnNextLevelButton);
+    }
+
+    private void ConfigureUnlockPopup()
+    {
+        if (unlockPopup == null)
+            return;
+
+        unlockPopup.SetActive(false);
+
+        BallSkinDatabase database = GetSkinDatabase();
+        if (database == null)
+            return;
+
+        if (!database.TryUnlockForBundledLevel(PlayGM.instance.levelInfo, out int unlockedIndex))
+            return;
+
+        Sprite unlockedSprite = database.GetSprite(unlockedIndex);
+        if (unlockedSprite == null)
+            return;
+
+        if (unlockSkinImage != null)
+        {
+            unlockSkinImage.sprite = unlockedSprite;
+            unlockSkinImage.preserveAspect = true;
+        }
+
+        if (unlockNameText != null)
+            unlockNameText.text = database.GetDisplayName(unlockedIndex);
+
+        if (unlockTitleText != null)
+            unlockTitleText.text = "New ball unlocked";
+
+        if (unlockShineRect != null)
+            unlockShineRect.localRotation = Quaternion.identity;
+
+        unlockPopup.SetActive(true);
+    }
+
+    private BallSkinDatabase GetSkinDatabase()
+    {
+        if (skinDB == null)
+            skinDB = Resources.Load<BallSkinDatabase>("BallSkins");
+
+        return skinDB;
     }
 
     private void ApplyButtonNavigation(GameObject container)
