@@ -180,14 +180,6 @@ public class MenuGM : MonoBehaviour
         }
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
-    }
-
-    void Start()
-    {
-        Time.timeScale = 1f;
-        AudioListener.pause = false;
-        InputManager.Instance.SetSceneInputs("MainMenu");
-
         if (StartupManager.DemoModeEnabled && editButton != null)
         {
             editButton.gameObject.SetActive(false);
@@ -206,6 +198,13 @@ public class MenuGM : MonoBehaviour
         }
 
         OpenMainMenu();
+    }
+
+    void Start()
+    {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        InputManager.Instance.SetSceneInputs("MainMenu");
 
         if (showWelcomeOnFirstLaunch && StartupManager.DemoModeEnabled)
             StartCoroutine(ShowWelcomeNextFrame());

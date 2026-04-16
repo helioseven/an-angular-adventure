@@ -4073,7 +4073,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 50}
-  m_SizeDelta: {x: 0, y: 100}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &387373299
 MonoBehaviour:
@@ -6408,6 +6408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AccountIndicator
   accountIndicatorText: {fileID: 5687890}
   avatarImage: {fileID: 1937077225}
+  spinSpeed: 180
   avatarSize: {x: 64, y: 64}
 --- !u!114 &723306087
 MonoBehaviour:
@@ -22671,7 +22672,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 40, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1937077225
@@ -23087,7 +23088,7 @@ MonoBehaviour:
   gravityScaleMultiplier: 0.25
   linearDampingMultiplier: 1
   startActive: 1
-  respawnArea: {fileID: 339975806}
+  respawnArea: {fileID: 387373298}
   respawnAtCenter: 1
   respawnX: 0
   respawnYOffset: 0
