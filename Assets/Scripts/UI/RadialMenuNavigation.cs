@@ -332,11 +332,13 @@ public class RadialMenuNavigation : MonoBehaviour
             Gizmos.color = isCenter ? new Color(1f, 0.5f, 0.1f, 1f) : Color.white;
             Gizmos.DrawLine(currentPos, selectable.transform.position);
 
+            #if UNITY_EDITOR
             if (drawHandleLabels)
             {
                 Handles.color = isCenter ? new Color(1f, 0.6f, 0.2f, 1f) : Color.white;
                 Handles.Label(selectable.transform.position, $"dot:{dot:F2} score:{score:F2}");
             }
+            #endif
 
             if (
                 gizmoBest == null
