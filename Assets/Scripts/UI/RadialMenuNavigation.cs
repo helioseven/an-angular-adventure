@@ -29,8 +29,10 @@ public class RadialMenuNavigation : MonoBehaviour
     [SerializeField]
     private bool drawGizmos = true;
 
+#if UNITY_EDITOR
     [SerializeField]
     private bool drawHandleLabels = false;
+#endif
 
     private InputAction _navigate;
     private bool _navHeld;
