@@ -29,6 +29,9 @@ public class RadialMenuNavigation : MonoBehaviour
     [SerializeField]
     private bool drawGizmos = true;
 
+    [SerializeField]
+    private bool drawHandleLabels = false;
+
     private InputAction _navigate;
     private bool _navHeld;
     private readonly List<Selectable> _selectables = new();
@@ -249,6 +252,11 @@ public class RadialMenuNavigation : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+#if UNITY_EDITOR
+        if (EditorApplication.isPlayingOrWillChangePlaymode)
+            return;
+#endif
+
         if (!drawGizmos)
             return;
         if (EventSystem.current == null)
@@ -275,14 +283,13 @@ public class RadialMenuNavigation : MonoBehaviour
         }
 
         Vector2 input = ReadNavigateInput();
-        if (input.sqrMagnitude < 0.001f)
+        if (input.sqrMagnitude < Deadzone * Deadzone)
             return;
 
         Gizmos.color = Color.cyan;
         Vector2 dir = input.normalized;
         Gizmos.DrawLine(currentPos, currentPos + dir * 120f);
 
-#if UNITY_EDITOR
         CacheSelectables();
         var center = ResolveCenterSelectable();
         bool centerSteal = false;
@@ -325,8 +332,11 @@ public class RadialMenuNavigation : MonoBehaviour
             Gizmos.color = isCenter ? new Color(1f, 0.5f, 0.1f, 1f) : Color.white;
             Gizmos.DrawLine(currentPos, selectable.transform.position);
 
-            Handles.color = isCenter ? new Color(1f, 0.6f, 0.2f, 1f) : Color.white;
-            Handles.Label(selectable.transform.position, $"dot:{dot:F2} score:{score:F2}");
+            if (drawHandleLabels)
+            {
+                Handles.color = isCenter ? new Color(1f, 0.6f, 0.2f, 1f) : Color.white;
+                Handles.Label(selectable.transform.position, $"dot:{dot:F2} score:{score:F2}");
+            }
 
             if (
                 gizmoBest == null
@@ -348,7 +358,5 @@ public class RadialMenuNavigation : MonoBehaviour
             Gizmos.color = new Color(0.2f, 1f, 0.2f, 1f);
             Gizmos.DrawWireSphere(gizmoBest.transform.position, 10f);
         }
-
-#endif
     }
 }
