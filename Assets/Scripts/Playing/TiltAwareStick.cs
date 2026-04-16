@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using circleXsquares;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Layouts;
@@ -19,6 +20,8 @@ public class TiltAwareStick : OnScreenControl
     private const string RightName = "Right";
     private const string TopName = "Top";
     private const string BottomName = "Bottom";
+    private const string TiltOnLabel = "Tilt Controls On";
+    private const string TiltOffLabel = "Tilt Controls Off";
 
     private static readonly MethodInfo DoStateTransitionMethod = typeof(Selectable).GetMethod(
         "DoStateTransition",
@@ -104,6 +107,7 @@ public class TiltAwareStick : OnScreenControl
     private Vector2 _smoothedTilt;
     private Vector2 _tiltCalibration;
     private bool _hasCalibration;
+    private TMP_Text _tiltToggleLabel;
 
     protected override string controlPathInternal
     {
@@ -118,6 +122,7 @@ public class TiltAwareStick : OnScreenControl
         base.OnEnable();
         _smoothedTilt = Vector2.zero;
         SyncTiltStateFromToggle();
+        UpdateTiltToggleLabel();
 
         if (tiltEnabled)
             TryEnableSensors();
@@ -146,10 +151,14 @@ public class TiltAwareStick : OnScreenControl
     public void SetTiltEnabled(bool enabled)
     {
         if (tiltEnabled == enabled)
+        {
+            UpdateTiltToggleLabel();
             return;
+        }
 
         tiltEnabled = enabled;
         _smoothedTilt = Vector2.zero;
+        UpdateTiltToggleLabel();
 
         if (tiltEnabled)
         {
@@ -168,6 +177,27 @@ public class TiltAwareStick : OnScreenControl
             return;
 
         tiltEnabled = tiltToggle.isOn;
+    }
+
+    private void UpdateTiltToggleLabel()
+    {
+        TMP_Text label = ResolveTiltToggleLabel();
+        if (label == null)
+            return;
+
+        label.text = tiltEnabled ? TiltOnLabel : TiltOffLabel;
+    }
+
+    private TMP_Text ResolveTiltToggleLabel()
+    {
+        if (_tiltToggleLabel != null)
+            return _tiltToggleLabel;
+
+        if (tiltToggle == null)
+            return null;
+
+        _tiltToggleLabel = tiltToggle.GetComponentInChildren<TMP_Text>(true);
+        return _tiltToggleLabel;
     }
 
     public void CalibrateTilt()
