@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: Tessel Devs
-  productName: Tessel Run
+  companyName: woodcraftsounds
+  productName: tesselrun
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
@@ -167,9 +167,9 @@ PlayerSettings:
   androidMinAspectRatio: 1
   applicationIdentifier:
     Android: com.Company.ProductName
-    Standalone: com.Tessel-Devs.Tessel-Run
+    Standalone: com.woodcraftsounds.tesselrun
     Tizen: com.Company.ProductName
-    iPhone: com.Tessel-Devs.Tessel-Run
+    iPhone: com.woodcraftsounds.tesselrun
     tvOS: com.Company.ProductName
   buildNumber:
     Standalone: 0
@@ -309,7 +309,8 @@ PlayerSettings:
   m_BuildTargetPlatformIcons:
   - m_BuildTarget: iPhone
     m_Icons:
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 180
       m_Height: 180
       m_Kind: 0
@@ -319,7 +320,8 @@ PlayerSettings:
       m_Height: 120
       m_Kind: 0
       m_SubKind: iPhone
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 167
       m_Height: 167
       m_Kind: 0
@@ -334,7 +336,8 @@ PlayerSettings:
       m_Height: 76
       m_Kind: 0
       m_SubKind: iPad
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 120
       m_Height: 120
       m_Kind: 3
@@ -344,7 +347,8 @@ PlayerSettings:
       m_Height: 80
       m_Kind: 3
       m_SubKind: iPhone
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 80
       m_Height: 80
       m_Kind: 3
@@ -354,7 +358,36 @@ PlayerSettings:
       m_Height: 40
       m_Kind: 3
       m_SubKind: iPad
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
+      m_Width: 1024
+      m_Height: 1024
+      m_Kind: 4
+      m_SubKind: App Store
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
+      m_Width: 60
+      m_Height: 60
+      m_Kind: 2
+      m_SubKind: iPhone
     - m_Textures: []
+      m_Width: 40
+      m_Height: 40
+      m_Kind: 2
+      m_SubKind: iPhone
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
+      m_Width: 40
+      m_Height: 40
+      m_Kind: 2
+      m_SubKind: iPad
+    - m_Textures: []
+      m_Width: 20
+      m_Height: 20
+      m_Kind: 2
+      m_SubKind: iPad
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 87
       m_Height: 87
       m_Kind: 1
@@ -369,7 +402,8 @@ PlayerSettings:
       m_Height: 29
       m_Kind: 1
       m_SubKind: iPhone
-    - m_Textures: []
+    - m_Textures:
+      - {fileID: 2800000, guid: e87824442c88f43f38b98f88b565c1d1, type: 3}
       m_Width: 58
       m_Height: 58
       m_Kind: 1
@@ -379,31 +413,6 @@ PlayerSettings:
       m_Height: 29
       m_Kind: 1
       m_SubKind: iPad
-    - m_Textures: []
-      m_Width: 60
-      m_Height: 60
-      m_Kind: 2
-      m_SubKind: iPhone
-    - m_Textures: []
-      m_Width: 40
-      m_Height: 40
-      m_Kind: 2
-      m_SubKind: iPhone
-    - m_Textures: []
-      m_Width: 40
-      m_Height: 40
-      m_Kind: 2
-      m_SubKind: iPad
-    - m_Textures: []
-      m_Width: 20
-      m_Height: 20
-      m_Kind: 2
-      m_SubKind: iPad
-    - m_Textures: []
-      m_Width: 1024
-      m_Height: 1024
-      m_Kind: 4
-      m_SubKind: App Store
   - m_BuildTarget: Android
     m_Icons:
     - m_Textures: []
@@ -577,6 +586,9 @@ PlayerSettings:
   - serializedVersion: 3
     m_BuildTarget: iOS
     m_Formats: 03000000
+  - serializedVersion: 3
+    m_BuildTarget: WebGL
+    m_Formats: 05000000
   playModeTestRunnerEnabled: 0
   runPlayModeTestAsEditModeTest: 0
   actionOnDotNetUnhandledException: 1

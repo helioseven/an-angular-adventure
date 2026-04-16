@@ -28,6 +28,15 @@ public class LevelListItemUI
     private bool _isNameHovering;
     private LevelInfo _info;
 
+    private static bool ShouldHideRemixButtonOnIOS(LevelInfo info)
+    {
+#if UNITY_IOS && !UNITY_EDITOR
+        return info != null && !info.isLocal;
+#else
+        return false;
+#endif
+    }
+
     public void Setup(
         LevelInfo info,
         System.Action onPlay,
@@ -75,14 +84,15 @@ public class LevelListItemUI
             playButton.onClick.AddListener(() => onPlay());
         }
 
+        bool showEditOrRemixButton = !StartupManager.DemoModeEnabled
+            && !ShouldHideRemixButtonOnIOS(info);
         if (editOrRemixButton != null)
         {
             editOrRemixButton.onClick.RemoveAllListeners();
-            editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
+            if (showEditOrRemixButton)
+                editOrRemixButton.onClick.AddListener(() => onEditOrRemix());
+            editOrRemixButton.gameObject.SetActive(showEditOrRemixButton);
         }
-
-        if (StartupManager.DemoModeEnabled && editOrRemixButton != null)
-            editOrRemixButton.gameObject.SetActive(false);
 
         // for the delete button level ownership check, we consider them the owner if
         // they uploaded it OR the level is local

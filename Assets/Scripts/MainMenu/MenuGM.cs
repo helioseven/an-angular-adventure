@@ -146,7 +146,6 @@ public class MenuGM : MonoBehaviour
         browseButton.onClick.AddListener(OpenLevelBrowser);
         quitButton.onClick.AddListener(Quit);
         settingsButton.onClick.AddListener(OpenSettingsMenu);
-        // howToPlay.onClick.AddListener(OpenAccountMenu);
         if (tutorialButton != null)
         {
             bool isModalButton =
@@ -181,19 +180,16 @@ public class MenuGM : MonoBehaviour
         }
         menuPanels = new GameObject[] { mainMenuPanel, browsePanel, settingsPanel, accountPanel };
 
-        // turn off create mode for demo
-        if (StartupManager.DemoModeEnabled)
+        if (StartupManager.DemoModeEnabled && editButton != null)
         {
             editButton.gameObject.SetActive(false);
         }
 
-        // Only keep Play button on iOS for now
 #if UNITY_IOS
-        editButton.gameObject.SetActive(false);
-        settingsButton.gameObject.SetActive(false);
-        howToPlay.gameObject.SetActive(false);
-        browseButton.gameObject.SetActive(false);
-        quitButton.gameObject.SetActive(false);
+        if (editButton != null)
+            editButton.gameObject.SetActive(false);
+        if (quitButton != null)
+            quitButton.gameObject.SetActive(false);
 #endif
 
         if (physicsProxy)

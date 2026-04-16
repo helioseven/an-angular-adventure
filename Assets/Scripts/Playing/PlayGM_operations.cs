@@ -43,6 +43,7 @@ public partial class PlayGM
         _gravDir = inDirect;
         soundManager.Play("gravity");
         player.UpdateJumpForceVector(inDirect);
+        RefreshMobileDpadControls();
     }
 
     // kills the player
@@ -136,6 +137,7 @@ public partial class PlayGM
             ToastManager.Instance?.ShowToast("New best time!");
         }
         StartCoroutine(VictoryHoldRoutine(inVictory));
+        SetMobileControlsVisible(false);
         // Open the victory panel
         levelCompletePanel.GetComponent<LevelCompletePanel>().Show();
 

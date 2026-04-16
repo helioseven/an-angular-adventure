@@ -87,6 +87,7 @@ public partial class PlayGM : MonoBehaviour
     // for swapping mobile controls on and off
     [SerializeField]
     private GameObject mobileControlsLayer;
+    private MobileDpadController _mobileDpadController;
     private GravityDirection _gravDir;
 
     void Awake()
@@ -104,24 +105,22 @@ public partial class PlayGM : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // turn off mobile controls on non mobile
-#if !UNITY_IOS
-        if (mobileControlsLayer != null)
-            mobileControlsLayer.SetActive(false);
-#endif
     }
 
     private void OnEnable()
     {
         InputSystem.onDeviceChange += HandleDeviceChange;
+#if !UNITY_IOS
         StartupManager.SteamOverlayActiveChanged += HandleSteamOverlayActiveChanged;
+#endif
     }
 
     private void OnDisable()
     {
         InputSystem.onDeviceChange -= HandleDeviceChange;
+#if !UNITY_IOS
         StartupManager.SteamOverlayActiveChanged -= HandleSteamOverlayActiveChanged;
+#endif
     }
 
     void Start()
@@ -129,6 +128,7 @@ public partial class PlayGM : MonoBehaviour
         Time.timeScale = 1f;
         AudioListener.pause = false;
         InputManager.Instance.SetSceneInputs("Playing");
+        SetMobileControlsVisibleAtLevelStart();
 
         Debug.Log("[PlayGM] Start: " + levelLoader.levelName);
         levelName = levelLoader.levelName;
@@ -152,6 +152,7 @@ public partial class PlayGM : MonoBehaviour
         _gravDir = GravityDirection.Down;
         Physics2D.gravity = new Vector2(0.0f, -9.81f);
         player.UpdateJumpForceVector(GravityDirection.Down);
+        RefreshMobileDpadControls();
 
         Boundary[] bs = { boundaryDown, boundaryLeft, boundaryRight, boundaryUp };
         foreach (Boundary b in bs)
@@ -230,11 +231,41 @@ public partial class PlayGM : MonoBehaviour
         }
     }
 
+    private void SetMobileControlsVisibleAtLevelStart()
+    {
+#if UNITY_IOS
+        SetMobileControlsVisible(true);
+#else
+        SetMobileControlsVisible(false);
+#endif
+    }
+
+    public void SetMobileControlsVisible(bool visible)
+    {
+        if (mobileControlsLayer != null)
+            mobileControlsLayer.SetActive(visible);
+    }
+
+    private void RefreshMobileDpadControls()
+    {
+        if (mobileControlsLayer == null)
+            return;
+
+        if (_mobileDpadController == null)
+            _mobileDpadController = mobileControlsLayer.GetComponentInChildren<MobileDpadController>(
+                true
+            );
+
+        _mobileDpadController?.RefreshForGravity(_gravDir);
+    }
+
     private void HandleDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (pauseMenu == null)
             return;
         if (device is not Gamepad)
+            return;
+        if (IsOnScreenGamepad(device))
             return;
         if (change != InputDeviceChange.Disconnected && change != InputDeviceChange.Removed)
             return;
@@ -244,6 +275,21 @@ public partial class PlayGM : MonoBehaviour
         pauseMenu.Pause();
     }
 
+    private static bool IsOnScreenGamepad(InputDevice device)
+    {
+        if (device == null)
+            return false;
+
+        foreach (var usage in device.usages)
+        {
+            if (string.Equals(usage.ToString(), "OnScreen", System.StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+#if !UNITY_IOS
     private void HandleSteamOverlayActiveChanged(bool isActive)
     {
         if (!isActive)
@@ -253,4 +299,5 @@ public partial class PlayGM : MonoBehaviour
 
         pauseMenu.Pause();
     }
+#endif
 }

@@ -10,7 +10,9 @@ using Steamworks;
 public class StartupManager : MonoBehaviour
 {
     public const string WelcomeSeenKey = "MainMenuWelcomeSeen";
+#if !UNITY_IOS
     public static event Action<bool> SteamOverlayActiveChanged;
+#endif
 
     [Header("Demo Mode")]
     [SerializeField]
